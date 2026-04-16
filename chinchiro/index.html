@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>チンチロ・ビールチャレンジ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: sans-serif; text-align: center; background-color: #fce4ec; padding: 20px; }
+        .container { max-width: 400px; margin: 0 auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        
+        /* サイコロのエリア */
+        .dice-area { font-size: 80px; margin: 20px 0; display: flex; justify-content: center; gap: 20px; }
+        .dice { transition: transform 0.1s; }
+
+        /* メッセージ */
+        .message { font-size: 20px; font-weight: bold; min-height: 60px; color: #333; margin-bottom: 20px; }
+
+        /* ボタン */
+        button { 
+            font-size: 24px; padding: 15px 40px; cursor: pointer;
+            border: none; border-radius: 50px; background-color: #d32f2f; color: white;
+            box-shadow: 0 4px 0 #b71c1c;
+        }
+        button:active { transform: translateY(4px); box-shadow: none; }
+        button:disabled { background-color: #ccc; box-shadow: none; }
+
+        /* クーポン */
+        #coupon {
+            display: none; margin-top: 20px; padding: 20px; border: 4px double #ff5722;
+            background-color: #fff8f1; border-radius: 10px; animation: bounce 0.5s infinite alternate;
+        }
+        @keyframes bounce { from { transform: scale(1); } to { transform: scale(1.05); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 style="color: #d32f2f;">🎲 チンチロ 🎲</h2>
+    <p>ぞろ目が出たら「生ビール」無料！</p>
+
+    <div class="dice-area">
+        <div id="dice1" class="dice">🎲</div>
+        <div id="dice2" class="dice">🎲</div>
+    </div>
+
+    <div class="message" id="msg">運試しだ！</div>
+
+    <button id="rollBtn" onclick="startRoll()">サイコロを振る！</button>
+
+    <div id="coupon">
+        <h2 style="color: #ff5722;">🍺 おめでとう！ 🍺</h2>
+        <p style="font-size: 22px; font-weight: bold;">生ビール1杯サービス</p>
+        <p>店員さんにこの画面を見せてね！</p>
+        <button onclick="location.reload()" style="font-size: 16px; background: #757575; box-shadow: 0 4px 0 #444;">もう一度</button>
+    </div>
+</div>
+
+<script>
+    const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+    let timer;
+
+    function startRoll() {
+        const btn = document.getElementById('rollBtn');
+        const msg = document.getElementById('msg');
+        const coupon = document.getElementById('coupon');
+        
+        btn.disabled = true; // 連打防止
+        msg.innerText = "くるくる……";
+        msg.style.color = "#333";
+
+        // くるくる回る演出（0.1秒ごとに目を変える）
+        let count = 0;
+        timer = setInterval(() => {
+            document.getElementById('dice1').innerText = diceFaces[Math.floor(Math.random() * 6)];
+            document.getElementById('dice2').innerText = diceFaces[Math.floor(Math.random() * 6)];
+            count++;
+            
+            // 10回（1秒）回ったら停止
+            if (count > 10) {
+                stopRoll();
+            }
+        }, 100);
+    }
+
+    function stopRoll() {
+        clearInterval(timer);
+        const d1 = document.getElementById('dice1').innerText;
+        const d2 = document.getElementById('dice2').innerText;
+        const msg = document.getElementById('msg');
+        const btn = document.getElementById('rollBtn');
+        const coupon = document.getElementById('coupon');
+
+        if (d1 === d2) {
+            msg.innerText = "ぞろ目！！やったね！";
+            msg.style.color = "#ff5722";
+            btn.style.display = "none";
+            coupon.style.display = "block";
+        } else {
+            msg.innerText = "残念！ハズレ…";
+            btn.disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>

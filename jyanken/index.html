@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>3連勝で生ビール！じゃんけんチャレンジ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; text-align: center; background-color: #f8f9fa; padding: 20px; }
+        .container { max-width: 400px; margin: 0 auto; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        
+        /* 連勝表示エリア */
+        .status-box { background: #fff3e0; padding: 15px; border-radius: 15px; margin-bottom: 20px; }
+        .count { font-size: 48px; font-weight: bold; color: #ff9800; line-height: 1; }
+        
+        /* メッセージエリア */
+        .message-area { min-height: 120px; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 20px; border: 1px solid #eee; border-radius: 10px; padding: 10px; }
+
+        /* ボタン */
+        .btn-group { display: flex; justify-content: center; gap: 10px; }
+        button { 
+            font-size: 30px; width: 80px; height: 80px; cursor: pointer;
+            border: none; border-radius: 50%; background-color: #00B900; color: white;
+            box-shadow: 0 4px 0 #008800; transition: 0.1s;
+        }
+        button:active { transform: translateY(4px); box-shadow: none; }
+        button:disabled { background-color: #ccc; box-shadow: none; cursor: not-allowed; }
+
+        /* クーポン表示 */
+        #coupon {
+            display: none; margin-top: 20px; padding: 20px; border: 3px dashed #ff5722;
+            background-color: #fff5f2; border-radius: 10px; animation: flash 1s infinite;
+        }
+        @keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🍺 ビール争奪戦 🍺</h2>
+    <p>3回連続で勝てば1杯無料！</p>
+
+    <div class="status-box">
+        <div>現在の連勝数</div>
+        <div class="count" id="combo">0</div>
+    </div>
+
+    <div class="message-area" id="display">
+        下のボタンを押して勝負開始！
+    </div>
+
+    <div class="btn-group" id="controls">
+        <button onclick="play('グー')">✊</button>
+        <button onclick="play('チョキ')">✌️</button>
+        <button onclick="play('パー')">✋</button>
+    </div>
+
+    <div id="coupon">
+        <h3 style="color: #ff5722; margin: 0;">🎊 おめでとう！ 🎊</h3>
+        <p style="font-size: 20px; font-weight: bold; margin: 10px 0;">生ビール1杯無料券</p>
+        <p style="font-size: 12px;">店員さんにこの画面を見せてね！</p>
+        <button onclick="location.reload()" style="font-size: 14px; width: auto; height: auto; padding: 5px 15px; border-radius: 5px;">もう一度挑戦</button>
+    </div>
+</div>
+
+<script>
+    let currentCombo = 0;
+
+    function play(userHand) {
+        const hands = ['グー', 'チョキ', 'パー'];
+        const computerHand = hands[Math.floor(Math.random() * hands.length)];
+        const display = document.getElementById('display');
+        const comboText = document.getElementById('combo');
+        const coupon = document.getElementById('coupon');
+        const controls = document.getElementById('controls');
+        
+        let isWin = false;
+        let isDraw = false;
+
+        // 勝敗判定
+        if (userHand === computerHand) {
+            isDraw = true;
+        } else if (
+            (userHand === "グー" && computerHand === "チョキ") ||
+            (userHand === "チョキ" && computerHand === "パー") ||
+            (userHand === "パー" && computerHand === "グー")
+        ) {
+            isWin = true;
+        }
+
+        // 判定後の処理
+        if (isWin) {
+            currentCombo++;
+            display.innerHTML = `勝ち！✨<br>相手は「${computerHand}」<br>あと${3 - currentCombo}回！`;
+            display.style.color = "#2e7d32";
+        } else if (isDraw) {
+            display.innerHTML = `あいこ！<br>相手も「${computerHand}」<br>連勝キープ！`;
+            display.style.color = "#ffa000";
+        } else {
+            currentCombo = 0;
+            display.innerHTML = `負け...<br>相手は「${computerHand}」<br>最初からやり直し！`;
+            display.style.color = "#c62828";
+        }
+
+        // 連勝表示の更新
+        comboText.innerText = currentCombo;
+
+        // 3連勝達成時の処理
+        if (currentCombo === 3) {
+            display.style.display = "none"; // メッセージを隠す
+            controls.style.display = "none"; // ボタンを隠す
+            coupon.style.display = "block";  // クーポンを出す
+        }
+    }
+</script>
+
+</body>
+</html>

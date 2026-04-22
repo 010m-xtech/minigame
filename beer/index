@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>夏のビール泡採点</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        background-color: #8b4513;
+        background-image:
+          linear-gradient(
+            45deg,
+            #a0522d 25%,
+            transparent 25%,
+            transparent 75%,
+            #a0522d 75%,
+            #a0522d
+          ),
+          linear-gradient(
+            45deg,
+            #a0522d 25%,
+            transparent 25%,
+            transparent 75%,
+            #a0522d 75%,
+            #a0522d
+          );
+        background-size: 40px 40px;
+        background-position:
+          0 0,
+          20px 20px;
+        font-family: "Hiragino Kaku Gothic ProN", sans-serif;
+        color: white;
+        user-select: none;
+      }
+      #game-ui {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+      #score-board {
+        text-align: left;
+        font-size: 24px;
+        text-shadow: 2px 2px 4px black;
+      }
+      #message-area {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        pointer-events: auto;
+      }
+      #message-title {
+        font-size: 48px;
+        margin-bottom: 20px;
+        font-weight: bold;
+        text-shadow: 3px 3px 0px #000;
+      }
+      #message-instruction {
+        font-size: 20px;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 15px;
+        border-radius: 10px;
+        display: inline-block;
+      }
+      #feedback-toast {
+        position: absolute;
+        top: 30%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 40px;
+        font-weight: bold;
+        color: #ffd700;
+        text-shadow: 0 0 10px black;
+        opacity: 0;
+        transition: opacity 0.5s;
+      }
+      canvas {
+        display: block;
+        cursor: crosshair;
+      }
+      .hidden {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game-ui">
+      <div id="score-board">
+        <div>スコア: <span id="score">0</span></div>
+        <div>最高記録: <span id="best-score">0</span></div>
+      </div>
+      <div id="feedback-toast">最高！</div>
+    </div>
+
+    <div id="message-area">
+      <h1 id="message-title">ビール泡採点ゲーム</h1>
+      <div id="message-instruction">
+        マウス左ボタンを押して泡を広げ、<br />
+        期待される大きさ（点線）に合わせて手を離してください。<br />
+        <br />
+        [クリックしてスタート]
+      </div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+      const canvas = document.getElementById("gameCanvas");
+      const ctx = canvas.getContext("2d");
+      const scoreEl = document.getElementById("score");
+      const bestScoreEl = document.getElementById("best-score");
+      const messageArea = document.getElementById("message-area");
+      const messageTitle = document.getElementById("message-title");
+      const messageInstruction = document.getElementById("message-instruction");
+      const feedbackToast = document.getElementById("feedback-toast");
+
+      window.projectId = "beer_foam_ring";
+      const STORAGE_KEY = "game_" + window.projectId;
+
+      let width, height;
+      let score = 0;
+      let bestScore = 0;
+      let gameState = "START";
+      let currentRing = { x: 0, y: 0, radius: 0 };
+      let targetRing = { x: 0, y: 0, radius: 0 };
+      let isGrowing = false;
+      let animationId;
+
+      function init() {
+        loadBestScore();
+        resize();
+        window.addEventListener("resize", resize);
+        canvas.addEventListener("mousedown", onMouseDown);
+        canvas.addEventListener("mouseup", onMouseUp);
+        window.addEventListener("keydown", (e) => {
+          if (e.code === "Space" && gameState === "START") {
+            startGame();
+          }
+        });
+        messageArea.addEventListener("click", () => {
+          if (gameState === "START") {
+            startGame();
+          } else if (gameState === "GAMEOVER") {
+            startGame();
+          }
+        });
+        console.log("Game initialized");
+      }
+
+      function resize() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+        if (gameState === "PLAYING") {
+          draw();
+        }
+      }
+
+      function loadBestScore() {
+        try {
+          const data = localStorage.getItem(STORAGE_KEY);
+          if (data) {
+            bestScore = parseInt(data, 10);
+            bestScoreEl.textContent = bestScore;
+            console.log("Loaded best score:", bestScore);
+          }
+        } catch (e) {
+          console.error("Failed to load from localStorage", e);
+        }
+      }
+
+      function saveBestScore() {
+        try {
+          localStorage.setItem(STORAGE_KEY, bestScore.toString());
+          console.log("Saved best score:", bestScore);
+        } catch (e) {
+          console.error("Failed to save to localStorage", e);
+        }
+      }
+
+      function startGame() {
+        score = 0;
+        scoreEl.textContent = score;
+        gameState = "PLAYING";
+        messageArea.classList.add("hidden");
+        feedbackToast.style.opacity = 0;
+        spawnRings();
+        loop();
+      }
+
+      function spawnRings() {
+        const padding = 100;
+        const maxRadius = Math.min(width, height) / 3;
+
+        targetRing = {
+          x: padding + Math.random() * (width - padding * 2),
+          y: padding + Math.random() * (height - padding * 2),
+          radius: 50 + Math.random() * (maxRadius - 50),
+        };
+
+        currentRing = {
+          x: targetRing.x,
+          y: targetRing.y,
+          radius: 0,
+        };
+
+        isGrowing = false;
+        console.log("New target ring spawned:", targetRing);
+      }
+
+      function onMouseDown(e) {
+        if (gameState !== "PLAYING") return;
+
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        const dist = Math.hypot(x - targetRing.x, y - targetRing.y);
+
+        if (dist < 30) {
+          isGrowing = true;
+          currentRing.radius = 0;
+        }
+      }
+
+      function onMouseUp(e) {
+        if (gameState !== "PLAYING" || !isGrowing) return;
+
+        isGrowing = false;
+        calculateScore();
+      }
+
+      function calculateScore() {
+        const diff = Math.abs(currentRing.radius - targetRing.radius);
+        const tolerance = 10;
+        let points = 0;
+        let feedbackText = "";
+        let color = "";
+
+        if (diff <= tolerance) {
+          points = 100;
+          feedbackText = "完璧！最高！";
+          color = "#FFD700";
+        } else if (diff <= tolerance * 3) {
+          points = 50;
+          feedbackText = "なかなか良い！";
+          color = "#FFFFFF";
+        } else {
+          points = 0;
+          feedbackText = "残念...";
+          color = "#CCCCCC";
+        }
+
+        score += points;
+        scoreEl.textContent = score;
+
+        if (score > bestScore) {
+          bestScore = score;
+          bestScoreEl.textContent = bestScore;
+          saveBestScore();
+        }
+
+        showFeedback(feedbackText, color);
+        console.log(
+          `Round finished. Diff: ${diff.toFixed(1)}, Points: ${points}`,
+        );
+
+        if (score >= 1000) {
+          gameWin();
+        } else {
+          setTimeout(spawnRings, 800);
+        }
+      }
+
+      function showFeedback(text, color) {
+        feedbackToast.textContent = text;
+        feedbackToast.style.color = color;
+        feedbackToast.style.opacity = 1;
+        setTimeout(() => {
+          feedbackToast.style.opacity = 0;
+        }, 1000);
+      }
+
+      function gameWin() {
+        gameState = "GAMEOVER";
+        // Stop any pending animation frame
+        if (animationId) cancelAnimationFrame(animationId);
+        messageTitle.textContent = "クリア！素晴らしい乾杯！";
+        messageInstruction.innerHTML = `スコア: ${score}<br>[クリックでもう一度遊ぶ]`;
+        messageArea.classList.remove("hidden");
+      }
+
+      function update() {
+        if (gameState !== "PLAYING") return;
+
+        if (isGrowing) {
+          currentRing.radius += 4;
+        }
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, width, height);
+
+        if (gameState === "PLAYING" || gameState === "GAMEOVER") {
+          ctx.lineWidth = 5;
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+          if (ctx.setLineDash) ctx.setLineDash([10, 10]);
+          ctx.beginPath();
+          ctx.arc(
+            targetRing.x,
+            targetRing.y,
+            targetRing.radius,
+            0,
+            Math.PI * 2,
+          );
+          ctx.stroke();
+          if (ctx.setLineDash) ctx.setLineDash([]);
+
+          if (currentRing.radius > 0) {
+            ctx.beginPath();
+            ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+            ctx.arc(
+              currentRing.x,
+              currentRing.y,
+              Math.max(0, currentRing.radius),
+              0,
+              Math.PI * 2,
+            );
+            ctx.fill();
+
+            ctx.strokeStyle = "rgba(255, 255, 255, 1.0)";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          }
+
+          if (!isGrowing && currentRing.radius === 0) {
+            ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+            ctx.beginPath();
+            ctx.arc(targetRing.x, targetRing.y, 10, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+
+      function loop() {
+        if (gameState !== "PLAYING") return;
+        update();
+        draw();
+        animationId = requestAnimationFrame(loop);
+      }
+
+      init();
+    </script>
+  </body>
+</html>

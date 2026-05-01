@@ -1,0 +1,772 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>溢れ出す！福引きサーバー</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        touch-action: none;
+        pointer-events: auto;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+        background: linear-gradient(135deg, #4b2c1e, #8b5a2b);
+      }
+      #game-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        overflow: hidden;
+      }
+      #ui-layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      #instructions {
+        margin-top: 20px;
+        color: #fff;
+        text-align: center;
+        font-size: 2rem;
+        font-weight: bold;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        background: rgba(0, 0, 0, 0.3);
+        padding: 10px 20px;
+        border-radius: 20px;
+        opacity: 1;
+        transition: opacity 0.3s;
+        white-space: nowrap;
+      }
+      #result-message {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 4.5rem;
+        font-weight: 900;
+        color: #ffd700;
+        text-shadow:
+          0 0 20px #fff,
+          0 0 30px #ff8c00,
+          4px 4px 0px #000;
+        text-align: center;
+        opacity: 0;
+        pointer-events: none;
+        transition:
+          opacity 0.5s,
+          transform 0.5s;
+        width: 90%;
+        line-height: 1.2;
+        white-space: pre-line;
+        z-index: 30;
+      }
+      #action-text {
+        position: absolute;
+        top: 40%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 4rem;
+        font-weight: bold;
+        color: #fff;
+        opacity: 0;
+        pointer-events: none;
+        text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+      }
+      .shake {
+        animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+      }
+      @keyframes shake {
+        10%,
+        90% {
+          transform: translate3d(-4px, 0, 0);
+        }
+        20%,
+        80% {
+          transform: translate3d(6px, 0, 0);
+        }
+        30%,
+        50%,
+        70% {
+          transform: translate3d(-8px, 0, 0);
+        }
+        40%,
+        60% {
+          transform: translate3d(8px, 0, 0);
+        }
+      }
+      #tap-assembly {
+        position: absolute;
+        top: 10%;
+        left: 50%;
+        transform: translateX(150px);
+        z-index: 5;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        pointer-events: auto;
+      }
+      #tap-body {
+        width: 160px;
+        height: 110px;
+        background: linear-gradient(to right, #555, #eee, #999, #fff, #999);
+        border-radius: 10px;
+        position: relative;
+        border: 1px solid #444;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6);
+      }
+      #spout {
+        position: absolute;
+        width: 60px;
+        height: 25px;
+        background: linear-gradient(to bottom, #888, #eee);
+        left: -45px;
+        top: 40px;
+        border-radius: 5px;
+        transform: rotate(-15deg);
+        border: 1px solid #666;
+      }
+      #spout-tip {
+        position: absolute;
+        right: -8px;
+        top: -2px;
+        width: 15px;
+        height: 30px;
+        background: #666;
+        border-radius: 2px;
+      }
+      #handle-base {
+        position: absolute;
+        right: -18px;
+        top: 28px;
+        width: 30px;
+        height: 55px;
+        background: #444;
+        border-radius: 5px;
+      }
+      #handle-group {
+        position: absolute;
+        right: -55px;
+        top: 28px;
+        width: 140px;
+        height: 30px;
+        transform-origin: 60px 15px;
+        transition: transform 0.1s;
+        cursor: pointer;
+        pointer-events: auto;
+      }
+      #handle-rod {
+        width: 110px;
+        height: 25px;
+        background: linear-gradient(to bottom, #ccc, #fff, #999);
+        border-radius: 8px;
+        position: absolute;
+        left: 0;
+        top: 2px;
+      }
+      #handle-knob {
+        width: 60px;
+        height: 60px;
+        background: radial-gradient(circle at 30% 30%, #ffffff, #c0c0c0, #808080);
+        border-radius: 50%;
+        position: absolute;
+        right: -5px;
+        top: -18px;
+        box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.6);
+        border: 1px solid #666;
+      }
+      .pulled {
+        transform: rotate(45deg);
+      }
+      #game-canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1;
+      }
+      #mug-indicator {
+        position: absolute;
+        top: 12%;
+        left: 50%;
+        transform: translateX(40px);
+        display: none;
+        background: #ffeb3b;
+        color: #d32f2f;
+        padding: 15px 25px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 1.8rem;
+        z-index: 20;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        animation: bounce 1.5s infinite;
+        text-align: center;
+        line-height: 1.3;
+        white-space: nowrap;
+      }
+      #mug-indicator::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 100%;
+        transform: translateY(-50%);
+        border-left: 15px solid #ffeb3b;
+        border-top: 10px solid transparent;
+        border-bottom: 10px solid transparent;
+      }
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateX(20px) translateY(0) scale(1);
+        }
+        50% {
+          transform: translateX(20px) translateY(-8px) scale(1.05);
+        }
+      }
+      #beer-mug-container {
+        position: absolute;
+        top: 35%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 340px;
+        height: 400px;
+        z-index: 5;
+        pointer-events: none;
+      }
+      #beer-mug-handle {
+        position: absolute;
+        right: -70px;
+        top: 40px;
+        width: 70px;
+        height: 190px;
+        border: 30px solid rgba(255, 255, 255, 0.5);
+        border-left: none;
+        border-radius: 20px 50px 50px 20px;
+        box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+        z-index: -1;
+      }
+      #beer-mug {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        background: linear-gradient(
+          to right,
+          rgba(255, 255, 255, 0.4),
+          rgba(255, 255, 255, 0.1),
+          rgba(255, 255, 255, 0.4)
+        );
+        border: 10px solid rgba(255, 255, 255, 0.9);
+        border-top: none;
+        border-radius: 0 0 50px 50px;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      }
+      #mug-liquid {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 0%;
+        background: linear-gradient(0deg, #cfaa3b 0%, #ffcc00 40%, #ffffff 100%);
+        transition: height 0.1s linear;
+        opacity: 0.9;
+      }
+      .game-btn-group {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        align-items: center;
+        pointer-events: auto;
+      }
+      #start-overlay {
+        top: 85%;
+      }
+      #end-overlay {
+        top: 85%;
+      }
+      .game-btn {
+        background: linear-gradient(180deg, #ffeb3b 0%, #fbc02d 100%);
+        border: 4px solid #fff;
+        box-shadow:
+          0 6px 0 #f57f17,
+          0 10px 10px rgba(0, 0, 0, 0.5);
+        color: #d32f2f;
+        font-size: 2rem;
+        font-weight: bold;
+        padding: 20px 40px;
+        border-radius: 16px;
+        cursor: pointer;
+        transition:
+          transform 0.1s,
+          box-shadow 0.1s;
+        text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
+        white-space: nowrap;
+      }
+      .game-btn:active {
+        transform: translateY(6px);
+        box-shadow:
+          0 0 0 #f57f17,
+          inset 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+      .game-btn:active::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+      }
+      .game-btn.secondary {
+        background: #444;
+        color: #fff;
+        border-color: #888;
+        box-shadow:
+          0 6px 0 #222,
+          0 10px 10px rgba(0, 0, 0, 0.5);
+      }
+      @media (max-width: 400px) {
+        #tap-assembly {
+          transform: translateX(80px) scale(0.9);
+        }
+        #mug-indicator {
+          font-size: 1.4rem;
+          padding: 8px 12px;
+          transform: translateX(-20px);
+        }
+        #mug-indicator::after {
+          border-left: 8px solid #ffeb3b;
+          border-top: 6px solid transparent;
+          border-bottom: 6px solid transparent;
+        }
+        .game-btn {
+          font-size: 1.6rem;
+          padding: 15px 30px;
+        }
+        #start-overlay,
+        #end-overlay {
+          top: 90%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game-container">
+      <canvas id="game-canvas"></canvas>
+
+      <div id="mug-indicator">このレバーを<br />引いて！</div>
+
+      <div id="beer-mug-container">
+        <div id="beer-mug-handle"></div>
+        <div id="beer-mug">
+          <div id="mug-liquid"></div>
+        </div>
+      </div>
+
+      <div id="ui-layer">
+        <div id="instructions" style="display: none">
+          レバーを引いて運試し！生ビール無料チャンス
+        </div>
+        <div id="result-message"></div>
+        <div id="action-text"></div>
+
+        <div id="start-overlay" class="game-btn-group" style="display: flex">
+          <button id="start-btn" class="game-btn">ビールを注ぐ！</button>
+        </div>
+        <div id="end-overlay" class="game-btn-group" style="display: none">
+          <button id="end-btn" class="game-btn secondary">飲み会に戻る</button>
+        </div>
+      </div>
+
+      <div id="tap-assembly">
+        <div id="tap-body">
+          <div id="spout">
+            <div id="spout-tip"></div>
+          </div>
+          <div id="handle-base"></div>
+          <div id="handle-group">
+            <div id="handle-rod"></div>
+            <div id="handle-knob"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        const canvas = document.getElementById("game-canvas");
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          console.error("Canvas 2D context not available.");
+          return;
+        }
+        const lever = document.getElementById("handle-group");
+        const resultMsg = document.getElementById("result-message");
+        const actionText = document.getElementById("action-text");
+        const instructions = document.getElementById("instructions");
+        const container = document.getElementById("game-container");
+        const indicator = document.getElementById("mug-indicator");
+        const mugLiquid = document.getElementById("mug-liquid");
+        const startBtn = document.getElementById("start-btn");
+        const endBtn = document.getElementById("end-btn");
+        const startOverlay = document.getElementById("start-overlay");
+        const endOverlay = document.getElementById("end-overlay");
+
+        let width, height;
+        let particles = [];
+        let gameState = "IDLE";
+        let winRate = 0.15;
+        let projectId = window.projectId || "default";
+        let storageKey = "game_" + projectId;
+
+        function resize() {
+          width = window.innerWidth;
+          height = window.innerHeight;
+          canvas.width = width;
+          canvas.height = height;
+        }
+        window.addEventListener("resize", resize);
+        resize();
+
+        function saveData(type) {
+          try {
+            let data = JSON.parse(localStorage.getItem(storageKey) || '{"plays":0,"wins":0}');
+            data.plays++;
+            if (type === "win") data.wins++;
+            localStorage.setItem(storageKey, JSON.stringify(data));
+            console.log("Stats:", data);
+          } catch (e) {
+            console.warn("localStorage unavailable, stats not persisted.", e);
+          }
+        }
+
+        class Particle {
+          constructor(x, y, type) {
+            this.x = x;
+            this.y = y;
+            this.type = type;
+            this.life = 1.0;
+
+            if (type === "beer") {
+              this.vx = (Math.random() - 0.5) * 4;
+              this.vy = Math.random() * 2 + 2;
+              this.color = "#FFA500";
+              this.size = Math.random() * 8 + 8;
+              this.gravity = 0.5;
+              this.decay = 0.01;
+            } else if (type === "foam") {
+              this.vx = (Math.random() - 0.5) * 4;
+              this.vy = -(Math.random() * 4 + 2);
+              this.color = "rgba(255, 255, 255, 0.8)";
+              this.size = Math.random() * 15 + 20;
+              this.gravity = -0.1;
+              this.decay = 0.008;
+            } else if (type === "coin") {
+              const angle = Math.random() * Math.PI * 2;
+              const speed = Math.random() * 12 + 8;
+              this.vx = Math.cos(angle) * speed;
+              this.vy = Math.random() * 12 + 8;
+              this.color = "#FFD700";
+              this.size = 20;
+              this.gravity = 0.5;
+              this.decay = 0.002;
+              this.rotation = Math.random() * Math.PI;
+            } else if (type === "ticket") {
+              const angle = Math.random() * Math.PI * 2;
+              const speed = Math.random() * 10 + 6;
+              this.vx = Math.cos(angle) * speed;
+              this.vy = Math.random() * 10 + 6;
+              this.w = 45;
+              this.h = 60;
+              this.rotation = 0;
+              this.gravity = 0.4;
+              this.decay = 0.002;
+            } else if (type === "confetti") {
+              const colors = ["#FF5252", "#FFEB3B", "#4CAF50", "#2196F3", "#E040FB", "#FF9800"];
+              this.color = colors[Math.floor(Math.random() * colors.length)];
+              this.vx = (Math.random() - 0.5) * 12;
+              this.vy = Math.random() * -12 - 5;
+              this.w = 10;
+              this.h = 15;
+              this.gravity = 0.4;
+              this.decay = 0.005;
+              this.rotation = Math.random() * Math.PI;
+              this.rotationSpeed = (Math.random() - 0.5) * 0.2;
+            }
+          }
+
+          update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            this.vy += this.gravity;
+            this.life -= this.decay;
+
+            if (this.type === "coin") {
+              this.rotation += 0.15;
+              if (this.y > height) {
+                this.vy *= -0.5;
+                this.y = height;
+              }
+            } else if (this.type === "ticket") {
+              this.rotation += 0.05;
+              if (this.y > height) {
+                this.vy *= -0.5;
+                this.y = height;
+              }
+            }
+          }
+
+          draw(ctx) {
+            ctx.save();
+            ctx.globalAlpha = Math.max(this.life, 0);
+            if (this.type === "ticket") {
+              ctx.translate(this.x, this.y);
+              ctx.rotate(this.rotation);
+              ctx.fillStyle = "#FFFACD";
+              ctx.fillRect(-this.w / 2, -this.h / 2, this.w, this.h);
+              ctx.strokeStyle = "#DAA520";
+              ctx.lineWidth = 2;
+              ctx.strokeRect(-this.w / 2, -this.h / 2, this.w, this.h);
+              ctx.fillStyle = "#DAA520";
+              ctx.font = "16px sans-serif";
+              ctx.fillText("無料", -12, 6);
+            } else if (this.type === "confetti") {
+              ctx.translate(this.x, this.y);
+              ctx.rotate(this.rotation);
+              ctx.fillStyle = this.color;
+              ctx.fillRect(-this.w / 2, -this.h / 2, this.w, this.h);
+            } else {
+              ctx.beginPath();
+              ctx.fillStyle = this.color;
+              if (this.type === "coin") {
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = "#B8860B";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+              } else {
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+              }
+            }
+            ctx.restore();
+          }
+        }
+
+        function showActionText(text) {
+          actionText.textContent = text;
+          actionText.style.opacity = 1;
+          actionText.style.transform = "translate(-50%, -50%) scale(1.5)";
+          setTimeout(() => {
+            actionText.style.opacity = 0;
+            actionText.style.transform = "translate(-50%, -50%) scale(1)";
+          }, 800);
+        }
+
+        function triggerShake() {
+          container.classList.add("shake");
+          setTimeout(() => {
+            container.classList.remove("shake");
+          }, 500);
+        }
+
+        function handleLeverStart() {
+          if (gameState !== "IDLE") return;
+          if (startOverlay.style.display !== "none") return;
+          console.log("Lever pulled");
+          gameState = "PULLING";
+          lever.classList.add("pulled");
+          indicator.style.display = "none";
+          showActionText("カチッ！");
+        }
+
+        function getSpoutPosition() {
+          const tip = document.getElementById("spout-tip");
+          if (tip) {
+            const rect = tip.getBoundingClientRect();
+            return { x: rect.left + rect.width / 2, y: rect.bottom };
+          }
+          return { x: width / 2, y: height / 2 };
+        }
+
+        function handleLeverEnd() {
+          if (gameState !== "PULLING") return;
+          console.log("Lever released: Calculating pour trajectory");
+          lever.classList.remove("pulled");
+          gameState = "POURING";
+          instructions.style.opacity = "0";
+          showActionText("ジャーッ！");
+
+          let fillLevel = 0;
+
+          // Get mug target position once to calculate trajectory
+          const mug = document.getElementById("beer-mug-container");
+          const mugRect = mug.getBoundingClientRect();
+          const targetX = mugRect.left + mugRect.width / 2;
+          const targetY = mugRect.top;
+          console.log("Mug target:", targetX, targetY);
+
+          const pourInterval = setInterval(() => {
+            // Adjust filling rate to ensure Stage 1 (25%) is reached in approx 1 second (approx 60 frames)
+            fillLevel += 0.42;
+            if (fillLevel > 100) fillLevel = 100;
+            mugLiquid.style.height = fillLevel + "%";
+
+            // Log and track filling stages step-by-step
+            if (fillLevel >= 25 && fillLevel < 26) console.log("Stage 1: 1/4 Full");
+            if (fillLevel >= 50 && fillLevel < 51) console.log("Stage 2: 1/2 Full");
+            if (fillLevel >= 75 && fillLevel < 76) console.log("Stage 3: 3/4 Full");
+
+            const { x: startX, y: startY } = getSpoutPosition();
+
+            // Aim deeper inside the mug to prevent overflow
+            const pourTargetY = mugRect.top + 60;
+
+            // Calculate vector from spout to mug for realistic flow
+            const dx = targetX - startX;
+            const dy = pourTargetY - startY;
+            const baseAngle = Math.atan2(dy, dx);
+
+            for (let i = 0; i < 5; i++) {
+              let p = new Particle(startX, startY, "beer");
+              // Narrower spread to keep inside mug
+              const spread = 0.08;
+              const angle = baseAngle + (Math.random() - 0.5) * spread;
+              const speed = Math.random() * 4 + 14;
+              p.vx = Math.cos(angle) * speed;
+              p.vy = Math.sin(angle) * speed;
+              particles.push(p);
+            }
+
+            if (fillLevel >= 100) {
+              clearInterval(pourInterval);
+              setTimeout(() => {
+                finalizeResult();
+              }, 300);
+            }
+          }, 16);
+        }
+
+        function finalizeResult() {
+          const isWin = Math.random() < winRate;
+          console.log("Result:", isWin ? "WIN" : "LOSE");
+          saveData(isWin ? "win" : "lose");
+
+          const mug = document.getElementById("beer-mug-container");
+          const mugRect = mug.getBoundingClientRect();
+          const startX = mugRect.left + mugRect.width / 2;
+          const startY = mugRect.top + 50;
+
+          if (isWin) {
+            gameState = "RESULT_WIN";
+            showActionText("パッ！");
+            triggerShake();
+            resultMsg.innerHTML = "当たり！<br>もう一杯無料";
+            resultMsg.style.color = "#ff0000";
+            resultMsg.style.opacity = 1;
+            resultMsg.style.display = "block";
+
+            for (let i = 0; i < 80; i++) {
+              particles.push(new Particle(startX, startY, "confetti"));
+            }
+          } else {
+            gameState = "RESULT_LOSE";
+            resultMsg.innerHTML = "ハズレ。<br>また挑戦しよう！";
+            resultMsg.style.color = "#FFFFFF";
+            resultMsg.style.opacity = 1;
+            resultMsg.style.display = "block";
+
+            for (let i = 0; i < 40; i++) {
+              particles.push(new Particle(startX, startY, "foam"));
+            }
+          }
+
+          setTimeout(() => {
+            endOverlay.style.display = "flex";
+          }, 1000);
+        }
+
+        function resetGame() {
+          console.log("Game reset");
+          gameState = "IDLE";
+          // Hide result message and clear any lingering particles
+          resultMsg.style.opacity = 0;
+          resultMsg.style.display = "none";
+          particles = [];
+          instructions.style.display = "block";
+          instructions.style.opacity = "0";
+          startOverlay.style.display = "flex";
+          endOverlay.style.display = "none";
+          indicator.style.display = "none";
+          mugLiquid.style.height = "0%";
+        }
+
+        function loop() {
+          ctx.clearRect(0, 0, width, height);
+          for (let i = particles.length - 1; i >= 0; i--) {
+            let p = particles[i];
+            p.update();
+            p.draw(ctx);
+            if (p.life <= 0) {
+              particles.splice(i, 1);
+            }
+          }
+          requestAnimationFrame(loop);
+        }
+
+        lever.addEventListener("mousedown", handleLeverStart);
+        lever.addEventListener("touchstart", (e) => {
+          e.preventDefault();
+          handleLeverStart();
+        });
+
+        window.addEventListener("mouseup", handleLeverEnd);
+        window.addEventListener("touchend", (e) => {
+          e.preventDefault();
+          handleLeverEnd();
+        });
+
+        startBtn.addEventListener("click", () => {
+          startOverlay.style.display = "none";
+          instructions.style.display = "block";
+          instructions.style.opacity = 1;
+          indicator.style.display = "block";
+        });
+
+        endBtn.addEventListener("click", () => {
+          resetGame();
+        });
+
+        resetGame();
+        loop();
+      })();
+    </script>
+  </body>
+</html>

@@ -3,168 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>肩のせふくろうAR (インカメラ)</title>
+    <title>肩のせふくろうAR (軽量版)</title>
     <style>
         body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background-color: #f0f0f0; margin: 0; padding: 20px; }
-        h2 { color: #333; margin-bottom: 10px; }
         #container { position: relative; width: 100%; max-width: 640px; aspect-ratio: 4 / 3; border: 2px solid #ff6600; border-radius: 10px; overflow: hidden; background-color: #333; }
-        video#webcam { position: absolute; width: 100%; height: 100%; top: 0; left: 0; object-fit: cover; transform: scaleX(-1); /* インカメラなので鏡像にする */ }
-        canvas#output_canvas { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; /* クリックなどを透過 */ transform: scaleX(-1); /* キャンバスも鏡像にする */ }
+        video#webcam { position: absolute; width: 100%; height: 100%; top: 0; left: 0; object-fit: cover; transform: scaleX(-1); }
+        canvas#output_canvas { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; transform: scaleX(-1); }
         .controls { margin-top: 20px; display: flex; gap: 10px; }
         .btn { padding: 10px 20px; background: #ff6600; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
-        .btn:disabled { background: #ccc; cursor: not-allowed; }
-        #loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 1.2em; display: block; }
+        #status_msg { margin-top: 10px; color: #ff6600; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <h2>肩のせふくろうをインカメラで体験！</h2>
-    <p style="font-size: 0.9em; color: #666; max-width: 600px; text-align: center;">MediaPipeを使って、インカメラに映ったあなたの肩を認識し、ふくろうを載せます。<br>「カメラ起動」ボタンを押してください。<br>（注: 外部ライブラリを読み込むため、少し時間がかかる場合があります。また、 HTTPS環境またはlocalhostでのみ動作します。）</p>
-    
+    <h2>肩のせふくろうAR</h2>
     <div id="container">
         <video id="webcam" autoplay playsinline></video>
         <canvas id="output_canvas"></canvas>
-        <div id="loading">ライブラリ読み込み中...</div>
     </div>
+
+    <div id="status_msg">「カメラ起動」を押してください</div>
 
     <div class="controls">
         <button id="start_btn" class="btn">カメラ起動</button>
-        <button id="stop_btn" class="btn" disabled>停止</button>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
 
     <script>
         const videoElement = document.getElementById('webcam');
         const canvasElement = document.getElementById('output_canvas');
         const canvasCtx = canvasElement.getContext('2d');
         const startBtn = document.getElementById('start_btn');
-        const stopBtn = document.getElementById('stop_btn');
-        const loadingMessage = document.getElementById('loading');
+        const statusMsg = document.getElementById('status_msg');
 
-        // ふくろう画像の読み込み
+        // 画像の読み込み
         const owlImage = new Image();
-        owlImage.src = 'owl_overlay.png'; // ⚠️重要: 保存した画像ファイル名
+        owlImage.src = 'owl_overlay.png'; 
         let owlLoaded = false;
         owlImage.onload = () => { owlLoaded = true; };
+        owlImage.onerror = () => { statusMsg.innerText = "エラー: owl_overlay.png が見つかりません"; };
 
         let pose;
         let camera;
 
-        // MediaPipe Pose の初期化
         function onResults(results) {
-            loadingMessage.style.display = 'none'; // 最初の結果が出たらロード画面を消す
-            
-            // キャンバスをクリア
-            canvasCtx.save();
             canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
-            // ポーズのランドマークが検出された場合のみ処理
             if (results.poseLandmarks && owlLoaded) {
-                // MediaPipe Poseのランドマークインデックス:
-                // 左肩 (LEFT_SHOULDER): 11
-                // 右肩 (RIGHT_SHOULDER): 12
-                
-                const leftShoulder = results.poseLandmarks[11];
-                const rightShoulder = results.poseLandmarks[12];
+                const leftShoulder = results.poseLandmarks[11]; // 左肩
+                const rightShoulder = results.poseLandmarks[12]; // 右肩
 
-                // 左右どちらか、より鮮明に検出されている肩（通常は画面中央に近い方）を選ぶ
-                // 今回はシンプルに、両肩が検出されていれば左肩（画面向かって右）を優先します。
-                const targetShoulder = leftShoulder; // (必要に応じて右肩12に切り替え可能)
-                
-                if (targetShoulder.visibility > 0.6) { // 検出精度が一定以上の場合
-                    // 1. 肩の座標 (0-1の相対座標) をキャンバスのピクセル座標に変換
+                // どちらか認識されているほうを使う（判定を0.4に下げて甘くしました）
+                let targetShoulder = null;
+                if (leftShoulder && leftShoulder.visibility > 0.4) {
+                    targetShoulder = leftShoulder;
+                } else if (rightShoulder && rightShoulder.visibility > 0.4) {
+                    targetShoulder = rightShoulder;
+                }
+
+                if (targetShoulder) {
+                    statusMsg.innerText = "肩を認識中！ふくろう出現！";
                     const shoulderX = targetShoulder.x * canvasElement.width;
                     const shoulderY = targetShoulder.y * canvasElement.height;
 
-                    // 2. ふくろうの描画設定
-                    const owlSize = canvasElement.width * 0.2; // 画面幅の20%をふくろうのサイズにする（調整可）
+                    const owlSize = canvasElement.width * 0.25; // 少し大きくしました
                     const aspect = owlImage.width / owlImage.height;
                     const drawWidth = owlSize;
                     const drawHeight = owlSize / aspect;
 
-                    // 3. 描画位置の調整
-                    // 肩の座標をふくろう画像の「中心下部」にするためのオフセット
                     const offsetX = -drawWidth / 2;
-                    const offsetY = -drawHeight * 0.9; // 肩の上に少し乗せる
+                    const offsetY = -drawHeight * 0.9;
 
-                    // 4. 画像を描画
                     canvasCtx.drawImage(owlImage, shoulderX + offsetX, shoulderY + offsetY, drawWidth, drawHeight);
+                } else {
+                    statusMsg.innerText = "体を画面に映してください（肩を探しています）";
                 }
+            } else {
+                statusMsg.innerText = "人物を検出中...";
             }
-            canvasCtx.restore();
         }
 
-        // 初期化処理
         async function initializePose() {
+            statusMsg.innerText = 'AI起動中...しばらくお待ちください';
             startBtn.disabled = true;
-            loadingMessage.innerText = 'カメラとポーズ認識を初期化中...';
 
             pose = new Pose({locateFile: (file) => {
                 return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
             }});
 
             pose.setOptions({
-                modelComplexity: 1, // 精度と速度のバランス (0, 1, 2)
+                modelComplexity: 0, // 0に設定して超軽量化！スマホでも動きやすく
                 smoothLandmarks: true,
-                enableSegmentation: false,
-                smoothSegmentation: false,
-                minDetectionConfidence: 0.5,
-                minTrackingConfidence: 0.5
+                minDetectionConfidence: 0.4,
+                minTrackingConfidence: 0.4
             });
             pose.onResults(onResults);
 
             try {
-                // インカメラ (`facingMode: "user"`) を指定してカメラを起動
                 camera = new Camera(videoElement, {
                     onFrame: async () => {
-                        // カメラフレームをPoseに送信
-                        // 鏡像にする必要があるが、MediaPipeは標準で鏡像に対応していないため、
-                        // ビデオとキャンバスの両方をCSSで反転させることで対処
                         await pose.send({image: videoElement});
                     },
-                    width: 1280,
-                    height: 720,
-                    facingMode: "user" // インカメラ
+                    width: 640, // 解像度を下げてさらに軽く
+                    height: 480,
+                    facingMode: "user"
                 });
-                
                 await camera.start();
-                stopBtn.disabled = false;
-                loadingMessage.innerText = 'ふくろうを肩にのせてください！';
-
+                statusMsg.innerText = 'カメラが起動しました！上半身を映してください';
             } catch (error) {
-                console.error("Camera access denied or error:", error);
-                loadingMessage.innerText = 'カメラへのアクセスが拒否されました。HTTPS環境か確認してください。';
+                statusMsg.innerText = 'カメラの起動に失敗しました（SafariやChromeで開いていますか？）';
                 startBtn.disabled = false;
             }
         }
 
-        async function stopPose() {
-            if (camera) {
-                await camera.stop();
-            }
-            if (pose) {
-                await pose.close();
-            }
-            startBtn.disabled = false;
-            stopBtn.disabled = true;
-            loadingMessage.style.display = 'block';
-            loadingMessage.innerText = 'カメラ停止中';
-            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-        }
-
-        // キャンバスのサイズをビデオに合わせる
         videoElement.addEventListener('loadedmetadata', () => {
             canvasElement.width = videoElement.videoWidth;
             canvasElement.height = videoElement.videoHeight;
         });
 
         startBtn.addEventListener('click', initializePose);
-        stopBtn.addEventListener('click', stopPose);
-
     </script>
+</body>
+</html>
 
 </body>
 </html>

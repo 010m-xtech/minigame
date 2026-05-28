@@ -314,11 +314,318 @@
       let scoreScale = 0;
 
       p.preload = () => {
-        const loadImg = (path) => p.loadImage(path, null, () => {});
-        // ローカルおよびGitHub移行時に画像が無くても動くようにフォールバック対応
-        assets.bg = p.loadImage('background.png', null, () => assets.bg = p.loadImage('/user-assets/d620050e-2d2f-4386-8a27-8e85a1edc81d/background_mp55m2x6.png'));
-        assets.playerLeft = p.loadImage('player_left.png', null, () => assets.playerLeft = p.loadImage('/user-assets/d620050e-2d2f-4386-8a27-8e85a1edc81d/player_left_mp55mcfr.png'));
-        assets.playerRight = p.loadImage('player_right.png', null, () => assets.playerRight = p.loadImage('/user-assets/d620050e-2d2f-4386-8a27-8e85a1edc81d/player_right_mp55mctg.png'));
-        assets.heartIdle = p.loadImage('heart_idle.png', null, () => assets.heartIdle = p.loadImage('/user-assets/d620050e-2d2f-4386-8a27-8e85a1edc81d/heart_idle_mp55md6d.png'));
-        assets.heartBeat = p.loadImage('heart_beat.png', null, () => assets.heartBeat = p.loadImage('/user-assets/d620050e-2d2f-4386-8a27-8e85a1edc81d/heart_beat_mp55mdjv.png'));
-        assets.cloud = p.loadImage('cloud.png', null, () => assets.cloud = p.loadImage('/user-assets/d620050e-2d2f-4386-8a27-8e85a1edc81d/cloud_
+        assets.bg = p.loadImage('background.png');
+        assets.playerLeft = p.loadImage('player_left.png');
+        assets.playerRight = p.loadImage('player_right.png');
+        assets.heartIdle = p.loadImage('heart_idle.png');
+        assets.heartBeat = p.loadImage('heart_beat.png');
+        assets.cloud = p.loadImage('cloud.png');
+        assets.star = p.loadImage('star.png');
+      };
+
+      p.setup = () => {
+        const canvas = p.createCanvas(p.windowWidth, p.windowHeight);
+        canvas.parent('game-container');
+        p.imageMode(p.CENTER);
+        calculateScale();
+        
+        // Init UI Texts
+        document.getElementById('loading-screen').innerText = t('ui.loading');
+        document.getElementById('ui-title').innerText = t('ui.title');
+        document.getElementById('name1').placeholder = t('ui.name1');
+        document.getElementById('name2').placeholder = t('ui.name2');
+        document.getElementById('start-btn').innerText = t('ui.start');
+        document.getElementById('retry-btn').innerText = t('ui.retry');
+
+        // Init Clouds
+        for(let i=0; i<5; i++) {
+          backgroundClouds.push({
+            x: p.random(VIRTUAL_WIDTH),
+            y: p.random(100, 400),
+            speed: p.random(0.2, 0.5),
+            scale: p.random(0.5, 1.2)
+          });
+        }
+
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('input-overlay').style.display = 'flex';
+        gameState = 'INPUT';
+        lastTime = p.millis();
+      };
+
+      function calculateScale() {
+        const scaleX = p.windowWidth / VIRTUAL_WIDTH;
+        const scaleY = p.windowHeight / VIRTUAL_HEIGHT;
+        scale = Math.min(scaleX, scaleY);
+        offsetX = (p.windowWidth - VIRTUAL_WIDTH * scale) / 2;
+        offsetY = (p.windowHeight - VIRTUAL_HEIGHT * scale) / 2;
+      }
+
+      p.windowResized = () => {
+        p.resizeCanvas(p.windowWidth, p.windowHeight);
+        calculateScale();
+      };
+
+      function drawSprite(img, x, y, displayW, displayH = null) {
+        if (img && img.width > 0) {
+          const h = displayH || (displayW * (img.height / img.width));
+          p.image(img, x, y, displayW, h);
+        }
+      }
+
+      p.draw = () => {
+        const currentTime = p.millis();
+        const dt = currentTime - lastTime;
+        lastTime = currentTime;
+
+        if (gameState !== 'INPUT' && gameState !== 'LOADING') {
+          stateTimer += dt;
+        }
+
+        p.background(0);
+        p.push();
+        p.translate(offsetX, offsetY);
+        p.scale(scale);
+
+        // Draw BG
+        if (assets.bg && assets.bg.width > 0) {
+          const ratio = Math.max(VIRTUAL_WIDTH / assets.bg.width, VIRTUAL_HEIGHT / assets.bg.height);
+          p.image(assets.bg, VIRTUAL_WIDTH/2, VIRTUAL_HEIGHT/2, assets.bg.width * ratio, assets.bg.height * ratio);
+        } else {
+          p.background('#bae1ff');
+        }
+
+        // Update & Draw Clouds
+        backgroundClouds.forEach(c => {
+          c.x += c.speed;
+          if (c.x > VIRTUAL_WIDTH + 100) c.x = -100;
+          if (assets.cloud) {
+            drawSprite(assets.cloud, c.x, c.y, 100 * c.scale);
+          }
+        });
+
+        // Clay shadow setting
+        p.drawingContext.shadowOffsetX = 3;
+        p.drawingContext.shadowOffsetY = 5;
+        p.drawingContext.shadowBlur = 10;
+        p.drawingContext.shadowColor = 'rgba(0, 0, 0, 0.15)';
+
+        // State Logic
+        let shakeX = 0, shakeY = 0;
+
+        if (gameState === 'APPEAR') {
+          const progress = Math.min(stateTimer / 2000, 1);
+          const ease = 1 - Math.pow(1 - progress, 3);
+          leftChar.x = 100;
+          rightChar.x = 290;
+          heartObj.scale = p.lerp(0, 1, ease);
+
+          if (progress >= 1) {
+            gameState = 'DOKIDOKI';
+            stateTimer = 0;
+            nextBeatTime = 0;
+          }
+        } 
+        else if (gameState === 'DOKIDOKI') {
+          const duration = 5000;
+          const progress = Math.min(stateTimer / duration, 1);
+          
+          // Heart beat logic
+          if (stateTimer > nextBeatTime) {
+            audio.playBeat(100 + progress * 50);
+            beatInterval = p.map(progress, 0, 1, 1000, 200);
+            nextBeatTime = stateTimer + beatInterval;
+            heartObj.scale = 1.3;
+          }
+          heartObj.scale = p.lerp(heartObj.scale, 1.0, 0.1);
+
+          // Characters stay still until result
+          leftChar.x = 100;
+          rightChar.x = 290;
+
+          // Screen shake at the end
+          if (progress > 0.8) {
+            shakeX = p.random(-5, 5);
+            shakeY = p.random(-5, 5);
+          }
+
+          if (progress >= 1) {
+            gameState = 'RESULT';
+            stateTimer = 0;
+            audio.playFanfare();
+            spawnConfetti();
+            heartObj.scale = 1.6;
+            scoreScale = 0;
+            leftChar.bounce = -15;
+            rightChar.bounce = -15;
+          }
+        }
+        else if (gameState === 'RESULT') {
+          heartObj.scale = p.lerp(heartObj.scale, 1.4, 0.05);
+          scoreScale = p.lerp(scoreScale, 1, 0.1);
+          
+          // Bounce physics for chars
+          leftChar.bounce *= 0.8;
+          rightChar.bounce *= 0.8;
+
+          // Show UI after delay
+          if (stateTimer > 1500 && document.getElementById('result-overlay').style.display === 'none') {
+            showResultUI();
+          }
+        }
+
+        p.translate(shakeX, shakeY);
+
+        // Draw Characters
+        if (gameState !== 'INPUT') {
+          drawSprite(assets.playerLeft, leftChar.x, leftChar.y + leftChar.bounce, 100);
+          drawSprite(assets.playerRight, rightChar.x, rightChar.y + rightChar.bounce, 100);
+        }
+
+        // Draw Heart
+        if (heartObj.scale > 0) {
+          const hImg = (gameState === 'DOKIDOKI' && heartObj.scale > 1.1) ? assets.heartBeat : assets.heartIdle;
+          p.push();
+          p.translate(heartObj.x, heartObj.y);
+          p.scale(heartObj.scale);
+          drawSprite(hImg, 0, 0, 120);
+          p.pop();
+        }
+
+        // Draw Particles
+        for (let i = particles.length - 1; i >= 0; i--) {
+          let pt = particles[i];
+          pt.x += pt.vx;
+          pt.y += pt.vy;
+          pt.vy += 0.2;
+          pt.ang += pt.vang;
+          p.push();
+          p.translate(pt.x, pt.y);
+          p.rotate(pt.ang);
+          if (pt.type === 'star' && assets.star) {
+            drawSprite(assets.star, 0, 0, pt.size * 2);
+          } else {
+            p.fill(pt.color);
+            p.noStroke();
+            p.rectMode(p.CENTER);
+            p.rect(0, 0, pt.size, pt.size);
+          }
+          p.pop();
+          if (pt.y > VIRTUAL_HEIGHT + 50) particles.splice(i, 1);
+        }
+
+        // Draw Score
+        if (gameState === 'RESULT') {
+          p.push();
+          p.translate(VIRTUAL_WIDTH/2, VIRTUAL_HEIGHT/2 - 60);
+          p.scale(scoreScale);
+          p.drawingContext.shadowOffsetX = 2;
+          p.drawingContext.shadowOffsetY = 4;
+          p.drawingContext.shadowBlur = 5;
+          p.drawingContext.shadowColor = 'rgba(0,0,0,0.3)';
+          p.fill('#fff');
+          p.stroke('#ffb6d5');
+          p.strokeWeight(6);
+          p.textAlign(p.CENTER, p.CENTER);
+          p.textSize(70);
+          p.textStyle(p.BOLD);
+          p.text(affinityScore + '%', 0, 0);
+          p.pop();
+        }
+
+        p.pop();
+      };
+
+      function spawnConfetti() {
+        const colors = ['#ffb6d5', '#a8e7ff', '#bdf7c8', '#fff1a8', '#d8c7ff'];
+        for (let i = 0; i < 60; i++) {
+          particles.push({
+            x: VIRTUAL_WIDTH / 2,
+            y: VIRTUAL_HEIGHT / 2,
+            vx: p.random(-8, 8),
+            vy: p.random(-12, -2),
+            color: p.random(colors),
+            size: p.random(10, 20),
+            ang: p.random(p.TWO_PI),
+            vang: p.random(-0.2, 0.2),
+            type: p.random() > 0.8 ? 'star' : 'rect'
+          });
+        }
+      }
+
+      // Expose to global for UI handlers
+      window.startGameFlow = () => {
+        audio.playPop();
+        let n1 = document.getElementById('name1').value.trim() || t('ui.name1');
+        let n2 = document.getElementById('name2').value.trim() || t('ui.name2');
+        affinityScore = calculateAffinity(n1, n2);
+        
+        document.getElementById('input-overlay').style.display = 'none';
+        gameState = 'APPEAR';
+        stateTimer = 0;
+        particles = [];
+        leftChar.x = 100;
+        rightChar.x = 290;
+      };
+
+      // 【完全修復】閉じカッコの整合性を完璧に修正
+      window.resetGameFlow = () => {
+        audio.playPop();
+        
+        // 入力フォームの文字を自動でクリアする処理
+        document.getElementById('name1').value = '';
+        document.getElementById('name2').value = '';
+        
+        document.getElementById('result-overlay').style.display = 'none';
+        document.getElementById('input-overlay').style.display = 'flex';
+        gameState = 'INPUT';
+        particles = [];
+        heartObj.scale = 0;
+      };
+    };
+
+    function calculateAffinity(name1, name2) {
+      const str = name1 + name2;
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      return Math.abs(hash) % 41 + 60; // 60 to 100
+    }
+
+    function showResultUI() {
+      const overlay = document.getElementById('result-overlay');
+      const msgEl = document.getElementById('result-msg');
+      
+      let msg = "";
+      if (affinityScore >= 95) msg = t('msg.soulmate');
+      else if (affinityScore >= 85) msg = t('msg.destiny');
+      else if (affinityScore >= 75) msg = t('msg.great');
+      else if (affinityScore >= 65) msg = t('msg.good');
+      else msg = t('msg.nice');
+      
+      msgEl.innerText = msg;
+      overlay.style.display = 'flex';
+
+      if (typeof DreamCoreSDK2 !== 'undefined') {
+        DreamCoreSDK2.endRun({
+          terminalType: 'result_shown',
+          score: affinityScore,
+          reason: 'affinity_calculated'
+        });
+      }
+    }
+
+    document.getElementById('start-btn').addEventListener('pointerdown', () => {
+      if (window.startGameFlow) window.startGameFlow();
+    });
+
+    // 【修復】「もういちど」ボタンのクリックリスナーを設定
+    document.getElementById('retry-btn').addEventListener('pointerdown', () => {
+      if (window.resetGameFlow) window.resetGameFlow();
+    });
+
+    new p5(game);
+  </script>
+</body>
+</html>

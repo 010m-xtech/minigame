@@ -474,18 +474,29 @@
           if (stateTimer > 1500 && document.getElementById('result-overlay').style.display === 'none') {
             showResultUI();
           }
-        }
+       }
 
-        p.translate(shakeX, shakeY);
-
-        // Draw Characters
+        // Draw Characters（揺らす処理の前に移動させたので、ふたりは震えなくなります！）
         if (gameState !== 'INPUT') {
           drawSprite(assets.playerLeft, leftChar.x, leftChar.y + leftChar.bounce, 120);
           drawSprite(assets.playerRight, rightChar.x, rightChar.y + rightChar.bounce, 120);
         }
 
+        // ここで揺らす命令を入れます（これ以降に描画されるものだけが震えます）
+        p.push();
+        p.translate(shakeX, shakeY);
+
         // Draw Heart
         if (heartObj.scale > 0) {
+          const hImg = (gameState === 'DOKIDOKI' && heartObj.scale > 1.1) ? assets.heartBeat : assets.heartIdle;
+          p.push();
+          p.translate(heartObj.x, heartObj.y);
+          p.scale(heartObj.scale);
+          drawSprite(hImg, 0, 0, 120);
+          p.pop();
+        }
+        
+        p.pop(); // 揺らす範囲をここで終了します
           const hImg = (gameState === 'DOKIDOKI' && heartObj.scale > 1.1) ? assets.heartBeat : assets.heartIdle;
           p.push();
           p.translate(heartObj.x, heartObj.y);

@@ -570,10 +570,10 @@
         rightChar.x = 290;
       };
 
-window.resetGameFlow = () => {
+      window.resetGameFlow = () => {
         audio.playPop();
         
-        // 【追加】名前を入力するBOXの文字をクリア（空っぽに）する
+        // 名前入力欄の中身を空にする
         document.getElementById('name1').value = '';
         document.getElementById('name2').value = '';
         
@@ -583,6 +583,7 @@ window.resetGameFlow = () => {
         particles = [];
         heartObj.scale = 0;
       };
+    };
 
     function calculateAffinity(name1, name2) {
       const str = name1 + name2;

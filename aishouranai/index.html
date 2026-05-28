@@ -314,13 +314,15 @@
       let scoreScale = 0;
 
       p.preload = () => {
-        assets.bg = p.loadImage('background.png');
-        assets.playerLeft = p.loadImage('player_left.png');
-        assets.playerRight = p.loadImage('player_right.png');
-        assets.heartIdle = p.loadImage('heart_idle.png');
-        assets.heartBeat = p.loadImage('heart_beat.png');
-        assets.cloud = p.loadImage('cloud.png');
-        assets.star = p.loadImage('star.png');
+        const loadImg = (path) => p.loadImage(path, null, () => {});
+        // ローカルおよびGitHub移行時に画像が無くても動くようにフォールバック対応
+        assets.bg = p.loadImage('background.png', null, () => assets.bg = p.loadImage('/user-assets/d620050e-2d2f-4386-8a27-8e85a1edc81d/background_mp55m2x6.png'));
+        assets.playerLeft = p.loadImage('player_left.png', null, () => assets.playerLeft = p.loadImage('/user-assets/d620050e-2d2f-4386-8a27-8e85a1edc81d/player_left_mp55mcfr.png'));
+        assets.playerRight = p.loadImage('player_right.png', null, () => assets.playerRight = p.loadImage('/user-assets/d620050e-2d2f-4386-8a27-8e85a1edc81d/player_right_mp55mctg.png'));
+        assets.heartIdle = p.loadImage('heart_idle.png', null, () => assets.heartIdle = p.loadImage('/user-assets/d620050e-2d2f-4386-8a27-8e85a1edc81d/heart_idle_mp55md6d.png'));
+        assets.heartBeat = p.loadImage('heart_beat.png', null, () => assets.heartBeat = p.loadImage('/user-assets/d620050e-2d2f-4386-8a27-8e85a1edc81d/heart_beat_mp55mdjv.png'));
+        assets.cloud = p.loadImage('cloud.png', null, () => assets.cloud = p.loadImage('/user-assets/d620050e-2d2f-4386-8a27-8e85a1edc81d/cloud_mp55mdx2.png'));
+        assets.star = p.loadImage('star.png', null, () => assets.star = p.loadImage('/user-assets/d620050e-2d2f-4386-8a27-8e85a1edc81d/star_mp55me9y.png'));
       };
 
       p.setup = () => {

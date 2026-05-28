@@ -149,6 +149,71 @@
         "msg.great": "さいこうの ふたり！",
         "msg.good": "とっても なかよし！",
         "msg.nice": "ぴったりな ふたり！"
+      },
+      "en": {
+        "ui.loading": "Loading...",
+        "ui.title": "Affinity Fortune",
+        "ui.name1": "Name 1",
+        "ui.name2": "Name 2",
+        "ui.start": "Predict!",
+        "ui.retry": "Try Again",
+        "msg.soulmate": "Soulmates drawn to\neach other!",
+        "msg.destiny": "Maybe together\nin a past life!?",
+        "msg.great": "The Best Couple!",
+        "msg.good": "Very Good Friends!",
+        "msg.nice": "A perfect match!"
+      },
+      "zh": {
+        "ui.loading": "加载中...",
+        "ui.title": "缘分测试",
+        "ui.name1": "名字 1",
+        "ui.name2": "名字 2",
+        "ui.start": "开始测试！",
+        "ui.retry": "再试一次",
+        "msg.soulmate": "灵魂深处\n互相吸引的两人！",
+        "msg.destiny": "也许前世就在一起！？",
+        "msg.great": "最棒的情侣！",
+        "msg.good": "非常好的朋友！",
+        "msg.nice": "非常相配的两人！"
+      },
+      "ko": {
+        "ui.loading": "로딩 중...",
+        "ui.title": "궁합 테스트",
+        "ui.name1": "이름 1",
+        "ui.name2": "이름 2",
+        "ui.start": "테스트 시작!",
+        "ui.retry": "다시 하기",
+        "msg.soulmate": "영혼의 수준에서\n끌리는 두 사람!",
+        "msg.destiny": "전생에도 함께였을지도!?",
+        "msg.great": "최고의 커플!",
+        "msg.good": "아주 좋은 친구!",
+        "msg.nice": "딱 맞는 두 사람!"
+      },
+      "es": {
+        "ui.loading": "Cargando...",
+        "ui.title": "Fortuna de Afinidad",
+        "ui.name1": "Nombre 1",
+        "ui.name2": "Nombre 2",
+        "ui.start": "¡Predecir!",
+        "ui.retry": "Intentar de nuevo",
+        "msg.soulmate": "¡Almas gemelas\natraídas entre sí!",
+        "msg.destiny": "¿¡Tal vez juntos\nen una vida pasada!?",
+        "msg.great": "¡La mejor pareja!",
+        "msg.good": "¡Muy buenos amigos!",
+        "msg.nice": "¡Una pareja perfecta!"
+      },
+      "pt": {
+        "ui.loading": "Carregando...",
+        "ui.title": "Sorte de Afinidade",
+        "ui.name1": "Nome 1",
+        "ui.name2": "Nome 2",
+        "ui.start": "Prever!",
+        "ui.retry": "Tentar novamente",
+        "msg.soulmate": "Almas gêmeas\natraídas uma pela outra!",
+        "msg.destiny": "Talvez juntos\nem uma vida passada!?",
+        "msg.great": "O melhor casal!",
+        "msg.good": "Muito bons amigos!",
+        "msg.nice": "Uma combinação perfeita!"
       }
     }
   }
@@ -157,6 +222,7 @@
 <body>
   <div id="loading-screen">Loading...</div>
   <div id="game-container">
+    <!-- Input Screen -->
     <div id="input-overlay" class="overlay" style="display:none;">
       <div class="clay-panel">
         <h1 id="ui-title">相性占い</h1>
@@ -166,10 +232,10 @@
         <button id="start-btn">うらなう！</button>
       </div>
     </div>
+    <!-- Result Screen -->
     <div id="result-overlay" class="overlay" style="display:none;">
       <div class="clay-panel">
         <div id="result-msg"></div>
-        <button id="retry-btn" style="margin-top:20px;">もういちど</button>
       </div>
     </div>
   </div>
@@ -178,11 +244,13 @@
   <script>
     // Translation System
     const uiPayload = JSON.parse(document.getElementById('dc-ui-texts').textContent);
-    const sourceLang = uiPayload.sourceLang || 'ja';
+    const sourceLang = uiPayload.sourceLang || 'en';
     const uiTexts = uiPayload.texts || {};
-    const currentLang = 'ja'; 
+    const savedLang = (localStorage.getItem('dreamcore_lang') || '').slice(0, 2);
+    const browserLang = (navigator.language || '').slice(0, 2);
+    const currentLang = uiTexts[savedLang] ? savedLang : (uiTexts[browserLang] ? browserLang : sourceLang);
     function t(key, vars) {
-      let s = (uiTexts[currentLang] && uiTexts[currentLang][key]) || key;
+      let s = (uiTexts[currentLang] && uiTexts[currentLang][key]) || (uiTexts[sourceLang] && uiTexts[sourceLang][key]) || key;
       if (vars) Object.keys(vars).forEach((k) => { s = s.replaceAll('{' + k + '}', String(vars[k])); });
       return s;
     }
@@ -216,6 +284,11 @@
         });
         setTimeout(() => this.play(1046, 1046, 0.5, 'square', 0.2), 450);
       }
+      playSparkle() {
+        [800, 1200, 1600].forEach((f, i) => {
+          setTimeout(() => this.play(f, f*1.2, 0.1, 'sine', 0.1), i * 50);
+        });
+      }
     }
     const audio = new SynthAudio();
     document.addEventListener('pointerdown', () => audio.init(), { once: true });
@@ -225,7 +298,7 @@
     const VIRTUAL_HEIGHT = 844;
     
     const assets = {};
-    let gameState = 'LOADING'; 
+    let gameState = 'LOADING'; // LOADING, INPUT, APPEAR, DOKIDOKI, RESULT
     let stateTimer = 0;
     let lastTime = 0;
     let affinityScore = 0;
@@ -241,21 +314,15 @@
       let beatInterval = 1000;
       let scoreScale = 0;
 
-p.preload = () => {
-        // 画像読み込み成功時と失敗時のログをコンソールに出すように強化
-        const loadImg = (path) => p.loadImage(
-          path, 
-          (img) => console.log(`${path} の読み込みに成功しました。サイズ: ${img.width}x${img.height}`), 
-          (err) => console.error(`${path} の読み込みに失敗しました。パスが正しいか確認してください。`)
-        );
-        
-        assets.bg = loadImg('background.png');
-        assets.playerLeft = loadImg('player_left.png');
-        assets.playerRight = loadImg('player_right.png');
-        assets.heartIdle = loadImg('heart_idle.png');
-        assets.heartBeat = loadImg('heart_beat.png');
-        assets.cloud = loadImg('cloud.png');
-        assets.star = loadImg('star.png');
+      p.preload = () => {
+        const loadImg = (path) => p.loadImage(path, null, () => {});
+        assets.bg = loadImg('/user-assets/d620050e-2d2f-4386-8a27-8e85a1edc81d/background_mp55m2x6.png');
+        assets.playerLeft = loadImg('/user-assets/d620050e-2d2f-4386-8a27-8e85a1edc81d/player_left_mp55mcfr.png');
+        assets.playerRight = loadImg('/user-assets/d620050e-2d2f-4386-8a27-8e85a1edc81d/player_right_mp55mctg.png');
+        assets.heartIdle = loadImg('/user-assets/d620050e-2d2f-4386-8a27-8e85a1edc81d/heart_idle_mp55md6d.png');
+        assets.heartBeat = loadImg('/user-assets/d620050e-2d2f-4386-8a27-8e85a1edc81d/heart_beat_mp55mdjv.png');
+        assets.cloud = loadImg('/user-assets/d620050e-2d2f-4386-8a27-8e85a1edc81d/cloud_mp55mdx2.png');
+        assets.star = loadImg('/user-assets/d620050e-2d2f-4386-8a27-8e85a1edc81d/star_mp55me9y.png');
       };
 
       p.setup = () => {
@@ -264,13 +331,14 @@ p.preload = () => {
         p.imageMode(p.CENTER);
         calculateScale();
         
+        // Init UI Texts
         document.getElementById('loading-screen').innerText = t('ui.loading');
         document.getElementById('ui-title').innerText = t('ui.title');
         document.getElementById('name1').placeholder = t('ui.name1');
         document.getElementById('name2').placeholder = t('ui.name2');
         document.getElementById('start-btn').innerText = t('ui.start');
-        document.getElementById('retry-btn').innerText = t('ui.retry');
 
+        // Init Clouds
         for(let i=0; i<5; i++) {
           backgroundClouds.push({
             x: p.random(VIRTUAL_WIDTH),
@@ -300,14 +368,9 @@ p.preload = () => {
       };
 
       function drawSprite(img, x, y, displayW, displayH = null) {
-        // img.width > 0 の厳しい判定をなくし、画像データが存在すれば描画する
-        if (img) {
-          const h = displayH || (displayW * (img.height / (img.width || 1)));
+        if (img && img.width > 0) {
+          const h = displayH || (displayW * (img.height / img.width));
           p.image(img, x, y, displayW, h);
-        } else {
-          // 完全に画像が読み込めなかった場合のみ、セーフティの丸を描画
-          p.fill(240, 150, 150);
-          p.ellipse(x, y, displayW, displayW);
         }
       }
 
@@ -325,24 +388,31 @@ p.preload = () => {
         p.translate(offsetX, offsetY);
         p.scale(scale);
 
+        // Draw BG
         if (assets.bg && assets.bg.width > 0) {
+          // Cover full virtual screen
           const ratio = Math.max(VIRTUAL_WIDTH / assets.bg.width, VIRTUAL_HEIGHT / assets.bg.height);
           p.image(assets.bg, VIRTUAL_WIDTH/2, VIRTUAL_HEIGHT/2, assets.bg.width * ratio, assets.bg.height * ratio);
         } else {
           p.background('#bae1ff');
         }
 
+        // Update & Draw Clouds
         backgroundClouds.forEach(c => {
           c.x += c.speed;
           if (c.x > VIRTUAL_WIDTH + 100) c.x = -100;
-          drawSprite(assets.cloud, c.x, c.y, 100 * c.scale);
+          if (assets.cloud) {
+            drawSprite(assets.cloud, c.x, c.y, 100 * c.scale);
+          }
         });
 
+        // Clay shadow setting
         p.drawingContext.shadowOffsetX = 3;
         p.drawingContext.shadowOffsetY = 5;
         p.drawingContext.shadowBlur = 10;
         p.drawingContext.shadowColor = 'rgba(0, 0, 0, 0.15)';
 
+        // State Logic
         let shakeX = 0, shakeY = 0;
 
         if (gameState === 'APPEAR') {
@@ -362,6 +432,7 @@ p.preload = () => {
           const duration = 5000;
           const progress = Math.min(stateTimer / duration, 1);
           
+          // Heart beat logic
           if (stateTimer > nextBeatTime) {
             audio.playBeat(100 + progress * 50);
             beatInterval = p.map(progress, 0, 1, 1000, 200);
@@ -370,9 +441,11 @@ p.preload = () => {
           }
           heartObj.scale = p.lerp(heartObj.scale, 1.0, 0.1);
 
+          // Characters stay still until result
           leftChar.x = 100;
           rightChar.x = 290;
 
+          // Screen shake at the end
           if (progress > 0.8) {
             shakeX = p.random(-5, 5);
             shakeY = p.random(-5, 5);
@@ -392,9 +465,12 @@ p.preload = () => {
         else if (gameState === 'RESULT') {
           heartObj.scale = p.lerp(heartObj.scale, 1.4, 0.05);
           scoreScale = p.lerp(scoreScale, 1, 0.1);
+          
+          // Bounce physics for chars
           leftChar.bounce *= 0.8;
           rightChar.bounce *= 0.8;
 
+          // Show UI after delay
           if (stateTimer > 1500 && document.getElementById('result-overlay').style.display === 'none') {
             showResultUI();
           }
@@ -402,11 +478,13 @@ p.preload = () => {
 
         p.translate(shakeX, shakeY);
 
+        // Draw Characters
         if (gameState !== 'INPUT') {
           drawSprite(assets.playerLeft, leftChar.x, leftChar.y + leftChar.bounce, 100);
           drawSprite(assets.playerRight, rightChar.x, rightChar.y + rightChar.bounce, 100);
         }
 
+        // Draw Heart
         if (heartObj.scale > 0) {
           const hImg = (gameState === 'DOKIDOKI' && heartObj.scale > 1.1) ? assets.heartBeat : assets.heartIdle;
           p.push();
@@ -416,6 +494,7 @@ p.preload = () => {
           p.pop();
         }
 
+        // Draw Particles
         for (let i = particles.length - 1; i >= 0; i--) {
           let pt = particles[i];
           pt.x += pt.vx;
@@ -425,7 +504,7 @@ p.preload = () => {
           p.push();
           p.translate(pt.x, pt.y);
           p.rotate(pt.ang);
-          if (pt.type === 'star' && assets.star && assets.star.width > 0) {
+          if (pt.type === 'star' && assets.star) {
             drawSprite(assets.star, 0, 0, pt.size * 2);
           } else {
             p.fill(pt.color);
@@ -437,6 +516,7 @@ p.preload = () => {
           if (pt.y > VIRTUAL_HEIGHT + 50) particles.splice(i, 1);
         }
 
+        // Draw Score
         if (gameState === 'RESULT') {
           p.push();
           p.translate(VIRTUAL_WIDTH/2, VIRTUAL_HEIGHT/2 - 60);
@@ -475,6 +555,7 @@ p.preload = () => {
         }
       }
 
+      // Expose to global for UI handlers
       window.startGameFlow = () => {
         audio.playPop();
         let n1 = document.getElementById('name1').value.trim() || t('ui.name1');
@@ -485,9 +566,11 @@ p.preload = () => {
         gameState = 'APPEAR';
         stateTimer = 0;
         particles = [];
+        leftChar.x = 100;
+        rightChar.x = 290;
       };
 
-      window.resetGameFlow = () => {
+window.resetGameFlow = () => {
         audio.playPop();
         
         // 【追加】名前を入力するBOXの文字をクリア（空っぽに）する
@@ -523,14 +606,18 @@ p.preload = () => {
       
       msgEl.innerText = msg;
       overlay.style.display = 'flex';
+
+      if (typeof DreamCoreSDK2 !== 'undefined') {
+        DreamCoreSDK2.endRun({
+          terminalType: 'result_shown',
+          score: affinityScore,
+          reason: 'affinity_calculated'
+        });
+      }
     }
 
     document.getElementById('start-btn').addEventListener('pointerdown', () => {
       if (window.startGameFlow) window.startGameFlow();
-    });
-
-    document.getElementById('retry-btn').addEventListener('pointerdown', () => {
-      if (window.resetGameFlow) window.resetGameFlow();
     });
 
     new p5(game);

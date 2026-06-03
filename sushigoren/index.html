@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>寿司打ち5連</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      overflow: hidden; 
+      touch-action: none; 
+      background: #1a0f08; 
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    #canvas-container {
+      position: relative;
+      width: 100%;
+      max-width: 390px;
+      height: 100vh;
+      max-height: 844px;
+      background: #ebdcb9; 
+      overflow: hidden;
+      box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    }
+
+    .layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+    }
+
+    #layer-bg { z-index: 1; background-image: url('background.png'); }
+    #layer-customer {
+      z-index: 2;
+      width: 260px;
+      height: 260px;
+      left: calc(50% - 130px);
+      top: 15%; 
+      background-image: url('face_straight.png');
+    }
+    #layer-counter { z-index: 3; background-image: url('background_mae.png'); }
+
+    #layer-ui {
+      z-index: 4;
+      pointer-events: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .speech-bubble {
+      position: absolute;
+      top: 5%; 
+      width: 85%;
+      background: white;
+      border: 3px solid #b81c22;
+      border-radius: 16px;
+      padding: 12px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 16px;
+      color: #2b1d11;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    .speech-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -15px;
+      left: calc(50% - 10px);
+      border-width: 15px 10px 0;
+      border-style: solid;
+      border-color: white transparent;
+      display: block;
+      width: 0;
+    }
+
+    .status-badge {
+      position: absolute;
+      top: 1.5%;
+      left: 5%;
+      background: #b81c22;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .progress-bar-container {
+      position: absolute;
+      top: 42%; 
+      width: 80%;
+      height: 10px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 10px;
+      overflow: hidden;
+      display: none;
+    }
+    #time-bar {
+      width: 100%;
+      height: 100%;
+      background: #34c759;
+      transition: width 0.1s linear;
+    }
+
+    #tsuke-dai {
+      position: absolute;
+      top: 45%;
+      width: 90%;
+      height: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+    .placed-sushi {
+      width: 55px; 
+      height: 38px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    .sushi-grid {
+      position: absolute;
+      bottom: 2%;
+      width: 94%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      display: none;
+    }
+
+    .sushi-btn {
+      background: #fffdf9;
+      border: 2.5px solid #82604a;
+      border-radius: 16px;
+      padding: 12px 2px 8px 2px; 
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between; 
+      height: 115px; 
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+    }
+    .sushi-btn:active { transform: scale(0.93); }
+    
+    .sushi-btn img { 
+      width: 85px; 
+      height: 60px; 
+      object-fit: contain; 
+      margin-bottom: 2px;
+    }
+    .sushi-btn span { 
+      font-size: 12px; 
+      font-weight: bold; 
+      color: #2b1d11;
+      line-height: 1.2;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35); 
+      z-index: 100;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      pointer-events: auto;
+    }
+    .clay-panel {
+      background: #fffdf7;
+      border-radius: 24px;
+      padding: 30px;
+      width: 85%;
+      max-width: 320px;
+      text-align: center;
+      border: 3px solid #b81c22;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.3);
+    }
+    .clay-panel h1 { color: #b81c22; font-size: 28px; margin-bottom: 12px; }
+    .clay-panel p { color: #333; font-size: 14px; margin-bottom: 20px; line-height: 1.5; }
+    .action-btn {
+      padding: 12px 30px;
+      border: none;
+      border-radius: 50px;
+      background: #b81c22;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="canvas-container">
+    <div id="layer-bg" class="layer"></div>
+    <div id="layer-customer" class="layer"></div>
+    <div id="layer-counter" class="layer"></div>
+
+    <div id="layer-ui" class="layer">
+      <div id="badge" class="status-badge" style="display:none;">2連挑戦</div>
+      <div id="bubble" class="speech-bubble">大将、今日もうまい寿司たのむよ</div>
+      
+      <div id="bar-container" class="progress-bar-container">
+        <div id="time-bar"></div>
+      </div>
+
+      <div id="tsuke-dai"></div>
+      <div id="sushi-panel" class="sushi-grid"></div>
+    </div>
+
+    <div id="start-overlay" class="overlay">
+      <div class="clay-panel">
+        <h1>寿司打ち5連</h1>
+        <p>サラリーマンの連続注文を覚えて、素早く正確に寿司を握ろう！<br>あがり（時間切れ）に注意！</p>
+        <button id="start-btn" class="action-btn">開店（スタート）</button>
+      </div>
+    </div>
+
+    <div id="result-overlay" class="overlay" style="display: none;">
+      <div class="clay-panel">
+        <h1 id="result-title">結果</h1>
+        <p id="result-msg"></p>
+        <button id="retry-btn" class="action-btn">もう一丁握る！</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const audio = {
+      ctx: null,
+      init() { if(!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+      play(f, d) {
+        if(!this.ctx) return;
+        let o = this.ctx.createOscillator(); let g = this.ctx.createGain();
+        o.connect(g); g.connect(this.ctx.destination);
+        o.frequency.setValueAtTime(f, this.ctx.currentTime);
+        g.gain.setValueAtTime(0.05, this.ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + d);
+        o.start(); o.stop(this.ctx.currentTime + d);
+      },
+      pop() { this.play(600, 0.05); },
+      correct() { this.play(880, 0.08); setTimeout(() => this.play(1320, 0.12), 60); },
+      wrong() { this.play(150, 0.25); }
+    };
+
+    const SUSHI_DATA = [
+      { id: 'maguro', name: 'まぐろ', file: 'sushi_maguro.png' },
+      { id: 'samon',  name: 'サーモン', file: 'sushi_samon.png' },
+      { id: 'tai',    name: 'たい',   file: 'sushi_tai.png' },
+      { id: 'tamago', name: 'たまご',  file: 'sushi_tamago.png' },
+      { id: 'ikura',  name: 'いくら',  file: 'sushi_ikura.png' },
+      { id: 'anago',  name: 'あなご',  file: 'sushi_anago.png' },
+      { id: 'ebi',    name: 'えび',   file: 'sushi_ebi.png' },
+      { id: 'ika',    name: 'いか',   file: 'sushi_ika.png' },
+      { id: 'kappa',  name: 'かっぱ巻き',file: 'sushi_kappa.png' }
+    ];
+
+    let currentLevel = 2;
+    let orderSequence = [];
+    let playerInputSeq = [];
+    let memorizeIndex = 0;
+    let isShowingText = true; // ネタ文字を表示中か、間を空けるために消去中か
+    let gameLoopInterval = null;
+    let gameTimer = 0;
+    let limitTime = 0;
+    let elapsedAnswerTime = 0;
+
+    const elCustomer = document.getElementById('layer-customer');
+    const elBubble = document.getElementById('bubble');
+    const elBadge = document.getElementById('badge');
+    const elBarContainer = document.getElementById('bar-container');
+    const elTimeBar = document.getElementById('time-bar');
+    const elTsukeDai = document.getElementById('tsuke-dai');
+    const elSushiPanel = document.getElementById('sushi-panel');
+
+    function createSushiButtons() {
+      elSushiPanel.innerHTML = '';
+      SUSHI_DATA.forEach((sushi, idx) => {
+        let btn = document.createElement('div');
+        btn.className = 'sushi-btn';
+        btn.innerHTML = `<img src="${sushi.file}" onerror="this.style.display='none';"><span>${sushi.name}</span>`;
+        btn.onclick = () => handleSushiClick(idx);
+        elSushiPanel.appendChild(btn);
+      });
+    }
+
+    function changeCustomerFace(faceFile) {
+      elCustomer.style.backgroundImage = `url('${faceFile}')`;
+    }
+
+    function startGameFlow() {
+      audio.init();
+      document.getElementById('start-overlay').style.display = 'none';
+      document.getElementById('result-overlay').style.display = 'none';
+      currentLevel = 2;
+      createSushiButtons();
+      triggerNextLevel();
+    }
+
+    function triggerNextLevel() {
+      playerInputSeq = [];
+      memorizeIndex = 0;
+      gameTimer = 0;
+      isShowingText = true;
+      
+      elBadge.style.display = 'block';
+      elBadge.innerText = currentLevel + "連挑戦";
+      elBarContainer.style.display = 'none';
+      elSushiPanel.style.display = 'none';
+      elTsukeDai.innerHTML = '';
+      changeCustomerFace('face_straight.png');
+
+      orderSequence = [];
+      for (let i = 0; i < currentLevel; i++) {
+        orderSequence.push(Math.floor(Math.random() * SUSHI_DATA.length));
+      }
+
+      // 最初のネタを表示
+      elBubble.style.display = 'block';
+      elBubble.innerText = SUSHI_DATA[orderSequence[0]].name + "！";
+
+      clearInterval(gameLoopInterval);
+      gameLoopInterval = setInterval(updateGameLoop, 100);
+    }
+
+    function updateGameLoop() {
+      gameTimer += 100;
+
+      // 注文フェーズのループ制御
+      if (gameLoopInterval && elSushiPanel.style.display !== 'grid' && document.getElementById('result-overlay').style.display !== 'flex') {
+        
+        if (isShowingText) {
+          // ネタをしっかり見せる時間（0.7秒）
+          if (gameTimer >= 700) {
+            gameTimer = 0;
+            memorizeIndex++;
+            
+            if (memorizeIndex >= orderSequence.length) {
+              // すべての注文が見せ終わったら解答フェーズへ
+              elBubble.style.display = 'none';
+              elBarContainer.style.display = 'block';
+              elSushiPanel.style.display = 'grid';
+              limitTime = (orderSequence.length <= 3) ? 4000 : 6000;
+              elapsedAnswerTime = 0;
+            } else {
+              // 【ここがポイント！】次のネタに行く前に、一度吹き出しを隠す
+              elBubble.style.display = 'none';
+              isShowingText = false;
+            }
+          }
+        } else {
+          // ネタとネタの間の「空白の時間」（0.2秒間だけ非表示にする）
+          if (gameTimer >= 200) {
+            gameTimer = 0;
+            elBubble.style.display = 'block';
+            elBubble.innerText = SUSHI_DATA[orderSequence[memorizeIndex]].name + "！";
+            isShowingText = true;
+          }
+        }
+      }
+
+      // 時間制限カウント
+      if (elSushiPanel.style.display === 'grid') {
+        elapsedAnswerTime += 100;
+        let ratio = Math.max(0, (limitTime - elapsedAnswerTime) / limitTime);
+        elTimeBar.style.width = (ratio < 0.05 ? 0 : ratio * 100) + '%';
+        elTimeBar.style.background = ratio < 0.35 ? '#b81c22' : '#34c759';
+
+        if (ratio <= 0) {
+          audio.wrong();
+          endGame(false, "face_anger.png", "大将たのむよー（時間切れだよ）");
+        }
+      }
+    }
+
+    function handleSushiClick(index) {
+      audio.pop();
+      playerInputSeq.push(index);
+
+      let sushiItem = document.createElement('div');
+      sushiItem.className = 'placed-sushi';
+      sushiItem.style.backgroundImage = `url('${SUSHI_DATA[index].file}')`;
+      elTsukeDai.appendChild(sushiItem);
+
+      let checkIdx = playerInputSeq.length - 1;
+
+      if (playerInputSeq[checkIdx] !== orderSequence[checkIdx]) {
+        audio.wrong();
+        endGame(false, "face_anger.png", "大将たのむよー（ネタが違うよ）");
+        return;
+      }
+
+      if (playerInputSeq.length === orderSequence.length) {
+        audio.correct();
+        if (currentLevel >= 5) {
+          endGame(true, "face_smile.png", "大将やるねぇ！完璧だよ！");
+        } else {
+          currentLevel++;
+          clearInterval(gameLoopInterval);
+          setTimeout(triggerNextLevel, 600);
+        }
+      }
+    }
+
+    function endGame(isSuccess, faceFile, bubbleText) {
+      clearInterval(gameLoopInterval);
+      elSushiPanel.style.display = 'none';
+      elBarContainer.style.display = 'none';
+      elBubble.style.display = 'block';
+      elBubble.innerText = bubbleText;
+      changeCustomerFace(faceFile);
+
+      document.getElementById('result-overlay').style.display = 'flex';
+      const titleEl = document.getElementById('result-title');
+      const msgEl = document.getElementById('result-msg');
+
+      if (isSuccess) {
+        titleEl.innerText = "5連達成！";
+        titleEl.style.color = "#34c759";
+        msgEl.innerHTML = "お見事！サラリーマンの5連ラッシュ注文をすべて完璧に握りきりました！";
+      } else {
+        titleEl.innerText = "ゲーム終了";
+        titleEl.style.color = "#b81c22";
+        msgEl.innerHTML = "注文を間違えるか、<br>時間がなくなってしまいました。<br>もう一度修行し直しましょう！";
+      }
+    }
+
+    document.getElementById('start-btn').addEventListener('click', startGameFlow);
+    document.getElementById('retry-btn').addEventListener('click', startGameFlow);
+  </script>
+</body>
+</html>

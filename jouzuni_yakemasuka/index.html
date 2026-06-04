@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>対戦！ワンボタン焼肉ジャスト</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #222;
+            color: #fff;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            text-align: center;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        #game-container {
+            max-width: 450px;
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #ff4500;
+            font-size: 24px;
+            text-shadow: 2px 2px #000;
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            font-size: 12px;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+        .screen {
+            display: none;
+            background: #333;
+            border: 4px solid #555;
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 400px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        }
+        .active {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+        }
+        button {
+            background: linear-gradient(#ff6347, #ff4500);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px #900;
+            margin: 10px 0;
+            width: 80%;
+        }
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px #900;
+        }
+        /* 肉選択スタイル */
+        .meat-selector {
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        .meat-option {
+            background: #444;
+            padding: 10px;
+            border: 2px solid #666;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 25%;
+        }
+        .meat-option.selected {
+            border-color: #ff4500;
+            background: #552211;
+        }
+        /* 七輪と網・お肉の表現 */
+        #shichirin {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, #ff3300 20%, #444 70%);
+            border: 10px solid #888;
+            border-radius: 50%;
+            position: relative;
+            margin: 20px auto;
+            box-shadow: 0 10px 15px rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #ami {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.3) 2px, transparent 2px),
+                linear-gradient(90deg, rgba(255,255,255,0.3) 2px, transparent 2px);
+            background-size: 20px 20px;
+        }
+        #meat {
+            width: 100px;
+            height: 70px;
+            background-color: #b22222; /* 生肉色 */
+            border-radius: 50% 40% 50% 45%;
+            transition: background-color 0.1s;
+            z-index: 2;
+            box-shadow: 3px 5px 5px rgba(0,0,0,0.3);
+            border: 2px dashed #ff9999;
+        }
+        /* 特大肉焼きボタン */
+        #burn-btn {
+            width: 90%;
+            height: 80px;
+            font-size: 22px;
+            background: linear-gradient(#ff8c00, #ff4500);
+            border-radius: 10px;
+        }
+        #status-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffeb3b;
+            margin-top: 10px;
+            height: 24px;
+        }
+        .result-score {
+            font-size: 48px;
+            color: #ffeb3b;
+            font-weight: bold;
+            margin: 10px 0;
+            text-shadow: 2px 2px #000;
+        }
+        .comment {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <h1>対戦！ワンボタン焼肉ジャスト</h1>
+    <div class="subtitle">〜 オーダー待ちの暇つぶしミニゲーム 〜</div>
+
+    <div id="screen-title" class="screen active">
+        <div style="margin-top:40px;">
+            <p>ルール：ボタンを長押しして<br>最高の焼き加減（上手に焼けました）<br>の瞬間に指を離せ！</p>
+        </div>
+        <div style="width: 100%; margin-bottom: 40px;">
+            <button onclick="changeScreen('screen-setup')">ゲームを始める</button>
+        </div>
+    </div>
+
+    <div id="screen-setup" class="screen">
+        <h3>1. お肉を選ぶ</h3>
+        <div class="meat-selector">
+            <div class="meat-option selected" id="opt-tan" onclick="selectMeat('tan')">タン<br><small>(早い)</small></div>
+            <div class="meat-option" id="opt-karubi" onclick="selectMeat('karubi')">カルビ<br><small>(普通)</small></div>
+            <div class="meat-option" id="opt-rosu" onclick="selectMeat('rosu')">ロース<br><small>(遅い)</small></div>
+        </div>
+        
+        <h3>2. プレイヤー人数</h3>
+        <select id="player-count" style="font-size: 16px; padding: 5px 10px; width: 60%;">
+            <option value="1">1人（練習）</option>
+            <option value="2">2人対戦</option>
+            <option value="3">3人対戦</option>
+            <option value="4">4人対戦</option>
+        </select>
+        
+        <button onclick="startGame()" style="margin-top: 40px;">網の前へ進む</button>
+    </div>
+
+    <div id="screen-game" class="screen">
+        <div id="turn-indicator" style="font-size: 18px; color: #aaa;">プレイヤー 1 の番</div>
+        <div id="status-text">網が温まった！</div>
+        
+        <div id="shichirin">
+            <div id="ami"></div>
+            <div id="meat"></div>
+        </div>
+
+        <button id="burn-btn" onmousedown="pressStart()" onmouseup="pressEnd()" ontouchstart="handleTouchStart(event)" ontouchend="handleTouchEnd(event)">
+            お肉を育てる（長押し）
+        </button>
+        <p style="font-size: 12px; color: #aaa;">※スマホはボタン長押し、PCはクリック長押し</p>
+    </div>
+
+    <div id="screen-result" class="screen">
+        <div id="result-title" style="font-size: 20px;">判定結果</div>
+        <div id="result-score" class="result-score">100点</div>
+        <div id="result-comment" class="comment">上手に焼けましたー！</div>
+        <div id="time-detail" style="color:#aaa; font-size:14px; margin-bottom: 20px;"></div>
+        
+        <button id="next-btn" onclick="nextTurn()">次の人へ</button>
+    </div>
+</div>
+
+<script>
+    // --- ゲーム設定と状態変数 ---
+    const meatTypes = {
+        tan: { name: "タン", time: 2.5, color: "#a52a2a" },
+        karubi: { name: "カルビ", time: 4.0, color: "#b22222" },
+        rosu: { name: "ロース", time: 5.5, color: "#8b0000" }
+    };
+
+    let currentMeat = 'tan';
+    let totalPlayers = 1;
+    let currentPlayer = 1;
+    let playerScores = [];
+
+    let startTime = 0;
+    let timerInterval = null;
+    let isPressing = false;
+
+    // Web Audio APIによる簡易効果音ジェネレーター
+    let audioCtx = null;
+    let grillSoundNode = null;
+
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
+
+    // ジュージュー音の生成（ホワイトノイズ）
+    function startGrillSound() {
+        initAudio();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        
+        const bufferSize = audioCtx.sampleRate * 2;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+
+        grillSoundNode = audioCtx.createBufferSource();
+        grillSoundNode.buffer = buffer;
+        grillSoundNode.loop = true;
+
+        // 音質をジューという音に近づけるフィルター
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 3000;
+        filter.Q.value = 0.5;
+
+        const gainNode = audioCtx.createGain();
+        gainNode.gain.value = 0.15; // 音量
+
+        grillSoundNode.connect(filter);
+        filter.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        
+        grillSoundNode.start();
+    }
+
+    function stopGrillSound() {
+        if (grillSoundNode) {
+            try { grillSoundNode.stop(); } catch(e){}
+            grillSoundNode = null;
+        }
+    }
+
+    // 判定時のピッ音（正解・失敗）
+    function playBeep(freq, duration) {
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    // --- 画面遷移制御 ---
+    function changeScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+    }
+
+    function selectMeat(type) {
+        currentMeat = type;
+        document.querySelectorAll('.meat-option').forEach(opt => opt.classList.remove('selected'));
+        document.getElementById(`opt-${type}`).classList.add('selected');
+    }
+
+    function startGame() {
+        totalPlayers = parseInt(document.getElementById('player-count').value);
+        currentPlayer = 1;
+        playerScores = [];
+        setupTurn();
+        changeScreen('screen-game');
+    }
+
+    function setupTurn() {
+        if (totalPlayers > 1) {
+            document.getElementById('turn-indicator').innerText = `プレイヤー ${currentPlayer} の番`;
+        } else {
+            document.getElementById('turn-indicator').innerText = `練習モード`;
+        }
+        document.getElementById('status-text').innerText = "お肉を乗せました！長押しでスタート！";
+        
+        // 肉の初期状態リセット
+        const meatEl = document.getElementById('meat');
+        meatEl.style.backgroundColor = meatTypes[currentMeat].color;
+        meatEl.style.transform = "scale(1)";
+        meatEl.style.filter = "none";
+    }
+
+    // --- タッチ・クリックイベントハンドラ（二重動作防止） ---
+    function handleTouchStart(e) {
+        e.preventDefault();
+        pressStart();
+    }
+    function handleTouchEnd(e) {
+        e.preventDefault();
+        pressEnd();
+    }
+
+    // 焼き開始
+    function pressStart() {
+        if (isPressing) return;
+        isPressing = true;
+        initAudio();
+        startGrillSound();
+
+        startTime = performance.now();
+        document.getElementById('status-text').innerText = "育ち中……焼き加減を見極めろ！";
+
+        // リアルタイムの見た目変化（簡易タイマー）
+        const meatEl = document.getElementById('meat');
+        const targetTime = meatTypes[currentMeat].time * 1000;
+
+        timerInterval = setInterval(() => {
+            const elapsed = performance.now() - startTime;
+            const ratio = elapsed / targetTime;
+
+            if (ratio < 0.7) {
+                // まだ生肉（初期の色）
+            } else if (ratio >= 0.7 && ratio < 0.9) {
+                // レア（少し茶色っぽくなる）
+                meatEl.style.backgroundColor = "#8a3324";
+            } else if (ratio >= 0.9 && ratio <= 1.05) {
+                // 上手に焼けました（美味しそうな茶色＋少し縮む）
+                meatEl.style.backgroundColor = "#5c2e16";
+                meatEl.style.transform = "scale(0.95)";
+            } else if (ratio > 1.05 && ratio <= 1.2) {
+                // よく焼き（濃い焦げ茶）
+                meatEl.style.backgroundColor = "#3d1d0b";
+                meatEl.style.transform = "scale(0.9)";
+            } else {
+                // 炭（黒）
+                meatEl.style.backgroundColor = "#111111";
+                meatEl.style.filter = "blur(1px)";
+                document.getElementById('status-text').innerText = "ああっ！！焦げてる！！";
+            }
+        }, 100);
+    }
+
+    // 焼き終了（指を離した）
+    function pressEnd() {
+        if (!isPressing) return;
+        isPressing = false;
+        stopGrillSound();
+        clearInterval(timerInterval);
+
+        const elapsedSeconds = (performance.now() - startTime) / 1000;
+        // ±0.3秒のランダムな「網の火力の揺らぎ」を再現
+        const randomFuzz = (Math.random() - 0.5) * 0.6;
+        const finalTime = elapsedSeconds + randomFuzz;
+        
+        calculateResult(finalTime);
+    }
+
+    // --- スコア計算ロジック ---
+    function calculateResult(bakedTime) {
+        const target = meatTypes[currentMeat].time;
+        const ratio = bakedTime / target;
+        
+        let score = 0;
+        let comment = "";
+        let beepFreq = 440;
+
+        if (ratio < 0.7) {
+            score = 10;
+            comment = "これまだ生だよ！お腹壊しちゃう！";
+            beepFreq = 220;
+        } else if (ratio >= 0.7 && ratio < 0.9) {
+            score = 70;
+            comment = "ちょっと早いけど、レア派ならアリ！";
+            beepFreq = 587;
+        } else if (ratio >= 0.9 && ratio <= 1.05) {
+            score = 100;
+            comment = "上手に焼けましたーーー！！！";
+            beepFreq = 880;
+        } else if (ratio > 1.05 && ratio <= 1.2) {
+            score = 50;
+            comment = "ちょっと焼きすぎ！よく焼き派なら…！";
+            beepFreq = 440;
+        } else {
+            score = 0;
+            comment = "炭じゃねーか！！食べられません。";
+            beepFreq = 150;
+        }
+
+        // 効果音
+        if (score === 100) {
+            setTimeout(() => playBeep(880, 0.1), 0);
+            setTimeout(() => playBeep(1100, 0.1), 100);
+            setTimeout(() => playBeep(1320, 0.3), 200);
+        } else {
+            playBeep(beepFreq, 0.4);
+        }
+
+        // スコア記録
+        playerScores.push({ player: currentPlayer, score: score });
+
+        // 結果画面の表示更新
+        document.getElementById('result-score').innerText = `${score} 点`;
+        document.getElementById('result-comment').innerText = comment;
+        document.getElementById('time-detail').innerText = `目標: ${target}秒 / あなたの記録: ${bakedTime.toFixed(2)}秒 (火加減のブレ含む)`;
+
+        // 次のボタンのテキスト変更
+        const nextBtn = document.getElementById('next-btn');
+        if (currentPlayer < totalPlayers) {
+            nextBtn.innerText = `プレイヤー ${currentPlayer + 1} の番へ`;
+        } else {
+            nextBtn.innerText = totalPlayers > 1 ? "最終結果を見る" : "もう一度遊ぶ";
+        }
+
+        changeScreen('screen-result');
+    }
+
+    function nextTurn() {
+        if (currentPlayer < totalPlayers) {
+            currentPlayer++;
+            setupTurn();
+            changeScreen('screen-game');
+        } else {
+            // 全員終了
+            if (totalPlayers > 1) {
+                // ランキング表示
+                playerScores.sort((a, b) => b.score - a.score);
+                let rankText = "【最終順位】\n";
+                playerScores.forEach((ps, idx) => {
+                    rankText += `${idx + 1}位: プレイヤー${ps.player} (${ps.score}点)\n`;
+                });
+                const loser = playerScores[playerScores.length - 1];
+                rankText += `\nドベは プレイヤー${loser.player}！\n最初の肉をみんなにトングで配ってください！`;
+                alert(rankText);
+            }
+            // タイトルに戻る
+            changeScreen('screen-title');
+        }
+    }
+</script>
+
+</body>
+</html>

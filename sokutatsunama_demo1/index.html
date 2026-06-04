@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>速達生＆生ビール品質管理クイズ</title>
+    <style>
+        :root {
+            --primary-color: #f3a61c;
+            --secondary-color: #fff9e6;
+            --dark-color: #3e2723;
+            --success-color: #2e7d32;
+            --error-color: #c62828;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+        }
+
+        body {
+            background-color: #f7f5f0;
+            color: var(--dark-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 600px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            padding: 30px;
+            border-top: 8px solid var(--primary-color);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: var(--dark-color);
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .active {
+            display: block;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .progress-bar {
+            font-size: 14px;
+            color: #757575;
+            margin-bottom: 10px;
+            text-align: right;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: bold;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        .option-btn {
+            display: block;
+            width: 100%;
+            background-color: #f5f5f5;
+            border: 2px solid #e0e0e0;
+            padding: 15px;
+            font-size: 15px;
+            text-align: left;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            line-height: 1.4;
+        }
+
+        .option-btn:not(:disabled):hover {
+            background-color: var(--secondary-color);
+            border-color: var(--primary-color);
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .option-btn.correct {
+            background-color: #e8f5e9;
+            border-color: var(--success-color);
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        .option-btn.wrong {
+            background-color: #ffebee;
+            border-color: var(--error-color);
+            color: var(--error-color);
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .result-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .result-box.correct-box {
+            background-color: #e8f5e9;
+            border-left: 5px solid var(--success-color);
+            color: #1b5e20;
+        }
+
+        .result-box.wrong-box {
+            background-color: #ffebee;
+            border-left: 5px solid var(--error-color);
+            color: #b71c1c;
+        }
+
+        .explanation {
+            margin-top: 10px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #424242;
+            border-top: 1px dashed #ccc;
+            padding-top: 10px;
+        }
+
+        .score-text {
+            font-size: 24px;
+            text-align: center;
+            font-weight: bold;
+            margin: 20px 0;
+            color: var(--primary-color);
+        }
+
+        .score-comment {
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <!-- 1. スタート画面 -->
+    <div id="start-screen" class="screen active">
+        <h1>🍺 速達生＆生ビール品質管理クイズ</h1>
+        <p style="text-align: center; line-height: 1.6; color: #616161;">
+            マルト水谷が提供する「速達生」の秘密や、<br>美味しい生ビールを提供する基礎知識についてのクイズです！<br>全6問、あなたは何問正解できる？
+        </p>
+        <button class="btn" onclick="startQuiz()">クイズをスタートする</button>
+    </div>
+
+    <!-- 2. クイズ画面 -->
+    <div id="quiz-screen" class="screen">
+        <div class="progress-bar" id="progress">第 1 問 / 全 6 問</div>
+        <div class="question-text" id="question">問題文がここに入ります。</div>
+        <div id="options-container">
+            <!-- 選択肢がJavaScriptで生成されます -->
+        </div>
+
+        <!-- 回答後の結果・解説エリア -->
+        <div id="answer-result" class="result-box">
+            <div class="result-title" id="result-status">正解！</div>
+            <div class="explanation" id="explanation-text">解説がここに入ります。</div>
+            <button class="btn" id="next-btn" onclick="nextQuestion()">次の問題へ</button>
+        </div>
+    </div>
+
+    <!-- 3. リザルト画面 -->
+    <div id="result-screen" class="screen">
+        <h1>📊 クイズ結果発表</h1>
+        <div class="score-text" id="final-score">6問中 0問正解！</div>
+        <div class="score-comment" id="final-comment">コメントがここに入ります。</div>
+        <button class="btn" onclick="resetQuiz()">もう一度挑戦する</button>
+    </div>
+</div>
+
+<script>
+    // クイズのデータ
+    const quizData = [
+        {
+            question: "「マルト水谷」が提供する「速達生」の最大の特徴として、正しいものはどれでしょう？",
+            options: [
+                { key: "A", text: "A：生ビールをスピード違反をしてでもなるはやで飲食店へ届ける超速配送サービス" },
+                { key: "B", text: "B: メーカーの工場出荷から原則2日以内（一部3日以内）に新鮮な生ビールを飲食店へ届けるサービス" },
+                { key: "C", text: "C: 問屋出荷から原則2日以内（一部3日以内）に生ビールを飲食店へ届けるサービス" }
+            ],
+            answer: "B",
+            explanation: "「速達生」の最大の強みは「工場出荷」からの日数を保証している点です！メーカーの工場を出てから原則2日以内（一部3日以内）という圧倒的なスピードで飲食店へ配送されるため、極上の鮮度がキープされています。※もちろんスピード違反はしません！"
+        },
+        {
+            question: "飲食店で美味しい生ビールを提供するために、ビールサーバーの「水通し洗浄（回路内に水を通す洗浄）」は最低でもどのくらいの頻度で行うべきとされているでしょう？",
+            options: [
+                { key: "A", text: "A: 毎日の営業終了後" },
+                { key: "B", text: "B: 新しい樽に交換するとき" },
+                { key: "C", text: "C: 1週間に1回" }
+            ],
+            answer: "A",
+            explanation: "ビールは非常にデリケートな「生もの」です。回路内に残ったビールは一晩で傷み、雑菌や酵母の沈殿物の原因になります。そのため、毎日の営業終了後の「水通し洗浄」は絶対に欠かせない基本中の基本です！"
+        },
+        {
+            question: "生ビールを注いだグラスの内側に「小さな気泡」がたくさん張り付いていることがあります。これは一般的にどのような状態を意味しているでしょう？",
+            options: [
+                { key: "A", text: "A: グラスが非常によく冷えている証拠である" },
+                { key: "B", text: "B: グラスの洗浄不足で、油分やホコリなどの汚れが残っている" },
+                { key: "C", text: "C: 炭酸ガスがしっかりとビールに溶け込んでいる良い状態である。" }
+            ],
+            answer: "B",
+            explanation: "本当に綺麗なグラスにビールを注ぐと、内側に余計な気泡はつきません。グラスに目に見えない油分やホコリ、乾燥時のタオルの繊維などが残っていると、そこに炭酸ガスが反応して不自然な気泡が張り付いてしまいます。"
+        },
+        {
+            question: "美味しい生ビールを提供するための正しいグラスの洗い方はどれ？",
+            options: [
+                { key: "A", text: "A: 食器を洗っているスポンジを使用して洗う。" },
+                { key: "B", text: "B：スポンジ代わりに広瀬さんのジャケットを使用する。" },
+                { key: "C", text: "C: グラス専用のスポンジで手洗いする" }
+            ],
+            answer: "C",
+            explanation: "他の食器（特に油汚れのあるお皿など）を洗ったスポンジでグラスを洗うと、グラスに油分が移ってしまい、ビールの泡立ちが著しく悪くなります。必ず「グラス専用のスポンジ」を用意して優しく手洗いしましょう。※ちなみに、広瀬さんのジャケットは生地がどれほど上質であっても、繊維の隙間にホコリや油分、あるいは広瀬さんの哀愁などが含まれている可能性があるため、グラス拭きには全く適していません。ビールを注いだ瞬間に泡が消滅する原因になりますので、大人しくクローゼットに掛けさせてあげてください。"
+        },
+        {
+            question: "生ビールを注ぐ際、液体と泡の黄金比率（見た目も美しく、美味しさを保てる比率）は一般的にどれくらいと言われているでしょう？",
+            options: [
+                { key: "A", text: "A: 液体７：泡３" },
+                { key: "B", text: "B: 液体6：泡4" },
+                { key: "C", text: "C 泡７：液体３" }
+            ],
+            answer: "A",
+            explanation: "見た目も美しく、美味しさを最大限に引き出す比率は「液体 7 ： 泡 3」の黄金比です！泡が少なすぎると炭酸が抜けやすく、多すぎると飲む液体の量が少なくなってしまいます。"
+        },
+        {
+            question: "生ビールの「泡」が持つ、美味しさを守るための重要な役割として間違っているものはどれでしょう？",
+            options: [
+                { key: "A", text: "A: 炭酸ガスが外に逃げて気抜けするのを防ぐ役割" },
+                { key: "B", text: "B：ビールが空気に触れて酸化するのを防ぐ「フタ」の役割" },
+                { key: "C", text: "C: ビールのアルコール度数を下げる役割" }
+            ],
+            answer: "C",
+            explanation: "ビールの泡は、炭酸ガスを閉じ込め、空気（酸素）に触れて味が落ちる（酸化する）のを防ぐ「フタ」の役割を果たしています。しかし、泡によってビールのアルコール度数が下がることはありません。"
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+    }
+
+    function startQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        showScreen('quiz-screen');
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const currentQuiz = quizData[currentQuestionIndex];
+        
+        // 進行度と問題文の設定
+        document.getElementById('progress').innerText = `第 ${currentQuestionIndex + 1} 問 / 全 ${quizData.length} 問`;
+        document.getElementById('question').innerText = currentQuiz.question;
+        
+        // 解説エリアを隠す
+        const resultBox = document.getElementById('answer-result');
+        resultBox.style.display = 'none';
+        resultBox.className = 'result-box';
+
+        // 選択肢ボタンの生成
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
+        
+        currentQuiz.options.forEach(option => {
+            const button = document.createElement('button');
+            button.className = 'option-btn';
+            button.innerText = option.text;
+            button.onclick = () => selectOption(option.key, button);
+            container.appendChild(button);
+        });
+    }
+
+    function selectOption(selectedKey, clickedButton) {
+        const currentQuiz = quizData[currentQuestionIndex];
+        const buttons = document.querySelectorAll('.option-btn');
+        
+        // すべてのボタンを無効化
+        buttons.forEach(btn => btn.disabled = true);
+
+        const resultBox = document.getElementById('answer-result');
+        const resultStatus = document.getElementById('result-status');
+        const explanationText = document.getElementById('explanation-text');
+
+        // 正誤判定
+        if (selectedKey === currentQuiz.answer) {
+            score++;
+            clickedButton.classList.add('correct');
+            resultStatus.innerText = "正解！ 🎉";
+            resultBox.classList.add('correct-box');
+        } else {
+            clickedButton.classList.add('wrong');
+            resultStatus.innerText = "残念、不正解… 😢";
+            resultBox.classList.add('wrong-box');
+            
+            // 正解のボタンをハイライト
+            buttons.forEach(btn => {
+                if(btn.innerText.startsWith(currentQuiz.answer) || btn.innerText.includes(currentQuiz.answer + '：') || btn.innerText.includes(currentQuiz.answer + ':')) {
+                    btn.classList.add('correct');
+                }
+            });
+        }
+
+        // 解説テキストの挿入と表示
+        explanationText.innerText = currentQuiz.explanation;
+        resultBox.style.display = 'block';
+
+        // ボタンの文言切り替え
+        const nextBtn = document.getElementById('next-btn');
+        if (currentQuestionIndex === quizData.length - 1) {
+            nextBtn.innerText = "結果を見る";
+        } else {
+            nextBtn.innerText = "次の問題へ";
+        }
+    }
+
+    function nextQuestion() {
+        if (currentQuestionIndex < quizData.length - 1) {
+            currentQuestionIndex++;
+            loadQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        showScreen('result-screen');
+        document.getElementById('final-score').innerText = `全 ${quizData.length} 問中 ${score} 問正解！`;
+        
+        let comment = "";
+        if (score === quizData.length) {
+            comment = "素晴らしい！完璧です！💯 あなたは「速達生」マスター、そして美味しいビールのプロフェッショナルです！今夜のビールは最高に美味しいはず！";
+        } else if (score >= 4) {
+            comment = "お見事！かなりビールの知識をお持ちですね！🍺 日頃から鮮度や提供方法にこだわりを持っている証拠です。全問正解まであと一歩！";
+        } else {
+            comment = "クイズに挑戦していただきありがとうございます！「水通し」や「専用スポンジ」の知識を意識するだけで、お店のビールのクオリティは劇的に上がりますよ！ぜひまた挑戦してください！";
+        }
+        document.getElementById('final-comment').innerText = comment;
+    }
+
+    function resetQuiz() {
+        showScreen('start-screen');
+    }
+</script>
+</body>
+</html>

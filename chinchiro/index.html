@@ -29,78 +29,90 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start; /* 上から順番にバランスよく配置 */
-      padding-top: 5dvh; /* 【修正】タイトルを少し下に下げるための余白 */
+      justify-content: flex-start;
+      padding-top: 6dvh; /* タイトルの位置をさらに少し下に下げてバランス調整 */
     }
     
-    /* 3Dサイコロエリアのサイズを微調整 */
-    #gameCanvas { display: block; width: 100%; height: 35vh; background: transparent; }
+    /* 【演出】サイコロが回っているときだけ画面全体を覆う「ドキドキ座布団」 */
+    #curtain {
+      position: fixed;
+      inset: 0;
+      background: rgba(12, 5, 3, 0.82); /* 漆黒に近い高級感のある半透明黒 */
+      z-index: 5;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease; /* じわっと暗くなる演出 */
+    }
+    #curtain.active {
+      opacity: 1;
+    }
+
+    /* 3Dサイコロエリア（座布団より手前に表示するため z-index を 6 に） */
+    #gameCanvas { 
+      display: block; 
+      width: 100%; 
+      height: 40vh; 
+      background: transparent; 
+      z-index: 6; 
+      position: relative;
+    }
     
+    /* UI全体のレイアウト（四角い箱をなくし、文字影で可読性を担保） */
     #ui-container {
       width: 100%;
       max-width: 450px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
+      gap: 15px;
       z-index: 10;
-      padding: 0 15px;
+      padding: 0 20px;
     }
     
-    /* 【修正】タイトルエリアに半透明の黒帯を敷いて、背景が派手でもクッキリ見えるように */
-    #title-box {
-      width: 100%;
-      background: rgba(0, 0, 0, 0.55);
-      padding: 10px;
-      border-radius: 8px;
-      text-align: center;
-      margin-bottom: 5px;
-      border: 1px solid rgba(255, 214, 0, 0.3);
-    }
-
+    /* 【修正】ダサい四角を廃止し、文字だけで粋に魅せる */
     #game-title {
-      font-size: 32px;
+      font-size: 36px;
       color: #ffd600;
-      text-shadow: 1px 1px 3px #000;
-      letter-spacing: 1px;
-    }
-
-    /* 【修正】結果表示エリアも黒帯で囲んで視認性を最優先 */
-    #result-box {
-      width: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      padding: 12px;
-      border-radius: 8px;
+      text-shadow: 2px 2px 5px #000, -2px -2px 5px #000, 0 0 15px rgba(255,234,0,0.6);
       text-align: center;
-      border: 2px solid #ffd600;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      letter-spacing: 2px;
+      transition: opacity 0.3s;
     }
 
+    /* 【修正】結果発表も箱をなくし、文字サイズを大きくしてドカンとアピール */
     #result-display {
-      font-size: 26px;
-      min-height: 40px;
-      line-height: 1.3;
+      font-size: 34px;
+      min-height: 45px;
+      line-height: 1.4;
       color: #fff;
+      text-shadow: 2px 2px 6px #000, -2px -2px 6px #000;
+      text-align: center;
+      transition: opacity 0.3s;
     }
 
     #dice-values {
-      font-size: 16px;
+      font-size: 18px;
       color: #ffeb3b;
-      margin-top: 4px;
+      margin-top: 5px;
+      text-shadow: 1px 1px 4px #000;
+      transition: opacity 0.3s;
     }
     
-    /* ボタンを押しやすい位置に調整 */
+    /* 回転中に文字を一時的に消してサイコロを目立たせるためのクラス */
+    .fade-out { opacity: 0 !important; pointer-events: none; }
+
+    /* ボタンコンテナ */
     #btn-container {
-      margin-top: auto; /* 画面の一番下側に自動配置 */
-      margin-bottom: 4dvh; /* 下に切れ込まない安全マージン */
+      margin-top: auto;
+      margin-bottom: 5dvh;
       z-index: 10;
-      width: 90%;
-      max-width: 400px;
+      width: 85%;
+      max-width: 380px;
     }
 
     .btn-roll {
       width: 100%;
-      background: #e67e22; /* お祭りオレンジ */
+      background: #e67e22;
       color: #fff;
       border: 4px solid #ffd600;
       padding: 14px 0;
@@ -109,60 +121,55 @@
       font-weight: bold;
       cursor: pointer;
       border-radius: 12px;
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.6);
       transition: all 0.1s;
-      text-align: center;
     }
     .btn-roll:disabled {
       background: #4b5563 !important;
       color: #9ca3af !important;
       border-color: #6b7280 !important;
       box-shadow: none !important;
-      cursor: not-allowed !important;
       transform: none !important;
-      opacity: 0.9;
+      opacity: 0.95;
     }
-    .btn-roll:not(:disabled):active { transform: scale(0.96); }
 
-    /* 【修正】ルール早見表パネルの位置をサイコロのすぐ下に引っ越し */
+    /* 【修正】ルール早見表も箱ではなく、透け感のあるお札のような風合いに */
     #rule-panel {
       margin-top: 5px;
-      background: rgba(0, 0, 0, 0.75); /* 文字がブレないように少し濃いめの半透明 */
-      border: 2px solid #ffd600;
-      padding: 10px 15px;
+      background: rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(255, 214, 0, 0.4);
+      padding: 12px 20px;
       border-radius: 8px;
       font-size: 13px;
       width: 100%;
       display: flex;
       flex-direction: column;
       gap: 6px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      transition: opacity 0.3s;
     }
-    .rule-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(255,255,255,0.2); padding-bottom: 4px; }
+    .rule-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(255,255,255,0.15); padding-bottom: 4px; }
     .rule-item:last-child { border-bottom: none; padding-bottom: 0; }
     .rule-label { color: #ffeb3b; }
-    .rule-prize { color: #fff; font-size: 14px; text-shadow: 1px 1px 1px #000; }
+    .rule-prize { color: #fff; font-size: 14px; text-shadow: 1px 1px 2px #000; }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
+  <div id="curtain"></div>
+
   <div id="ui-container">
-    <div id="title-box">
-      <div id="game-title">ハイボールチンチロリン</div>
-    </div>
-    
-    <div id="result-box">
-      <div id="result-display">一回勝負！サイコロを振ってください</div>
-      <div id="dice-values">・ ・ ・</div>
-    </div>
+    <div id="game-title">ハイボールチンチロリン</div>
+    <div id="result-display">一回勝負！サイコロを振ってください</div>
+    <div id="dice-values">・ ・ ・</div>
   </div>
 
   <canvas id="gameCanvas"></canvas>
 
   <div id="ui-container">
     <div id="rule-panel">
-      <div class="rule-item"><span class="rule-label">🎲 ゾロ目 (数字が揃う)</span><span class="rule-prize" id="lbl-zoro">-</span></div>
+      <div class="rule-item"><span class="rule-label">🎲 ゾロ目</span><span class="rule-prize" id="lbl-zoro">-</span></div>
       <div class="rule-item"><span class="rule-label">🎲 合計が【奇数】</span><span class="rule-prize" id="lbl-kisu">-</span></div>
       <div class="rule-item"><span class="rule-label">🎲 合計が【偶数】</span><span class="rule-prize" id="lbl-gusu">-</span></div>
       <div class="rule-item"><span class="rule-label">🎲 その他</span><span class="rule-prize" id="lbl-other">通常料金</span></div>
@@ -189,14 +196,10 @@
     document.getElementById('lbl-gusu').innerText = CONFIG.PRIZE_GUSU;
     document.getElementById('lbl-other').innerText = CONFIG.PRIZE_OTHER;
 
-    // 🔒 不正リロード＆再読み込みブロック処理
-    window.addEventListener('beforeunload', (e) => {
-      e.preventDefault(); e.returnValue = 'データが消失します。'; 
-    });
+    // 🔒 不正リロード＆再読み込みブロック
+    window.addEventListener('beforeunload', (e) => { e.preventDefault(); e.returnValue = 'ロック中'; });
     window.addEventListener('keydown', (e) => {
-      if (e.key === 'F5' || (e.ctrlKey && e.key === 'r') || (e.metaKey && e.key === 'r')) {
-        e.preventDefault(); return false;
-      }
+      if (e.key === 'F5' || (e.ctrlKey && e.key === 'r') || (e.metaKey && e.key === 'r')) e.preventDefault();
     });
     document.addEventListener('contextmenu', (e) => { e.preventDefault(); });
 
@@ -231,13 +234,12 @@
     const canvas = document.getElementById('gameCanvas');
     const scene = new THREE.Scene();
     
-    // パースを見やすさ重視で微調整
-    const camera = new THREE.PerspectiveCamera(36, window.innerWidth / (window.innerHeight * 0.35), 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(36, window.innerWidth / (window.innerHeight * 0.4), 0.1, 1000);
     camera.position.set(0, 0, 6.2);
     camera.lookAt(0, 0, 0);
     
     const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight * 0.35);
+    renderer.setSize(window.innerWidth, window.innerHeight * 0.4);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     
     const ambientLight = new THREE.AmbientLight(0xffffff, 1.0); 
@@ -263,21 +265,21 @@
         
         ctx.fillStyle = '#fffdfa';
         ctx.fillRect(0, 0, 128, 128);
-        ctx.strokeStyle = '#f3e6d0';
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#e5dcd0';
+        ctx.lineWidth = 3;
         ctx.strokeRect(4, 4, 120, 120);
 
         const dots = dotPositions[num];
-        ctx.fillStyle = num === 1 ? '#d35400' : '#2c3e50'; 
+        ctx.fillStyle = num === 1 ? '#cc241d' : '#282828'; 
         dots.forEach(pos => {
           ctx.beginPath();
-          const radius = num === 1 ? 22 : 11;
+          const radius = num === 1 ? 24 : 11; // 1の赤目をさらに強調
           ctx.arc(pos[0], pos[1], radius, 0, Math.PI * 2);
           ctx.fill();
         });
         
         const tex = new THREE.CanvasTexture(c);
-        mats.push(new THREE.MeshStandardMaterial({ map: tex, roughness: 0.3 }));
+        mats.push(new THREE.MeshStandardMaterial({ map: tex, roughness: 0.25 }));
       });
       return mats;
     }
@@ -292,8 +294,10 @@
       6: new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2)
     };
 
+    // --- 賽オブジェクトの作成 ---
     const diceMeshes = [];
-    const geo = new THREE.BoxGeometry(0.85, 0.85, 0.85);
+    // 【修正】サイコロの1辺を 0.85 ➡️ 1.15 へ大幅に巨大化！
+    const geo = new THREE.BoxGeometry(1.15, 1.15, 1.15);
 
     for (let i = 0; i < 3; i++) {
       const mesh = new THREE.Mesh(geo, diceMaterials);
@@ -306,6 +310,7 @@
       });
     }
 
+    // --- ルール判定ロジック ---
     function judgeChinchiroRule(dice) {
       const [d1, d2, d3] = dice;
       const total = d1 + d2 + d3;
@@ -313,7 +318,6 @@
       if (d1 === d2 && d2 === d3) {
         return { name: `ゾロ目！🎉\n${CONFIG.PRIZE_ZORO}`, isWin: true };
       }
-      
       if (total % 2 !== 0) {
         return { name: `合計 ${total} (奇数)！👍\n${CONFIG.PRIZE_KISU}`, isWin: true };
       } else {
@@ -321,9 +325,13 @@
       }
     }
 
+    // 各要素の取得
     const rollButton = document.getElementById('btn-roll');
     const resultDisplay = document.getElementById('result-display');
     const diceValuesDisplay = document.getElementById('dice-values');
+    const curtain = document.getElementById('curtain');
+    const gameTitle = document.getElementById('game-title');
+    const rulePanel = document.getElementById('rule-panel');
 
     let rollTimeline = 0;
     let finalResults = [1, 2, 3];
@@ -332,9 +340,13 @@
       if (rollTimeline > 0) return; 
       
       rollButton.disabled = true;
-      resultDisplay.innerText = "運命のダイスロール！";
-      resultDisplay.style.color = "#ffeb3b";
-      diceValuesDisplay.innerText = "ガラガラガラ……";
+
+      // 【新演出】文字をフッと消して、全画面の黒い座布団を敷く
+      curtain.classList.add('active');
+      gameTitle.classList.add('fade-out');
+      resultDisplay.classList.add('fade-out');
+      diceValuesDisplay.classList.add('fade-out');
+      rulePanel.classList.add('fade-out');
 
       finalResults = [
         Math.floor(Math.random() * 6) + 1,
@@ -344,14 +356,15 @@
 
       diceMeshes.forEach((dice) => {
         dice.rotSpeed.set(
-          5 + Math.random() * 4,
-          5 + Math.random() * 4,
-          5 + Math.random() * 4
+          6 + Math.random() * 4,
+          6 + Math.random() * 4,
+          6 + Math.random() * 4
         );
-        dice.targetQuat.copy(faceRotations[finalResults[index = diceMeshes.indexOf(dice)]]);
+        dice.targetQuat.copy(faceRotations[finalResults[diceMeshes.indexOf(dice)]]);
       });
 
-      rollTimeline = 2.0; 
+      // 【修正】回転時間を 2.0秒 ➡️ 3.0秒 へ1秒間延長！
+      rollTimeline = 3.0; 
     }
 
     rollButton.addEventListener('click', () => {
@@ -359,6 +372,7 @@
       rollDice();
     });
 
+    // --- メインループ ---
     const clock = new THREE.Clock();
 
     renderer.setAnimationLoop(() => {
@@ -369,12 +383,12 @@
 
         diceMeshes.forEach((dice, index) => {
           if (rollTimeline > 0.5) {
-            // イラスト中央の「白い円形スペース」の枠内にぴったり合わせて綺麗にスピン
-            dice.angle += dt * 8.0;
-            let radius = 0.45 + rollTimeline * 0.25; 
+            // 暗闇の中で巨大なサイコロが激しくアクロバティックに飛び回る
+            dice.angle += dt * 7.5;
+            let radius = 0.65 + rollTimeline * 0.2; // 巨大化に合わせて円運動の半径も外側に調整
             let px = Math.cos(dice.angle + index) * radius;
             let pz = Math.sin(dice.angle + index) * radius;
-            let py = -0.1 + (Math.pow(px,2) + Math.pow(pz,2)) * 0.1; 
+            let py = -0.05 + (Math.pow(px,2) + Math.pow(pz,2)) * 0.08; 
             
             dice.mesh.position.set(px, py, pz);
 
@@ -382,28 +396,37 @@
             dice.mesh.rotateY(dice.rotSpeed.y * dt);
             dice.mesh.rotateZ(dice.rotSpeed.z * dt);
             
-            if (Math.random() < 0.08) audio.playClick(); 
+            if (Math.random() < 0.07) audio.playClick(); 
           } else {
-            // イラスト中央（Y: -0.15）に綺麗に横一列に吸着
-            let targetX = (index - 1) * 0.95; 
+            // ラスト0.5秒で、イラストの白い空間（高さ-0.15）に向かってスローモーションのように吸着
+            let targetX = (index - 1) * 1.25; // 巨大化したのでサイコロ同士がぶつからないよう間隔を広げる(0.95→1.25)
             dice.mesh.position.x = THREE.MathUtils.lerp(dice.mesh.position.x, targetX, 0.15);
             dice.mesh.position.y = THREE.MathUtils.lerp(dice.mesh.position.y, -0.15, 0.15); 
             dice.mesh.position.z = THREE.MathUtils.lerp(dice.mesh.position.z, 0, 0.15);
             
-            dice.mesh.quaternion.slerp(dice.targetQuat, 0.3);
+            dice.mesh.quaternion.slerp(dice.targetQuat, 0.25);
           }
         });
 
+        // 完全停止・リザルト解放の瞬間
         if (rollTimeline <= 0) {
           rollTimeline = 0;
           
           diceMeshes.forEach((dice, index) => {
-            dice.mesh.position.set((index - 1) * 0.95, -0.15, 0);
-            dice.mesh.quaternion.copy(dice.targetQuat); 
+            dice.mesh.position.set((index - 1) * 1.25, -0.15, 0);
+            dice.mesh.quaternion.copy(dice.targetQuat); // 完全正面ロック
           });
 
           audio.playStop();
 
+          // 【新演出】サイコロが止まった瞬間に黒幕を消し、文字を一気に復活させる
+          curtain.classList.remove('active');
+          gameTitle.classList.remove('fade-out');
+          resultDisplay.classList.remove('fade-out');
+          diceValuesDisplay.classList.remove('fade-out');
+          rulePanel.classList.remove('fade-out');
+
+          // ルール判定
           const result = judgeChinchiroRule(finalResults);
           diceValuesDisplay.innerText = `出目: ［ ${finalResults[0]} ］［ ${finalResults[1]} ］［ ${finalResults[2]} ］`;
           resultDisplay.innerText = result.name;
@@ -415,12 +438,13 @@
             resultDisplay.style.color = "#ff1744"; 
           }
 
+          // ボタンをロック
           rollButton.innerText = "また挑戦してね";
           rollButton.disabled = true;
         }
       } else {
         diceMeshes.forEach((dice, index) => {
-          dice.mesh.position.set((index - 1) * 0.95, -0.15, 0);
+          dice.mesh.position.set((index - 1) * 1.25, -0.15, 0);
         });
       }
 
@@ -428,9 +452,9 @@
     });
 
     window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / (window.innerHeight * 0.35);
+      camera.aspect = window.innerWidth / (window.innerHeight * 0.4);
       camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight * 0.35);
+      renderer.setSize(window.innerWidth, window.innerHeight * 0.4);
     });
   </script>
 </body>

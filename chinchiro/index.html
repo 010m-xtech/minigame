@@ -1,105 +1,417 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <title>チンチロ・ビールチャレンジ</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body { font-family: sans-serif; text-align: center; background-color: #fce4ec; padding: 20px; }
-        .container { max-width: 400px; margin: 0 auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        
-        /* サイコロのエリア */
-        .dice-area { font-size: 80px; margin: 20px 0; display: flex; justify-content: center; gap: 20px; }
-        .dice { transition: transform 0.1s; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>ハイボールチンチロリン</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+    body {
+      overflow: hidden;
+      background: #7a1f1d;
+      font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+      font-weight: bold;
+      color: #fff;
+      touch-action: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    #gameCanvas { display: block; width: 100%; height: 50vh; }
+    
+    #ui-container {
+      width: 100%;
+      max-width: 450px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      z-index: 10;
+    }
+    
+    #game-title {
+      font-size: 38px;
+      color: #ffd600;
+      text-shadow: 2px 2px 4px #000, 0 0 10px #ffea00;
+      text-align: center;
+      margin-bottom: 5px;
+      letter-spacing: 1px;
+    }
 
-        /* メッセージ */
-        .message { font-size: 20px; font-weight: bold; min-height: 60px; color: #333; margin-bottom: 20px; }
+    #result-display {
+      font-size: 32px;
+      min-height: 50px;
+      color: #fff;
+      text-shadow: 2px 2px 4px #000;
+      text-align: center;
+    }
 
-        /* ボタン */
-        button { 
-            font-size: 24px; padding: 15px 40px; cursor: pointer;
-            border: none; border-radius: 50px; background-color: #d32f2f; color: white;
-            box-shadow: 0 4px 0 #b71c1c;
-        }
-        button:active { transform: translateY(4px); box-shadow: none; }
-        button:disabled { background-color: #ccc; box-shadow: none; }
+    #dice-values {
+      font-size: 20px;
+      color: #ffeb3b;
+      min-height: 25px;
+      text-shadow: 1px 1px 2px #000;
+    }
+    
+    .btn-roll {
+      background: #e67e22;
+      color: #fff;
+      border: 4px solid #ffd600;
+      padding: 14px 50px;
+      font-size: 24px;
+      font-family: inherit;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+      transition: all 0.1s;
+    }
+    .btn-roll:disabled {
+      background: #4b5563 !important;
+      color: #9ca3af !important;
+      border-color: #6b7280 !important;
+      box-shadow: none !important;
+      cursor: not-allowed !important;
+      transform: none !important;
+      opacity: 0.8;
+    }
+    .btn-roll:not(:disabled):active { transform: scale(0.96); }
 
-        /* クーポン */
-        #coupon {
-            display: none; margin-top: 20px; padding: 20px; border: 4px double #ff5722;
-            background-color: #fff8f1; border-radius: 10px; animation: bounce 0.5s infinite alternate;
-        }
-        @keyframes bounce { from { transform: scale(1); } to { transform: scale(1.05); } }
-    </style>
+    /* ルール早見表パネル */
+    #rule-panel {
+      margin-top: 15px;
+      background: rgba(0, 0, 0, 0.6); /* 背景画像が見えやすいよう、少し透け感を調整 */
+      border: 2px solid #ffd600;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 13px;
+      width: 90%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    .rule-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(255,255,255,0.2); padding-bottom: 4px; }
+    .rule-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .rule-label { color: #ffeb3b; }
+    .rule-prize { color: #fff; font-size: 14px; text-shadow: 1px 1px 1px #000; }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
-<div class="container">
-    <h2 style="color: #d32f2f;">🎲 チンチロ 🎲</h2>
-    <p>ぞろ目が出たら「生ビール」無料！</p>
+  <div id="game-title">LINE MAZE 2D</div>
+  <div id="result-display">一回勝負！サイコロを振ってください</div>
+  <div id="dice-values">・ ・ ・</div>
 
-    <div class="dice-area">
-        <div id="dice1" class="dice">🎲</div>
-        <div id="dice2" class="dice">🎲</div>
-    </div>
+  <canvas id="gameCanvas"></canvas>
 
-    <div class="message" id="msg">運試しだ！</div>
+  <div id="ui-container">
+    <button class="btn-roll" id="btn-roll">サイコロを振る！</button>
+  </div>
 
-    <button id="rollBtn" onclick="startRoll()">サイコロを振る！</button>
+  <div id="rule-panel">
+    <div class="rule-item"><span class="rule-label">🎲 ゾロ目 (数字が揃う)</span><span class="rule-prize" id="lbl-zoro">-</span></div>
+    <div class="rule-item"><span class="rule-label">🎲 合計が【奇数】</span><span class="rule-prize" id="lbl-kisu">-</span></div>
+    <div class="rule-item"><span class="rule-label">🎲 合計が【偶数】</span><span class="rule-prize" id="lbl-gusu">-</span></div>
+    <div class="rule-item"><span class="rule-label">🎲 その他 (シゴロ/目あり等)</span><span class="rule-prize" id="lbl-other">通常料金</span></div>
+  </div>
 
-    <div id="coupon">
-        <h2 style="color: #ff5722;">🍺 おめでとう！ 🍺</h2>
-        <p style="font-size: 22px; font-weight: bold;">生ビール1杯サービス</p>
-        <p>店員さんにこの画面を見せてね！</p>
-        <button onclick="location.reload()" style="font-size: 16px; background: #757575; box-shadow: 0 4px 0 #444;">もう一度</button>
-    </div>
-</div>
+  <script>
+    // ==========================================
+    // 🛠️ 【お店用カスタム設定】
+    // ==========================================
+    const CONFIG = {
+      TITLE: "ハイボールチンチロリン", 
+      PRIZE_ZORO: "通常サイズ 【無料】!!",   
+      PRIZE_KISU: "通常サイズ 【半額】!",    
+      PRIZE_GUSU: "強制【メガジョッキ】倍額", 
+      PRIZE_OTHER: "通常料金（そのまま）"     
+    };
+    // ==========================================
 
-<script>
-    const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
-    let timer;
+    document.getElementById('game-title').innerText = CONFIG.TITLE;
+    document.title = CONFIG.TITLE;
+    document.getElementById('lbl-zoro').innerText = CONFIG.PRIZE_ZORO;
+    document.getElementById('lbl-kisu').innerText = CONFIG.PRIZE_KISU;
+    document.getElementById('lbl-gusu').innerText = CONFIG.PRIZE_GUSU;
+    document.getElementById('lbl-other').innerText = CONFIG.PRIZE_OTHER;
 
-    function startRoll() {
-        const btn = document.getElementById('rollBtn');
-        const msg = document.getElementById('msg');
-        const coupon = document.getElementById('coupon');
+    // 🔒 不正リロード＆再読み込みブロック処理
+    window.addEventListener('beforeunload', (e) => {
+      e.preventDefault();
+      e.returnValue = 'ゲームデータが消失します。よろしいですか？'; 
+    });
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'F5' || (e.ctrlKey && e.key === 'r') || (e.metaKey && e.key === 'r')) {
+        e.preventDefault(); return false;
+      }
+    });
+    document.addEventListener('contextmenu', (e) => { e.preventDefault(); });
+
+    // --- 音響システム ---
+    class SynthAudio {
+      constructor() { this.ctx = null; }
+      init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); }
+      play(freq, endFreq, duration, type = 'triangle', vol = 0.1) {
+        if(!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type; osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(endFreq, this.ctx.currentTime + duration);
+        gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+        osc.start(); osc.stop(this.ctx.currentTime + duration);
+      }
+      playClick() { this.play(900, 400, 0.04, 'triangle', 0.08); } 
+      playStop() { this.play(160, 80, 0.1, 'sine', 0.2); } 
+      playWin() { 
+        const notes = [587, 659, 784, 880, 988, 1174]; 
+        notes.forEach((f, i) => {
+          setTimeout(() => this.play(f, f, 0.12, 'square', 0.03), i * 70);
+        });
+      }
+    }
+    const audio = new SynthAudio();
+    document.body.addEventListener('pointerdown', () => audio.init(), { once: true });
+
+    // --- Three.js セットアップ ---
+    const canvas = document.getElementById('gameCanvas');
+    const scene = new THREE.Scene();
+    
+    const camera = new THREE.PerspectiveCamera(36, window.innerWidth / (window.innerHeight * 0.5), 0.1, 1000);
+    camera.position.set(0, 0, 6.2);
+    camera.lookAt(0, 0, 0);
+    
+    const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight * 0.5);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.0); // 画像が綺麗に見えるようライトを明るく
+    scene.add(ambientLight);
+
+    // --- 【修正】自作画像を3D背景として完璧に配置する処理 ---
+    const textureLoader = new THREE.TextureLoader();
+    // ローカルの同一フォルダ内にある 'backscreen.jpg' を読み込み
+    textureLoader.load('backscreen.jpg', function(texture) {
+      // アスペクト比を維持しつつ、画面いっぱいに広がる板（プレーン）を作成
+      const bgGeo = new THREE.PlaneGeometry(6.4, 6.4);
+      const bgMat = new THREE.MeshBasicMaterial({ map: texture });
+      const bgMesh = new THREE.Mesh(bgGeo, bgMat);
+      bgMesh.position.set(0, 0, -1); // サイコロの後ろ側に配置
+      scene.add(bgMesh);
+      
+      // 画像が読み込まれたら背景色を上書き
+      scene.background = null;
+    }, undefined, function(err) {
+      console.error("画像の読み込みに失敗しました。ファイル名が 'backscreen.jpg' で同じフォルダにあるか確認してください。");
+      scene.background = new THREE.Color(0x7a1f1d); // 失敗時は元の赤茶色
+    });
+
+    // --- 通常ドットサイコロテクスチャ ---
+    const diceNumbers = [3, 4, 1, 6, 2, 5]; 
+    const dotPositions = {
+      1: [[64, 64]],
+      2: [[34, 34], [94, 94]],
+      3: [[34, 34], [64, 64], [94, 94]],
+      4: [[34, 34], [34, 94], [94, 34], [94, 94]],
+      5: [[34, 34], [34, 94], [64, 64], [94, 34], [94, 94]],
+      6: [[34, 34], [34, 64], [34, 94], [94, 34], [94, 64], [94, 94]]
+    };
+
+    function createDiceMaterials() {
+      const mats = [];
+      diceNumbers.forEach(num => {
+        const c = document.createElement('canvas');
+        c.width = 128; c.height = 128;
+        const ctx = c.getContext('2d');
         
-        btn.disabled = true; // 連打防止
-        msg.innerText = "くるくる……";
-        msg.style.color = "#333";
+        ctx.fillStyle = '#fffdfa';
+        ctx.fillRect(0, 0, 128, 128);
+        ctx.strokeStyle = '#f3e6d0';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(4, 4, 120, 120);
 
-        // くるくる回る演出（0.1秒ごとに目を変える）
-        let count = 0;
-        timer = setInterval(() => {
-            document.getElementById('dice1').innerText = diceFaces[Math.floor(Math.random() * 6)];
-            document.getElementById('dice2').innerText = diceFaces[Math.floor(Math.random() * 6)];
-            count++;
+        const dots = dotPositions[num];
+        ctx.fillStyle = num === 1 ? '#d35400' : '#2c3e50'; 
+        dots.forEach(pos => {
+          ctx.beginPath();
+          const radius = num === 1 ? 22 : 11;
+          ctx.arc(pos[0], pos[1], radius, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        
+        const tex = new THREE.CanvasTexture(c);
+        mats.push(new THREE.MeshStandardMaterial({ map: tex, roughness: 0.3 }));
+      });
+      return mats;
+    }
+    const diceMaterials = createDiceMaterials();
+
+    const faceRotations = {
+      1: new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI / 2),
+      2: new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), 0),
+      3: new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI / 2),
+      4: new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2),
+      5: new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI),
+      6: new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2)
+    };
+
+    // --- 賽オブジェクトの作成 ---
+    const diceMeshes = [];
+    const geo = new THREE.BoxGeometry(0.85, 0.85, 0.85);
+
+    for (let i = 0; i < 3; i++) {
+      const mesh = new THREE.Mesh(geo, diceMaterials);
+      scene.add(mesh);
+      diceMeshes.push({
+        mesh: mesh,
+        angle: i * (Math.PI * 2 / 3),
+        targetQuat: new THREE.Quaternion(),
+        rotSpeed: new THREE.Vector3()
+      });
+    }
+
+    // --- ルール判定ロジック ---
+    function judgeChinchiroRule(dice) {
+      const [d1, d2, d3] = dice;
+      const total = d1 + d2 + d3;
+
+      if (d1 === d2 && d2 === d3) {
+        return { name: `ゾロ目！🎉\n${CONFIG.PRIZE_ZORO}`, isWin: true };
+      }
+      
+      if (total % 2 !== 0) {
+        return { name: `合計 ${total} (奇数)！👍\n${CONFIG.PRIZE_KISU}`, isWin: true };
+      } else {
+        return { name: `合計 ${total} (偶数)！😲\n${CONFIG.PRIZE_GUSU}`, isWin: false };
+      }
+    }
+
+    // --- ロール実行処理 ---
+    const rollButton = document.getElementById('btn-roll');
+    const resultDisplay = document.getElementById('result-display');
+    const diceValuesDisplay = document.getElementById('dice-values');
+
+    let rollTimeline = 0;
+    let finalResults = [1, 2, 3];
+
+    function rollDice() {
+      if (rollTimeline > 0) return; 
+      
+      rollButton.disabled = true;
+      resultDisplay.innerText = "運命のダイスロール！";
+      resultDisplay.style.color = "#ffeb3b";
+      diceValuesDisplay.innerText = "ガラガラガラ……";
+
+      finalResults = [
+        Math.floor(Math.random() * 6) + 1,
+        Math.floor(Math.random() * 6) + 1,
+        Math.floor(Math.random() * 6) + 1
+      ];
+
+      diceMeshes.forEach((dice) => {
+        dice.rotSpeed.set(
+          5 + Math.random() * 4,
+          5 + Math.random() * 4,
+          5 + Math.random() * 4
+        );
+        dice.targetQuat.copy(faceRotations[finalResults[index = diceMeshes.indexOf(dice)]]);
+      });
+
+      rollTimeline = 2.0; 
+    }
+
+    rollButton.addEventListener('click', () => {
+      audio.init();
+      rollDice();
+    });
+
+    // --- メインループ ---
+    const clock = new THREE.Clock();
+
+    renderer.setAnimationLoop(() => {
+      const dt = clock.getDelta();
+
+      if (rollTimeline > 0) {
+        rollTimeline -= dt;
+
+        diceMeshes.forEach((dice, index) => {
+          if (rollTimeline > 0.5) {
+            // 背景の円形スペースに合わせてサイコロが回転ジャンプする演出
+            dice.angle += dt * 8.0;
+            let radius = 0.9 + rollTimeline * 0.5; 
+            let px = Math.cos(dice.angle + index) * radius;
+            let pz = Math.sin(dice.angle + index) * radius;
+            let py = -0.1 + (Math.pow(px,2) + Math.pow(pz,2)) * 0.1; 
             
-            // 10回（1秒）回ったら停止
-            if (count > 10) {
-                stopRoll();
-            }
-        }, 100);
-    }
+            dice.mesh.position.set(px, py, pz);
 
-    function stopRoll() {
-        clearInterval(timer);
-        const d1 = document.getElementById('dice1').innerText;
-        const d2 = document.getElementById('dice2').innerText;
-        const msg = document.getElementById('msg');
-        const btn = document.getElementById('rollBtn');
-        const coupon = document.getElementById('coupon');
+            dice.mesh.rotateX(dice.rotSpeed.x * dt);
+            dice.mesh.rotateY(dice.rotSpeed.y * dt);
+            dice.mesh.rotateZ(dice.rotSpeed.z * dt);
+            
+            if (Math.random() < 0.08) audio.playClick(); 
+          } else {
+            // イラスト中央の白い円形部分（正面）に綺麗に横並びで収束
+            let targetX = (index - 1) * 1.05; 
+            dice.mesh.position.x = THREE.MathUtils.lerp(dice.mesh.position.x, targetX, 0.15);
+            dice.mesh.position.y = THREE.MathUtils.lerp(dice.mesh.position.y, -0.2, 0.15); // イラスト中央の高さに微調整
+            dice.mesh.position.z = THREE.MathUtils.lerp(dice.mesh.position.z, 0, 0.15);
+            
+            dice.mesh.quaternion.slerp(dice.targetQuat, 0.3);
+          }
+        });
 
-        if (d1 === d2) {
-            msg.innerText = "ぞろ目！！やったね！";
-            msg.style.color = "#ff5722";
-            btn.style.display = "none";
-            coupon.style.display = "block";
-        } else {
-            msg.innerText = "残念！ハズレ…";
-            btn.disabled = false;
+        // 完全停止の瞬間
+        if (rollTimeline <= 0) {
+          rollTimeline = 0;
+          
+          diceMeshes.forEach((dice, index) => {
+            dice.mesh.position.set((index - 1) * 1.05, -0.2, 0);
+            dice.mesh.quaternion.copy(dice.targetQuat); // 完全正面固定
+          });
+
+          audio.playStop();
+
+          // ルール判定
+          const result = judgeChinchiroRule(finalResults);
+          diceValuesDisplay.innerText = `出目: ［ ${finalResults[0]} ］［ ${finalResults[1]} ］［ ${finalResults[2]} ］`;
+          resultDisplay.innerText = result.name;
+          
+          if (result.isWin) {
+            resultDisplay.style.color = "#39ff14"; 
+            audio.playWin();
+          } else {
+            resultDisplay.style.color = "#ff1744"; 
+          }
+
+          // ボタンのフリーズロック
+          rollButton.innerText = "また挑戦してね";
+          rollButton.disabled = true;
         }
-    }
+      } else {
+        diceMeshes.forEach((dice, index) => {
+          dice.mesh.position.set((index - 1) * 1.05, -0.2, 0);
+        });
+      }
+
+      renderer.render(scene, camera);
+    });
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / (window.innerHeight * 0.5);
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight * 0.5);
+    });
+  </script>
+</body>
+</html>
 </script>
 
 </body>

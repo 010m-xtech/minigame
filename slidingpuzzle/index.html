@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>スライドパズル</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #1a0f08;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: #fff;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 5px;
+      color: #ebdcb9;
+    }
+
+    p {
+      font-size: 13px;
+      margin-bottom: 15px;
+      color: #ccc;
+    }
+
+    /* 難易度切り替えの帯 */
+    .mode-select {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .mode-btn {
+      padding: 6px 18px;
+      border: 2px solid #82604a;
+      background: #2b1d11;
+      color: #ebdcb9;
+      font-weight: bold;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .mode-btn.active {
+      background: #ebdcb9;
+      color: #2b1d11;
+      border-color: #ebdcb9;
+    }
+
+    /* パズルの外枠（360px固定） */
+    #puzzle-container {
+      position: relative;
+      width: 360px;
+      height: 360px;
+      background: #2b1d11;
+      border: 4px solid #82604a;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      display: grid;
+      gap: 2px;
+      padding: 2px;
+    }
+
+    /* 各ピース */
+    .piece {
+      width: 100%;
+      height: 100%;
+      background-size: 352px 352px; /* 枠の内寸に画像をフィットさせる */
+      background-repeat: no-repeat;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: transform 0.1s ease;
+      /* 【重要】ここに完成時の画像を登録します（ミニ見本や初級モードもすべて自動連動します） */
+      background-image: url('image.png'); 
+    }
+    .piece:active {
+      transform: scale(0.95);
+    }
+
+    .empty {
+      background: #2b1d11 !important;
+      cursor: default;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+    }
+
+    /* 下部コントロールエリア */
+    .bottom-control {
+      margin-top: 20px;
+      width: 360px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 5px;
+    }
+
+    /* 左下のミニ完成図見本 */
+    .sample-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+    .sample-image {
+      width: 80px;
+      height: 80px;
+      border: 2px solid #82604a;
+      border-radius: 4px;
+      background-size: cover;
+      background-position: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    .sample-box span {
+      font-size: 11px;
+      color: #ebdcb9;
+      font-weight: bold;
+    }
+
+    /* シャッフルボタン */
+    #shuffle-btn {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 50px;
+      background: #b81c22;
+      color: white;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      height: 45px;
+      align-self: flex-end;
+      margin-bottom: 5px;
+    }
+    #shuffle-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* クリア画面 */
+    #clear-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      border-radius: 4px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    #clear-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .clear-panel {
+      background: #fffdf7;
+      color: #333;
+      padding: 25px 40px;
+      border-radius: 16px;
+      text-align: center;
+      border: 3px solid #34c759;
+    }
+    .clear-panel h2 { color: #34c759; margin-bottom: 10px; }
+    .clear-panel button {
+      padding: 10px 25px;
+      border: none;
+      border-radius: 20px;
+      background: #34c759;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>スライドパズル</h1>
+  <p>隣り合うピースをタップして絵を完成させよう！</p>
+
+  <div class="mode-select">
+    <button id="btn-easy" class="mode-btn active" onclick="changeMode(3)">初級 (3×3)</button>
+    <button id="btn-hard" class="mode-btn" onclick="changeMode(4)">上級 (4×4)</button>
+  </div>
+
+  <div style="position: relative;">
+    <div id="puzzle-container"></div>
+    
+    <div id="clear-overlay">
+      <div class="clear-panel">
+        <h2>クリア！</h2>
+        <p>やったね！綺麗に完成したよ！</p>
+        <button id="retry-btn">もう一度遊ぶ</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-control">
+    <div class="sample-box">
+      <div id="sample-img-view" class="sample-image"></div>
+      <span>完成図</span>
+    </div>
+    <button id="shuffle-btn">混ぜなおす</button>
+  </div>
+
+  <script>
+    let gridSize = 3; // デフォルトは初級(3x3)スタート
+    let board = [];
+    
+    const container = document.getElementById('puzzle-container');
+    const overlay = document.getElementById('clear-overlay');
+
+    // パズルの初期設定（難易度に応じてマス目を自動変更）
+    function initPuzzle() {
+      overlay.classList.remove('show');
+      syncSampleImage();
+      
+      // グリッドスタイルを動的に変更 (3x3 か 4x4 か)
+      container.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+      container.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
+      
+      // ピース配列を新しく作成 (3x3なら0〜8, 4x4なら0〜15)
+      const totalPieces = gridSize * gridSize;
+      board = [];
+      for(let i = 0; i < totalPieces; i++) {
+        board.push(i);
+      }
+      
+      shuffleBoard();
+    }
+
+    // 見本画像の自動同期
+    function syncSampleImage() {
+      const dummy = document.createElement('div');
+      dummy.className = 'piece';
+      document.body.appendChild(dummy);
+      const bgImg = window.getComputedStyle(dummy).backgroundImage;
+      document.body.removeChild(dummy);
+      document.getElementById('sample-img-view').style.backgroundImage = bgImg;
+    }
+
+    // 難易度ボタンが押されたときの処理
+    function changeMode(size) {
+      gridSize = size;
+      document.getElementById('btn-easy').classList.toggle('active', size === 3);
+      document.getElementById('btn-hard').classList.toggle('active', size === 4);
+      initPuzzle();
+    }
+
+    // 盤面の描画
+    function renderBoard() {
+      container.innerHTML = '';
+      const totalPieces = gridSize * gridSize;
+      const emptyValue = totalPieces - 1; // 一番最後の数字を空白にする
+      const piecePixelSize = 352 / gridSize; // 1ピースあたりの表示ピクセル幅を自動計算
+      
+      board.forEach((pieceValue, currentPos) => {
+        const cell = document.createElement('div');
+        
+        if (pieceValue === emptyValue) {
+          cell.className = 'piece empty';
+        } else {
+          cell.className = 'piece';
+          
+          // 難易度に合わせて画像の切り出し位置(背景座標)を自動計算する職人技
+          const correctRow = Math.floor(pieceValue / gridSize);
+          const correctCol = pieceValue % gridSize;
+          const bgX = -correctCol * piecePixelSize;
+          const bgY = -correctRow * piecePixelSize;
+          
+          cell.style.backgroundPosition = `${bgX}px ${bgY}px`;
+          cell.onclick = () => movePiece(currentPos);
+        }
+        
+        container.appendChild(cell);
+      });
+    }
+
+    // ピースの移動
+    function movePiece(currentPos) {
+      const totalPieces = gridSize * gridSize;
+      const emptyValue = totalPieces - 1;
+      const emptyPos = board.indexOf(emptyValue);
+      
+      const isNeighbor = 
+        (Math.abs(currentPos - emptyPos) === 1 && Math.floor(currentPos / gridSize) === Math.floor(emptyPos / gridSize)) || 
+        (Math.abs(currentPos - emptyPos) === gridSize);
+      
+      if (isNeighbor) {
+        board[emptyPos] = board[currentPos];
+        board[currentPos] = emptyValue;
+        
+        renderBoard();
+        checkWin();
+      }
+    }
+
+    // シャッフル処理（初級は100回、上級は200回スライドさせて崩す）
+    function shuffleBoard() {
+      overlay.classList.remove('show');
+      const totalPieces = gridSize * gridSize;
+      const emptyValue = totalPieces - 1;
+      
+      // 一旦リセット
+      board = [];
+      for(let i = 0; i < totalPieces; i++) board.push(i);
+      
+      const shuffleCount = gridSize === 3 ? 100 : 200;
+      
+      for (let i = 0; i < shuffleCount; i++) {
+        const emptyPos = board.indexOf(emptyValue);
+        const validMoves = [];
+        
+        if (emptyPos % gridSize > 0) validMoves.push(emptyPos - 1); 
+        if (emptyPos % gridSize < gridSize - 1) validMoves.push(emptyPos + 1); 
+        if (emptyPos >= gridSize) validMoves.push(emptyPos - gridSize); 
+        if (emptyPos < gridSize * (gridSize - 1)) validMoves.push(emptyPos + gridSize); 
+        
+        const randomMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+        board[emptyPos] = board[randomMove];
+        board[randomMove] = emptyValue;
+      }
+      renderBoard();
+    }
+
+    // クリアチェック
+    function checkWin() {
+      const isWin = board.every((val, idx) => val === idx);
+      if (isWin) {
+        setTimeout(() => {
+          overlay.classList.add('show');
+        }, 200);
+      }
+    }
+
+    document.getElementById('shuffle-btn').onclick = shuffleBoard;
+    document.getElementById('retry-btn').onclick = initPuzzle;
+
+    // 初回起動（遊びやすいように「初級」からスタートします）
+    initPuzzle();
+  </script>
+</body>
+</html>

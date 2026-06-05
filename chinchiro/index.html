@@ -8,7 +8,7 @@
     * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
     body {
       overflow: hidden;
-      background: #7a1f1d;
+      background: #7a1f1d; /* お祭り提灯の赤茶 */
       font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
       font-weight: bold;
       color: #fff;
@@ -57,7 +57,7 @@
     }
     
     .btn-roll {
-      background: #e67e22;
+      background: #e67e22; /* お祭りオレンジ */
       color: #fff;
       border: 4px solid #ffd600;
       padding: 14px 50px;
@@ -83,7 +83,7 @@
     /* ルール早見表パネル */
     #rule-panel {
       margin-top: 15px;
-      background: rgba(0, 0, 0, 0.6); /* 背景画像が見えやすいよう、少し透け感を調整 */
+      background: rgba(0, 0, 0, 0.6);
       border: 2px solid #ffd600;
       padding: 10px 15px;
       border-radius: 8px;
@@ -192,25 +192,33 @@
     renderer.setSize(window.innerWidth, window.innerHeight * 0.5);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.0); // 画像が綺麗に見えるようライトを明るく
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.0); 
     scene.add(ambientLight);
 
-    // --- 【修正】自作画像を3D背景として完璧に配置する処理 ---
+    // --- 【修正】画像の比率を保って縦長にぴったり配置する背景システム ---
     const textureLoader = new THREE.TextureLoader();
-    // ローカルの同一フォルダ内にある 'backscreen.jpg' を読み込み
+    let bgMesh = null;
+
     textureLoader.load('backscreen.jpg', function(texture) {
-      // アスペクト比を維持しつつ、画面いっぱいに広がる板（プレーン）を作成
-      const bgGeo = new THREE.PlaneGeometry(6.4, 6.4);
+      const imgWidth = texture.image.width;
+      const imgHeight = texture.image.height;
+      const imgAspect = imgWidth / imgHeight; // 画像本来の縦横比（例: 0.5625）
+
+      // 3D空間の基準となる高さを決める
+      const baseHeight = 6.4;
+      const baseWidth = baseHeight * imgAspect; // 高さに画像比率をかけて横幅をスマートに自動計算！
+
+      // 計算した比率で縦長の板（プレーン）を生成（これで潰れません！）
+      const bgGeo = new THREE.PlaneGeometry(baseWidth, baseHeight);
       const bgMat = new THREE.MeshBasicMaterial({ map: texture });
-      const bgMesh = new THREE.Mesh(bgGeo, bgMat);
-      bgMesh.position.set(0, 0, -1); // サイコロの後ろ側に配置
+      bgMesh = new THREE.Mesh(bgGeo, bgMat);
+      bgMesh.position.set(0, 0, -1); 
       scene.add(bgMesh);
       
-      // 画像が読み込まれたら背景色を上書き
       scene.background = null;
     }, undefined, function(err) {
-      console.error("画像の読み込みに失敗しました。ファイル名が 'backscreen.jpg' で同じフォルダにあるか確認してください。");
-      scene.background = new THREE.Color(0x7a1f1d); // 失敗時は元の赤茶色
+      console.error("画像の読み込みに失敗しました。");
+      scene.background = new THREE.Color(0x7a1f1d); 
     });
 
     // --- 通常ドットサイコロテクスチャ ---
@@ -343,9 +351,9 @@
 
         diceMeshes.forEach((dice, index) => {
           if (rollTimeline > 0.5) {
-            // 背景の円形スペースに合わせてサイコロが回転ジャンプする演出
+            // イラスト中央の白い円形空間の幅（横幅0.7）に収まるように躍動範囲を制限
             dice.angle += dt * 8.0;
-            let radius = 0.9 + rollTimeline * 0.5; 
+            let radius = 0.5 + rollTimeline * 0.3; 
             let px = Math.cos(dice.angle + index) * radius;
             let pz = Math.sin(dice.angle + index) * radius;
             let py = -0.1 + (Math.pow(px,2) + Math.pow(pz,2)) * 0.1; 
@@ -358,23 +366,23 @@
             
             if (Math.random() < 0.08) audio.playClick(); 
           } else {
-            // イラスト中央の白い円形部分（正面）に綺麗に横並びで収束
-            let targetX = (index - 1) * 1.05; 
+            // イラスト中央の白い円形部分（正面・高さ-0.2）に横一列に吸着
+            let targetX = (index - 1) * 0.95; // 縦長画像に合わせてサイコロ同士の間隔を少しスマートに(1.05→0.95)
             dice.mesh.position.x = THREE.MathUtils.lerp(dice.mesh.position.x, targetX, 0.15);
-            dice.mesh.position.y = THREE.MathUtils.lerp(dice.mesh.position.y, -0.2, 0.15); // イラスト中央の高さに微調整
+            dice.mesh.position.y = THREE.MathUtils.lerp(dice.mesh.position.y, -0.2, 0.15); 
             dice.mesh.position.z = THREE.MathUtils.lerp(dice.mesh.position.z, 0, 0.15);
             
             dice.mesh.quaternion.slerp(dice.targetQuat, 0.3);
           }
         });
 
-        // 完全停止の瞬間
+        // 完全停止
         if (rollTimeline <= 0) {
           rollTimeline = 0;
           
           diceMeshes.forEach((dice, index) => {
-            dice.mesh.position.set((index - 1) * 1.05, -0.2, 0);
-            dice.mesh.quaternion.copy(dice.targetQuat); // 完全正面固定
+            dice.mesh.position.set((index - 1) * 0.95, -0.2, 0);
+            dice.mesh.quaternion.copy(dice.targetQuat); 
           });
 
           audio.playStop();
@@ -391,13 +399,13 @@
             resultDisplay.style.color = "#ff1744"; 
           }
 
-          // ボタンのフリーズロック
+          // ボタンのフリーズ
           rollButton.innerText = "また挑戦してね";
           rollButton.disabled = true;
         }
       } else {
         diceMeshes.forEach((dice, index) => {
-          dice.mesh.position.set((index - 1) * 1.05, -0.2, 0);
+          dice.mesh.position.set((index - 1) * 0.95, -0.2, 0);
         });
       }
 
@@ -410,9 +418,5 @@
       renderer.setSize(window.innerWidth, window.innerHeight * 0.5);
     });
   </script>
-</body>
-</html>
-</script>
-
 </body>
 </html>

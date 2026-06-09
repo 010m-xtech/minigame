@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ティンカーベルとロンドンの夜空 - 初期位置指定版</title>
+    <title>ティンカーベルとロンドンの夜空 - ハート飛行版</title>
     <style>
-        /* 画面全体の基本設定（縦長1939px * 1082px の画像に最適化） */
         body {
             margin: 0;
             padding: 0;
@@ -16,37 +15,33 @@
             overflow: hidden;
             height: 100vh;
             position: relative;
-            cursor: none; /* 元のマウスカーソルを消す */
+            cursor: none; 
         }
 
-        /* マウスカーソル（または指）になる妖精の設定 */
         #tinkerbell {
             position: fixed;
-            width: 50px;  /* 妖精のサイズ */
+            width: 50px;  
             height: 50px;
             pointer-events: none;
             z-index: 10000;
-            transform: translate(-50%, -50%); /* 中心をカーソル位置に合わせる */
+            transform: translate(-50%, -50%); 
             
-            /* ご指定の妖精のPNG画像をセット */
             background-image: url("pixielight.png");
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
 
-            /* 透明化した明かりでやさしく光らせるフィルター効果 */
             filter: drop-shadow(0 0 8px rgba(255, 235, 180, 0.95)) 
                     drop-shadow(0 0 18px rgba(255, 200, 130, 0.7));
         }
 
-        /* 水色の魔法の粉（ピクシーダスト）の共通設定 */
         .pixie-dust {
             position: fixed;
             top: 0;
             left: 0;
             width: 12px;
             height: 12px;
-            background-color: #a7f3d0; /* 柔らかな光るミント水色 */
+            background-color: #a7f3d0; 
             border-radius: 50%;
             pointer-events: none;
             z-index: 9999;
@@ -54,7 +49,6 @@
             box-shadow: 0 0 10px #38bdf8, 0 0 18px #0ea5e9; 
         }
 
-        /* 案内テキスト */
         .title {
             position: absolute;
             top: 20%;
@@ -78,27 +72,27 @@
     <div id="tinkerbell"></div>
 
     <script>
-        // 【重要】ご指定の初期座標を設定
-        const START_X = 626;
-        const START_Y = 1592;
+        // ゴールとなる初期座標
+        const GOAL_X = 626;
+        const GOAL_Y = 1592;
 
         const tink = document.getElementById('tinkerbell');
-        const DUST_COUNT = 30; 
+        const DUST_COUNT = 35; // 軌跡を濃くするために少し増やしました
         const dustParticles = [];
-        
-        // マウスの位置を記録する変数の初期値を設定
-        const mouse = { x: START_X, y: START_Y };
+        const mouse = { x: GOAL_X, y: GOAL_Y };
 
-        // ページが開いた瞬間に、妖精をご指定の初期位置へ配置する
-        tink.style.left = START_X + 'px';
-        tink.style.top = START_Y + 'px';
+        // 状態管理（最初は自動飛行モード）
+        let isAutoFlying = true;
+        let startTime = null;
+        const FLY_DURATION = 2000; // 2秒間 (2000ミリ秒)
 
-        // 魔法の粉のドットを自動生成（初期位置にまとめて配置）
+        // 妖精と粉の最初の位置をセット
+        tink.style.left = GOAL_X + 'px';
+        tink.style.top = GOAL_Y + 'px';
+
         for (let i = 0; i < DUST_COUNT; i++) {
             const dust = document.createElement('div');
             dust.classList.add('pixie-dust');
-            
-            // 後ろにいくほど小さく、そして透明にする
             const scale = 1 - (i / DUST_COUNT);
             const opacity = 1 - (i / DUST_COUNT);
             dust.style.transform = `translate(-50%, -50%) scale(${scale})`;
@@ -107,54 +101,89 @@
             const mixColor = i % 2 === 0 ? '#e0f2fe' : '#7dd3fc';
             dust.style.backgroundColor = mixColor;
 
-            // 初期位置を設定
-            dust.style.left = START_X + 'px';
-            dust.style.top = START_Y + 'px';
+            dust.style.left = GOAL_X + 'px';
+            dust.style.top = GOAL_Y + 'px';
 
             document.body.appendChild(dust);
-            
-            dustParticles.push({
-                element: dust,
-                x: START_X,
-                y: START_Y
-            });
+            dustParticles.push({ element: dust, x: GOAL_X, y: GOAL_Y });
         }
 
-        // 位置を更新する共通関数
+        // 操作による位置更新（自動飛行が終わるまでは無視される）
         function updatePosition(x, y) {
+            if (isAutoFlying) return; 
             mouse.x = x;
             mouse.y = y;
             tink.style.left = x + 'px';
             tink.style.top = y + 'px';
         }
 
-        // マウス操作
-        window.addEventListener('mousemove', (e) => {
-            updatePosition(e.clientX, e.clientY);
-        });
-
-        // スマホなどのタッチ操作
+        window.addEventListener('mousemove', (e) => { updatePosition(e.clientX, e.clientY); });
         window.addEventListener('touchmove', (e) => {
             if(e.touches.length > 0) {
-                e.preventDefault(); // スクロール防止
+                e.preventDefault();
                 updatePosition(e.touches[0].clientX, e.touches[0].clientY);
             }
         }, { passive: false });
-
         window.addEventListener('touchstart', (e) => {
-            if(e.touches.length > 0) {
-                updatePosition(e.touches[0].clientX, e.touches[0].clientY);
-            }
+            if(e.touches.length > 0) { updatePosition(e.touches[0].clientX, e.touches[0].clientY); }
         });
 
-        // アニメーションループ（時間差でスルスル追いかける）
-        function animate() {
+        // アニメーション＆自動飛行の制御ループ
+        function animate(timestamp) {
+            if (!startTime) startTime = timestamp;
+            const elapsed = timestamp - startTime;
+
+            if (isAutoFlying) {
+                if (elapsed < FLY_DURATION) {
+                    // --- 2秒間のハート飛行の計算 ---
+                    // 進行度を 0.0（開始）〜 1.0（終了）に変換
+                    const progress = elapsed / FLY_DURATION; 
+                    
+                    // 数学のハート曲線（parametric heart curve）の数式を応用
+                    // 妖精がハートを描くために角度（0から2πまで）を進める
+                    const angle = progress * Math.PI * 2; 
+                    
+                    // ハートの大きさ（スマホの画面幅に合わせて調整）
+                    const heartScale = window.innerWidth * 0.35; 
+
+                    // ハートの方程式（上が窪んで下が尖る形）
+                    const hX = 16 * Math.pow(Math.sin(angle), 3);
+                    const hY = -(13 * Math.cos(angle) - 5 * Math.cos(2*angle) - 2 * Math.cos(3*angle) - Math.cos(4*angle));
+
+                    // ハートの中心点を「ゴールの少し上」に設定して、描き終わったらゴールに滑り込むようにする
+                    const centerX = GOAL_X;
+                    const centerY = GOAL_Y - heartScale; 
+
+                    // 1つの連続した綺麗な動きにするため、最後はゴール(GOAL_X, GOAL_Y)にブレンドする
+                    const heartX = centerX + (hX * (heartScale / 16));
+                    const heartY = centerY + (hY * (heartScale / 16));
+
+                    // 飛行時間が終わりに近づいたら、スムーズに最終座標に引き寄せる
+                    const blend = Math.smoothStep ? Math.smoothStep(progress, 0, 1) : progress; // 簡易補間
+                    mouse.x = heartX * (1 - progress) + GOAL_X * progress;
+                    mouse.y = heartY * (1 - progress) + GOAL_Y * progress;
+
+                    // 妖精自体の位置を動かす
+                    tink.style.left = mouse.x + 'px';
+                    tink.style.top = mouse.y + 'px';
+
+                } else {
+                    // 2秒経ったら自動飛行モードを終了
+                    isAutoFlying = false;
+                    mouse.x = GOAL_X;
+                    mouse.y = GOAL_Y;
+                    tink.style.left = GOAL_X + 'px';
+                    tink.style.top = GOAL_Y + 'px';
+                }
+            }
+
+            // 魔法の粉（ピクシーダスト）の追従処理（自動でも手動でも共通）
             let targetX = mouse.x;
             let targetY = mouse.y;
 
-            dustParticles.forEach((dust, index) => {
-                dust.x += (targetX - dust.x) * 0.22;
-                dust.y += (targetY - dust.y) * 0.22;
+            dustParticles.forEach((dust) => {
+                dust.x += (targetX - dust.x) * 0.24; // 少し遅れを調整して、ハートの輪郭を際立たせる
+                dust.y += (targetY - dust.y) * 0.24;
 
                 dust.element.style.left = dust.x + 'px';
                 dust.element.style.top = dust.y + 'px';
@@ -166,8 +195,8 @@
             requestAnimationFrame(animate);
         }
 
-        // アニメーションをスタート！
-        animate();
+        // アニメーション開始
+        requestAnimationFrame(animate);
     </script>
 </body>
 </html>

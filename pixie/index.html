@@ -3,21 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ティンカーベルとロンドンの夜空 - スマホ最適化版</title>
+    <title>ティンカーベルとロンドンの夜空 - 初期位置指定版</title>
     <style>
         /* 画面全体の基本設定（縦長1939px * 1082px の画像に最適化） */
         body {
             margin: 0;
             padding: 0;
             background-image: url("nightview.png");
-            
-            /* ▼縦長のスマホ画面に完璧にフィットさせる設定 */
-            background-size: cover;      /* 画面を覆い尽くすように拡大縮小 */
-            background-position: center center; /* 画像の中央をスマホの中央に合わせる */
+            background-size: cover;
+            background-position: center center;
             background-repeat: no-repeat;
-            
-            overflow: hidden; /* 画面からはみ出した要素（魔法の粉など）を隠す */
-            height: 100vh; /* 画面の高さをスマホ画面いっぱいに */
+            overflow: hidden;
+            height: 100vh;
             position: relative;
             cursor: none; /* 元のマウスカーソルを消す */
         }
@@ -25,9 +22,9 @@
         /* マウスカーソル（または指）になる妖精の設定 */
         #tinkerbell {
             position: fixed;
-            width: 50px;  /* 妖精のサイズ。スマホ画面に合わせて少し大きく調整 */
+            width: 50px;  /* 妖精のサイズ */
             height: 50px;
-            pointer-events: none; /* タッチ操作を邪魔しない */
+            pointer-events: none;
             z-index: 10000;
             transform: translate(-50%, -50%); /* 中心をカーソル位置に合わせる */
             
@@ -37,7 +34,7 @@
             background-repeat: no-repeat;
             background-position: center;
 
-            /* 【ポイント】透明化した明かりでやさしく光らせるフィルター効果 */
+            /* 透明化した明かりでやさしく光らせるフィルター効果 */
             filter: drop-shadow(0 0 8px rgba(255, 235, 180, 0.95)) 
                     drop-shadow(0 0 18px rgba(255, 200, 130, 0.7));
         }
@@ -47,21 +44,20 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 12px; /* 少し大きくしてスマホで見やすく */
+            width: 12px;
             height: 12px;
             background-color: #a7f3d0; /* 柔らかな光るミント水色 */
             border-radius: 50%;
             pointer-events: none;
             z-index: 9999;
             transform: translate(-50%, -50%);
-            /* 水色のドットもほんのり光らせる */
             box-shadow: 0 0 10px #38bdf8, 0 0 18px #0ea5e9; 
         }
 
-        /* 案内テキスト（不要ならこの div ごと消してください） */
+        /* 案内テキスト */
         .title {
             position: absolute;
-            top: 20%; /* スマホ画面に合わせて位置を少し下に */
+            top: 20%;
             width: 100%;
             text-align: center;
             color: #e2e8f0;
@@ -82,36 +78,49 @@
     <div id="tinkerbell"></div>
 
     <script>
-        const tink = document.getElementById('tinkerbell');
-        const DUST_COUNT = 30; // 魔法の粉の量を増やしてスマホでも華やかに
-        const dustParticles = [];
-        const mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+        // 【重要】ご指定の初期座標を設定
+        const START_X = 626;
+        const START_Y = 1592;
 
-        // 魔法の粉のドットを自動生成
+        const tink = document.getElementById('tinkerbell');
+        const DUST_COUNT = 30; 
+        const dustParticles = [];
+        
+        // マウスの位置を記録する変数の初期値を設定
+        const mouse = { x: START_X, y: START_Y };
+
+        // ページが開いた瞬間に、妖精をご指定の初期位置へ配置する
+        tink.style.left = START_X + 'px';
+        tink.style.top = START_Y + 'px';
+
+        // 魔法の粉のドットを自動生成（初期位置にまとめて配置）
         for (let i = 0; i < DUST_COUNT; i++) {
             const dust = document.createElement('div');
             dust.classList.add('pixie-dust');
             
-            // 後ろにいくほど小さく、そして透明にする（消えていく演出）
+            // 後ろにいくほど小さく、そして透明にする
             const scale = 1 - (i / DUST_COUNT);
             const opacity = 1 - (i / DUST_COUNT);
             dust.style.transform = `translate(-50%, -50%) scale(${scale})`;
             dust.style.opacity = opacity;
             
-            // 色に少しだけ変化（淡い水色〜キラキラした白水色）をつけて幻想的に
             const mixColor = i % 2 === 0 ? '#e0f2fe' : '#7dd3fc';
             dust.style.backgroundColor = mixColor;
+
+            // 初期位置を設定
+            dust.style.left = START_X + 'px';
+            dust.style.top = START_Y + 'px';
 
             document.body.appendChild(dust);
             
             dustParticles.push({
                 element: dust,
-                x: mouse.x,
-                y: mouse.y
+                x: START_X,
+                y: START_Y
             });
         }
 
-        // スマホなどのタッチ操作に対応
+        // 位置を更新する共通関数
         function updatePosition(x, y) {
             mouse.x = x;
             mouse.y = y;
@@ -119,19 +128,19 @@
             tink.style.top = y + 'px';
         }
 
+        // マウス操作
         window.addEventListener('mousemove', (e) => {
             updatePosition(e.clientX, e.clientY);
         });
 
+        // スマホなどのタッチ操作
         window.addEventListener('touchmove', (e) => {
             if(e.touches.length > 0) {
-                // スクロールを防止してタッチ位置を取得
-                e.preventDefault();
+                e.preventDefault(); // スクロール防止
                 updatePosition(e.touches[0].clientX, e.touches[0].clientY);
             }
-        }, { passive: false }); // Prevent default scroll
+        }, { passive: false });
 
-        // 初期位置もタッチに対応させるため追加
         window.addEventListener('touchstart', (e) => {
             if(e.touches.length > 0) {
                 updatePosition(e.touches[0].clientX, e.touches[0].clientY);
@@ -144,14 +153,12 @@
             let targetY = mouse.y;
 
             dustParticles.forEach((dust, index) => {
-                // 0.22 の速さで少し機敏に追いかける（スマホでのレスポンス向上）
                 dust.x += (targetX - dust.x) * 0.22;
                 dust.y += (targetY - dust.y) * 0.22;
 
                 dust.element.style.left = dust.x + 'px';
                 dust.element.style.top = dust.y + 'px';
 
-                // 次のドットは、今のドットを追いかける
                 targetX = dust.x;
                 targetY = dust.y;
             });
@@ -159,6 +166,7 @@
             requestAnimationFrame(animate);
         }
 
+        // アニメーションをスタート！
         animate();
     </script>
 </body>

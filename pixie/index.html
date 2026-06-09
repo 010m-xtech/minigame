@@ -3,92 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ティンカーベルとロンドンの夜空 - ハート飛行修正版</title>
+    <title>テスト用（画像なしで動く版）</title>
     <style>
         body {
-            margin: 0;
-            padding: 0;
-            background-image: url("nightview.png");
-            background-size: cover;
-            background-position: center center;
-            background-repeat: no-repeat;
-            overflow: hidden;
-            height: 100vh;
-            position: relative;
-            cursor: none; 
+            margin: 0; padding: 0;
+            background-color: #0b1526; /* 画像の代わりに濃い紺色 */
+            overflow: hidden; height: 100vh; position: relative; cursor: none; 
         }
-
+        /* 妖精の代わりに「黄色い光の丸」にします */
         #tinkerbell {
-            position: fixed;
-            width: 50px;  
-            height: 50px;
-            pointer-events: none;
-            z-index: 10000;
-            transform: translate(-50%, -50%); 
-            
-            background-image: url("pixielight.png");
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-
-            filter: drop-shadow(0 0 8px rgba(255, 235, 180, 0.95)) 
-                    drop-shadow(0 0 18px rgba(255, 200, 130, 0.7));
+            position: fixed; width: 30px; height: 30px;
+            background-color: #ffeb3b; border-radius: 50%;
+            pointer-events: none; z-index: 10000; transform: translate(-50%, -50%); 
+            box-shadow: 0 0 15px #ffeb3b, 0 0 30px #ff9800;
         }
-
         .pixie-dust {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 12px;
-            height: 12px;
-            background-color: #a7f3d0; 
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-            transform: translate(-50%, -50%);
+            position: fixed; top: 0; left: 0; width: 12px; height: 12px;
+            background-color: #a7f3d0; border-radius: 50%;
+            pointer-events: none; z-index: 9999; transform: translate(-50%, -50%);
             box-shadow: 0 0 10px #38bdf8, 0 0 18px #0ea5e9; 
         }
-
-        .title {
-            position: absolute;
-            top: 20%;
-            width: 100%;
-            text-align: center;
-            color: #e2e8f0;
-            font-family: 'Georgia', serif;
-            letter-spacing: 2px;
-            pointer-events: none;
-            text-shadow: 0 3px 6px rgba(0,0,0,0.6);
-        }
-        h1 { font-size: 28px; font-weight: normal; opacity: 0.9; }
     </style>
 </head>
 <body>
-
-    <div class="title">
-        <h1>You can fly!</h1>
-    </div>
-
     <div id="tinkerbell"></div>
-
     <script>
-        // ゴールとなる初期座標
-        const GOAL_X = 626;
-        const GOAL_Y = 1592;
+        // PCでも見えやすいように、テスト用に初期座標を画面中央付近にします
+        const START_X = window.innerWidth / 2;
+        const START_Y = window.innerHeight * 0.7;
 
         const tink = document.getElementById('tinkerbell');
         const DUST_COUNT = 35; 
         const dustParticles = [];
-        const mouse = { x: GOAL_X, y: GOAL_Y };
+        const mouse = { x: START_X, y: START_Y };
 
-        // 状態管理（最初は自動飛行モード）
         let isAutoFlying = true;
         let startTime = null;
-        const FLY_DURATION = 2000; // 2秒間 (2000ミリ秒)
+        const FLY_DURATION = 2000;
 
-        // 妖精と粉の最初の位置をセット
-        tink.style.left = GOAL_X + 'px';
-        tink.style.top = GOAL_Y + 'px';
+        tink.style.left = START_X + 'px';
+        tink.style.top = START_Y + 'px';
 
         for (let i = 0; i < DUST_COUNT; i++) {
             const dust = document.createElement('div');
@@ -97,102 +51,62 @@
             const opacity = 1 - (i / DUST_COUNT);
             dust.style.transform = `translate(-50%, -50%) scale(${scale})`;
             dust.style.opacity = opacity;
-            
             const mixColor = i % 2 === 0 ? '#e0f2fe' : '#7dd3fc';
             dust.style.backgroundColor = mixColor;
-
-            dust.style.left = GOAL_X + 'px';
-            dust.style.top = GOAL_Y + 'px';
-
+            dust.style.left = START_X + 'px';
+            dust.style.top = START_Y + 'px';
             document.body.appendChild(dust);
-            dustParticles.push({ element: dust, x: GOAL_X, y: GOAL_Y });
+            dustParticles.push({ element: dust, x: START_X, y: START_Y });
         }
 
-        // 操作による位置更新
         function updatePosition(x, y) {
             if (isAutoFlying) return; 
-            mouse.x = x;
-            mouse.y = y;
-            tink.style.left = x + 'px';
-            tink.style.top = y + 'px';
+            mouse.x = x; mouse.y = y;
+            tink.style.left = x + 'px'; tink.style.top = y + 'px';
         }
-
         window.addEventListener('mousemove', (e) => { updatePosition(e.clientX, e.clientY); });
         window.addEventListener('touchmove', (e) => {
-            if(e.touches.length > 0) {
-                e.preventDefault();
-                updatePosition(e.touches[0].clientX, e.touches[0].clientY);
-            }
+            if(e.touches.length > 0) { e.preventDefault(); updatePosition(e.touches[0].clientX, e.touches[0].clientY); }
         }, { passive: false });
-        window.addEventListener('touchstart', (e) => {
-            if(e.touches.length > 0) { updatePosition(e.touches[0].clientX, e.touches[0].clientY); }
-        });
 
-        // アニメーション＆自動飛行の制御ループ
         function animate(timestamp) {
             if (!startTime) startTime = timestamp;
             const elapsed = timestamp - startTime;
 
             if (isAutoFlying) {
                 if (elapsed < FLY_DURATION) {
-                    // 進行度（0.0 〜 1.0）
                     const progress = elapsed / FLY_DURATION; 
-                    
-                    // ハートを描くための角度（0から2πまで）
                     const angle = progress * Math.PI * 2; 
-                    
-                    // ハートの大きさ
                     const heartScale = window.innerWidth * 0.35; 
 
-                    // ハートの方程式
                     const hX = 16 * Math.pow(Math.sin(angle), 3);
                     const hY = -(13 * Math.cos(angle) - 5 * Math.cos(2*angle) - 2 * Math.cos(3*angle) - Math.cos(4*angle));
 
-                    // ハートの中心点
-                    const centerX = GOAL_X;
-                    const centerY = GOAL_Y - heartScale; 
+                    const heartX = START_X + (hX * (heartScale / 16));
+                    const heartY = (START_Y - heartScale) + (hY * (heartScale / 16));
 
-                    const heartX = centerX + (hX * (heartScale / 16));
-                    const heartY = centerY + (hY * (heartScale / 16));
+                    mouse.x = heartX * (1 - progress) + START_X * progress;
+                    mouse.y = heartY * (1 - progress) + START_Y * progress;
 
-                    // 【修正箇所】エラーの原因だった部分を、安全な計算方法に変更しました
-                    // 終わりに向けてスムーズにゴール座標へブレンドする
-                    mouse.x = heartX * (1 - progress) + GOAL_X * progress;
-                    mouse.y = heartY * (1 - progress) + GOAL_Y * progress;
-
-                    // 妖精の位置を動かす
                     tink.style.left = mouse.x + 'px';
                     tink.style.top = mouse.y + 'px';
-
                 } else {
-                    // 2秒経ったら自動飛行モードを終了
                     isAutoFlying = false;
-                    mouse.x = GOAL_X;
-                    mouse.y = GOAL_Y;
-                    tink.style.left = GOAL_X + 'px';
-                    tink.style.top = GOAL_Y + 'px';
+                    mouse.x = START_X; mouse.y = START_Y;
+                    tink.style.left = START_X + 'px'; tink.style.top = START_Y + 'px';
                 }
             }
 
-            // 魔法の粉の追従処理
-            let targetX = mouse.x;
-            let targetY = mouse.y;
-
+            let targetX = mouse.x; let targetY = mouse.y;
             dustParticles.forEach((dust) => {
                 dust.x += (targetX - dust.x) * 0.22; 
                 dust.y += (targetY - dust.y) * 0.22;
-
                 dust.element.style.left = dust.x + 'px';
                 dust.element.style.top = dust.y + 'px';
-
-                targetX = dust.x;
-                targetY = dust.y;
+                targetX = dust.x; targetY = dust.y;
             });
-
             requestAnimationFrame(animate);
         }
-
-        // アニメーション開始
         requestAnimationFrame(animate);
     </script>
 </body>

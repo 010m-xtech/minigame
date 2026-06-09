@@ -3,47 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>テスト用（画像なしで動く版）</title>
+    <title>ティンカーベルとロンドンの夜空 - 自動着地修正版</title>
     <style>
         body {
-            margin: 0; padding: 0;
-            background-color: #0b1526; /* 画像の代わりに濃い紺色 */
-            overflow: hidden; height: 100vh; position: relative; cursor: none; 
+            margin: 0;
+            padding: 0;
+            background-image: url("nightview.png");
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+            cursor: none; 
         }
-        /* 妖精の代わりに「黄色い光の丸」にします */
+
         #tinkerbell {
-            position: fixed; width: 30px; height: 30px;
-            background-color: #ffeb3b; border-radius: 50%;
-            pointer-events: none; z-index: 10000; transform: translate(-50%, -50%); 
-            box-shadow: 0 0 15px #ffeb3b, 0 0 30px #ff9800;
+            position: fixed;
+            width: 50px;  
+            height: 50px;
+            pointer-events: none;
+            z-index: 10000;
+            transform: translate(-50%, -50%); 
+            
+            background-image: url("pixielight.png");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+
+            filter: drop-shadow(0 0 8px rgba(255, 235, 180, 0.95)) 
+                    drop-shadow(0 0 18px rgba(255, 200, 130, 0.7));
         }
+
         .pixie-dust {
-            position: fixed; top: 0; left: 0; width: 12px; height: 12px;
-            background-color: #a7f3d0; border-radius: 50%;
-            pointer-events: none; z-index: 9999; transform: translate(-50%, -50%);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 12px;
+            height: 12px;
+            background-color: #a7f3d0; 
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
             box-shadow: 0 0 10px #38bdf8, 0 0 18px #0ea5e9; 
         }
+
+        .title {
+            position: absolute;
+            top: 20%;
+            width: 100%;
+            text-align: center;
+            color: #e2e8f0;
+            font-family: 'Georgia', serif;
+            letter-spacing: 2px;
+            pointer-events: none;
+            text-shadow: 0 3px 6px rgba(0,0,0,0.6);
+        }
+        h1 { font-size: 28px; font-weight: normal; opacity: 0.9; }
     </style>
 </head>
 <body>
+
+    <div class="title">
+        <h1>You can fly!</h1>
+    </div>
+
     <div id="tinkerbell"></div>
+
     <script>
-        // PCでも見えやすいように、テスト用に初期座標を画面中央付近にします
-        const START_X = window.innerWidth / 2;
-        const START_Y = window.innerHeight * 0.7;
+        // 【Photoshopでの画像内のターゲット座標】
+        const PHOTO_TARGET_X = 626;
+        const PHOTO_TARGET_Y = 1592;
+        // 元画像のサイズ
+        const PHOTO_WIDTH = 1082;
+        const PHOTO_HEIGHT = 1939;
 
         const tink = document.getElementById('tinkerbell');
         const DUST_COUNT = 35; 
         const dustParticles = [];
-        const mouse = { x: START_X, y: START_Y };
+        
+        // ゴール座標を記録する変数（最初は仮に画面中央）
+        let goalX = window.innerWidth / 2;
+        let goalY = window.innerHeight / 2;
+        const mouse = { x: goalX, y: goalY };
 
         let isAutoFlying = true;
         let startTime = null;
-        const FLY_DURATION = 2000;
+        const FLY_DURATION = 2000; // 2秒間
 
-        tink.style.left = START_X + 'px';
-        tink.style.top = START_Y + 'px';
+        // --- 【超重要】画像の座標を、スマホ画面の実際の座標に変換する関数 ---
+        function calculateScreenCoordinates() {
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
 
+            // background-size: cover の時の、画像の実際の表示サイズとズレを計算
+            const windowRatio = windowWidth / windowHeight;
+            const imageRatio = PHOTO_WIDTH / PHOTO_HEIGHT;
+
+            let renderWidth, renderHeight;
+            let offsetX = 0, offsetY = 0;
+
+            if (windowRatio > imageRatio) {
+                renderWidth = windowWidth;
+                renderHeight = windowWidth / imageRatio;
+                offsetY = (renderHeight - windowHeight) / 2;
+            } else {
+                renderHeight = windowHeight;
+                renderWidth = windowHeight * imageRatio;
+                offsetX = (renderWidth - windowWidth) / 2;
+            }
+
+            // Photoshopの座標が、今のスマホ画面の何ピクセル目になるかを割り出す
+            goalX = (PHOTO_TARGET_X / PHOTO_WIDTH) * renderWidth - offsetX;
+            goalY = (PHOTO_TARGET_Y / PHOTO_HEIGHT) * renderHeight - offsetY;
+        }
+
+        // 最初の計算を実行
+        calculateScreenCoordinates();
+        mouse.x = goalX;
+        mouse.y = goalY;
+        tink.style.left = goalX + 'px';
+        tink.style.top = goalY + 'px';
+
+        // 魔法の粉の初期位置をセット
         for (let i = 0; i < DUST_COUNT; i++) {
             const dust = document.createElement('div');
             dust.classList.add('pixie-dust');
@@ -51,23 +134,43 @@
             const opacity = 1 - (i / DUST_COUNT);
             dust.style.transform = `translate(-50%, -50%) scale(${scale})`;
             dust.style.opacity = opacity;
+            
             const mixColor = i % 2 === 0 ? '#e0f2fe' : '#7dd3fc';
             dust.style.backgroundColor = mixColor;
-            dust.style.left = START_X + 'px';
-            dust.style.top = START_Y + 'px';
+            dust.style.left = goalX + 'px';
+            dust.style.top = goalY + 'px';
+
             document.body.appendChild(dust);
-            dustParticles.push({ element: dust, x: START_X, y: START_Y });
+            dustParticles.push({ element: dust, x: goalX, y: goalY });
         }
+
+        // 画面サイズが変わったら着地座標を再計算する（スマホの回転対策）
+        window.addEventListener('resize', () => {
+            calculateScreenCoordinates();
+            if (!isAutoFlying) {
+                mouse.x = goalX;
+                mouse.y = goalY;
+            }
+        });
 
         function updatePosition(x, y) {
             if (isAutoFlying) return; 
-            mouse.x = x; mouse.y = y;
-            tink.style.left = x + 'px'; tink.style.top = y + 'px';
+            mouse.x = x;
+            mouse.y = y;
+            tink.style.left = x + 'px';
+            tink.style.top = y + 'px';
         }
+
         window.addEventListener('mousemove', (e) => { updatePosition(e.clientX, e.clientY); });
         window.addEventListener('touchmove', (e) => {
-            if(e.touches.length > 0) { e.preventDefault(); updatePosition(e.touches[0].clientX, e.touches[0].clientY); }
+            if(e.touches.length > 0) {
+                e.preventDefault();
+                updatePosition(e.touches[0].clientX, e.touches[0].clientY);
+            }
         }, { passive: false });
+        window.addEventListener('touchstart', (e) => {
+            if(e.touches.length > 0) { updatePosition(e.touches[0].clientX, e.touches[0].clientY); }
+        });
 
         function animate(timestamp) {
             if (!startTime) startTime = timestamp;
@@ -77,36 +180,53 @@
                 if (elapsed < FLY_DURATION) {
                     const progress = elapsed / FLY_DURATION; 
                     const angle = progress * Math.PI * 2; 
-                    const heartScale = window.innerWidth * 0.35; 
+                    
+                    // ハートのサイズ（スマホ画面の横幅に綺麗に収まるサイズに自動調整）
+                    const heartSize = Math.min(window.innerWidth, window.innerHeight) * 0.35; 
 
                     const hX = 16 * Math.pow(Math.sin(angle), 3);
                     const hY = -(13 * Math.cos(angle) - 5 * Math.cos(2*angle) - 2 * Math.cos(3*angle) - Math.cos(4*angle));
 
-                    const heartX = START_X + (hX * (heartScale / 16));
-                    const heartY = (START_Y - heartScale) + (hY * (heartScale / 16));
+                    // 着地地点の少し上でハートを描く
+                    const centerX = goalX;
+                    const centerY = goalY - (heartSize * 0.8); 
 
-                    mouse.x = heartX * (1 - progress) + START_X * progress;
-                    mouse.y = heartY * (1 - progress) + START_Y * progress;
+                    const heartX = centerX + (hX * (heartSize / 16));
+                    const heartY = centerY + (hY * (heartSize / 16));
+
+                    // スムーズにゴールへ着地させる
+                    mouse.x = heartX * (1 - progress) + goalX * progress;
+                    mouse.y = heartY * (1 - progress) + goalY * progress;
 
                     tink.style.left = mouse.x + 'px';
                     tink.style.top = mouse.y + 'px';
+
                 } else {
                     isAutoFlying = false;
-                    mouse.x = START_X; mouse.y = START_Y;
-                    tink.style.left = START_X + 'px'; tink.style.top = START_Y + 'px';
+                    mouse.x = goalX;
+                    mouse.y = goalY;
+                    tink.style.left = goalX + 'px';
+                    tink.style.top = goalY + 'px';
                 }
             }
 
-            let targetX = mouse.x; let targetY = mouse.y;
+            let targetX = mouse.x;
+            let targetY = mouse.y;
+
             dustParticles.forEach((dust) => {
                 dust.x += (targetX - dust.x) * 0.22; 
                 dust.y += (targetY - dust.y) * 0.22;
+
                 dust.element.style.left = dust.x + 'px';
                 dust.element.style.top = dust.y + 'px';
-                targetX = dust.x; targetY = dust.y;
+
+                targetX = dust.x;
+                targetY = dust.y;
             });
+
             requestAnimationFrame(animate);
         }
+
         requestAnimationFrame(animate);
     </script>
 </body>

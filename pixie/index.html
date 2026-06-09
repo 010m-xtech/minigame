@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ティンカーベルとロンドンの夜空 - 復活の完璧ハート版</title>
+    <title>ティンカーベルとロンドンの夜空 - 究極の左右対称ハート版</title>
     <style>
         body {
             margin: 0;
@@ -76,7 +76,6 @@
         const PHOTO_TARGET_X = 440;
         const PHOTO_TARGET_Y = 1200;
         
-        // 元画像の基準サイズ
         const PHOTO_WIDTH = 1082;
         const PHOTO_HEIGHT = 1939;
 
@@ -91,8 +90,10 @@
         let isAutoFlying = true;
         let startTime = null;
         
-        // ゆったり美しく描くための3秒（3000ミリ秒）
-        const FLY_DURATION = 3000; 
+        // 【大改造】動きのフェーズを分けました
+        const HEART_DURATION = 3000; // ハートを描く時間（3秒）
+        const LAND_DURATION = 1000;  // 描き終わってから着地するまでの時間（1秒）
+        const TOTAL_AUTO_DURATION = HEART_DURATION + LAND_DURATION; // 合計4秒
 
         function calculateScreenCoordinates() {
             const windowWidth = window.innerWidth;
@@ -118,10 +119,16 @@
         }
 
         calculateScreenCoordinates();
+        
+        // 最初のスタート位置は、ハートの描き始め（てっぺんのくぼみ）にする
+        const initialHeartSize = Math.min(window.innerWidth, window.innerHeight) * 0.35;
+        const initialCenterY = goalY - (initialHeartSize * 0.8);
+        const initialStartY = initialCenterY - (initialHeartSize * (4 / 16)); // ハートの上のくぼみのY座標
+        
         mouse.x = goalX;
-        mouse.y = goalY;
+        mouse.y = initialStartY;
         tink.style.left = goalX + 'px';
-        tink.style.top = goalY + 'px';
+        tink.style.top = initialStartY + 'px';
 
         for (let i = 0; i < DUST_COUNT; i++) {
             const dust = document.createElement('div');
@@ -134,10 +141,10 @@
             const mixColor = i % 2 === 0 ? '#e0f2fe' : '#7dd3fc';
             dust.style.backgroundColor = mixColor;
             dust.style.left = goalX + 'px';
-            dust.style.top = goalY + 'px';
+            dust.style.top = initialStartY + 'px';
 
             document.body.appendChild(dust);
-            dustParticles.push({ element: dust, x: goalX, y: goalY });
+            dustParticles.push({ element: dust, x: goalX, y: initialStartY });
         }
 
         window.addEventListener('resize', () => {
@@ -172,35 +179,50 @@
             const elapsed = timestamp - startTime;
 
             if (isAutoFlying) {
-                if (elapsed < FLY_DURATION) {
-                    const progress = elapsed / FLY_DURATION; 
+                if (elapsed < HEART_DURATION) {
+                    // ------------ フェーズ1：純粋に綺麗なハートを描く（3秒間） ------------
+                    const progress = elapsed / HEART_DURATION; 
                     
-                    // 角度は通常のプラスに戻します（これで数式のエラーが直ります！）
+                    // 【ご要望通り】通常のプラスなので「時計回り（右側からスタート）」です！
                     const angle = progress * Math.PI * 2; 
                     
-                    // ハートのサイズ
                     const heartSize = Math.min(window.innerWidth, window.innerHeight) * 0.35; 
 
-                    // 【今回の魔法】hX（横の動き）の計算の最後に「 -1 」を掛け算しました！
-                    // これにより、数式を壊すことなく、飛行ルートだけが鏡のように反転して「左 ➡️ 右」の順になります
-                    const hX = (16 * Math.pow(Math.sin(angle), 3)) * -1;
+                    // 純粋なハートの方程式（ブレンド処理を混ぜないため、左右対称が完全に保たれます）
+                    const hX = 16 * Math.pow(Math.sin(angle), 3);
                     const hY = -(13 * Math.cos(angle) - 5 * Math.cos(2*angle) - 2 * Math.cos(3*angle) - Math.cos(4*angle));
 
-                    // 着地地点の少し上でハートを描く
                     const centerX = goalX;
                     const centerY = goalY - (heartSize * 0.8); 
 
-                    const heartX = centerX + (hX * (heartSize / 16));
-                    const heartY = centerY + (hY * (heartSize / 16));
+                    mouse.x = centerX + (hX * (heartSize / 16));
+                    mouse.y = centerY + (hY * (heartSize / 16));
 
-                    // スムーズにゴールへ着地させるブレンド
-                    mouse.x = heartX * (1 - progress) + goalX * progress;
-                    mouse.y = heartY * (1 - progress) + goalY * progress;
+                    tink.style.left = mouse.x + 'px';
+                    tink.style.top = mouse.y + 'px';
+
+                } else if (elapsed < TOTAL_AUTO_DURATION) {
+                    // ------------ フェーズ2：描き終わった後、ゴールへ優雅に着地（1秒間） ------------
+                    const landProgress = (elapsed - HEART_DURATION) / LAND_DURATION;
+                    
+                    // アニメーションを滑らかにするイージング（最初はゆっくり、あとからピタッと）
+                    const easeOutQuad = 1 - (1 - landProgress) * (1 - landProgress);
+
+                    // ハートの終着点（上のくぼみ）
+                    const heartSize = Math.min(window.innerWidth, window.innerHeight) * 0.35;
+                    const centerY = goalY - (heartSize * 0.8);
+                    const endHeartX = goalX;
+                    const endHeartY = centerY - (heartSize * (4 / 16));
+
+                    // ハートの終着点から、最終ターゲット座標（440, 1200）までスーッと移動
+                    mouse.x = endHeartX * (1 - easeOutQuad) + goalX * easeOutQuad;
+                    mouse.y = endHeartY * (1 - easeOutQuad) + goalY * easeOutQuad;
 
                     tink.style.left = mouse.x + 'px';
                     tink.style.top = mouse.y + 'px';
 
                 } else {
+                    // すべての自動飛行が終了、自由操作へ
                     isAutoFlying = false;
                     mouse.x = goalX;
                     mouse.y = goalY;

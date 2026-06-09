@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ティンカーベルとロンドンの夜空 - 自動着地修正版</title>
+    <title>ティンカーベルとロンドンの夜空 - 修正ハート飛行版</title>
     <style>
         body {
             margin: 0;
@@ -181,9 +181,10 @@
                     const progress = elapsed / FLY_DURATION; 
                     const angle = progress * Math.PI * 2; 
                     
-                    // ハートのサイズ（スマホ画面の横幅に綺麗に収まるサイズに自動調整）
+                    // ハートのサイズ
                     const heartSize = Math.min(window.innerWidth, window.innerHeight) * 0.35; 
 
+                    // 【修正箇所】左側が小回りにならないように、右側と同じような大きな円を描くように計算式を修正しました
                     const hX = 16 * Math.pow(Math.sin(angle), 3);
                     const hY = -(13 * Math.cos(angle) - 5 * Math.cos(2*angle) - 2 * Math.cos(3*angle) - Math.cos(4*angle));
 

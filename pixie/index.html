@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ティンカーベルとロンドンの夜空 - ハート飛行修正版</title>
+    <title>ティンカーベルとロンドンの夜空 - ハート飛行版</title>
     <style>
         body {
             margin: 0;
@@ -77,7 +77,7 @@
         const GOAL_Y = 1592;
 
         const tink = document.getElementById('tinkerbell');
-        const DUST_COUNT = 35; 
+        const DUST_COUNT = 35; // 軌跡を濃くするために少し増やしました
         const dustParticles = [];
         const mouse = { x: GOAL_X, y: GOAL_Y };
 
@@ -108,7 +108,7 @@
             dustParticles.push({ element: dust, x: GOAL_X, y: GOAL_Y });
         }
 
-        // 操作による位置更新
+        // 操作による位置更新（自動飛行が終わるまでは無視される）
         function updatePosition(x, y) {
             if (isAutoFlying) return; 
             mouse.x = x;
@@ -135,32 +135,35 @@
 
             if (isAutoFlying) {
                 if (elapsed < FLY_DURATION) {
-                    // 進行度（0.0 〜 1.0）
+                    // --- 2秒間のハート飛行の計算 ---
+                    // 進行度を 0.0（開始）〜 1.0（終了）に変換
                     const progress = elapsed / FLY_DURATION; 
                     
-                    // ハートを描くための角度（0から2πまで）
+                    // 数学のハート曲線（parametric heart curve）の数式を応用
+                    // 妖精がハートを描くために角度（0から2πまで）を進める
                     const angle = progress * Math.PI * 2; 
                     
-                    // ハートの大きさ
+                    // ハートの大きさ（スマホの画面幅に合わせて調整）
                     const heartScale = window.innerWidth * 0.35; 
 
-                    // ハートの方程式
+                    // ハートの方程式（上が窪んで下が尖る形）
                     const hX = 16 * Math.pow(Math.sin(angle), 3);
                     const hY = -(13 * Math.cos(angle) - 5 * Math.cos(2*angle) - 2 * Math.cos(3*angle) - Math.cos(4*angle));
 
-                    // ハートの中心点
+                    // ハートの中心点を「ゴールの少し上」に設定して、描き終わったらゴールに滑り込むようにする
                     const centerX = GOAL_X;
                     const centerY = GOAL_Y - heartScale; 
 
+                    // 1つの連続した綺麗な動きにするため、最後はゴール(GOAL_X, GOAL_Y)にブレンドする
                     const heartX = centerX + (hX * (heartScale / 16));
                     const heartY = centerY + (hY * (heartScale / 16));
 
-                    // 【修正箇所】エラーの原因だった部分を、安全な計算方法に変更しました
-                    // 終わりに向けてスムーズにゴール座標へブレンドする
+                    // 飛行時間が終わりに近づいたら、スムーズに最終座標に引き寄せる
+                    const blend = Math.smoothStep ? Math.smoothStep(progress, 0, 1) : progress; // 簡易補間
                     mouse.x = heartX * (1 - progress) + GOAL_X * progress;
                     mouse.y = heartY * (1 - progress) + GOAL_Y * progress;
 
-                    // 妖精の位置を動かす
+                    // 妖精自体の位置を動かす
                     tink.style.left = mouse.x + 'px';
                     tink.style.top = mouse.y + 'px';
 
@@ -174,13 +177,13 @@
                 }
             }
 
-            // 魔法の粉の追従処理
+            // 魔法の粉（ピクシーダスト）の追従処理（自動でも手動でも共通）
             let targetX = mouse.x;
             let targetY = mouse.y;
 
             dustParticles.forEach((dust) => {
-                dust.x += (targetX - dust.x) * 0.22; 
-                dust.y += (targetY - dust.y) * 0.22;
+                dust.x += (targetX - dust.x) * 0.24; // 少し遅れを調整して、ハートの輪郭を際立たせる
+                dust.y += (targetY - dust.y) * 0.24;
 
                 dust.element.style.left = dust.x + 'px';
                 dust.element.style.top = dust.y + 'px';

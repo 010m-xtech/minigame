@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ティンカーベルとロンドンの夜空 - 完璧なハート飛行版</title>
+    <title>ティンカーベルとロンドンの夜空 - 復活の完璧ハート版</title>
     <style>
         body {
             margin: 0;
@@ -72,7 +72,7 @@
     <div id="tinkerbell"></div>
 
     <script>
-        // 【特定していただいた完璧な座標！】
+        // 【特定していただいた完璧な座標】
         const PHOTO_TARGET_X = 440;
         const PHOTO_TARGET_Y = 1200;
         
@@ -91,7 +91,7 @@
         let isAutoFlying = true;
         let startTime = null;
         
-        // 【修正箇所】時間を 2000 から 3000（3秒）に伸ばして、ゆったり綺麗に回れるようにしました！
+        // ゆったり美しく描くための3秒（3000ミリ秒）
         const FLY_DURATION = 3000; 
 
         function calculateScreenCoordinates() {
@@ -175,17 +175,18 @@
                 if (elapsed < FLY_DURATION) {
                     const progress = elapsed / FLY_DURATION; 
                     
-                    // 【修正箇所】マイナスにして左側からスタート！
-                    const angle = -progress * Math.PI * 2; 
+                    // 角度は通常のプラスに戻します（これで数式のエラーが直ります！）
+                    const angle = progress * Math.PI * 2; 
                     
                     // ハートのサイズ
                     const heartSize = Math.min(window.innerWidth, window.innerHeight) * 0.35; 
 
-                    // ハートの方程式
-                    const hX = 16 * Math.pow(Math.sin(angle), 3);
+                    // 【今回の魔法】hX（横の動き）の計算の最後に「 -1 」を掛け算しました！
+                    // これにより、数式を壊すことなく、飛行ルートだけが鏡のように反転して「左 ➡️ 右」の順になります
+                    const hX = (16 * Math.pow(Math.sin(angle), 3)) * -1;
                     const hY = -(13 * Math.cos(angle) - 5 * Math.cos(2*angle) - 2 * Math.cos(3*angle) - Math.cos(4*angle));
 
-                    // 着地地点の少し上でハートを描く（必要に応じて 0.8 を 1.2 などに変えてください）
+                    // 着地地点の少し上でハートを描く
                     const centerX = goalX;
                     const centerY = goalY - (heartSize * 0.8); 
 
@@ -194,7 +195,7 @@
 
                     // スムーズにゴールへ着地させるブレンド
                     mouse.x = heartX * (1 - progress) + goalX * progress;
-                    mouse.y = goalY * (1 - progress) + goalY * progress;
+                    mouse.y = heartY * (1 - progress) + goalY * progress;
 
                     tink.style.left = mouse.x + 'px';
                     tink.style.top = mouse.y + 'px';
@@ -212,7 +213,6 @@
             let targetY = mouse.y;
 
             dustParticles.forEach((dust) => {
-                // 【ちょっとした魔法】自動飛行中はハートの線をくっきり残すため、粉の追従スピードを少し機敏（0.25）にしています
                 const speed = isAutoFlying ? 0.25 : 0.22;
                 dust.x += (targetX - dust.x) * speed; 
                 dust.y += (targetY - dust.y) * speed;

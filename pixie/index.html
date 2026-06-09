@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ティンカーベルとロンドンの夜空 - 修正ハート飛行版</title>
+    <title>ティンカーベルとロンドンの夜空 - 完璧なハート飛行版</title>
     <style>
         body {
             margin: 0;
@@ -72,10 +72,11 @@
     <div id="tinkerbell"></div>
 
     <script>
-        // 【Photoshopでの画像内のターゲット座標】
+        // 【特定していただいた完璧な座標！】
         const PHOTO_TARGET_X = 440;
         const PHOTO_TARGET_Y = 1200;
-        // 元画像のサイズ
+        
+        // 元画像の基準サイズ
         const PHOTO_WIDTH = 1082;
         const PHOTO_HEIGHT = 1939;
 
@@ -83,21 +84,19 @@
         const DUST_COUNT = 35; 
         const dustParticles = [];
         
-        // ゴール座標を記録する変数（最初は仮に画面中央）
         let goalX = window.innerWidth / 2;
         let goalY = window.innerHeight / 2;
         const mouse = { x: goalX, y: goalY };
 
         let isAutoFlying = true;
         let startTime = null;
-        const FLY_DURATION = 2000; // 2秒間
+        
+        // 【修正箇所】時間を 2000 から 3000（3秒）に伸ばして、ゆったり綺麗に回れるようにしました！
+        const FLY_DURATION = 3000; 
 
-        // --- 【超重要】画像の座標を、スマホ画面の実際の座標に変換する関数 ---
         function calculateScreenCoordinates() {
             const windowWidth = window.innerWidth;
             const windowHeight = window.innerHeight;
-
-            // background-size: cover の時の、画像の実際の表示サイズとズレを計算
             const windowRatio = windowWidth / windowHeight;
             const imageRatio = PHOTO_WIDTH / PHOTO_HEIGHT;
 
@@ -114,19 +113,16 @@
                 offsetX = (renderWidth - windowWidth) / 2;
             }
 
-            // Photoshopの座標が、今のスマホ画面の何ピクセル目になるかを割り出す
             goalX = (PHOTO_TARGET_X / PHOTO_WIDTH) * renderWidth - offsetX;
             goalY = (PHOTO_TARGET_Y / PHOTO_HEIGHT) * renderHeight - offsetY;
         }
 
-        // 最初の計算を実行
         calculateScreenCoordinates();
         mouse.x = goalX;
         mouse.y = goalY;
         tink.style.left = goalX + 'px';
         tink.style.top = goalY + 'px';
 
-        // 魔法の粉の初期位置をセット
         for (let i = 0; i < DUST_COUNT; i++) {
             const dust = document.createElement('div');
             dust.classList.add('pixie-dust');
@@ -144,7 +140,6 @@
             dustParticles.push({ element: dust, x: goalX, y: goalY });
         }
 
-        // 画面サイズが変わったら着地座標を再計算する（スマホの回転対策）
         window.addEventListener('resize', () => {
             calculateScreenCoordinates();
             if (!isAutoFlying) {
@@ -179,25 +174,27 @@
             if (isAutoFlying) {
                 if (elapsed < FLY_DURATION) {
                     const progress = elapsed / FLY_DURATION; 
-                    const angle = progress * Math.PI * 2; 
+                    
+                    // 【修正箇所】マイナスにして左側からスタート！
+                    const angle = -progress * Math.PI * 2; 
                     
                     // ハートのサイズ
                     const heartSize = Math.min(window.innerWidth, window.innerHeight) * 0.35; 
 
-                    // 【修正箇所】左側が小回りにならないように、右側と同じような大きな円を描くように計算式を修正しました
+                    // ハートの方程式
                     const hX = 16 * Math.pow(Math.sin(angle), 3);
                     const hY = -(13 * Math.cos(angle) - 5 * Math.cos(2*angle) - 2 * Math.cos(3*angle) - Math.cos(4*angle));
 
-                    // 着地地点の少し上でハートを描く
+                    // 着地地点の少し上でハートを描く（必要に応じて 0.8 を 1.2 などに変えてください）
                     const centerX = goalX;
-                    const centerY = goalY - (heartSize * 1.5); 
+                    const centerY = goalY - (heartSize * 0.8); 
 
                     const heartX = centerX + (hX * (heartSize / 16));
                     const heartY = centerY + (hY * (heartSize / 16));
 
-                    // スムーズにゴールへ着地させる
+                    // スムーズにゴールへ着地させるブレンド
                     mouse.x = heartX * (1 - progress) + goalX * progress;
-                    mouse.y = heartY * (1 - progress) + goalY * progress;
+                    mouse.y = goalY * (1 - progress) + goalY * progress;
 
                     tink.style.left = mouse.x + 'px';
                     tink.style.top = mouse.y + 'px';
@@ -215,8 +212,10 @@
             let targetY = mouse.y;
 
             dustParticles.forEach((dust) => {
-                dust.x += (targetX - dust.x) * 0.22; 
-                dust.y += (targetY - dust.y) * 0.22;
+                // 【ちょっとした魔法】自動飛行中はハートの線をくっきり残すため、粉の追従スピードを少し機敏（0.25）にしています
+                const speed = isAutoFlying ? 0.25 : 0.22;
+                dust.x += (targetX - dust.x) * speed; 
+                dust.y += (targetY - dust.y) * speed;
 
                 dust.element.style.left = dust.x + 'px';
                 dust.element.style.top = dust.y + 'px';

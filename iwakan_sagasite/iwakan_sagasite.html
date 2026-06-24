@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sizzle Detective 〜違和感を探してください〜</title>
+    <style>
+        :root {
+            --color-bg: #030712;
+            --color-card: #0f172a;
+            --color-border: rgba(255, 255, 255, 0.08);
+            --color-accent: #f59e0b;
+            --color-error: #ef4444;
+            --color-text-main: #f3f4f6;
+            --color-text-sub: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            font-family: 'Times New Roman', 'Noto Serif JP', serif;
+            background-color: var(--color-bg);
+            background-image: radial-gradient(circle at 50% 50%, #111827 0%, #030712 100%);
+            color: var(--color-text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        /* 全体のごく微細な環境手ブレ演出 */
+        .viewport-shaker {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: cameraDrift 10s ease-in-out infinite alternate;
+        }
+
+        @keyframes cameraDrift {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(0.4px, -0.2px) scale(1.001); }
+            100% { transform: translate(-0.2px, 0.4px) scale(1); }
+        }
+
+        /* 不正解タップ時・タイムアップ時の画面シェイク演出 */
+        .viewport-shaker.miss-shake {
+            animation: missWobble 0.4s ease-in-out;
+        }
+
+        @keyframes missWobble {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-4px); }
+            40%, 80% { transform: translateX(4px); }
+        }
+
+        /* メインカード：PCとスマホ両対応設計 */
+        .game-card {
+            width: 100%;
+            max-width: 400px;
+            background-color: var(--color-card);
+            border: 1px solid var(--color-border);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        /* 不正解タップ時・タイムアップ時のレッドフラッシュ */
+        .game-card.miss-flash {
+            background-color: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+
+        header {
+            text-align: center;
+            position: relative;
+        }
+
+        .game-title {
+            font-size: 18px;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            color: var(--color-accent);
+        }
+
+        .stage-indicator {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: #6b7280;
+            border-bottom: 1px solid var(--color-border);
+            padding-bottom: 6px;
+            margin-top: 10px;
+        }
+
+        /* 一時停止ボタンのデザイン */
+        .pause-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--color-border);
+            color: var(--color-text-sub);
+            padding: 3px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 10px;
+            letter-spacing: 0.05em;
+            transition: all 0.2s ease;
+        }
+        .pause-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--color-text-main);
+        }
+
+        /* 高さを強制せず、中の画像本来の自然な高さを保障する外枠 */
+        .stage-viewport {
+            position: relative;
+            width: 100%;
+            height: auto;
+            background-color: #020617;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+            cursor: crosshair;
+        }
+
+        /* 2枚の画像を同一座標空間で重ね合わせるラッパー */
+        .image-wrapper {
+            position: relative;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* 背面・前面ともに同じ伸縮ルールを設定 */
+        .base-image {
+            display: block;
+            width: 100%;
+            height: auto;
+            pointer-events: none;
+        }
+
+        .dynamic-target-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: auto;
+            display: block;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* 正解のアタリ判定領域：本番用の完全透明仕様 */
+        .hit-detector-box {
+            position: absolute;
+            cursor: pointer;
+            z-index: 20;
+            pointer-events: auto;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.0);
+        }
+
+        /* 一時停止（PAUSE）オーバーレイマスク */
+        .pause-mask {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(3, 7, 18, 0.85);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 30;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+        }
+        .pause-label {
+            font-size: 24px;
+            font-weight: 300;
+            letter-spacing: 0.3em;
+            color: var(--color-accent);
+            text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+            animation: pulseAlpha 2s infinite ease-in-out;
+        }
+        @keyframes pulseAlpha {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .dummy-noise-element {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+            pointer-events: none;
+            mix-blend-mode: overlay;
+            z-index: 5;
+        }
+        .noise-a { width: 40px; height: 40px; top: 15%; left: 20%; animation: noisePulse 4s infinite ease-in-out; }
+        .noise-b { width: 60px; height: 60px; bottom: 25%; right: 15%; animation: noisePulse 6s infinite ease-in-out 1s; }
+
+        @keyframes noisePulse {
+            0%, 100% { transform: scale(0.8); opacity: 0.1; }
+            50% { transform: scale(1.2); opacity: 0.4; }
+        }
+
+        .detection-ripple {
+            position: absolute;
+            border: 2px solid var(--color-accent);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 99;
+        }
+        .detection-ripple.animate {
+            animation: rippleActive 1.2s cubic-bezier(0.1, 0.8, 0.3, 1);
+        }
+        @keyframes rippleActive {
+            0% { width: 0; height: 0; opacity: 1; transform: translate(-50%, -50%); }
+            100% { width: 250px; height: 250px; opacity: 0; transform: translate(-50%, -50%); filter: blur(2px); }
+        }
+
+        .miss-indicator {
+            position: absolute;
+            width: 30px; height: 30px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--color-error);
+            font-size: 24px; font-weight: bold;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            opacity: 0; z-index: 98;
+        }
+        .miss-indicator.animate {
+            animation: missActive 0.6s ease-out forwards;
+        }
+        @keyframes missActive {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1); filter: blur(1px); }
+        }
+
+        footer {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .info-textbox {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid var(--color-border);
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            color: var(--color-text-sub);
+            line-height: 1.6;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .result-panel {
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(245, 158, 11, 0.15);
+            padding: 16px;
+            border-radius: 10px;
+            animation: panelFadeIn 0.5s ease forwards;
+        }
+
+        @keyframes panelFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .review-title {
+            font-size: 11px;
+            color: var(--color-accent);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-bottom: 2px;
+            text-align: center;
+        }
+
+        .timelapse-range {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 3px;
+            background: #334155;
+            outline: none;
+            border-radius: 2px;
+            margin: 8px 0;
+        }
+        .timelapse-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--color-accent);
+            cursor: pointer;
+            box-shadow: 0 0 8px var(--color-accent);
+        }
+
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: #4b5563;
+        }
+
+        .action-area {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .next-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #b45309 0%, #78350f 100%);
+            color: var(--color-text-main);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .next-btn:disabled {
+            background: #1e293b !important;
+            color: #475569 !important;
+            border: 1px solid #334155 !important;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* スタート画面 & 全問クリア画面の共通レイアウト */
+        .overlay-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(3, 7, 18, 0.95);
+            background-image: radial-gradient(circle at 50% 50%, #0f172a 0%, #030712 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.4s ease;
+            z-index: 1000;
+        }
+        .overlay-screen.show { opacity: 1; pointer-events: auto; }
+        .overlay-box {
+            background: var(--color-card);
+            border: 1px solid var(--color-border);
+            padding: 40px 30px;
+            border-radius: 20px;
+            text-align: center;
+            width: 90%;
+            max-width: 340px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+        }
+        .overlay-box h2 { font-size: 20px; font-weight: 300; color: var(--color-accent); margin-bottom: 24px; letter-spacing: 0.15em; line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+    <div class="overlay-screen show" id="startOverlay">
+        <div class="overlay-box">
+            <h2>違和感を探してください</h2>
+            <button class="next-btn" onclick="startGame()">調査を開始する</button>
+        </div>
+    </div>
+
+    <div id="mainShaker" class="viewport-shaker">
+        <div id="gameCard" class="game-card">
+            
+            <header>
+                <div class="game-title">違和感を探してください</div>
+                <div class="stage-indicator">
+                    <span id="currentStageLabel">STAGE: 1 / 3</span>
+                    <button class="pause-btn" id="pauseBtn" onclick="togglePause(event)" style="display:none;">一時停止</button>
+                </div>
+            </header>
+
+            <div class="stage-viewport" id="viewport" onclick="evaluateMiss(event)">
+                <div class="image-wrapper" id="imageWrapper">
+                    <div id="ripple" class="detection-ripple"></div>
+                    <div id="missX" class="miss-indicator">✕</div>
+                    
+                    <img id="baseImage" class="base-image" src="" alt="After State">
+                    <img id="dynamicImage" class="dynamic-target-layer" src="" alt="Before State">
+
+                    <div id="hitDetector" class="hit-detector-box" onclick="evaluateHit(event)"></div>
+                    
+                    <div class="pause-mask" id="pauseMask">
+                        <div class="pause-label">PAUSE</div>
+                    </div>
+                </div>
+
+                <div class="dummy-noise-element noise-a"></div>
+                <div class="dummy-noise-element noise-b"></div>
+            </div>
+
+            <footer>
+                <div class="info-textbox" id="guideText">
+                    風景の一箇所が、20秒かけてゆっくり変化します。<br>ゆっくりご覧ください。
+                </div>
+
+                <div class="result-panel" id="resultPanel">
+                    <div>
+                        <div class="review-title">タイムラプス検証</div>
+                        <input type="range" min="0" max="100" value="100" class="timelapse-range" id="timelapseRange" oninput="processTimelapse(this.value)">
+                        <div class="range-labels">
+                            <span>変化前</span>
+                            <span>変化後</span>
+                        </div>
+                    </div>
+                    <div class="action-area">
+                        <button class="next-btn" id="nextStageBtn" onclick="advanceStage()" disabled>検証後に次へ進めます</button>
+                    </div>
+                </div>
+            </footer>
+
+        </div>
+    </div>
+
+    <div class="overlay-screen" id="endOverlay">
+        <div class="overlay-box">
+            <h2>全問調査完了</h2>
+            <button class="next-btn" onclick="location.reload()">最初からもう一度</button>
+        </div>
+    </div>
+
+    <script>
+        const dataset = [
+            {
+                beforeUrl: "S__10993694.jpg", 
+                afterUrl: "S__10993697.jpg", 
+                area: { top: 27.5, left: 23.5, width: 18.5, height: 13.5 } 
+            },
+            {
+                beforeUrl: "S__10993698.jpg", 
+                afterUrl: "S__10993695.jpg", 
+                area: { top: 38.0, left: 91.5, width: 8.5, height: 32.5 }
+            },
+            {
+                beforeUrl: "S__10993696.jpg", 
+                afterUrl: "S__10993699.jpg",        
+                area: { top: 45.5, left: 0.0, width: 5.3, height: 21.6 }
+            }
+        ];
+
+        let currentIdx = 0;
+        let activeState = false;
+        let isPaused = false; 
+        let hasInteractedWithSlider = false; 
+        let isAnnounced = false; 
+        let startTime = null;
+        let pausedTimeElapsed = 0; 
+        let progressTimer = null;
+        let countdownTimer = null; 
+        let countdownSeconds = 10; 
+        const animationDuration = 20000; 
+
+        function startGame() {
+            document.getElementById('startOverlay').classList.remove('show');
+            document.getElementById('pauseBtn').style.display = 'block'; 
+            initializeStage(currentIdx);
+        }
+
+        function initializeStage(index) {
+            activeState = false;
+            isPaused = false;
+            hasInteractedWithSlider = false; 
+            isAnnounced = false;
+            countdownSeconds = 10;
+            pausedTimeElapsed = 0;
+            
+            const nextBtn = document.getElementById('nextStageBtn');
+            nextBtn.disabled = true;
+            nextBtn.innerText = "検証後に次へ進めます";
+
+            const pauseBtn = document.getElementById('pauseBtn');
+            pauseBtn.innerText = "一時停止";
+            pauseBtn.style.display = "block";
+            document.getElementById('pauseMask').style.display = 'none';
+
+            document.getElementById('currentStageLabel').innerText = `STAGE: ${index + 1} / 3`;
+            
+            document.getElementById('resultPanel').style.display = 'none';
+            document.getElementById('guideText').style.display = 'block';
+            document.getElementById('guideText').style.color = 'var(--color-text-sub)';
+            document.getElementById('guideText').style.borderColor = 'var(--color-border)';
+            document.getElementById('guideText').innerHTML = "風景の一箇所が、20秒かけてゆっくり変化します。<br>ゆっくりご覧ください。";
+
+            const data = dataset[index];
+            const baseImg = document.getElementById('baseImage');
+            const dynamicImg = document.getElementById('dynamicImage');
+            
+            baseImg.src = data.afterUrl;
+            dynamicImg.src = data.beforeUrl;
+            
+            const detector = document.getElementById('hitDetector');
+            detector.style.top = data.area.top + '%';
+            detector.style.left = data.area.left + '%';
+            detector.style.width = data.area.width + '%';
+            detector.style.height = data.area.height + '%';
+
+            applyVisualState(0);
+
+            startTime = performance.now();
+            if (progressTimer) clearInterval(progressTimer);
+            if (countdownTimer) clearInterval(countdownTimer);
+            progressTimer = setInterval(updateFlux, 50);
+        }
+
+        function togglePause(event) {
+            event.stopPropagation();
+            if (activeState) return; 
+
+            const pauseBtn = document.getElementById('pauseBtn');
+            const pauseMask = document.getElementById('pauseMask');
+
+            if (!isPaused) {
+                isPaused = true;
+                pauseBtn.innerText = "再開";
+                pauseMask.style.display = 'flex';
+
+                if (!isAnnounced) {
+                    clearInterval(progressTimer);
+                    pausedTimeElapsed += (performance.now() - startTime);
+                } else {
+                    clearInterval(countdownTimer);
+                }
+            } else {
+                isPaused = false;
+                pauseBtn.innerText = "一時停止";
+                pauseMask.style.display = 'none';
+
+                if (!isAnnounced) {
+                    startTime = performance.now() - pausedTimeElapsed;
+                    progressTimer = setInterval(updateFlux, 50);
+                } else {
+                    startCountdown(); 
+                }
+            }
+        }
+
+        function updateFlux() {
+            if (activeState || isPaused) return;
+            const elapsed = (performance.now() - startTime);
+            let ratio = elapsed / animationDuration;
+            
+            if (ratio >= 1) {
+                ratio = 1;
+                clearInterval(progressTimer);
+                
+                if (!isAnnounced) {
+                    isAnnounced = true;
+                    startCountdown(); 
+                }
+            }
+            applyVisualState(ratio);
+        }
+
+        function startCountdown() {
+            if (isPaused) return;
+            const guideText = document.getElementById('guideText');
+            guideText.style.color = 'var(--color-accent)';
+            guideText.style.borderColor = 'rgba(245, 158, 11, 0.4)';
+            guideText.innerHTML = `すべての変化が完了しました。<br>残り時間：${countdownSeconds}秒`;
+
+            if (countdownTimer) clearInterval(countdownTimer);
+            countdownTimer = setInterval(() => {
+                if (activeState || isPaused) {
+                    clearInterval(countdownTimer);
+                    return;
+                }
+                countdownSeconds--;
+                if (countdownSeconds <= 0) {
+                    clearInterval(countdownTimer);
+                    triggerTimeoutPenalty(); 
+                } else {
+                    guideText.innerHTML = `すべての変化が完了しました。<br>残り時間：${countdownSeconds}秒`;
+                }
+            }, 1000);
+        }
+
+        function triggerTimeoutPenalty() {
+            activeState = true;
+            document.getElementById('pauseBtn').style.display = 'none';
+            applyVisualState(1); 
+
+            const mainShaker = document.getElementById('mainShaker');
+            const gameCard = document.getElementById('gameCard');
+            mainShaker.classList.add('miss-shake');
+            gameCard.classList.add('miss-flash');
+
+            setTimeout(() => {
+                mainShaker.classList.remove('miss-shake');
+                gameCard.classList.remove('miss-flash');
+            }, 400);
+
+            document.getElementById('guideText').style.display = 'none';
+            document.getElementById('resultPanel').style.display = 'flex';
+            document.getElementById('timelapseRange').value = 100;
+        }
+
+        function applyVisualState(ratio) {
+            const dynamicImg = document.getElementById('dynamicImage');
+            if(!dynamicImg) return;
+            dynamicImg.style.opacity = (1 - ratio);
+        }
+
+        function evaluateHit(event) {
+            event.stopPropagation(); 
+            if (activeState || isPaused) return;
+            activeState = true;
+            
+            document.getElementById('pauseBtn').style.display = 'none';
+            clearInterval(progressTimer);
+            if (countdownTimer) clearInterval(countdownTimer); 
+
+            applyVisualState(1);
+
+            const ripple = document.getElementById('ripple');
+            const wrapper = document.getElementById('imageWrapper');
+            const rect = wrapper.getBoundingClientRect();
+            
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            ripple.style.left = `${x}px`;
+            ripple.style.top = `${y}px`;
+            ripple.classList.remove('animate');
+            void ripple.offsetWidth; 
+            ripple.classList.add('animate');
+
+            document.getElementById('guideText').style.display = 'none';
+            document.getElementById('resultPanel').style.display = 'flex';
+            document.getElementById('timelapseRange').value = 100;
+        }
+
+        function evaluateMiss(event) {
+            if (activeState || isPaused) return; 
+
+            const wrapper = document.getElementById('imageWrapper');
+            const rect = wrapper.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            const missX = document.getElementById('missX');
+            missX.style.left = `${x}px`;
+            missX.style.top = `${y}px`;
+            missX.classList.remove('animate');
+            void missX.offsetWidth; 
+            missX.classList.add('animate');
+
+            const mainShaker = document.getElementById('mainShaker');
+            const gameCard = document.getElementById('gameCard');
+
+            mainShaker.classList.remove('miss-shake');
+            gameCard.classList.remove('miss-flash');
+            void mainShaker.offsetWidth; 
+            mainShaker.classList.add('miss-shake');
+            gameCard.classList.add('miss-flash');
+
+            setTimeout(() => {
+                mainShaker.classList.remove('miss-shake');
+                gameCard.classList.remove('miss-flash');
+            }, 400);
+        }
+
+        function processTimelapse(value) {
+            const ratio = value / 100;
+            applyVisualState(ratio);
+
+            if (!hasInteractedWithSlider) {
+                hasInteractedWithSlider = true;
+                const nextBtn = document.getElementById('nextStageBtn');
+                nextBtn.disabled = false;
+                nextBtn.innerText = "次の調査へ進む";
+            }
+        }
+
+        function advanceStage() {
+            if (!hasInteractedWithSlider) return; 
+
+            currentIdx++;
+            if (currentIdx < dataset.length) {
+                initializeStage(currentIdx);
+            } else {
+                document.getElementById('endOverlay').classList.add('show');
+            }
+        }
+
+        window.onload = () => {
+            document.getElementById('startOverlay').classList.add('show');
+        };
+    </script>
+</body>
+</html>

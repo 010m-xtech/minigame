@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sizzle Detective 〜違和感を探してください〜</title>
+    <style>
+        :root {
+            --color-bg: #030712;
+            --color-card: #0f172a;
+            --color-border: rgba(255, 255, 255, 0.08);
+            --color-accent: #f59e0b;
+            --color-error: #ef4444;
+            --color-text-main: #f3f4f6;
+            --color-text-sub: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            font-family: 'Times New Roman', 'Noto Serif JP', serif;
+            background-color: var(--color-bg);
+            background-image: radial-gradient(circle at 50% 50%, #111827 0%, #030712 100%);
+            color: var(--color-text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        /* 全体のごく微細な環境手ブレ演出 */
+        .viewport-shaker {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: cameraDrift 10s ease-in-out infinite alternate;
+        }
+
+        @keyframes cameraDrift {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(0.4px, -0.2px) scale(1.001); }
+            100% { transform: translate(-0.2px, 0.4px) scale(1); }
+        }
+
+        /* 不正解タップ時・タイムアップ時の画面シェイク演出 */
+        .viewport-shaker.miss-shake {
+            animation: missWobble 0.4s ease-in-out;
+        }
+
+        @keyframes missWobble {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-4px); }
+            40%, 80% { transform: translateX(4px); }
+        }
+
+        /* メインカード：PCとスマホ両対応設計 */
+        .game-card {
+            width: 100%;
+            max-width: 400px;
+            background-color: var(--color-card);
+            border: 1px solid var(--color-border);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        /* 不正解タップ時・タイムアップ時のレッドフラッシュ */
+        .game-card.miss-flash {
+            background-color: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+
+        header {
+            text-align: center;
+        }
+
+        .game-title {
+            font-size: 18px;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            color: var(--color-accent);
+        }
+
+        .stage-indicator {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #6b7280;
+            border-bottom: 1px solid var(--color-border);
+            padding-bottom: 6px;
+            margin-top: 10px;
+        }
+
+        /* 高さを強制せず、中の画像本来の自然な高さを保障する外枠 */
+        .stage-viewport {
+            position: relative;
+            width: 100%;
+            height: auto;
+            background-color: #020617;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+            cursor: crosshair;
+        }
+
+        /* 2枚の画像を同一座標空間で重ね合わせるラッパー */
+        .image-wrapper {
+            position: relative;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* 背面・前面ともに同じ伸縮ルールを設定 */
+        .base-image {
+            display: block;
+            width: 100%;
+            height: auto;
+            pointer-events: none;
+        }
+
+        .dynamic-target-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: auto;
+            display: block;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* 正解のアタリ判定領域：本番用の完全透明仕様 */
+        .hit-detector-box {
+            position: absolute;
+            cursor: pointer;
+            z-index: 20;
+            pointer-events: auto;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.0);
+        }
+
+        .dummy-noise-element {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+            pointer-events: none;
+            mix-blend-mode: overlay;
+            z-index: 5;
+        }
+        .noise-a { width: 40px; height: 40px; top: 15%; left: 20%; animation: noisePulse 4s infinite ease-in-out; }
+        .noise-b { width: 60px; height: 60px; bottom: 25%; right: 15%; animation: noisePulse 6s infinite ease-in-out 1s; }
+
+        @keyframes noisePulse {
+            0%, 100% { transform: scale(0.8); opacity: 0.1; }
+            50% { transform: scale(1.2); opacity: 0.4; }
+        }
+
+        .detection-ripple {
+            position: absolute;
+            border: 2px solid var(--color-accent);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 99;
+        }
+        .detection-ripple.animate {
+            animation: rippleActive 1.2s cubic-bezier(0.1, 0.8, 0.3, 1);
+        }
+        @keyframes rippleActive {
+            0% { width: 0; height: 0; opacity: 1; transform: translate(-50%, -50%); }
+            100% { width: 250px; height: 250px; opacity: 0; transform: translate(-50%, -50%); filter: blur(2px); }
+        }
+
+        .miss-indicator {
+            position: absolute;
+            width: 30px; height: 30px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--color-error);
+            font-size: 24px; font-weight: bold;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            opacity: 0; z-index: 98;
+        }
+        .miss-indicator.animate {
+            animation: missActive 0.6s ease-out forwards;
+        }
+        @keyframes missActive {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1); filter: blur(1px); }
+        }
+
+        footer {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .info-textbox {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid var(--color-border);
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            color: var(--color-text-sub);
+            line-height: 1.6;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .result-panel {
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(245, 158, 11, 0.15);
+            padding: 16px;
+            border-radius: 10px;
+            animation: panelFadeIn 0.5s ease forwards;
+        }
+
+        @keyframes panelFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .review-title {
+            font-size: 11px;
+            color: var(--color-accent);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-bottom: 2px;
+            text-align: center;
+        }
+
+        .timelapse-range {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 3px;
+            background: #334155;
+            outline: none;
+            border-radius: 2px;
+            margin: 8px 0;
+        }
+        .timelapse-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--color-accent);
+            cursor: pointer;
+            box-shadow: 0 0 8px var(--color-accent);
+        }
+
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: #4b5563;
+        }
+
+        .action-area {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .next-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #b45309 0%, #78350f 100%);
+            color: var(--color-text-main);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .next-btn:disabled {
+            background: #1e293b !important;
+            color: #475569 !important;
+            border: 1px solid #334155 !important;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .completion-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(3, 7, 18, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.5s ease;
+            z-index: 1000;
+        }
+        .completion-overlay.show { opacity: 1; pointer-events: auto; }
+        .completion-box {
+            background: var(--color-card);
+            border: 1px solid var(--color-accent);
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 320px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+        }
+        .completion-box h2 { font-size: 18px; font-weight: 300; color: var(--color-accent); margin-bottom: 12px; letter-spacing: 0.1em;}
+        .completion-box p { font-size: 13px; color: var(--color-text-sub); line-height: 1.6; margin-bottom: 20px;}
+    </style>
+</head>
+<body>
+
+    <div id="mainShaker" class="viewport-shaker">
+        <div id="gameCard" class="game-card">
+            
+            <header>
+                <div class="game-title">違和感を探してください</div>
+                <div class="stage-indicator">
+                    <span id="currentStageLabel">STAGE: 1 / 3</span>
+                    <span></span>
+                </div>
+            </header>
+
+            <div class="stage-viewport" id="viewport" onclick="evaluateMiss(event)">
+                <div class="image-wrapper" id="imageWrapper">
+                    <div id="ripple" class="detection-ripple"></div>
+                    <div id="missX" class="miss-indicator">✕</div>
+                    
+                    <img id="baseImage" class="base-image" src="" alt="After State">
+                    <img id="dynamicImage" class="dynamic-target-layer" src="" alt="Before State">
+
+                    <div id="hitDetector" class="hit-detector-box" onclick="evaluateHit(event)"></div>
+                </div>
+
+                <div class="dummy-noise-element noise-a"></div>
+                <div class="dummy-noise-element noise-b"></div>
+            </div>
+
+            <footer>
+                <div class="info-textbox" id="guideText">
+                    風景の一箇所が、20秒かけてゆっくり変化します。<br>ゆっくりご覧ください。
+                </div>
+
+                <div class="result-panel" id="resultPanel">
+                    <div>
+                        <div class="review-title">タイムラプス検証</div>
+                        <input type="range" min="0" max="100" value="100" class="timelapse-range" id="timelapseRange" oninput="processTimelapse(this.value)">
+                        <div class="range-labels">
+                            <span>変化前</span>
+                            <span>変化後</span>
+                        </div>
+                    </div>
+                    <div class="action-area">
+                        <button class="next-btn" id="nextStageBtn" onclick="advanceStage()" disabled>検証後に次へ進めます</button>
+                    </div>
+                </div>
+            </footer>
+
+        </div>
+    </div>
+
+    <div class="completion-overlay" id="endOverlay">
+        <div class="completion-box">
+            <h2>全問調査完了</h2>
+            <p>本日のすべてのサイレント変化を特定しました。脳の適度なリフレッシュが完了しました。</p>
+            <button class="next-btn" onclick="location.reload()">最初からもう一度</button>
+        </div>
+    </div>
+
+    <script>
+        const dataset = [
+            {
+                // STAGE 1 (トラック後方のケース周辺)
+                beforeUrl: "S__10993694.jpg", 
+                afterUrl: "S__10993697.jpg", 
+                area: { top: 27.5, left: 23.5, width: 18.5, height: 13.5 } 
+            },
+            {
+                // STAGE 2 (画面右側の箱周辺)
+                beforeUrl: "S__10993698.jpg", 
+                afterUrl: "S__10993695.jpg", 
+                area: { top: 38.0, left: 91.5, width: 8.5, height: 32.5 }
+            },
+            {
+                // STAGE 3 (中央やや上寄りの人物周辺)
+                beforeUrl: "S__10993696.jpg", 
+                afterUrl: "S__10993699.jpg",        
+                area: { top: 45.5, left: 0.0, width: 5.3, height: 21.6 }
+            }
+        ];
+
+        let currentIdx = 0;
+        let activeState = false;
+        let hasInteractedWithSlider = false; 
+        let isAnnounced = false; 
+        let startTime = null;
+        let progressTimer = null;
+        let countdownTimer = null; // カウントダウン用のタイマー保持
+        let countdownSeconds = 10; // カウントダウン残秒数
+        const animationDuration = 20000; 
+
+        function initializeStage(index) {
+            activeState = false;
+            hasInteractedWithSlider = false; 
+            isAnnounced = false;
+            countdownSeconds = 10;
+            
+            const nextBtn = document.getElementById('nextStageBtn');
+            nextBtn.disabled = true;
+            nextBtn.innerText = "検証後に次へ進めます";
+
+            document.getElementById('currentStageLabel').innerText = `STAGE: ${index + 1} / 3`;
+            
+            document.getElementById('resultPanel').style.display = 'none';
+            document.getElementById('guideText').style.display = 'block';
+            document.getElementById('guideText').style.color = 'var(--color-text-sub)';
+            document.getElementById('guideText').style.borderColor = 'var(--color-border)';
+            // 初期文言のセット
+            document.getElementById('guideText').innerHTML = "風景の一箇所が、20秒かけてゆっくり変化します。<br>ゆっくりご覧ください。";
+
+            const data = dataset[index];
+            const baseImg = document.getElementById('baseImage');
+            const dynamicImg = document.getElementById('dynamicImage');
+            
+            baseImg.src = data.afterUrl;
+            dynamicImg.src = data.beforeUrl;
+            
+            const detector = document.getElementById('hitDetector');
+            detector.style.top = data.area.top + '%';
+            detector.style.left = data.area.left + '%';
+            detector.style.width = data.area.width + '%';
+            detector.style.height = data.area.height + '%';
+
+            applyVisualState(0);
+
+            startTime = performance.now();
+            if (progressTimer) clearInterval(progressTimer);
+            if (countdownTimer) clearInterval(countdownTimer);
+            progressTimer = setInterval(updateFlux, 50);
+        }
+
+        function updateFlux() {
+            if (activeState) return;
+            const elapsed = performance.now() - startTime;
+            let ratio = elapsed / animationDuration;
+            
+            if (ratio >= 1) {
+                ratio = 1;
+                clearInterval(progressTimer);
+                
+                if (!isAnnounced) {
+                    isAnnounced = true;
+                    startCountdown(); // 20秒経過した瞬間にカウントダウンタイマーを起動
+                }
+            }
+            applyVisualState(ratio);
+        }
+
+        /* 変化終了後の10秒カウントダウン処理 */
+        function startCountdown() {
+            const guideText = document.getElementById('guideText');
+            guideText.style.color = 'var(--color-accent)';
+            guideText.style.borderColor = 'rgba(245, 158, 11, 0.4)';
+            guideText.innerHTML = `すべての変化が完了しました。<br>残り時間：${countdownSeconds}秒`;
+
+            countdownTimer = setInterval(() => {
+                if (activeState) {
+                    clearInterval(countdownTimer);
+                    return;
+                }
+                countdownSeconds--;
+                if (countdownSeconds <= 0) {
+                    clearInterval(countdownTimer);
+                    triggerTimeoutPenalty(); // 0秒になったらペナルティ＆強制移動
+                } else {
+                    guideText.innerHTML = `すべての変化が完了しました。<br>残り時間：${countdownSeconds}秒`;
+                }
+            }, 1000);
+        }
+
+        /* 制限時間切れによるペナルティ発動ロジック */
+        function triggerTimeoutPenalty() {
+            activeState = true;
+            applyVisualState(1); // 変化後を全露出
+
+            // ペナルティの演出（シェイクとレッドフラッシュ）を強制実行
+            const mainShaker = document.getElementById('mainShaker');
+            const gameCard = document.getElementById('gameCard');
+            mainShaker.classList.add('miss-shake');
+            gameCard.classList.add('miss-flash');
+
+            setTimeout(() => {
+                mainShaker.classList.remove('miss-shake');
+                gameCard.classList.remove('miss-flash');
+            }, 400);
+
+            // タイムラプス検証画面の出現
+            document.getElementById('guideText').style.display = 'none';
+            document.getElementById('resultPanel').style.display = 'flex';
+            document.getElementById('timelapseRange').value = 100;
+        }
+
+        function applyVisualState(ratio) {
+            const dynamicImg = document.getElementById('dynamicImage');
+            if(!dynamicImg) return;
+            dynamicImg.style.opacity = (1 - ratio);
+        }
+
+        function evaluateHit(event) {
+            event.stopPropagation(); 
+            if (activeState) return;
+            activeState = true;
+            clearInterval(progressTimer);
+            if (countdownTimer) clearInterval(countdownTimer); // カウントダウンをその場でクリア
+
+            applyVisualState(1);
+
+            const ripple = document.getElementById('ripple');
+            const wrapper = document.getElementById('imageWrapper');
+            const rect = wrapper.getBoundingClientRect();
+            
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            ripple.style.left = `${x}px`;
+            ripple.style.top = `${y}px`;
+            ripple.classList.remove('animate');
+            void ripple.offsetWidth; 
+            ripple.classList.add('animate');
+
+            document.getElementById('guideText').style.display = 'none';
+            document.getElementById('resultPanel').style.display = 'flex';
+            document.getElementById('timelapseRange').value = 100;
+        }
+
+        function evaluateMiss(event) {
+            if (activeState) return; 
+
+            const wrapper = document.getElementById('imageWrapper');
+            const rect = wrapper.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            const missX = document.getElementById('missX');
+            missX.style.left = `${x}px`;
+            missX.style.top = `${y}px`;
+            missX.classList.remove('animate');
+            void missX.offsetWidth; 
+            missX.classList.add('animate');
+
+            const mainShaker = document.getElementById('mainShaker');
+            const gameCard = document.getElementById('gameCard');
+
+            mainShaker.classList.remove('miss-shake');
+            gameCard.classList.remove('miss-flash');
+            void mainShaker.offsetWidth; 
+            mainShaker.classList.add('miss-shake');
+            gameCard.classList.add('miss-flash');
+
+            setTimeout(() => {
+                mainShaker.classList.remove('miss-shake');
+                gameCard.classList.remove('miss-flash');
+            }, 400);
+        }
+
+        function processTimelapse(value) {
+            const ratio = value / 100;
+            applyVisualState(ratio);
+
+            if (!hasInteractedWithSlider) {
+                hasInteractedWithSlider = true;
+                const nextBtn = document.getElementById('nextStageBtn');
+                nextBtn.disabled = false;
+                nextBtn.innerText = "次の調査へ進む";
+            }
+        }
+
+        function advanceStage() {
+            if (!hasInteractedWithSlider) return; 
+
+            currentIdx++;
+            if (currentIdx < dataset.length) {
+                initializeStage(currentIdx);
+            } else {
+                document.getElementById('endOverlay').classList.add('show');
+            }
+        }
+
+        window.onload = () => {
+            initializeStage(currentIdx);
+        };
+    </script>
+</body>
+</html>

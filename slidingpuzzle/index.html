@@ -119,6 +119,29 @@
       font-weight: bold;
     }
 
+    /* タイマー表示エリア */
+    .timer-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-grow: 1;
+      margin-bottom: 5px;
+      align-self: flex-end;
+    }
+    .timer-label {
+      font-size: 11px;
+      color: #ebdcb9;
+      font-weight: bold;
+      margin-bottom: 2px;
+    }
+    #timer-display {
+      font-size: 24px;
+      font-weight: bold;
+      color: #fff;
+      font-family: 'Courier New', Courier, monospace; /* 等幅フォントでズレを防止 */
+    }
+
     /* シャッフルボタン */
     #shuffle-btn {
       padding: 12px 25px;
@@ -204,6 +227,12 @@
       <div id="sample-img-view" class="sample-image"></div>
       <span>完成図</span>
     </div>
+    
+    <div class="timer-box">
+      <span class="timer-label">TIME</span>
+      <div id="timer-display">00:00</div>
+    </div>
+
     <button id="shuffle-btn">混ぜなおす</button>
   </div>
 
@@ -211,8 +240,13 @@
     let gridSize = 3; // デフォルトは初級(3x3)スタート
     let board = [];
     
+    // タイマー管理用の変数
+    let startTime = 0;
+    let timerInterval = null;
+    
     const container = document.getElementById('puzzle-container');
     const overlay = document.getElementById('clear-overlay');
+    const timerDisplay = document.getElementById('timer-display');
 
     // パズルの初期設定（難易度に応じてマス目を自動変更）
     function initPuzzle() {
@@ -299,6 +333,34 @@
       }
     }
 
+    // タイマーを開始する関数
+    function startTimer() {
+      clearInterval(timerInterval); // 既存のタイマーがあれば破棄
+      startTime = Date.now();
+      timerInterval = setInterval(updateTimer, 1000);
+      timerDisplay.textContent = "00:00";
+    }
+
+    // タイマーをストップする関数
+    function stopTimer() {
+      clearInterval(timerInterval);
+    }
+
+    // タイマーの表示を更新する関数
+    function updateTimer() {
+      const elapsedTime = Date.now() - startTime;
+      const totalSeconds = Math.floor(elapsedTime / 1000);
+      
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      
+      // 2桁ずつの文字列に整形 (例: 02:05)
+      const displayMinutes = String(minutes).padStart(2, '0');
+      const displaySeconds = String(seconds).padStart(2, '0');
+      
+      timerDisplay.textContent = `${displayMinutes}:${displaySeconds}`;
+    }
+
     // シャッフル処理（初級は100回、上級は200回スライドさせて崩す）
     function shuffleBoard() {
       overlay.classList.remove('show');
@@ -325,12 +387,16 @@
         board[randomMove] = emptyValue;
       }
       renderBoard();
+      
+      // パズルが混ざり終わった段階でタイマーを計測開始
+      startTimer();
     }
 
     // クリアチェック
     function checkWin() {
       const isWin = board.every((val, idx) => val === idx);
       if (isWin) {
+        stopTimer(); // クリアしたらタイマーを止める
         setTimeout(() => {
           overlay.classList.add('show');
         }, 200);

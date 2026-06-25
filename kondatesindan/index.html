@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>今晩の運命を決める！晩御飯ソムリエ</title>
+    <style>
+        :root {
+            --primary-color: #ff6b6b;
+            --secondary-color: #4ecdc4;
+            --dark-color: #2f2f2f;
+            --light-color: #f7f9fa;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .game-container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            border: 3px solid var(--dark-color);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            color: var(--dark-color);
+            margin-bottom: 20px;
+            border-bottom: 2px dashed var(--primary-color);
+            padding-bottom: 10px;
+        }
+
+        .progress {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 10px;
+        }
+
+        .question {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 25px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .options-div {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn {
+            background-color: white;
+            border: 2px solid var(--dark-color);
+            padding: 14px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 0 var(--dark-color);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        .result-div {
+            display: none;
+        }
+
+        .result-title {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .dish-name {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 15px 0;
+            animation: pop 0.5s ease;
+        }
+
+        .reason {
+            font-size: 1rem;
+            line-height: 1.6;
+            background: #fff0f0;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: left;
+            margin-bottom: 25px;
+        }
+
+        .restart-btn {
+            background-color: var(--dark-color);
+            color: white;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .restart-btn:hover {
+            background-color: #555;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <div id="quiz-screen">
+        <div class="progress" id="progress">第 1 問 / 5</div>
+        <div class="question" id="question-text">質問がここに読み込まれます</div>
+        <div class="options-div">
+            <button class="btn" onclick="selectOption(0)" id="opt0">選択肢1</button>
+            <button class="btn" onclick="selectOption(1)" id="opt1">選択肢2</button>
+            <button class="btn" onclick="selectOption(2)" id="opt2">選択肢3</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="result-div">
+        <div class="result-title">今日のあなたの気分と体調から導き出した</div>
+        <div style="font-weight: bold;">今晩の運命のディナーは…</div>
+        <div class="dish-name" id="dish-name">料理名</div>
+        <div class="reason" id="result-reason">ここに理由が表示されます。</div>
+        <button class="btn restart-btn" onclick="restartGame()">もう一度占う</button>
+    </div>
+</div>
+
+<script>
+    // 設問データ (A: 肉・ガッツリ系, B: スパイス・刺激系, C: 胃に優しい・お疲れ系)
+    const questions = [
+        {
+            q: "Q1. 今、上司（または理不尽な現実）に言いたい一言は？",
+            options: [
+                "「私の戦闘力は53万です」と脅す",
+                "「一回、デスソース飲んでみます？」と提案する",
+                "無言で、仏のような微笑みを返す"
+            ],
+            types: ['A', 'B', 'C']
+        },
+        {
+            q: "Q2. もし今、目の前に謎の赤いボタンがあったらどうする？",
+            options: [
+                "親の仇のように力強く連打する",
+                "とりあえず匂いを嗅いでみる",
+                "「故障中」の紙を貼って立ち去る"
+            ],
+            types: ['A', 'B', 'C']
+        },
+        {
+            q: "Q3. 現在のあなたのHP（体力量）を例えるなら？",
+            options: [
+                "満タン。野生のクマと相撲が取れるレベル",
+                "脳が微かにバグっており、刺激を求めている",
+                "瀕死。布団が恋人。一歩も動きたくない"
+            ],
+            types: ['A', 'B', 'C']
+        },
+        {
+            q: "Q4. お財布を開いたときの、あなたの心の叫びは？",
+            options: [
+                "「食費は投資だ！いけいけ！」",
+                "「刺激的なものになら払ってもいい」",
+                "「無（む）。もやしで暮らしたい」"
+            ],
+            types: ['A', 'B', 'C']
+        },
+        {
+            q: "Q5. 最後に、今のあなたの「心の叫び」に一番近いものは？",
+            options: [
+                "あーー！肉が鳴いている！！",
+                "人生に、ちょっとしたスパイスをくれ！",
+                "世界よ、頼むから静かにしてくれ…"
+            ],
+            types: ['A', 'B', 'C']
+        }
+    ];
+
+    // 結果データ
+    const results = {
+        'A': {
+            name: "骨付き大盛り唐揚げ ＆ 白米大盛り",
+            reason: "今のあなたは戦闘力が高まりすぎているか、逆にエネルギーが枯渇して体が『肉』を求めています。ユーモアを忘れるほど本能が荒ぶっているので、ここは揚げたての唐揚げを噛みちぎり、脳内にアドレナリンを分泌させるのが正解です。カロリーのことは明日考えましょう。"
+        },
+        'B': {
+            name: "スパイス限界突破カレー",
+            reason: "日常の退屈やストレスを、刺激で上書きしたい気分のようです。脳が「スリル」を欲していますね。スパイスの波に溺れることで、日頃のモヤモヤも汗と一緒にすべて吹き飛ぶでしょう。食べ終わる頃には、悩んでいたことがどうでもよくなっているはずです。"
+        },
+        'C': {
+            name: "出汁が染み渡る、高級鍋焼きうどん",
+            reason: "お疲れ様です。今のあなたは、魂がすり減って透明になりかけています。間違っても今夜サムギョプサルや激辛麻婆豆腐に挑んではいけません。胃腸を優しくハグしてくれるような、出汁の効いた温かいうどんを食べて、21時には布団に入りましょう。世界は明日も回ります。"
+        }
+    };
+
+    let currentQuestionIdx = 0;
+    let scores = { A: 0, B: 0, C: 0 };
+
+    // ゲーム初期化・更新
+    function updateQuestion() {
+        if (currentQuestionIdx < questions.length) {
+            const qData = questions[currentQuestionIdx];
+            document.getElementById("progress").innerText = `第 ${currentQuestionIdx + 1} 問 / ${questions.length}`;
+            document.getElementById("question-text").innerText = qData.q;
+            document.getElementById("opt0").innerText = qData.options[0];
+            document.getElementById("opt1").innerText = qData.options[1];
+            document.getElementById("opt2").innerText = qData.options[2];
+        } else {
+            showResult();
+        }
+    }
+
+    // 回答選択時
+    function selectOption(index) {
+        const type = questions[currentQuestionIdx].types[index];
+        scores[type]++;
+        currentQuestionIdx++;
+        updateQuestion();
+    }
+
+    // 結果の表示
+    function showResult() {
+        document.getElementById("quiz-screen").style.display = "none";
+        document.getElementById("result-screen").style.display = "block";
+
+        // 最多得点タイプの判定
+        let maxType = 'A';
+        if (scores.B >= scores.A && scores.B >= scores.C) maxType = 'B';
+        if (scores.C >= scores.A && scores.C >= scores.B) maxType = 'C';
+
+        const finalResult = results[maxType];
+        document.getElementById("dish-name").innerText = finalResult.name;
+        document.getElementById("result-reason").innerText = finalResult.reason;
+    }
+
+    // ゲームリスタート
+    function restartGame() {
+        currentQuestionIdx = 0;
+        scores = { A: 0, B: 0, C: 0 };
+        document.getElementById("quiz-screen").style.display = "block";
+        document.getElementById("result-screen").style.display = "none";
+        updateQuestion();
+    }
+
+    // 初回起動
+    updateQuestion();
+</script>
+
+</body>
+</html>

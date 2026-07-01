@@ -132,8 +132,8 @@
 
 .sushi-grid {
       position: absolute;
-      /* ★修正: 以前のcalc(14% + ...) から大幅に下げてスペースを空ける */
-      bottom: calc(5% + env(safe-area-inset-bottom)); 
+      /* ★修正: 固定px（65px）をベースに、iPhoneの場合はセーフエリア分をさらに上乗せ */
+      bottom: calc(65px + env(safe-area-inset-bottom)); 
       width: 94%;
       display: grid;
       grid-template-columns: repeat(3, 1fr);

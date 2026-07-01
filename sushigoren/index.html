@@ -95,9 +95,9 @@
       font-weight: bold;
     }
 
-    .progress-bar-container {
+.progress-bar-container {
       position: absolute;
-      top: 42%; 
+      top: 38%; /* ★修正: 42% から引き上げ */
       width: 80%;
       height: 10px;
       background: rgba(0,0,0,0.2);
@@ -112,9 +112,9 @@
       transition: width 0.1s linear;
     }
 
-    #tsuke-dai {
+#tsuke-dai {
       position: absolute;
-      top: 45%;
+      top: 41%; /* ★修正: 45% から引き上げ */
       width: 90%;
       height: 40px;
       display: flex;
@@ -130,9 +130,10 @@
       background-position: center;
     }
 
-    .sushi-grid {
+.sushi-grid {
       position: absolute;
-      bottom: 2%;
+      /* ★修正: bottom: 2% から大幅に引き上げ。iPhoneのセーフエリアも考慮 */
+      bottom: calc(14% + env(safe-area-inset-bottom)); 
       width: 94%;
       display: grid;
       grid-template-columns: repeat(3, 1fr);

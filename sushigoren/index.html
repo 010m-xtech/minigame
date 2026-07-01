@@ -95,9 +95,9 @@
       font-weight: bold;
     }
 
-.progress-bar-container {
+    .progress-bar-container {
       position: absolute;
-      top: 38%; /* ★修正: 42% から引き上げ */
+      top: 42%; 
       width: 80%;
       height: 10px;
       background: rgba(0,0,0,0.2);
@@ -114,7 +114,7 @@
 
 #tsuke-dai {
       position: absolute;
-      top: 41%; /* ★修正: 45% から引き上げ */
+      top: 45%;
       width: 90%;
       height: 40px;
       display: flex;
@@ -132,8 +132,8 @@
 
 .sushi-grid {
       position: absolute;
-      /* ★修正: bottom: 2% から大幅に引き上げ。iPhoneのセーフエリアも考慮 */
-      bottom: calc(14% + env(safe-area-inset-bottom)); 
+      /* ★修正: 以前のcalc(14% + ...) から大幅に下げてスペースを空ける */
+      bottom: calc(5% + env(safe-area-inset-bottom)); 
       width: 94%;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -145,28 +145,32 @@
       background: #fffdf9;
       border: 2.5px solid #82604a;
       border-radius: 16px;
-      padding: 12px 2px 8px 2px; 
+      /* ★修正: 上下パディングを大幅削減 */
+      padding: 6px 2px 4px 2px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: space-between; 
-      height: 115px; 
+      justify-content: center; /* 中央寄せに変更 */
+      /* ★修正: 高さを短く（例：115px → 80px） */
+      height: 80px; 
       cursor: pointer;
       box-shadow: 0 4px 8px rgba(0,0,0,0.12);
     }
     .sushi-btn:active { transform: scale(0.93); }
     
     .sushi-btn img { 
-      width: 85px; 
-      height: 60px; 
+      /* ★修正: 画像サイズを小さく */
+      width: 60px; 
+      height: 40px; 
       object-fit: contain; 
       margin-bottom: 2px;
     }
     .sushi-btn span { 
-      font-size: 12px; 
+      /* ★修正: フォントサイズを少し小さく */
+      font-size: 11px; 
       font-weight: bold; 
       color: #2b1d11;
-      line-height: 1.2;
+      line-height: 1.1;
     }
 
     .overlay {

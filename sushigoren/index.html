@@ -5,12 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>寿司打ち5連</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+      -webkit-touch-callout: none; /* 長押しメニュー禁止 */
+      -webkit-user-select: none;   /* テキスト選択禁止 */
+      user-select: none;
+    }
     body { 
       overflow: hidden; 
       touch-action: none; 
       background: #1a0f08; 
-      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -38,7 +45,8 @@
       background-repeat: no-repeat;
     }
 
-    #layer-bg { z-index: 1; background-image: url('background.png'); }
+    #layer-bg { z-index: 1; background-image: url('background.png'); background-color: #ebdcb9; }
+    
     #layer-customer {
       z-index: 2;
       width: 260px;
@@ -46,7 +54,18 @@
       left: calc(50% - 130px);
       top: 15%; 
       background-image: url('face_straight.png');
+      background-position: center;
+      background-size: contain;
+      background-repeat: no-repeat;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
+    .fallback-customer {
+      font-size: 80px;
+      animation: bounce 2s infinite ease-in-out;
+    }
+
     #layer-counter { z-index: 3; background-image: url('background_mae.png'); }
 
     #layer-ui {
@@ -67,9 +86,14 @@
       padding: 12px;
       text-align: center;
       font-weight: bold;
-      font-size: 16px;
+      font-size: 18px;
       color: #2b1d11;
       box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+      transform: scale(1);
+      transition: transform 0.1s ease-out;
+    }
+    .speech-bubble.pop {
+      transform: scale(1.08);
     }
     .speech-bubble::after {
       content: '';
@@ -93,17 +117,19 @@
       border-radius: 6px;
       font-size: 12px;
       font-weight: bold;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
 
     .progress-bar-container {
       position: absolute;
       top: 42%; 
       width: 80%;
-      height: 10px;
+      height: 12px;
       background: rgba(0,0,0,0.2);
       border-radius: 10px;
       overflow: hidden;
       display: none;
+      border: 1px solid rgba(255,255,255,0.3);
     }
     #time-bar {
       width: 100%;
@@ -112,27 +138,31 @@
       transition: width 0.1s linear;
     }
 
-#tsuke-dai {
+    #tsuke-dai {
       position: absolute;
       top: 45%;
       width: 90%;
-      height: 40px;
+      height: 50px;
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 10px;
+      gap: 6px;
     }
     .placed-sushi {
       width: 55px; 
-      height: 38px;
+      height: 45px;
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 28px;
+      animation: put-sushi 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-.sushi-grid {
+    .sushi-grid {
       position: absolute;
-      /* ★修正: 固定px（65px）をベースに、iPhoneの場合はセーフエリア分をさらに上乗せ */
       bottom: calc(65px + env(safe-area-inset-bottom)); 
       width: 94%;
       display: grid;
@@ -145,28 +175,31 @@
       background: #fffdf9;
       border: 2.5px solid #82604a;
       border-radius: 16px;
-      /* ★修正: 上下パディングを大幅削減 */
       padding: 6px 2px 4px 2px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center; /* 中央寄せに変更 */
-      /* ★修正: 高さを短く（例：115px → 80px） */
-      height: 80px; 
+      justify-content: center; 
+      height: 85px; 
       cursor: pointer;
       box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+      -webkit-tap-highlight-color: transparent;
+      position: relative;
     }
-    .sushi-btn:active { transform: scale(0.93); }
+    .sushi-btn:active { transform: scale(0.93); background: #f5eedc; }
     
     .sushi-btn img { 
-      /* ★修正: 画像サイズを小さく */
       width: 60px; 
       height: 40px; 
       object-fit: contain; 
       margin-bottom: 2px;
     }
+    .sushi-btn .emoji-fallback {
+      font-size: 28px;
+      line-height: 40px;
+      margin-bottom: 2px;
+    }
     .sushi-btn span { 
-      /* ★修正: フォントサイズを少し小さく */
       font-size: 11px; 
       font-weight: bold; 
       color: #2b1d11;
@@ -176,17 +209,20 @@
     .overlay {
       position: absolute;
       inset: 0;
-      background: rgba(0, 0, 0, 0.35); 
+      background: rgba(0, 0, 0, 0.5); 
       z-index: 100;
       display: flex;
       justify-content: center;
       align-items: center;
       pointer-events: auto;
+      backdrop-filter: blur(2px);
     }
+    
+    /* ★修正: 左右のパディングを 30px → 20px に狭めて中身の有効幅を広げました */
     .clay-panel {
       background: #fffdf7;
       border-radius: 24px;
-      padding: 30px;
+      padding: 30px 20px; 
       width: 85%;
       max-width: 320px;
       text-align: center;
@@ -195,6 +231,12 @@
     }
     .clay-panel h1 { color: #b81c22; font-size: 28px; margin-bottom: 12px; }
     .clay-panel p { color: #333; font-size: 14px; margin-bottom: 20px; line-height: 1.5; }
+    
+    /* ★追加: iPhone等で指定位置（<br>）以外での自動改行を防ぐスタイル */
+    .clay-panel .no-wrap-text {
+      white-space: nowrap;
+    }
+
     .action-btn {
       padding: 12px 30px;
       border: none;
@@ -204,6 +246,17 @@
       font-size: 16px;
       font-weight: bold;
       cursor: pointer;
+      box-shadow: 0 4px 10px rgba(184,28,34,0.4);
+    }
+    .action-btn:active { transform: scale(0.95); }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    @keyframes put-sushi {
+      0% { transform: scale(2) translateY(-20px); opacity: 0; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
     }
   </style>
 </head>
@@ -226,10 +279,10 @@
       <div id="sushi-panel" class="sushi-grid"></div>
     </div>
 
-<div id="start-overlay" class="overlay">
+    <div id="start-overlay" class="overlay">
       <div class="clay-panel">
         <h1>寿司打ち5連</h1>
-        <p style="font-size: 16px; line-height: 1.6;">
+        <p class="no-wrap-text" style="font-size: 15px; line-height: 1.6;">
           サラリーマンの連続注文を覚えて、<br>
           注文の順番に寿司をタップしよう！<br>
           あがり（時間切れ）に注意！
@@ -241,7 +294,7 @@
     <div id="result-overlay" class="overlay" style="display: none;">
       <div class="clay-panel">
         <h1 id="result-title">結果</h1>
-        <p id="result-msg"></p>
+        <p id="result-msg" style="margin-bottom: 20px;"></p>
         <button id="retry-btn" class="action-btn">もう一丁握る！</button>
       </div>
     </div>
@@ -266,22 +319,28 @@
     };
 
     const SUSHI_DATA = [
-      { id: 'maguro', name: 'まぐろ', file: 'sushi_maguro.png' },
-      { id: 'samon',  name: 'サーモン', file: 'sushi_samon.png' },
-      { id: 'tai',    name: 'たい',   file: 'sushi_tai.png' },
-      { id: 'tamago', name: 'たまご',  file: 'sushi_tamago.png' },
-      { id: 'ikura',  name: 'いくら',  file: 'sushi_ikura.png' },
-      { id: 'anago',  name: 'あなご',  file: 'sushi_anago.png' },
-      { id: 'ebi',    name: 'えび',   file: 'sushi_ebi.png' },
-      { id: 'ika',    name: 'いか',   file: 'sushi_ika.png' },
-      { id: 'kappa',  name: 'かっぱ巻き',file: 'sushi_kappa.png' }
+      { id: 'maguro', name: 'まぐろ', file: 'sushi_maguro.png', emoji: '🍣' },
+      { id: 'samon',  name: 'サーモン', file: 'sushi_samon.png', emoji: '🐟' },
+      { id: 'tai',    name: 'たい',   file: 'sushi_tai.png', emoji: '🐠' },
+      { id: 'tamago', name: 'たまご',  file: 'sushi_tamago.png', emoji: '🥚' },
+      { id: 'ikura',  name: 'いくら',  file: 'sushi_ikura.png', emoji: '🔮' },
+      { id: 'anago',  name: 'あなご',  file: 'sushi_anago.png', emoji: '🐍' },
+      { id: 'ebi',    name: 'えび',   file: 'sushi_ebi.png', emoji: '🦐' },
+      { id: 'ika',    name: 'いか',   file: 'sushi_ika.png', emoji: '🦑' },
+      { id: 'kappa',  name: 'かっぱ巻き',file: 'sushi_kappa.png', emoji: '🥒' }
     ];
+
+    const FACE_EMOJI = {
+      'face_straight.png': '👨‍💼',
+      'face_smile.png': '😆✨',
+      'face_anger.png': '😱💦'
+    };
 
     let currentLevel = 2;
     let orderSequence = [];
     let playerInputSeq = [];
     let memorizeIndex = 0;
-    let isShowingText = true; // ネタ文字を表示中か、間を空けるために消去中か
+    let isShowingText = true; 
     let gameLoopInterval = null;
     let gameTimer = 0;
     let limitTime = 0;
@@ -300,7 +359,11 @@
       SUSHI_DATA.forEach((sushi, idx) => {
         let btn = document.createElement('div');
         btn.className = 'sushi-btn';
-        btn.innerHTML = `<img src="${sushi.file}" onerror="this.style.display='none';"><span>${sushi.name}</span>`;
+        btn.innerHTML = `
+          <img src="${sushi.file}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+          <div class="emoji-fallback" style="display:none;">${sushi.emoji}</div>
+          <span>${sushi.name}</span>
+        `;
         btn.onclick = () => handleSushiClick(idx);
         elSushiPanel.appendChild(btn);
       });
@@ -308,6 +371,7 @@
 
     function changeCustomerFace(faceFile) {
       elCustomer.style.backgroundImage = `url('${faceFile}')`;
+      elCustomer.innerHTML = `<div class="fallback-customer">${FACE_EMOJI[faceFile] || '👨‍💼'}</div>`;
     }
 
     function startGameFlow() {
@@ -337,51 +401,51 @@
         orderSequence.push(Math.floor(Math.random() * SUSHI_DATA.length));
       }
 
-      // 最初のネタを表示
       elBubble.style.display = 'block';
       elBubble.innerText = SUSHI_DATA[orderSequence[0]].name + "！";
+      popBubbleEffect();
 
       clearInterval(gameLoopInterval);
       gameLoopInterval = setInterval(updateGameLoop, 100);
     }
 
+    function popBubbleEffect() {
+      elBubble.classList.remove('pop');
+      void elBubble.offsetWidth; 
+      elBubble.classList.add('pop');
+    }
+
     function updateGameLoop() {
       gameTimer += 100;
 
-      // 注文フェーズのループ制御
       if (gameLoopInterval && elSushiPanel.style.display !== 'grid' && document.getElementById('result-overlay').style.display !== 'flex') {
-        
         if (isShowingText) {
-          // ネタをしっかり見せる時間（0.7秒）
           if (gameTimer >= 700) {
             gameTimer = 0;
             memorizeIndex++;
             
             if (memorizeIndex >= orderSequence.length) {
-              // すべての注文が見せ終わったら解答フェーズへ
               elBubble.style.display = 'none';
               elBarContainer.style.display = 'block';
               elSushiPanel.style.display = 'grid';
-              limitTime = (orderSequence.length <= 3) ? 4000 : 6000;
+              limitTime = 3000 + (orderSequence.length * 1000); 
               elapsedAnswerTime = 0;
             } else {
-              // 【ここがポイント！】次のネタに行く前に、一度吹き出しを隠す
               elBubble.style.display = 'none';
               isShowingText = false;
             }
           }
         } else {
-          // ネタとネタの間の「空白の時間」（0.2秒間だけ非表示にする）
           if (gameTimer >= 200) {
             gameTimer = 0;
             elBubble.style.display = 'block';
             elBubble.innerText = SUSHI_DATA[orderSequence[memorizeIndex]].name + "！";
+            popBubbleEffect();
             isShowingText = true;
           }
         }
       }
 
-      // 時間制限カウント
       if (elSushiPanel.style.display === 'grid') {
         elapsedAnswerTime += 100;
         let ratio = Math.max(0, (limitTime - elapsedAnswerTime) / limitTime);
@@ -396,12 +460,16 @@
     }
 
     function handleSushiClick(index) {
+      if (elSushiPanel.style.display !== 'grid') return; 
+      
       audio.pop();
       playerInputSeq.push(index);
 
       let sushiItem = document.createElement('div');
       sushiItem.className = 'placed-sushi';
-      sushiItem.style.backgroundImage = `url('${SUSHI_DATA[index].file}')`;
+      sushiItem.innerHTML = `
+        <img src="${SUSHI_DATA[index].file}" style="width:100%; height:100%; object-fit:contain;" onerror="this.style.display='none'; this.parentElement.innerText='${SUSHI_DATA[index].emoji}';">
+      `;
       elTsukeDai.appendChild(sushiItem);
 
       let checkIdx = playerInputSeq.length - 1;
@@ -419,6 +487,7 @@
         } else {
           currentLevel++;
           clearInterval(gameLoopInterval);
+          elSushiPanel.style.display = 'none'; 
           setTimeout(triggerNextLevel, 600);
         }
       }
@@ -449,6 +518,8 @@
 
     document.getElementById('start-btn').addEventListener('click', startGameFlow);
     document.getElementById('retry-btn').addEventListener('click', startGameFlow);
+    
+    changeCustomerFace('face_straight.png');
   </script>
 </body>
 </html>

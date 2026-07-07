@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pastel Otter Catch</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght=800&display=swap');
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      overflow: hidden;
+      touch-action: none;
+      background-color: #e3f2fd;
+      font-family: 'Nunito', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    
+    #game-container {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    #game-container canvas {
+      position: absolute;
+      z-index: 1 !important;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+    
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.85);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      pointer-events: auto;
+      backdrop-filter: blur(4px);
+    }
+    
+    .title {
+      font-size: 36px;
+      color: #0288d1;
+      text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 0 4px 10px rgba(2,136,209,0.3);
+      margin-bottom: 30px;
+      text-align: center;
+      line-height: 1.2;
+    }
+    
+    .btn {
+      padding: 15px 40px;
+      font-size: 24px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      color: #fff;
+      background: linear-gradient(135deg, #81d4fa, #b2dfdb);
+      border: 4px solid #fff;
+      border-radius: 40px;
+      cursor: pointer;
+      box-shadow: 0 8px 15px rgba(129, 212, 250, 0.5);
+      transition: transform 0.1s, box-shadow 0.1s;
+      pointer-events: auto;
+    }
+    
+    .btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 4px 8px rgba(129, 212, 250, 0.5);
+    }
+    
+    #ui-layer {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 390px;
+      height: 100vh;
+      z-index: 10;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .hud-top {
+      display: flex;
+      justify-content: space-between;
+      padding: 20px 20px;
+      align-items: flex-start;
+    }
+    
+    .hud-box {
+      background: rgba(255, 255, 255, 0.9);
+      border: 3px solid #81d4fa;
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 22px;
+      color: #0288d1;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .hud-time {
+      font-size: 28px;
+      border-color: #a8e7ff;
+      color: #4fc3f7;
+    }
+    
+    .hud-time.danger {
+      border-color: #ff8a80;
+      color: #ff5252;
+      animation: pulse 0.5s infinite alternate;
+    }
+    
+    @keyframes pulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.1); }
+    }
+    
+    #loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #81d4fa;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+  <script id="dc-ui-texts" type="application/json">
+  {
+    "sourceLang": "ja",
+    "texts": {
+      "ja": {
+        "ui.title": "かわうそ\nお魚キャッチ！",
+        "ui.start": "スタート",
+        "ui.score": "{score}",
+        "ui.time": "{time}",
+        "ui.result": "結果: {score} 匹！",
+        "ui.retry": "もう1回遊ぶ",
+        "msg.speedup": "スピードアップ！",
+        "msg.last10": "ラストスパート！"
+      }
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="game-container">
+    <div id="ui-layer" style="display:none;">
+      <div class="hud-top">
+        <div class="hud-box">
+          <span style="font-size:24px; line-height:1;">🐟</span>
+          <span id="score-display">0</span>
+        </div>
+        <div class="hud-box hud-time" id="time-box">
+          <span style="font-size:24px; line-height:1;">⏱️</span>
+          <span id="time-display">30</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="loading-overlay" class="overlay">
+    <div id="loading-spinner"></div>
+    <div class="title">Loading...</div>
+  </div>
+
+  <div id="start-overlay" class="overlay" style="display:none;">
+    <div class="title" id="title-text">かわうそ<br>お魚キャッチ！</div>
+    <button id="start-btn" class="btn">スタート</button>
+  </div>
+
+  <div id="result-overlay" class="overlay" style="display:none;">
+    <div class="title" id="result-score">結果: 0 匹！</div>
+    <button id="retry-btn" class="btn">もう1回遊ぶ</button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.11.0/lib/p5.min.js"></script>
+  <script>
+    const uiPayload = JSON.parse(document.getElementById('dc-ui-texts').textContent);
+    const sourceLang = uiPayload.sourceLang || 'ja';
+    const uiTexts = uiPayload.texts || {};
+    const currentLang = 'ja';
+    
+    function t(key, vars) {
+      let s = (uiTexts[currentLang] && uiTexts[currentLang][key]) || key;
+      if (vars) Object.keys(vars).forEach((k) => { s = s.replaceAll('{' + k + '}', String(vars[k])); });
+      return s;
+    }
+
+    class SynthAudio {
+      constructor() { this.ctx = null; }
+      init() {
+        if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+      }
+      play(freq, endFreq, duration, type = 'square', vol = 0.2) {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        if (endFreq) osc.frequency.exponentialRampToValueAtTime(endFreq, this.ctx.currentTime + duration);
+        gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+        osc.start();
+        osc.stop(this.ctx.currentTime + duration);
+      }
+      playThrow() { this.init(); this.play(300, 700, 0.12, 'sine', 0.08); }
+      playCatch() {
+        this.init();
+        [523, 659, 784, 988].forEach((f, i) => {
+          setTimeout(() => this.play(f, f, 0.08, 'triangle', 0.12), i * 35);
+        });
+      }
+      playMiss() { this.init(); this.play(120, 60, 0.2, 'sawtooth', 0.15); }
+      playFinish() {
+        this.init();
+        [523, 659, 784, 1046].forEach((f, i) => {
+          setTimeout(() => this.play(f, f, 0.2, 'square', 0.15), i * 100);
+        });
+      }
+    }
+    const audio = new SynthAudio();
+    document.addEventListener('pointerdown', () => audio.init(), { once: true });
+
+    const VIRTUAL_WIDTH = 390;
+    const VIRTUAL_HEIGHT = 844;
+    const TOTAL_TIME = 30;
+    
+    let gameState = 'READY'; 
+    let score = 0;
+    let gameTime = TOTAL_TIME;
+    let lastSecondTime = 0;
+    let lastSpawnTime = 0;
+    
+    let phaseText = "";
+    let phaseTextTimer = 0;
+    
+    const assets = {};
+    let assetsLoadedCount = 0;
+    const totalAssets = 7; // 使用アセット数を整理
+
+    let cat = { x: 150, y: 740, targetX: 150, dir: 1, state: 'idle', stateTimer: 0 };
+    let fishers = [
+      { x: 340, y: 350, state: 'idle', stateTimer: 0 },
+      { x: 350, y: 480, state: 'idle', stateTimer: 0 },
+      { x: 360, y: 610, state: 'idle', stateTimer: 0 }
+    ];
+    let fishes = [];
+    let particles = [];
+
+    const sketch = (p) => {
+      let scale = 1, offsetX = 0, offsetY = 0;
+
+      p.preload = () => {
+        const loadImg = (key, path) => {
+          if(!path || path === '') {
+            assetsLoadedCount++;
+            if (assetsLoadedCount === totalAssets) onAllAssetsLoaded();
+            return;
+          }
+          assets[key] = p.loadImage(path, () => {
+            assetsLoadedCount++;
+            if (assetsLoadedCount === totalAssets) onAllAssetsLoaded();
+          }, () => {
+            assets[key] = null;
+            assetsLoadedCount++;
+            if (assetsLoadedCount === totalAssets) onAllAssetsLoaded();
+          });
+        };
+        
+        // 【画像URL設定エリア】用意したPNGのURLをここに貼り付けてください
+        loadImg('otter_idle', 'otter_idle.png'); 
+        loadImg('otter_run', 'otter_run.png');
+        
+        // その他ゲーム用アセット（必要に応じてURLを入れてください。空欄なら自動で可愛い絵文字になります）
+        loadImg('bg', '');
+        loadImg('fish_blue', '');
+        loadImg('fish_pink', '');
+        loadImg('fish_yellow', '');
+        loadImg('star', '');
+      };
+
+      p.setup = () => {
+        const canvas = p.createCanvas(p.windowWidth, p.windowHeight);
+        canvas.parent('game-container');
+        p.imageMode(p.CENTER);
+        calculateScale();
+        
+        document.getElementById('title-text').innerHTML = t('ui.title');
+        document.getElementById('start-btn').innerText = t('ui.start');
+        document.getElementById('retry-btn').innerText = t('ui.retry');
+      };
+
+      function calculateScale() {
+        const scaleX = p.windowWidth / VIRTUAL_WIDTH;
+        const scaleY = p.windowHeight / VIRTUAL_HEIGHT;
+        scale = Math.min(scaleX, scaleY);
+        offsetX = (p.windowWidth - VIRTUAL_WIDTH * scale) / 2;
+        offsetY = (p.windowHeight - VIRTUAL_HEIGHT * scale) / 2;
+      }
+
+      function toVirtualX(x) { return (x - offsetX) / scale; }
+
+      p.windowResized = () => {
+        p.resizeCanvas(p.windowWidth, p.windowHeight);
+        calculateScale();
+      };
+
+      p.draw = () => {
+        p.background(227, 242, 253);
+        
+        p.push();
+        p.translate(offsetX, offsetY);
+        p.scale(scale);
+        
+        drawGame(p);
+        
+        p.pop();
+      };
+
+      function drawGame(p) {
+        if (assets.bg) {
+          p.image(assets.bg, VIRTUAL_WIDTH/2, VIRTUAL_HEIGHT/2, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+        } else {
+          p.fill(129, 212, 250);
+          p.rect(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT * 0.7);
+          p.fill(255, 248, 220);
+          p.rect(0, VIRTUAL_HEIGHT * 0.7, VIRTUAL_WIDTH, VIRTUAL_HEIGHT * 0.3);
+        }
+
+        // ラストスパート時の画面色オーバーレイ（薄くなる処理）をここから完全に削除しました
+
+        if (gameState === 'PLAYING') {
+          updateLogic(p);
+        }
+
+        // 釣り人の描画
+        fishers.forEach(f => {
+          p.push();
+          p.translate(f.x, f.y);
+          p.textAlign(p.CENTER, p.CENTER);
+          p.textSize(50);
+          p.text(f.state === 'pull' ? '🎣' : '🐧', 0, -30);
+          p.pop();
+        });
+
+        // カワウソの描画（200x200を最適なゲームサイズに美しく縮小表示）
+        p.push();
+        p.translate(cat.x, cat.y);
+        p.scale(cat.dir, 1);
+        
+        // 状態（待機・走る・キャッチ・失敗）に応じて適切な画像をセット
+        let cImg = assets.otter_idle;
+        if (cat.state === 'run' && assets.otter_run) cImg = assets.otter_run;
+        if (cat.state === 'catch') cImg = assets.otter_run || assets.otter_idle; // キャッチ時は走るポーズを流用
+        if (cat.state === 'fail') cImg = assets.otter_idle; // 失敗時は立ち止まるポーズを流用
+        
+        if (cImg) {
+          // 画面にちょうどいいサイズ（横幅105px、縦幅105px）に縮小して描画
+          p.image(cImg, 0, -52, 105, 105);
+        } else {
+          p.textAlign(p.CENTER, p.CENTER);
+          p.textSize(65);
+          let otterEmoji = '🦦';
+          if (cat.state === 'catch') otterEmoji = '😋';
+          if (cat.state === 'fail') otterEmoji = '😭';
+          p.text(otterEmoji, 0, -35);
+        }
+        p.pop();
+
+        // お魚の描画
+        fishes.forEach(f => {
+          p.push();
+          p.translate(f.x, f.y);
+          p.rotate(f.rotation);
+          let fImg = assets['fish_' + f.color];
+          if (fImg) {
+            p.image(fImg, 0, 0, 50, 50);
+          } else {
+            p.textAlign(p.CENTER, p.CENTER);
+            p.textSize(35);
+            let fishEmoji = '🐟';
+            if (f.color === 'pink') fishEmoji = '🐙';
+            if (f.color === 'yellow') fishEmoji = '🦐';
+            p.text(fishEmoji, 0, 0);
+          }
+          p.pop();
+        });
+
+        // パーティクルの描画
+        particles.forEach(pt => {
+          p.push();
+          p.translate(pt.x, pt.y);
+          if (pt.type === 'star' && assets.star) {
+            p.rotate(pt.life * 0.1);
+            p.tint(255, pt.life * 10);
+            p.image(assets.star, 0, 0, 30, 30);
+          } else {
+            p.noStroke();
+            p.fill(pt.type === 'star' ? [128, 222, 234, pt.life * 12] : [189, 189, 189, pt.life * 10]);
+            p.ellipse(0, 0, pt.size, pt.size);
+          }
+          p.pop();
+        });
+
+        // 特殊テキスト
+        if (phaseTextTimer > 0) {
+          p.push();
+          p.textAlign(p.CENTER, p.CENTER);
+          p.textSize(42);
+          p.strokeWeight(6);
+          p.stroke(255);
+          p.fill(2, 136, 209);
+          let ty = VIRTUAL_HEIGHT / 2 - (60 - phaseTextTimer) * 1.5;
+          p.text(phaseText, VIRTUAL_WIDTH / 2, ty);
+          p.pop();
+        }
+      }
+
+      function updateLogic(p) {
+        let currentMillis = p.millis();
+        if (currentMillis - lastSecondTime >= 1000) {
+          lastSecondTime = currentMillis;
+          gameTime--;
+          updateHUD();
+          
+          if (gameTime === 25) {
+            phaseText = t('msg.speedup');
+            phaseTextTimer = 60;
+          } else if (gameTime === 10) {
+            phaseText = t('msg.last10');
+            phaseTextTimer = 60;
+            document.getElementById('time-box').classList.add('danger');
+          }
+          
+          if (gameTime <= 0) {
+            finishGame();
+          }
+        }
+
+        if (p.mouseIsPressed || p.touches.length > 0) {
+          let vx = toVirtualX(p.mouseX);
+          cat.targetX = p.constrain(vx, 40, 310);
+        }
+        if (p.keyIsDown(p.LEFT_ARROW) || p.keyIsDown(65)) cat.targetX -= 12;
+        if (p.keyIsDown(p.RIGHT_ARROW) || p.keyIsDown(68)) cat.targetX += 12;
+        cat.targetX = p.constrain(cat.targetX, 40, 310);
+
+        let dx = cat.targetX - cat.x;
+        if (p.abs(dx) > 2) {
+          cat.x += dx * 0.25;
+          cat.dir = dx > 0 ? 1 : -1;
+          if (cat.state === 'idle') cat.state = 'run';
+        } else {
+          if (cat.state === 'run') cat.state = 'idle';
+        }
+
+        if (cat.stateTimer > 0) {
+          cat.stateTimer--;
+          if (cat.stateTimer <= 0) cat.state = 'idle';
+        }
+
+        fishers.forEach(f => {
+          if (f.stateTimer > 0) {
+            f.stateTimer--;
+            if (f.stateTimer <= 0) f.state = 'idle';
+          }
+        });
+
+        let interval = 600;
+        if (gameTime <= 25) interval = 350;
+        if (gameTime <= 10) interval = 220;
+
+        if (currentMillis - lastSpawnTime > interval) {
+          lastSpawnTime = currentMillis;
+          let fIndex = p.floor(p.random(3));
+          let fisher = fishers[fIndex];
+          fisher.state = 'pull';
+          fisher.stateTimer = 15;
+          
+          let targetX = p.random(50, 290);
+          let t_frames = 50;
+          let startX = fisher.x - 20;
+          let startY = fisher.y - 40;
+          
+          let vx = (targetX - startX) / t_frames;
+          let vy = (cat.y - 40 - startY - 0.5 * 0.6 * t_frames * t_frames) / t_frames;
+          
+          fishes.push({
+            x: startX, y: startY, vx: vx, vy: vy,
+            color: p.random(['blue', 'pink', 'yellow']),
+            rotation: p.random(p.TWO_PI),
+            rotSpeed: p.random(-0.12, 0.12)
+          });
+          audio.playThrow();
+        }
+
+        for (let i = fishes.length - 1; i >= 0; i--) {
+          let f = fishes[i];
+          f.x += f.vx;
+          f.y += f.vy;
+          f.vy += 0.55;
+          f.rotation += f.rotSpeed;
+
+          if (f.y > cat.y - 30) {
+            if (p.abs(f.x - cat.x) < 55 && f.y < cat.y + 30) {
+              score++;
+              updateHUD();
+              cat.state = 'catch';
+              cat.stateTimer = 15;
+              spawnParticles(p, f.x, f.y, 'star');
+              audio.playCatch();
+            } else if (f.y > cat.y + 20) {
+              cat.state = 'fail';
+              cat.stateTimer = 15;
+              spawnParticles(p, f.x, f.y, 'dust');
+              audio.playMiss();
+            }
+            fishes.splice(i, 1);
+          }
+        }
+
+        for (let i = particles.length - 1; i >= 0; i--) {
+          let pt = particles[i];
+          pt.x += pt.vx;
+          pt.y += pt.vy;
+          pt.life--;
+          if (pt.life <= 0) particles.splice(i, 1);
+        }
+        
+        if (phaseTextTimer > 0) phaseTextTimer--;
+      }
+
+      function spawnParticles(p, x, y, type) {
+        for (let i = 0; i < 6; i++) {
+          particles.push({
+            x: x, y: y,
+            vx: p.random(-4, 4),
+            vy: p.random(-6, -2),
+            life: p.random(15, 25),
+            type: type,
+            size: p.random(8, 16)
+          });
+        }
+      }
+    };
+
+    const myP5 = new p5(sketch);
+
+    function onAllAssetsLoaded() {
+      document.getElementById('loading-overlay').style.display = 'none';
+      document.getElementById('start-overlay').style.display = 'flex';
+    }
+
+    function updateHUD() {
+      document.getElementById('score-display').innerText = t('ui.score', {score: score});
+      document.getElementById('time-display').innerText = t('ui.time', {time: gameTime});
+    }
+
+    function resetGame() {
+      score = 0;
+      gameTime = TOTAL_TIME;
+      fishes = [];
+      particles = [];
+      cat.x = 150;
+      cat.targetX = 150;
+      cat.state = 'idle';
+      phaseTextTimer = 0;
+      document.getElementById('time-box').classList.remove('danger');
+      updateHUD();
+    }
+
+    function startGame() {
+      resetGame();
+      document.getElementById('start-overlay').style.display = 'none';
+      document.getElementById('result-overlay').style.display = 'none';
+      document.getElementById('ui-layer').style.display = 'flex';
+      gameState = 'PLAYING';
+      lastSecondTime = myP5.millis();
+      lastSpawnTime = myP5.millis();
+    }
+
+    function finishGame() {
+      gameState = 'FINISHED';
+      audio.playFinish();
+      
+      setTimeout(() => {
+        gameState = 'RESULT';
+        document.getElementById('ui-layer').style.display = 'none';
+        document.getElementById('result-overlay').style.display = 'flex';
+        document.getElementById('result-score').innerText = t('ui.result', {score: score});
+        
+        if (typeof DreamCoreSDK2 !== 'undefined') {
+          DreamCoreSDK2.gameComplete({ score: score, progressMarker: 'time_up' });
+        }
+      }, 1500);
+    }
+
+    document.getElementById('start-btn').addEventListener('pointerdown', () => {
+      startGame();
+    });
+
+    document.getElementById('retry-btn').addEventListener('pointerdown', () => {
+      if (typeof DreamCoreSDK2 !== 'undefined') {
+        DreamCoreSDK2.retry({ reason: 'retry_button' });
+      }
+      startGame();
+    });
+
+    setTimeout(() => {
+      if (gameState === 'READY' && document.getElementById('loading-overlay').style.display !== 'none') {
+        onAllAssetsLoaded();
+      }
+    }, 1500);
+  </script>
+</body>
+</html>

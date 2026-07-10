@@ -48,7 +48,7 @@
         #app-container {
             max-width: 480px;
             margin: 0 auto;
-            height: 100vh; /* 高さ一杯に完全固定 */
+            height: 100vh; /* スマホ画面の高さに完全固定 */
             height: -webkit-fill-available;
             padding-top: var(--sat);
             padding-bottom: var(--sab);
@@ -56,7 +56,7 @@
             padding-right: var(--sar);
             box-shadow: 0 0 15px rgba(0,0,0,0.1);
             position: relative;
-            overflow: hidden;
+            overflow: hidden; /* 全体スクロールを完全に禁止 */
             display: flex;
             flex-direction: column;
         }
@@ -64,16 +64,24 @@
         .screen {
             display: none;
             flex-grow: 1;
-            padding: 1rem;
-            /* スクロールを一切禁止 */
-            overflow: hidden;
+            padding: 0.75rem; /* スマホ用にパディングをスリム化 */
+            overflow: hidden; /* 各画面でもスクロールを一切させない構造 */
+            height: 100%;
         }
         
         #screen-top.screen.active,
-        #screen-quiz.screen.active,
+        #screen-quiz.screen.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* 上下均等に配置してはみ出しを防ぐ */
+            animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* 💡 変更箇所：解説・ペアリング・おすすめが離れないよう、結果画面のみ上詰めに変更 */
         #screen-result.screen.active {
             display: flex;
             flex-direction: column;
+            justify-content: start; 
             animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
@@ -137,129 +145,131 @@
     <div class="absolute inset-0 w-full h-full bg-white bg-opacity-70 z-[5] pointer-events-none"></div>
 
     <div id="screen-top" class="screen active relative z-10">
-        <header class="text-center mb-2 pt-2 flex flex-col items-center">
-            <img src="hukuro.jpg" alt="キャラクター" class="w-16 h-auto object-contain mb-1 mix-blend-multiply" onerror="this.style.display='none';">
-            <h1 class="text-xl font-black text-dark tracking-tight drop-shadow-md mb-2">味覚クイズに挑戦！</h1>
+        <header class="text-center mb-1 pt-1 flex flex-col items-center flex-shrink-0">
+            <img src="hukuro.jpg" alt="キャラクター" class="w-14 h-auto object-contain mb-1 mix-blend-multiply" onerror="this.style.display='none';">
+            <h1 class="text-lg font-black text-dark tracking-tight drop-shadow-md mb-1">味覚クイズに挑戦！</h1>
             
-            <div class="bg-white bg-opacity-80 p-2 rounded-xl border border-accent border-opacity-30 inline-block shadow-sm w-full max-w-[90%] mb-2">
-                <p class="text-[12px] leading-relaxed text-gray-700 font-bold">
-                    目の前の料理を<span class="text-primary text-sm">実際に食べながら</span><br>お店のこだわりに迫ろう！
+            <div class="bg-white bg-opacity-80 p-1.5 rounded-xl border border-accent border-opacity-30 inline-block shadow-sm w-full max-w-[90%] mb-1">
+                <p class="text-[11px] leading-relaxed text-gray-700 font-bold">
+                    目の前の料理を<span class="text-primary text-xs">実際に食べながら</span><br>お店のこだわりに迫ろう！
                 </p>
             </div>
         </header>
 
-        <div id="menu-grid" class="grid grid-cols-3 gap-x-2 gap-y-3 pb-4">
+        <div id="menu-grid" class="grid grid-cols-3 gap-x-2 gap-y-2.5 pb-2 flex-grow overflow-hidden">
         </div>
     </div>
 
 
     <div id="screen-tasting" class="screen bg-dark bg-opacity-95 relative z-10">
-        <div class="w-full max-w-sm mx-auto flex flex-col items-center slow-fade pt-2 pb-6 z-10">
-            <div class="mb-4 w-36 h-40 rounded-full overflow-hidden border-4 border-light shadow-2xl bg-gray-800 flex items-center justify-center relative">
+        <div class="w-full max-w-sm mx-auto flex flex-col items-center slow-fade pt-1 pb-4 z-10">
+            <div class="mb-3 w-32 h-36 rounded-full overflow-hidden border-4 border-light shadow-2xl bg-gray-800 flex items-center justify-center relative">
                 <img src="" id="tasting-image" alt="料理画像" class="w-full h-full img-cover-center absolute inset-0">
             </div>
             
-            <h2 class="text-white text-xl font-black mb-2 tracking-widest drop-shadow-md">まずは、ひとくち。</h2>
-            <p class="text-gray-200 text-[13px] mb-5 leading-relaxed text-center px-4">
-                <span id="tasting-menu-name" class="text-accent font-bold text-base border-b-2 border-accent pb-0.5 inline-block mb-1"></span><br>
+            <h2 class="text-white text-lg font-black mb-1 tracking-widest drop-shadow-md">まずは、ひとくち。</h2>
+            <p class="text-gray-200 text-[12px] mb-4 leading-relaxed text-center px-4">
+                <span id="tasting-menu-name" class="text-accent font-bold text-sm border-b border-accent pb-0.5 inline-block mb-1"></span><br>
                 香り、食感、そして隠し味...<br>
                 じっくりと味わってみてください。
             </p>
             
-            <button onclick="showScreen('quiz')" class="w-full bg-accent hover:bg-orange-500 text-white font-bold py-3 px-6 rounded-2xl shadow-xl tap-effect text-base animate-pulse">
+            <button onclick="showScreen('quiz')" class="w-full bg-accent hover:bg-orange-500 text-white font-bold py-2.5 px-6 rounded-xl shadow-xl tap-effect text-sm animate-pulse">
                 味わった！問題へ進む
             </button>
             
-            <button onclick="showScreen('top')" class="mt-3 p-1.5 text-xs text-gray-400 tap-effect flex items-center gap-1">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            <button onclick="showScreen('top')" class="mt-2.5 p-1 text-[11px] text-gray-400 tap-effect flex items-center gap-1">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 まだ料理が来ていない
             </button>
         </div>
 
         <div class="absolute bottom-0 left-0 w-full flex justify-center z-0 select-none pointer-events-none">
-            <img src="hukuro3.jpg" alt="見上げるキャラクター" class="w-full max-w-[70%] h-auto object-contain mix-blend-multiply block origin-bottom" style="filter: contrast(1.1) brightness(1.05);" onerror="this.style.display='none';">
+            <img src="hukuro3.jpg" alt="見上げるキャラクター" class="w-full max-w-[45%] h-auto object-contain mix-blend-multiply block origin-bottom" style="filter: contrast(1.1) brightness(1.05);" onerror="this.style.display='none';">
         </div>
     </div>
 
 
     <div id="screen-quiz" class="screen relative z-10">
-        <div class="w-full max-w-sm mx-auto flex flex-col flex-grow pt-1 justify-between h-full">
-            <div class="text-center">
-                <span id="quiz-menu-name" class="inline-block bg-dark text-white px-3 py-0.5 rounded-full text-[10px] font-bold tracking-wider shadow-sm"></span>
+        <div class="w-full max-w-sm mx-auto flex flex-col flex-grow justify-between h-full">
+            <div class="text-center flex-shrink-0">
+                <span id="quiz-menu-name" class="inline-block bg-dark text-white px-3 py-0.5 rounded-full text-[9px] font-bold tracking-wider shadow-sm"></span>
             </div>
             
-            <div class="flex flex-col flex-grow justify-around my-1">
-                <div class="text-center">
-                    <h2 class="font-black text-primary text-lg tracking-wide drop-shadow-sm leading-none">MISSION</h2>
-                    <p class="text-center text-[9px] text-gray-600 font-bold drop-shadow-sm mt-0.5">味覚と嗅覚を研ぎ澄まして考えてみよう！</p>
-                </div>
-                
-                <div class="bg-white bg-opacity-95 px-4 py-3 rounded-xl shadow-sm border border-gray-100 relative flex-shrink-0 my-1">
-                    <div class="absolute -top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[10px] border-b-gray-100"></div>
-                    <div class="absolute -top-[8px] left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[7px] border-l-transparent border-r-[7px] border-r-transparent border-b-[9px] border-b-white"></div>
-                    <p id="quiz-question" class="text-[14px] font-bold leading-normal text-gray-800 text-center"></p>
-                </div>
+            <div class="text-center flex-shrink-0">
+                <h2 class="font-black text-primary text-sm tracking-wide drop-shadow-sm leading-none">MISSION</h2>
+                <p class="text-center text-[8px] text-gray-600 font-bold drop-shadow-sm mt-0.5">味覚と嗅覚を研ぎ澄まして考えてみよう！</p>
+            </div>
 
-                <div id="quiz-options" class="space-y-2 relative z-10 flex-shrink-0">
+            <div class="w-full h-24 rounded-xl overflow-hidden bg-transparent relative flex-shrink-0">
+                <img src="" id="quiz-menu-image" alt="メニュー写真" class="w-full h-full object-contain object-center absolute inset-0">
+            </div>
+            
+            <div class="bg-white bg-opacity-95 px-3 py-2 rounded-xl shadow-sm border border-gray-100 relative flex-shrink-0">
+                <div class="absolute -top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] border-b-gray-100"></div>
+                <div class="absolute -top-[8px] left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-b-[7px] border-b-white"></div>
+                <p id="quiz-question" class="text-[12px] font-bold leading-normal text-gray-800 text-center"></p>
+            </div>
+
+            <div id="quiz-options" class="space-y-1 relative z-10 flex-shrink-0">
+            </div>
+            
+            <div class="w-full flex justify-end select-none relative flex-shrink-0">
+                <div id="quiz-hint-bubble" class="absolute top-[5%] right-[28%] w-32 bg-dark text-white text-[8px] font-bold p-1.5 rounded-xl shadow-xl z-20 opacity-0 scale-0 pointer-events-none">
+                    <p id="quiz-hint-text" class="leading-relaxed"></p>
+                    <div class="absolute top-1/2 -right-1 w-1.5 h-1.5 bg-dark transform rotate-45 -translate-y-1/2"></div>
                 </div>
                 
-                <div class="w-full flex justify-end my-1 select-none relative flex-shrink-0">
-                    <div id="quiz-hint-bubble" class="absolute top-[5%] right-[32%] w-36 bg-dark text-white text-[9px] font-bold p-2 rounded-xl shadow-xl z-20 opacity-0 scale-0 pointer-events-none">
-                        <p id="quiz-hint-text" class="leading-relaxed"></p>
-                        <div class="absolute top-1/2 -right-1 w-2 h-2 bg-dark transform rotate-45 -translate-y-1/2"></div>
-                    </div>
-                    
-                    <img src="think.jpg" alt="考えるキャラクター" class="w-full max-w-[24%] h-auto object-contain mix-blend-multiply block pointer-events-none z-0" style="filter: contrast(1.1) brightness(1.05);" onerror="this.style.display='none';">
-                </div>
-                
-                <div class="text-center relative z-10">
-                    <button onclick="cancelQuiz()" class="py-1.5 text-[10px] text-gray-500 tap-effect font-bold bg-white bg-opacity-60 rounded-full px-3.5 border border-gray-200">キャンセルして戻る</button>
-                </div>
+                <img src="think.jpg" alt="考えるキャラクター" class="w-full max-w-[18%] h-auto object-contain mix-blend-multiply block pointer-events-none z-0" style="filter: contrast(1.1) brightness(1.05);" onerror="this.style.display='none';">
+            </div>
+            
+            <div class="text-center relative z-10 pb-1 flex-shrink-0">
+                <button onclick="cancelQuiz()" class="py-1 text-[9px] text-gray-500 tap-effect font-bold bg-white bg-opacity-70 rounded-full px-4 border border-gray-200 shadow-sm">キャンセルして戻る</button>
             </div>
         </div>
     </div>
 
 
-    <div id="screen-result" class="screen pt-2 relative z-10">
-        <div class="w-full max-w-sm mx-auto flex flex-col flex-grow justify-between h-full pb-2">
-            <div id="result-header" class="text-center flex-shrink-0">
+    <div id="screen-result" class="screen pt-1 relative z-10">
+        <div class="w-full max-w-sm mx-auto flex flex-col flex-grow h-full">
+            <div id="result-header" class="text-center flex-shrink-0 mb-1.5">
             </div>
 
-            <div class="bg-white bg-opacity-95 rounded-xl shadow-md border border-gray-100 overflow-hidden flex-shrink-0 relative z-10 my-1">
-                <div class="bg-gray-50 px-3 py-1.5 border-b border-gray-100 flex items-center justify-between">
-                    <span class="text-[10px] font-bold text-gray-400">正解は...</span>
-                    <span id="result-correct-answer" class="text-sm font-black text-dark"></span>
+            <div class="bg-white bg-opacity-95 rounded-xl shadow-md border border-gray-100 overflow-hidden flex-shrink-0 relative z-10 mb-1.5">
+                <div class="bg-gray-50 px-3 py-1 border-b border-gray-100 flex items-center justify-between">
+                    <span class="text-[9px] font-bold text-gray-400">正解は...</span>
+                    <span id="result-correct-answer" class="text-xs font-black text-dark"></span>
                 </div>
-                <div class="p-3">
-                    <p class="text-[9px] font-bold text-white bg-secondary inline-block px-1.5 py-0.5 rounded mb-1">お店のこだわり（解説）</p>
-                    <p id="result-explanation" class="text-[12px] leading-relaxed text-gray-700 font-medium"></p>
+                <div class="p-2.5">
+                    <p class="text-[8px] font-bold text-white bg-secondary inline-block px-1.5 py-0.5 rounded mb-0.5">お店のこだわり（解説）</p>
+                    <p id="result-explanation" class="text-[11px] leading-relaxed text-gray-700 font-medium"></p>
                 </div>
             </div>
 
-            <div class="bg-white bg-opacity-95 rounded-xl shadow-sm border border-gray-100 p-2 flex-shrink-0 flex items-center gap-2 relative z-10 my-1">
-                <div class="w-7 h-7 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0 text-orange-500">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21V10M3.284 14.253A8.917 8.917 0 013 12V5a2 2 0 012-2h14a2 2 0 012 2v7c0 .777-.107 1.525-.308 2.233M19.02 17.5A9.012 9.004 0 0019 12V5"></path></svg>
+            <div class="bg-white bg-opacity-95 rounded-xl shadow-sm border border-gray-100 p-1.5 flex-shrink-0 flex items-center gap-2 relative z-10 mb-1.5">
+                <div class="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0 text-orange-500">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21V10M3.284 14.253A8.917 8.917 0 013 12V5a2 2 0 012-2h14a2 2 0 012 2v7c0 .777-.107 1.525-.308 2.233M19.02 17.5A9.012 9.004 0 0019 12V5"></path></svg>
                 </div>
                 <div class="min-w-0 flex-1">
-                    <p class="text-[9px] font-bold text-gray-400 leading-none mb-0.5">おすすめのペアリングドリンク</p>
-                    <p id="result-drink-pairing" class="text-xs font-black text-primary leading-none truncate"></p>
-                    <p id="result-drink-reason" class="text-[10px] font-medium text-gray-500 mt-0.5 leading-tight truncate"></p>
+                    <p class="text-[8px] font-bold text-gray-400 leading-none mb-0.5">おすすめのペアリングドリンク</p>
+                    <p id="result-drink-pairing" class="text-[11px] font-black text-primary leading-none truncate"></p>
+                    <p id="result-drink-reason" class="text-[9px] font-medium text-gray-500 mt-0.5 leading-none truncate"></p>
                 </div>
             </div>
 
-            <div class="bg-white bg-opacity-90 border border-accent border-opacity-30 rounded-xl p-2.5 text-center flex-shrink-0 shadow-sm relative z-10 my-1">
-                <p class="text-[10px] font-black text-accent-dark mb-0.5 flex items-center justify-center gap-1 leading-none">
-                    <svg class="w-3.5 h-3.5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            <div class="bg-white bg-opacity-90 border border-accent border-opacity-30 rounded-xl p-2 text-center flex-shrink-0 shadow-sm relative z-10 mb-2">
+                <p class="text-[9px] font-black text-accent-dark mb-0.5 flex items-center justify-center gap-1 leading-none">
+                    <svg class="w-3 h-3 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     次はコレがいかがですか？
                 </p>
-                <p id="result-recommend" class="text-[12px] font-bold text-dark mb-1 leading-tight"></p>
+                <p id="result-recommend" class="text-[11px] font-bold text-dark mb-1 leading-tight"></p>
                 <div class="text-[8px] text-gray-500 font-bold bg-gray-50 px-2 py-0.5 rounded border border-gray-100 inline-block">
                     ※ご注文は卓上または店員へお申し付けください
                 </div>
             </div>
 
-            <div class="relative z-20 flex-shrink-0 mt-1">
-                <button onclick="showScreen('top')" class="w-full bg-primary hover:bg-red-600 text-white font-black py-3 rounded-xl shadow-md tap-effect text-sm">
+            <div class="relative z-20 flex-shrink-0 mt-auto pb-1">
+                <button onclick="showScreen('top')" class="w-full bg-primary hover:bg-red-600 text-white font-black py-2.5 rounded-xl shadow-md tap-effect text-xs">
                     他のメニューのクイズに挑戦！
                 </button>
             </div>
@@ -464,7 +474,7 @@
             tile.onclick = () => startQuiz(item.id);
 
             tile.innerHTML = `
-                <div class="w-full aspect-square rounded-xl mb-1 shadow-sm border border-white group-hover:border-primary overflow-hidden bg-white flex items-center justify-center relative">
+                <div class="w-full aspect-square rounded-xl mb-0.5 shadow-sm border border-white group-hover:border-primary overflow-hidden bg-white flex items-center justify-center relative">
                     <img src="${item.image}" alt="${item.name}" class="w-full h-full img-cover-center absolute inset-0" onerror="this.src='${fallbackImage}'; this.className='w-1/2 h-1/2 object-contain opacity-50 absolute top-1/4 left-1/4';">
                 </div>
                 <p class="text-[10px] font-bold text-center leading-tight text-gray-800 w-full truncate px-1 drop-shadow-sm">${item.name}</p>
@@ -487,6 +497,12 @@
             this.className = "w-1/2 h-1/2 object-contain opacity-50 absolute top-1/4 left-1/4";
         };
 
+        const quizMenuImg = document.getElementById('quiz-menu-image');
+        quizMenuImg.src = currentQuiz.image;
+        quizMenuImg.onerror = function() {
+            this.src = fallbackImage;
+        };
+
         document.getElementById('quiz-menu-name').textContent = currentQuiz.name;
         document.getElementById('quiz-question').textContent = currentQuiz.question;
         
@@ -495,7 +511,7 @@
 
         currentQuiz.options.forEach((optionText, index) => {
             const btn = document.createElement('button');
-            btn.className = "w-full bg-white bg-opacity-95 border border-white text-gray-800 font-bold py-2.5 px-4 rounded-xl text-left shadow-sm tap-effect text-[13px] active:border-secondary transition-colors flex items-center";
+            btn.className = "w-full bg-white bg-opacity-95 border border-white text-gray-800 font-bold py-2 px-4 rounded-xl text-left shadow-sm tap-effect text-[13px] active:border-secondary transition-colors flex items-center";
             btn.onclick = () => checkAnswer(index);
             
             btn.innerHTML = `
@@ -518,17 +534,17 @@
         
         if (isCorrect) {
             header.innerHTML = `
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-green-50 mb-1 shadow-sm border-2 border-white rounded-xl overflow-hidden p-0.5">
+                <div class="inline-flex items-center justify-center w-14 h-14 bg-green-50 mb-0.5 shadow-sm border-2 border-white rounded-xl overflow-hidden p-0.5">
                     <img src="ok.jpg" alt="正解アイコン" class="w-full h-full object-contain object-center mix-blend-multiply" onerror="this.style.display='none';">
                 </div>
-                <h2 class="text-xl font-black text-green-600 tracking-widest drop-shadow-sm leading-none">大正解！</h2>
+                <h2 class="text-lg font-black text-green-600 tracking-widest drop-shadow-sm leading-none">大正解！</h2>
             `;
         } else {
             header.innerHTML = `
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-red-50 mb-1 shadow-sm border-2 border-white rounded-xl overflow-hidden p-0.5">
+                <div class="inline-flex items-center justify-center w-14 h-14 bg-red-50 mb-0.5 shadow-sm border-2 border-white rounded-xl overflow-hidden p-0.5">
                     <img src="zannen.jpg" alt="残念アイコン" class="w-full h-full object-contain object-center mix-blend-multiply" onerror="this.style.display='none';">
                 </div>
-                <h2 class="text-xl font-black text-primary tracking-widest drop-shadow-sm leading-none">ざんねん！</h2>
+                <h2 class="text-lg font-black text-primary tracking-widest drop-shadow-sm leading-none">ざんねん！</h2>
             `;
         }
 

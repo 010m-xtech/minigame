@@ -25,7 +25,6 @@
     <style>
         /* カスタムアニメーションと基本設定 */
         :root {
-            /* セーフエリアのフォールバック値を変数化 */
             --sat: env(safe-area-inset-top, 0px);
             --sar: env(safe-area-inset-right, 0px);
             --sab: env(safe-area-inset-bottom, 0px);
@@ -34,33 +33,30 @@
 
         body {
             -webkit-tap-highlight-color: transparent;
-            /* テキスト選択やダブルタップズームを無効化してネイティブアプリっぽく */
             -webkit-user-select: none;
             user-select: none;
             touch-action: manipulation;
-            /* スクロール時のバウンス効果を抑制（PWAでアプリっぽくする） */
             overscroll-behavior-y: none;
-            background-color: #f3f4f6; /* ゲーム画面の外側は落ち着いたグレーに */
+            background-color: #f3f4f6;
         }
 
-        /* 入力欄などはテキスト選択・フォーカスを許可 */
         input, textarea {
             -webkit-user-select: auto;
             user-select: auto;
         }
 
         #app-container {
-            max-width: 480px; /* スマホサイズに制限 */
+            max-width: 480px;
             margin: 0 auto;
-            min-height: 100vh;
-            /* iOSのノッチやホームバー対応の余白 */
+            height: 100vh; /* 高さ一杯に完全固定 */
+            height: -webkit-fill-available;
             padding-top: var(--sat);
             padding-bottom: var(--sab);
             padding-left: var(--sal);
             padding-right: var(--sar);
             box-shadow: 0 0 15px rgba(0,0,0,0.1);
             position: relative;
-            overflow: hidden; /* 背景画像のはみ出しを防ぐ */
+            overflow: hidden;
             display: flex;
             flex-direction: column;
         }
@@ -68,13 +64,9 @@
         .screen {
             display: none;
             flex-grow: 1;
-            padding: 1.25rem;
-            /* 画面単位でのスクロールを制御 */
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        .screen.active {
-            display: none; 
+            padding: 1rem;
+            /* スクロールを一切禁止 */
+            overflow: hidden;
         }
         
         #screen-top.screen.active,
@@ -96,7 +88,6 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* ゆっくりふわっと出るアニメーション(実食画面用) */
         @keyframes slowFadeIn {
             from { opacity: 0; transform: scale(0.97); }
             to { opacity: 1; transform: scale(1); }
@@ -105,7 +96,6 @@
             animation: slowFadeIn 0.6s ease-out forwards;
         }
         
-        /* タップ時のフィードバック */
         .tap-effect {
             transition: transform 0.1s, opacity 0.1s;
         }
@@ -114,13 +104,11 @@
             opacity: 0.8;
         }
 
-        /* 画像が長方形だった場合に中央を切り抜くスタイル */
         .img-cover-center {
             object-fit: cover;
             object-position: center;
         }
 
-        /* ヒント吹き出しのポップアップアニメーション（フクロウのいる右側へ向かって広がる） */
         @keyframes hintPopUp {
             0% {
                 opacity: 0;
@@ -136,7 +124,7 @@
         }
         .hint-animate {
             animation: hintPopUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-            transform-origin: right center; /* フクロウ側（右）を起点に広がる */
+            transform-origin: right center;
         }
     </style>
 </head>
@@ -149,129 +137,129 @@
     <div class="absolute inset-0 w-full h-full bg-white bg-opacity-70 z-[5] pointer-events-none"></div>
 
     <div id="screen-top" class="screen active relative z-10">
-        
-        <header class="text-center mb-6 pt-8 flex flex-col items-center">
-            <img src="hukuro.jpg" alt="キャラクター" class="w-24 h-auto object-contain mb-2 mix-blend-multiply" onerror="this.style.display='none';">
-            <h1 class="text-2xl font-black text-dark tracking-tight drop-shadow-md mb-4">味覚クイズに挑戦！</h1>
+        <header class="text-center mb-2 pt-2 flex flex-col items-center">
+            <img src="hukuro.jpg" alt="キャラクター" class="w-16 h-auto object-contain mb-1 mix-blend-multiply" onerror="this.style.display='none';">
+            <h1 class="text-xl font-black text-dark tracking-tight drop-shadow-md mb-2">味覚クイズに挑戦！</h1>
             
-            <div class="bg-white bg-opacity-80 p-4 rounded-xl border border-accent border-opacity-30 inline-block shadow-sm w-full max-w-[90%] mb-10">
-                <p class="text-[13px] leading-relaxed text-gray-700 font-bold">
-                    目の前の料理を<span class="text-primary text-base">実際に食べながら</span><br>お店のこだわりに迫ろう！
+            <div class="bg-white bg-opacity-80 p-2 rounded-xl border border-accent border-opacity-30 inline-block shadow-sm w-full max-w-[90%] mb-2">
+                <p class="text-[12px] leading-relaxed text-gray-700 font-bold">
+                    目の前の料理を<span class="text-primary text-sm">実際に食べながら</span><br>お店のこだわりに迫ろう！
                 </p>
             </div>
         </header>
 
-        <div id="menu-grid" class="grid grid-cols-3 gap-x-3 gap-y-5 pb-6">
-            </div>
+        <div id="menu-grid" class="grid grid-cols-3 gap-x-2 gap-y-3 pb-4">
+        </div>
     </div>
 
 
     <div id="screen-tasting" class="screen bg-dark bg-opacity-95 relative z-10">
-        <div class="w-full max-w-sm mx-auto flex flex-col items-center slow-fade pt-4 pb-28 z-10">
-            <div class="mb-6 w-52 h-56 rounded-full overflow-hidden border-4 border-light shadow-2xl bg-gray-800 flex items-center justify-center relative">
+        <div class="w-full max-w-sm mx-auto flex flex-col items-center slow-fade pt-2 pb-6 z-10">
+            <div class="mb-4 w-36 h-40 rounded-full overflow-hidden border-4 border-light shadow-2xl bg-gray-800 flex items-center justify-center relative">
                 <img src="" id="tasting-image" alt="料理画像" class="w-full h-full img-cover-center absolute inset-0">
             </div>
             
-            <h2 class="text-white text-3xl font-black mb-4 tracking-widest drop-shadow-md">まずは、ひとくち。</h2>
-            <p class="text-gray-200 text-[15px] mb-8 leading-relaxed text-center px-4">
-                <span id="tasting-menu-name" class="text-accent font-bold text-lg border-b-2 border-accent pb-1 inline-block mb-3"></span><br>
+            <h2 class="text-white text-xl font-black mb-2 tracking-widest drop-shadow-md">まずは、ひとくち。</h2>
+            <p class="text-gray-200 text-[13px] mb-5 leading-relaxed text-center px-4">
+                <span id="tasting-menu-name" class="text-accent font-bold text-base border-b-2 border-accent pb-0.5 inline-block mb-1"></span><br>
                 香り、食感、そして隠し味...<br>
                 じっくりと味わってみてください。
             </p>
             
-            <button onclick="showScreen('quiz')" class="w-full bg-accent hover:bg-orange-500 text-white font-bold py-4 px-6 rounded-2xl shadow-xl tap-effect text-xl animate-pulse">
+            <button onclick="showScreen('quiz')" class="w-full bg-accent hover:bg-orange-500 text-white font-bold py-3 px-6 rounded-2xl shadow-xl tap-effect text-base animate-pulse">
                 味わった！問題へ進む
             </button>
             
-            <button onclick="showScreen('top')" class="mt-4 p-2 text-sm text-gray-400 tap-effect flex items-center gap-1">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            <button onclick="showScreen('top')" class="mt-3 p-1.5 text-xs text-gray-400 tap-effect flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 まだ料理が来ていない
             </button>
         </div>
 
         <div class="absolute bottom-0 left-0 w-full flex justify-center z-0 select-none pointer-events-none">
-            <img src="hukuro3.jpg" alt="見上げるキャラクター" class="w-full max-w-[95%] h-auto object-contain mix-blend-multiply block origin-bottom" style="filter: contrast(1.1) brightness(1.05);" onerror="this.style.display='none';">
+            <img src="hukuro3.jpg" alt="見上げるキャラクター" class="w-full max-w-[70%] h-auto object-contain mix-blend-multiply block origin-bottom" style="filter: contrast(1.1) brightness(1.05);" onerror="this.style.display='none';">
         </div>
     </div>
 
 
     <div id="screen-quiz" class="screen relative z-10">
-        <div class="w-full max-w-sm mx-auto flex flex-col flex-grow pt-4 pb-24">
-            <div class="pb-2 text-center">
-                <span id="quiz-menu-name" class="inline-block bg-dark text-white px-4 py-1.5 rounded-full text-xs font-bold tracking-wider shadow-sm"></span>
+        <div class="w-full max-w-sm mx-auto flex flex-col flex-grow pt-1 justify-between h-full">
+            <div class="text-center">
+                <span id="quiz-menu-name" class="inline-block bg-dark text-white px-3 py-0.5 rounded-full text-[10px] font-bold tracking-wider shadow-sm"></span>
             </div>
             
-            <div class="flex-grow flex flex-col mt-2">
-                <h2 class="text-center font-black text-primary text-2xl mb-1 tracking-wide drop-shadow-sm">MISSION</h2>
-                <p class="text-center text-xs text-gray-600 mb-5 font-bold drop-shadow-sm">味覚と嗅覚を研ぎ澄まして考えてみよう！</p>
+            <div class="flex flex-col flex-grow justify-around my-1">
+                <div class="text-center">
+                    <h2 class="font-black text-primary text-lg tracking-wide drop-shadow-sm leading-none">MISSION</h2>
+                    <p class="text-center text-[9px] text-gray-600 font-bold drop-shadow-sm mt-0.5">味覚と嗅覚を研ぎ澄まして考えてみよう！</p>
+                </div>
                 
-                <div class="bg-white bg-opacity-95 px-6 py-8 rounded-2xl shadow-md border-2 border-gray-100 mb-6 relative">
-                    <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[12px] border-b-gray-100"></div>
-                    <div class="absolute -top-[10px] left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[9px] border-l-transparent border-r-[9px] border-r-transparent border-b-[11px] border-b-white"></div>
-                    
-                    <p id="quiz-question" class="text-[17px] font-bold leading-loose text-gray-800 text-center"></p>
+                <div class="bg-white bg-opacity-95 px-4 py-3 rounded-xl shadow-sm border border-gray-100 relative flex-shrink-0 my-1">
+                    <div class="absolute -top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[10px] border-b-gray-100"></div>
+                    <div class="absolute -top-[8px] left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[7px] border-l-transparent border-r-[7px] border-r-transparent border-b-[9px] border-b-white"></div>
+                    <p id="quiz-question" class="text-[14px] font-bold leading-normal text-gray-800 text-center"></p>
                 </div>
 
-                <div id="quiz-options" class="space-y-4 mb-auto relative z-10">
+                <div id="quiz-options" class="space-y-2 relative z-10 flex-shrink-0">
                 </div>
                 
-                <div class="w-full flex justify-end my-3 select-none relative">
-                    <div id="quiz-hint-bubble" class="absolute top-[10%] right-[46%] w-44 bg-dark text-white text-[11px] font-bold p-3 rounded-2xl shadow-xl z-20 opacity-0 scale-0 pointer-events-none">
+                <div class="w-full flex justify-end my-1 select-none relative flex-shrink-0">
+                    <div id="quiz-hint-bubble" class="absolute top-[5%] right-[32%] w-36 bg-dark text-white text-[9px] font-bold p-2 rounded-xl shadow-xl z-20 opacity-0 scale-0 pointer-events-none">
                         <p id="quiz-hint-text" class="leading-relaxed"></p>
-                        <div class="absolute top-1/2 -right-1 w-3 h-3 bg-dark transform rotate-45 -translate-y-1/2"></div>
+                        <div class="absolute top-1/2 -right-1 w-2 h-2 bg-dark transform rotate-45 -translate-y-1/2"></div>
                     </div>
                     
-                    <img src="think.jpg" alt="考えるキャラクター" class="w-full max-w-[38%] h-auto object-contain mix-blend-multiply block pointer-events-none z-0" style="filter: contrast(1.1) brightness(1.05);" onerror="this.style.display='none';">
+                    <img src="think.jpg" alt="考えるキャラクター" class="w-full max-w-[24%] h-auto object-contain mix-blend-multiply block pointer-events-none z-0" style="filter: contrast(1.1) brightness(1.05);" onerror="this.style.display='none';">
                 </div>
                 
                 <div class="text-center relative z-10">
-                    <button onclick="cancelQuiz()" class="p-3 text-sm text-gray-500 tap-effect font-bold bg-white bg-opacity-50 rounded-full px-4">キャンセルして戻る</button>
+                    <button onclick="cancelQuiz()" class="py-1.5 text-[10px] text-gray-500 tap-effect font-bold bg-white bg-opacity-60 rounded-full px-3.5 border border-gray-200">キャンセルして戻る</button>
                 </div>
             </div>
         </div>
     </div>
 
 
-    <div id="screen-result" class="screen pt-6 relative z-10 pb-16">
-        <div class="w-full max-w-sm mx-auto flex flex-col flex-grow">
-            <div id="result-header" class="text-center mb-6">
-                </div>
+    <div id="screen-result" class="screen pt-2 relative z-10">
+        <div class="w-full max-w-sm mx-auto flex flex-col flex-grow justify-between h-full pb-2">
+            <div id="result-header" class="text-center flex-shrink-0">
+            </div>
 
-            <div class="bg-white bg-opacity-95 rounded-2xl shadow-lg border border-gray-100 overflow-hidden mb-4 flex-shrink-0 relative z-10">
-                <div class="bg-gray-50 px-5 py-4 border-b border-gray-100">
-                    <p class="text-xs font-bold text-gray-500 mb-1">正解は...</p>
-                    <p id="result-correct-answer" class="text-xl font-black text-dark"></p>
+            <div class="bg-white bg-opacity-95 rounded-xl shadow-md border border-gray-100 overflow-hidden flex-shrink-0 relative z-10 my-1">
+                <div class="bg-gray-50 px-3 py-1.5 border-b border-gray-100 flex items-center justify-between">
+                    <span class="text-[10px] font-bold text-gray-400">正解は...</span>
+                    <span id="result-correct-answer" class="text-sm font-black text-dark"></span>
                 </div>
-                <div class="p-5">
-                    <p class="text-[11px] font-bold text-white bg-secondary inline-block px-2 py-0.5 rounded mb-3">お店のこだわり（解説）</p>
-                    <p id="result-explanation" class="text-[15px] leading-loose text-gray-700 font-medium"></p>
+                <div class="p-3">
+                    <p class="text-[9px] font-bold text-white bg-secondary inline-block px-1.5 py-0.5 rounded mb-1">お店のこだわり（解説）</p>
+                    <p id="result-explanation" class="text-[12px] leading-relaxed text-gray-700 font-medium"></p>
                 </div>
             </div>
 
-            <div class="bg-white bg-opacity-95 rounded-2xl shadow-md border border-gray-100 p-4 mb-4 flex-shrink-0 flex items-center gap-3 relative z-10">
-                <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0 text-orange-500">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21V10M3.284 14.253A8.917 8.917 0 013 12V5a2 2 0 012-2h14a2 2 0 012 2v7c0 .777-.107 1.525-.308 2.233M19.02 17.5A9.012 9.004 0 0019 12V5"></path></svg>
+            <div class="bg-white bg-opacity-95 rounded-xl shadow-sm border border-gray-100 p-2 flex-shrink-0 flex items-center gap-2 relative z-10 my-1">
+                <div class="w-7 h-7 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0 text-orange-500">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21V10M3.284 14.253A8.917 8.917 0 013 12V5a2 2 0 012-2h14a2 2 0 012 2v7c0 .777-.107 1.525-.308 2.233M19.02 17.5A9.012 9.004 0 0019 12V5"></path></svg>
                 </div>
-                <div>
-                    <p class="text-[10px] font-bold text-gray-500">この料理にイチオシのペアリング</p>
-                    <p id="result-drink-pairing" class="text-base font-black text-primary leading-tight"></p>
-                    <p id="result-drink-reason" class="text-[12px] font-medium text-gray-600 mt-0.5 leading-tight"></p>
+                <div class="min-w-0 flex-1">
+                    <p class="text-[9px] font-bold text-gray-400 leading-none mb-0.5">おすすめのペアリングドリンク</p>
+                    <p id="result-drink-pairing" class="text-xs font-black text-primary leading-none truncate"></p>
+                    <p id="result-drink-reason" class="text-[10px] font-medium text-gray-500 mt-0.5 leading-tight truncate"></p>
                 </div>
             </div>
 
-            <div class="bg-white bg-opacity-90 border-2 border-accent border-opacity-30 rounded-2xl p-5 mb-6 text-center flex-shrink-0 shadow-sm relative z-10">
-                <p class="text-sm font-black text-accent-dark mb-2 flex items-center justify-center gap-1">
-                    <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            <div class="bg-white bg-opacity-90 border border-accent border-opacity-30 rounded-xl p-2.5 text-center flex-shrink-0 shadow-sm relative z-10 my-1">
+                <p class="text-[10px] font-black text-accent-dark mb-0.5 flex items-center justify-center gap-1 leading-none">
+                    <svg class="w-3.5 h-3.5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     次はコレがいかがですか？
                 </p>
-                <p id="result-recommend" class="text-[15px] font-bold text-dark mb-4 leading-relaxed"></p>
-                <div class="text-[11px] text-gray-900 font-bold bg-gray-100 px-3 py-2 rounded-lg inline-block border border-gray-200">
-                    ※ご注文は店員または卓上端末からお願いします
+                <p id="result-recommend" class="text-[12px] font-bold text-dark mb-1 leading-tight"></p>
+                <div class="text-[8px] text-gray-500 font-bold bg-gray-50 px-2 py-0.5 rounded border border-gray-100 inline-block">
+                    ※ご注文は卓上または店員へお申し付けください
                 </div>
             </div>
 
-            <div class="mt-auto relative z-20">
-                <button onclick="showScreen('top')" class="w-full bg-primary hover:bg-red-600 text-white font-black py-5 rounded-2xl shadow-lg tap-effect text-lg">
+            <div class="relative z-20 flex-shrink-0 mt-1">
+                <button onclick="showScreen('top')" class="w-full bg-primary hover:bg-red-600 text-white font-black py-3 rounded-xl shadow-md tap-effect text-sm">
                     他のメニューのクイズに挑戦！
                 </button>
             </div>
@@ -281,21 +269,20 @@
 </div>
 
 <script>
-    // 1. 指定された画像を用いた9種類の固定データ
     const menuData = [
         {
             id: 1, name: "生レバーのジュワッと焼き", image: "liver.jpg",
             question: "このメニュー、焼くときに「ジュワッ」と香ばしさを引き立てている油の正体は？",
             options: ["ごま油", "にんにく油", "ネギ油"],
             answerIndex: 0,
-            hint: "💡ヒント：焼肉屋さんでレバーや塩タンを食べるときに、一番よく合わせるおなじみの香ばしい油だよ！",
+            hint: "💡ヒント：焼肉屋さんで一番よく合わせる香ばしい油だよ！",
             explanation: "新鮮なレバーの旨味を最大限に引き立てるため、一番搾りの風味豊かな『ごま油』を使用しています。サッと炙るのがコツです！",
-            nextRecommend: "こってりした後はさっぱりと！「赤鶏のお刺身」はいかがですか？",
+            nextRecommend: "さっぱりと！「赤鶏のお刺身」はいかがですか？",
             drinks: [
-                { name: "ザ・プレミアム・モルツ", reason: "ごま油の香ばしさと濃厚なレバーのコクに負けない、深い味わいです。" },
-                { name: "ジムビームハイボール", reason: "強炭酸の刺激と爽快なキレが、炙った脂の旨味をすっきりと流します。" },
+                { name: "ザ・プレミアム・モルツ", reason: "ごま油の香ばしさと濃厚なコクに負けない深い味わいです。" },
+                { name: "ジムビームハイボール", reason: "強炭酸の刺激が、炙った脂の旨味をすっきりと流します。" },
                 { name: "天羽ハイボール", reason: "下町風のどこか懐かしいキレ味が、味の強いレバーと絶妙にマッチ！" },
-                { name: "カルダモン焼酎", reason: "独特なスパイスの爽やかな香りが、レバー特有の風味を上品に変えます。" }
+                { name: "カルダモン焼酎", reason: "独特なスパイスの香りが、レバーの風味を上品に変えます。" }
             ]
         },
         {
@@ -303,13 +290,13 @@
             question: "この海鮮盛りを食べるお醤油。まろやかな旨味を出すための「隠し味」は何でしょう？",
             options: ["すだち果汁", "昆布だし", "たまり醤油"],
             answerIndex: 1,
-            hint: "💡ヒント：お醤油にツンとした角がなくて、どこか和食の上品な『お出汁』の深みを感じないかな？",
-            explanation: "新鮮な魚介の旨味を邪魔せず底上げするため、お店で引いた『昆布だし』をブレンドした特製醤油で提供しています。",
+            hint: "💡ヒント：お醤油にツンとした角がなくて、出汁の深みを感じないかな？",
+            explanation: "新鮮な魚介の旨味を底上げするため、お店で引いた『昆布だし』をブレンドした特製醤油で提供しています。",
             nextRecommend: "海鮮の後は、ほっこり温かい「肉豆腐」がおすすめです。",
             drinks: [
-                { name: "クラフトジンの水出し緑茶", reason: "ジンのボタニカル感と緑茶の渋みが、魚介の生臭さを消して引き立てます。" },
-                { name: "だいやめ", reason: "まるでライチのような華やかな芋の香りが、贅沢な白身魚の甘みを高めます。" },
-                { name: "国盛 本醸造辛口", reason: "王道のペアリング！すっきりした辛口日本酒が、出汁醤油の旨味に寄り添います。" }
+                { name: "クラフトジンの水出し緑茶", reason: "緑茶の渋みが、魚介の生臭さを消して引き立てます。" },
+                { name: "だいやめ", reason: "まるでライチのような華やかな香りが、贅沢な白身魚の甘みを高めます。" },
+                { name: "国盛 本醸造辛口", reason: "すっきりした辛口日本酒が、出汁醤油の旨味に寄り添います。" }
             ]
         },
         {
@@ -317,14 +304,13 @@
             question: "この肉豆腐、お肉の旨味をしっかりと吸わせるために使っている豆腐の種類は？",
             options: ["絹ごし豆腐", "木綿豆腐", "焼き豆腐"],
             answerIndex: 2,
-            hint: "💡ヒント：お豆腐の表面をよーく見てみて！お肉の旨味をギュッと染み込ませるために、あらかじめ表面に「焦げ目」がついているよ。",
+            hint: "💡ヒント：お豆腐の表面に「焦げ目」がついているよ。",
             explanation: "焼き豆腐を使用しています。じっくり煮込むことでお肉の旨味を閉じ込めています。",
-            nextRecommend: "豆腐の食べ比べ！次は「こぼれ麻婆豆腐」でシビれてみませんか？",
+            nextRecommend: "豆腐の食べ比べ！次は「こぼれ麻婆豆腐」はいかが？",
             drinks: [
-                { name: "ジムビームハイボール", reason: "お肉の甘辛い脂と出汁のコクを、バーボンの香りと炭酸が綺麗に包みます。" },
-                { name: "天羽ハイボール", reason: "醤油ベースのどこか甘やかな煮込み料理には、昔ながらのハイボールが鉄板。" },
-                { name: "カルダモン焼酎", reason: "出汁の和風な旨味に爽やかな風を吹き込み、飽きのこない味わいに変えます。" },
-                { name: "国盛 本醸造辛口", reason: "じっくり染み込んだお出汁の温かさに、キレの良い日本酒が五臓六腑に染みます。" }
+                { name: "ジムビームハイボール", reason: "甘辛い脂と出汁のコクを、バーボンの香りが綺麗に包みます。" },
+                { name: "天羽ハイボール", reason: "醤油ベースの煮込み料理には、昔ながらのハイボールが鉄板。" },
+                { name: "国盛 本醸造辛口", reason: "じっくり染み込んだお出汁に、キレの良い日本酒が五臓六腑に染みます。" }
             ]
         },
         {
@@ -332,14 +318,13 @@
             question: "この麻婆豆腐のクセになる「シビれる辛さ」の決め手となっているスパイスは？",
             options: ["花椒（ホアジャオ）", "一味唐辛子", "黒こしょう"],
             answerIndex: 0,
-            hint: "💡ヒント：舌がピリピリ、ビリビリ電気のように痺れるような感覚...中華（四川料理）には欠かせないあの緑や赤の粒スパイスだよ！",
-            explanation: "本場から取り寄せた香り高い『花椒（ホアジャオ）』を使用。ビリッとした痺れ（麻）と唐辛子の辛さ（辣）の絶妙なバランスにこだわっています。",
-            nextRecommend: "辛いものの後には「みそ串カツ」でコクのある甘みを楽しんで。",
+            hint: "💡ヒント：舌がピリピリ、電気のように痺れるような感覚の定番スパイス！",
+            explanation: "本場から取り寄せた香り高い『花椒（ホアジャオ）』を使用。痺れ（麻）と辛さ（辣）の絶妙なバランスにこだわっています。",
+            nextRecommend: "辛いものの後には「みそ串カツ」がおすすめです。",
             drinks: [
-                { name: "ザ・プレミアム・モルツ", reason: "花椒の強烈なシビレ（麻辣）を、ビールの重厚な泡とホップの苦味が優しく癒やします。" },
-                { name: "いつものレモンサワー", reason: "レモンの圧倒的な酸味と冷涼感が、お口の中のシビれを瞬時にリセット！" },
-                { name: "バイスサワー", reason: "梅紫蘇のすっきりとした爽快感が、麻婆豆腐のピリッとした辛さを引き立てます。" },
-                { name: "クレイジートマトサワー", reason: "トマトのまろやかな旨味と酸味が、麻婆の激しい辛さをマイルドに中和します。" }
+                { name: "ザ・プレミアム・モルツ", reason: "強烈なシビレを、ビールの重厚な泡と苦味が優しく癒やします。" },
+                { name: "いつものレモンサワー", reason: "レモンの圧倒的な酸味と冷涼感が、お口の中を瞬時にリセット！" },
+                { name: "クレイジートマトサワー", reason: "トマトのまろやかな旨味が、麻婆の激しい辛さをマイルドに中和。" }
             ]
         },
         {
@@ -347,14 +332,13 @@
             question: "このみそ串カツのタレ、ベースとなっているコク深い味噌の種類は？",
             options: ["白みそ", "八丁味噌（赤だし）", "合わせみそ"],
             answerIndex: 1,
-            hint: "💡ヒント：名古屋名物の「土手煮」や「味噌カツ」といえばこれ！黒っぽくて、独特の渋みと深いコクがある大豆のお味噌だよ。",
-            explanation: "コクと深みのある『八丁味噌』をベースに、独自の配合でじっくり煮込んだ秘伝の甘辛ダレです。サクサクの衣にたっぷり染み込ませています。",
-            nextRecommend: "アツアツの「焼き餃子」を冷えたビールと一緒にいかがですか？",
+            hint: "💡ヒント：独特の渋みと深いコクがある大豆の黒っぽいお味噌だよ。",
+            explanation: "コクと深みのある『八丁味噌』をベースに、独自の配合でじっくり煮込んだ秘伝の甘辛ダレです。衣にたっぷり染み込ませています。",
+            nextRecommend: "アツアツの「焼き餃子」を冷えたビールと一緒にどうぞ。",
             drinks: [
-                { name: "ザ・プレミアム・モルツ", reason: "どっしり濃厚な八丁味噌の甘辛ダレには、麦の旨味が強いプレミアムビールが完璧。" },
-                { name: "ジムビームハイボール", reason: "濃厚な味噌ダレで満たされた口を、ハイボールの炭酸がスッキリ心地よく爽快にします。" },
-                { name: "赤いレモンサワー", reason: "カツのサクサク衣の油を、少しユニークな酸味がサッパリと引き締めます。" },
-                { name: "赤玉パンチ", reason: "八丁味噌の独特の渋みとコクに、ワインベース of the 甘やかなフルーティーさがベストマッチ！" }
+                { name: "ザ・プレミアム・モルツ", reason: "濃厚な甘辛ダレには、麦の旨味が強いプレミアムビールが完璧。" },
+                { name: "ジムビームハイボール", reason: "濃厚な味噌ダレで満たされた口を、炭酸がスッキリ爽快にします。" },
+                { name: "赤玉パンチ", reason: "味噌の独特の渋みとコクに、甘やかなフルーティーさがマッチ！" }
             ]
         },
         {
@@ -362,29 +346,27 @@
             question: "この玉子、ほのかに香るカレーのような風味のスパイスが含まれています。それは何？",
             options: ["ターメリック", "クミン", "コリアンダー"],
             answerIndex: 1,
-            hint: "💡ヒント：カレーの「あの独特な良い香り」の主役！エスニック料理やガパオライス、タコスなどにもよく使われる種のようなスパイスだよ。",
-            explanation: "半熟の味付け玉子に、ローストして香りを引き出した『クミン』を中心としたオリジナルスパイスを纏わせています。お酒が止まらなくなる一品です。",
+            hint: "💡ヒント：カレーの「あの独特な良い香り」の主役スパイス！",
+            explanation: "半熟の味付け玉子に、ローストして香りを引き出した『クミン』を中心としたオリジナルスパイスを纏わせています。",
             nextRecommend: "名物「ふくろうミンチ」との相性も抜群です！ぜひ一緒に。",
             drinks: [
-                { name: "ザ・プレミアム・モルツ", reason: "クミンのエスニックな風味と濃厚な黄身の旨味に、ビールのほろ苦さが良く合います。" },
-                { name: "クレイジートマトサワー", reason: "スパイス（クミン）×トマトは間違いのないカレーに通ずる最強の相性。" },
-                { name: "クラフトジンの水出し緑茶", reason: "お茶の渋みとジンの香りが、独特なスパイスの余韻をすっきりと上品にまとめます。" },
-                { name: "カルダモン焼酎", reason: "スパイス玉子×スパイス焼酎！クミンとカルダモンの香りが口の中で弾けます。" }
+                { name: "ザ・プレミアム・モルツ", reason: "クミンの風味と濃厚な黄身の旨味に、ビールのほろ苦さが良く合います。" },
+                { name: "クレイジートマトサワー", reason: "スパイス（クミン）×トマトはカレーに通ずる最強の相性。" },
+                { name: "カルダモン焼酎", reason: "クミンとカルダモンの香りが口の中で弾けるスパイスコンボ！" }
             ]
         },
         {
             id: 7, name: "焼き餃子", image: "gyoza.jpg",
-            question: "この焼き餃子、ジュワッと溢れるジューシーな肉汁の仕掛けとして、餡に練り込まれている特製スープは？",
+            question: "この焼き餃子、ジュワッと溢れる肉汁の仕掛けとして、餡に練り込まれているのは？",
             options: ["鶏ガラスープ", "豚骨スープ", "魚介スープ"],
             answerIndex: 0,
-            hint: "💡ヒント：豚肉の脂だけじゃない、すっきりした旨味のスープが隠れているよ。ラーメンのベースや中華の定番といえば…？",
-            explanation: "一晩冷やしてゼリー状にした特製『鶏ガラスープ』を餡に練り込んでいます。焼くことで溶け出し、小籠包のような肉汁があふれます。",
+            hint: "💡ヒント：すっきりした旨味のスープが隠れているよ。中華の定番スープといえば…？",
+            explanation: "ゼリー状にした特製『鶏ガラスープ』を餡に練り込んでいます。焼くことで溶け出し、小籠包のような肉汁があふれます。",
             nextRecommend: "スタミナチャージ！次は「生レバーのジュワッと焼き」をどうぞ。",
             drinks: [
-                { name: "ザ・プレミアム・モルツ", reason: "溢れ出るアツアツのジューシーな肉汁には、黄金の生ビールが絶対に正義！" },
-                { name: "ジムビームハイボール", reason: "餡のニンニクや肉の旨味を、バーボンの弾ける泡が爽やかに包み込みます Rhodes。" },
-                { name: "いつものレモンサワー", reason: "パリッと焼けた香ばしい衣の油を、レモンの果汁がサッパリと洗い流します。" },
-                { name: "バイスサワー", reason: "さっぱりとした酸味が、スープの濃厚な鶏ガラのコクと素晴らしいコントラストに。" }
+                { name: "ザ・プレミアム・モルツ", reason: "溢れ出るアツアツのジューシーな肉汁には、黄金の生ビールが正義！" },
+                { name: "ジムビームハイボール", reason: "餡のニンニクや肉の旨味を、弾ける泡が爽やかに包み込みます。" },
+                { name: "いつものレモンサワー", reason: "パリッと焼けた香ばしい衣の油を、レモン果汁がサッパリ洗い流します。" }
             ]
         },
         {
@@ -392,14 +374,13 @@
             question: "この新鮮な赤鶏のお刺身、どこのエリアのご当地醤油を合わせて提供しているでしょう？",
             options: ["北海道", "関東", "九州"],
             answerIndex: 2,
-            hint: "💡ヒント：鶏の「お刺身（鳥刺し）」文化が一番盛んで、お醤油がトロッと甘くて濃いエリアといえばどこだろう？",
-            explanation: "新鮮な赤鶏の弾力と甘みを引き立てるため、『九州』特有 of コクのある甘口醤油をわざわざ取り寄せ使用しています。",
+            hint: "💡ヒント：鳥刺し文化が盛んで、お醤油がトロッと甘くて濃いエリアといえば？",
+            explanation: "新鮮な赤鶏の弾力と甘みを引き立てるため、『九州』特有のコクのある甘口醤油をわざわざ取り寄せ使用しています。",
             nextRecommend: "お刺身の後は、あつあつの「ふくろうミンチ」がおすすめです。",
             drinks: [
-                { name: "クラフトジンの水出し緑茶", reason: "ジンのクリアな味わいと緑茶の清涼感が、地鶏の生ならではの繊細な味を壊しません。" },
-                { name: "だいやめ", reason: "九州の甘口醤油と、このフルーティーな芋焼酎の組み合わせは地元の真骨頂！" },
-                { name: "カルダモン焼酎", reason: "すっきり洗練された清涼感が、地鶏ならではの引き締まった弾力と旨味を際立たせます。" },
-                { name: "国盛 本醸造辛口", reason: "淡麗な辛口が、甘口醤油を纏った鶏のねっとりとした上質な脂を綺麗に引き締めます。" }
+                { name: "だいやめ", reason: "九州の甘口醤油と、このフルーティーな芋焼酎の組み合わせは真骨頂！" },
+                { name: "カルダモン焼酎", reason: "洗練された清涼感が、地鶏ならではの引き締まった弾力を際立たせます。" },
+                { name: "国盛 本醸造辛口", reason: "淡麗な辛口が、甘口醤油を纏った鶏のねっとりとした脂を綺麗に引き締めます。" }
             ]
         },
         {
@@ -407,31 +388,26 @@
             question: "名物「ふくろうミンチ」、ふんわりとした食感の秘密としてお肉に混ぜられているのは？",
             options: ["山芋", "豆腐", "パン粉"],
             answerIndex: 0,
-            hint: "💡ヒント：お好み焼きをふんわりさせたり、麦とろご飯にかけたりする、すりおろすとネバネバするあのお野菜だよ！",
-            explanation: "新鮮な鶏ミンチにすりおろした『山芋』を練り込むことで、外はカリッと, 中は驚くほどふんわりとした独特の食感を実現しています。",
-            nextRecommend: "〆にはさっぱりとした「海鮮プチぜいたく盛り」をもう一度いかがですか？",
+            hint: "💡ヒント：すりおろすとネバネバするあのお野菜だよ！",
+            explanation: "新鮮な鶏ミンチにすりおろした『山芋』を練り込むことで、外はカリッと、中は驚くほどふんわりとした食感を実現しています。",
+            nextRecommend: "〆にはさっぱりとした「海鮮プチぜいたく盛り」をもう一度！",
             drinks: [
-                { name: "ザ・プレミアム・モルツ", reason: "カリッと香ばしい名物のミンチ肉には、冷えたビールの喉越しがエンドレスに続きます。" },
-                { name: "ジムビームハイボール", reason: "山芋のふんわり軽い食感に、ハイボール of the 爽快な泡がこれ以上なく軽快にマッチ。" },
-                { name: "天羽ハイボール", reason: "お店の看板名物には、下町の魂が宿る特製ハイボールが最高の相棒です。" },
-                { name: "いつものレモンサワー", reason: "ミンチのジューシーな鶏の旨味を、レモンの爽やかな酸味が引き締めて食欲をそそります。" }
+                { name: "ザ・プレミアム・モルツ", reason: "カリッと香ばしい名物のミンチ肉には、冷えたビールの喉越しが最高。" },
+                { name: "ジムビームハイボール", reason: "山芋のふんわり軽い食感に、ハイボールの爽快な泡が軽快にマッチ。" },
+                { name: "いつものレモンサワー", reason: "ジューシーな鶏の旨味を、レモンの爽やかな酸味が引き締めます。" }
             ]
         }
     ];
 
-    // 画像エラー時に表示する代替画像のSVG(データURI)
     const fallbackImage = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Cpath d='M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z'/%3E%3C/svg%3E";
 
-    // 現在のクイズ状態・タイマーを保持する変数
     let currentQuiz = null;
     let hintTimer = null; 
 
-    // 2. 初期化処理
     document.addEventListener('DOMContentLoaded', () => {
         renderMenuGrid();
     });
 
-    // 3. 画面切り替え関数
     function showScreen(screenName) {
         document.querySelectorAll('.screen').forEach(el => {
             el.classList.remove('active');
@@ -442,7 +418,6 @@
             target.scrollTop = 0; 
         }
 
-        // クイズ画面が表示されたら、10秒のヒントタイマーを開始する
         if (screenName === 'quiz') {
             startHintTimer();
         } else {
@@ -450,7 +425,6 @@
         }
     }
 
-    // ヒントタイマー開始関数
     function startHintTimer() {
         clearHintTimer(); 
 
@@ -461,7 +435,6 @@
         if(currentQuiz && currentQuiz.hint) {
             document.getElementById('quiz-hint-text').textContent = currentQuiz.hint;
             
-            // 10秒（10000ミリ秒）後に吹き出しを出現させる
             hintTimer = setTimeout(() => {
                 bubble.classList.remove('opacity-0', 'scale-0');
                 bubble.classList.add('hint-animate');
@@ -469,7 +442,6 @@
         }
     }
 
-    // ヒントタイマーリセット関数
     function clearHintTimer() {
         if (hintTimer) {
             clearTimeout(hintTimer);
@@ -477,13 +449,11 @@
         }
     }
 
-    // キャンセルして戻る時の処理
     function cancelQuiz() {
         clearHintTimer();
         showScreen('top');
     }
 
-    // 4. トップ画面の描画
     function renderMenuGrid() {
         const grid = document.getElementById('menu-grid');
         grid.innerHTML = ''; 
@@ -494,16 +464,15 @@
             tile.onclick = () => startQuiz(item.id);
 
             tile.innerHTML = `
-                <div class="w-full aspect-square rounded-2xl mb-2.5 shadow-md border-2 border-white group-hover:border-primary overflow-hidden bg-white flex items-center justify-center relative">
+                <div class="w-full aspect-square rounded-xl mb-1 shadow-sm border border-white group-hover:border-primary overflow-hidden bg-white flex items-center justify-center relative">
                     <img src="${item.image}" alt="${item.name}" class="w-full h-full img-cover-center absolute inset-0" onerror="this.src='${fallbackImage}'; this.className='w-1/2 h-1/2 object-contain opacity-50 absolute top-1/4 left-1/4';">
                 </div>
-                <p class="text-[11px] font-bold text-center leading-tight text-gray-800 w-full truncate px-1 drop-shadow-sm">${item.name}</p>
+                <p class="text-[10px] font-bold text-center leading-tight text-gray-800 w-full truncate px-1 drop-shadow-sm">${item.name}</p>
             `;
             grid.appendChild(tile);
         });
     }
 
-    // 5. 実食画面の開始 (クイズ画面の前に挟む)
     function startQuiz(menuId) {
         currentQuiz = menuData.find(item => item.id === menuId);
         if(!currentQuiz) return;
@@ -526,11 +495,11 @@
 
         currentQuiz.options.forEach((optionText, index) => {
             const btn = document.createElement('button');
-            btn.className = "w-full bg-white bg-opacity-95 border-2 border-white text-gray-800 font-bold py-5 px-5 rounded-2xl text-left shadow-md tap-effect text-[15px] active:border-secondary transition-colors flex items-center";
+            btn.className = "w-full bg-white bg-opacity-95 border border-white text-gray-800 font-bold py-2.5 px-4 rounded-xl text-left shadow-sm tap-effect text-[13px] active:border-secondary transition-colors flex items-center";
             btn.onclick = () => checkAnswer(index);
             
             btn.innerHTML = `
-                <div class="w-10 h-10 rounded-md bg-gray-100 flex items-center justify-center mr-4 flex-shrink-0">
+                <div class="w-7 h-7 rounded-md bg-gray-100 flex items-center justify-center mr-3 flex-shrink-0">
                     <img src="number${index + 1}.jpg" alt="${index + 1}" class="w-full h-full object-contain object-center" onerror="this.style.display='none';">
                 </div>
                 <span class="leading-tight">${optionText}</span>
@@ -541,28 +510,25 @@
         showScreen('tasting');
     }
 
-    // 6. 回答の判定と結果画面の表示
     function checkAnswer(selectedIndex) {
         clearHintTimer(); 
         
         const isCorrect = (selectedIndex === currentQuiz.answerIndex);
-        
         const header = document.getElementById('result-header');
         
-        // 💡 変更箇所: SVGアイコンを廃止し、ok.jpg / zannen.jpg を丸カットなしの四角形（全体表示）で描画するように修正しました
         if (isCorrect) {
             header.innerHTML = `
-                <div class="inline-flex items-center justify-center w-24 h-24 bg-green-50 mb-4 shadow-md border-4 border-white rounded-2xl overflow-hidden p-1.5">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-green-50 mb-1 shadow-sm border-2 border-white rounded-xl overflow-hidden p-0.5">
                     <img src="ok.jpg" alt="正解アイコン" class="w-full h-full object-contain object-center mix-blend-multiply" onerror="this.style.display='none';">
                 </div>
-                <h2 class="text-3xl font-black text-green-600 tracking-widest drop-shadow-md">大正解！</h2>
+                <h2 class="text-xl font-black text-green-600 tracking-widest drop-shadow-sm leading-none">大正解！</h2>
             `;
         } else {
             header.innerHTML = `
-                <div class="inline-flex items-center justify-center w-24 h-24 bg-red-50 mb-4 shadow-md border-4 border-white rounded-2xl overflow-hidden p-1.5">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-red-50 mb-1 shadow-sm border-2 border-white rounded-xl overflow-hidden p-0.5">
                     <img src="zannen.jpg" alt="残念アイコン" class="w-full h-full object-contain object-center mix-blend-multiply" onerror="this.style.display='none';">
                 </div>
-                <h2 class="text-3xl font-black text-primary tracking-widest drop-shadow-md">ざんねん！</h2>
+                <h2 class="text-xl font-black text-primary tracking-widest drop-shadow-sm leading-none">ざんねん！</h2>
             `;
         }
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>まるのお魚キャッチ</title>
+  <title>まるちゃんのお魚キャッチ</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@900&family=Mochiy+Pop+One&display=swap');
     
@@ -61,7 +61,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
-      padding: 80px 40px;
+      padding: 60px 40px 80px 40px; /* ハイスコア枠追加に伴い余白を少し調整 */
       z-index: 10;
       background: linear-gradient(to bottom, #ffebee 0%, #fce4ec 50%, #fff9c4 100%);
     }
@@ -83,7 +83,7 @@
     .header-area {
       text-align: center;
       width: 100%;
-      margin-top: 40px;
+      margin-top: 20px;
     }
 
     .main-title {
@@ -96,7 +96,7 @@
         3px -3px 0 #fff, 
         -3px 3px 0 #fff, 
         0 6px 12px rgba(255,110,180,0.4);
-      margin-bottom: 20px;
+      margin-bottom: 10px;
       animation: titleBounce 2s infinite ease-in-out alternate;
     }
 
@@ -105,11 +105,25 @@
       100% { transform: scale(1.02) translateY(-10px); }
     }
 
+    /* 【追加】ハイスコア表示用のおしゃれなバッジ風デザイン */
+    .highscore-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #fff2f6, #fffde6);
+      border: 3px solid #ffb6d5;
+      border-radius: 50px;
+      padding: 6px 20px;
+      font-size: 16px;
+      color: #ff52a2;
+      font-weight: bold;
+      box-shadow: 0 4px 8px rgba(255, 110, 180, 0.15);
+      margin-top: 5px;
+    }
+
     /* キャラクター配置エリア（タイトル画面用） */
     .char-area {
       position: relative;
-      width: 220px;
-      height: 220px;
+      width: 200px;
+      height: 200px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -137,7 +151,7 @@
     .bottom-area {
       width: 100%;
       text-align: center;
-      margin-bottom: 40px;
+      margin-bottom: 20px;
     }
 
     .description-box {
@@ -148,7 +162,7 @@
       font-size: 18px;
       color: #444;
       line-height: 1.6;
-      margin-bottom: 40px;
+      margin-bottom: 30px;
       box-shadow: 0 8px 16px rgba(0,0,0,0.05);
       font-weight: bold;
     }
@@ -187,7 +201,8 @@
       align-items: center;
       justify-content: center;
       flex-grow: 1;
-      gap: 20px;
+      gap: 15px;
+      width: 100%;
     }
 
     /* HUD（ゲーム中のUIレイヤー） */
@@ -295,6 +310,7 @@
 
       <div class="header-area">
         <h1 class="main-title">まるの<br>お魚キャッチ</h1>
+        <div class="highscore-badge" id="title-highscore">👑 さいこう記録: 0匹</div>
       </div>
 
       <div class="char-area">
@@ -316,9 +332,13 @@
       </div>
       
       <div class="result-center">
-        <div class="description-box" id="result-score" style="font-size: 26px; padding: 30px 50px;">
+        <div id="new-record-text" style="font-size: 24px; color: #ff52a2; font-weight: bold; display: none; text-shadow: 2px 2px 0 #fff;">🎉 ニュウ記録たっせい！ 🎉</div>
+        
+        <div class="description-box" id="result-score" style="font-size: 26px; padding: 25px 40px; margin-bottom: 0; width: 100%; max-width: 320px;">
           結果: 0 匹！
         </div>
+        
+        <div class="highscore-badge" id="result-highscore" style="font-size: 18px; padding: 8px 24px;">👑 さいこう記録: 0匹</div>
       </div>
 
       <div class="bottom-area">
@@ -331,11 +351,22 @@
   <script src="https://cdn.jsdelivr.net/npm/p5@1.11.0/lib/p5.min.js"></script>
   
   <script>
+    // --- 【追加】ハイスコアを記憶・表示する関数 ---
+    function displayHighScore() {
+      // ローカルストレージから「maru_highscore」という名前のデータを取り出す（無ければ0点）
+      let savedHighScore = localStorage.getItem('maru_highscore') || 0;
+      
+      // タイトル画面とリザルト画面の枠にそれぞれ点数を書き込む
+      document.getElementById('title-highscore').innerText = `👑 さいこう記録: ${savedHighScore}匹`;
+      document.getElementById('result-highscore').innerText = `👑 さいこう記録: ${savedHighScore}匹`;
+    }
+
     function showTitleScreen() {
       const loading = document.getElementById('loading-overlay');
       if (loading && loading.style.display !== 'none') {
         loading.style.display = 'none';
         document.getElementById('start-overlay').style.display = 'flex';
+        displayHighScore(); // 【追加】タイトル表示のタイミングで最高スコアを描画
       }
     }
 
@@ -470,7 +501,6 @@
       };
 
       function drawGameScene(p) {
-        // 背景グラデーション
         p.noStroke();
         for (let i = 0; i < VIRTUAL_HEIGHT; i++) {
           let inter = p.map(i, 0, VIRTUAL_HEIGHT, 0, 1);
@@ -484,14 +514,12 @@
           p.line(0, i, VIRTUAL_WIDTH, i);
         }
         
-        // 砂浜の描画
         p.noStroke();
         p.fill(255, 248, 220, 160); 
         p.rect(0, VIRTUAL_HEIGHT * 0.75, VIRTUAL_WIDTH, VIRTUAL_HEIGHT * 0.25);
 
         p.fill(0); 
 
-        // 釣り人（ペンギン）
         fishers.forEach(f => {
           p.push();
           p.translate(f.x, f.y);
@@ -501,10 +529,8 @@
           p.pop();
         });
 
-        // 魚の影
         fishes.forEach(f => {
           let groundY = cat.y;
-          // まるちゃんが大きくなったので影のサイズも少し広めに調整
           let shadowSize = p.map(groundY - f.y, 0, VIRTUAL_HEIGHT, 45, 12);
           if (shadowSize > 0) {
             p.fill(0, 0, 0, 30);
@@ -513,7 +539,6 @@
           }
         });
 
-        // まるちゃん（カワウソ）の描画
         p.push();
         p.translate(cat.x, cat.y);
         p.scale(cat.dir, 1);
@@ -522,12 +547,11 @@
         if (cat.state === 'catch') cImg = assets.otter_run || assets.otter_idle;
 
         if (cImg) {
-          // 【修正点】ゲーム中のまるちゃんを大きく（90x90 → 140x140に拡大。軸がずれないようY軸も調整）
           p.image(cImg, 0, -65, 140, 140);
         } else {
           p.fill(0); 
           p.textAlign(p.CENTER, p.CENTER);
-          p.textSize(85); // 絵文字モードのときも大きく表示
+          p.textSize(85); 
           let otterEmoji = '🦦';
           if (cat.state === 'catch') otterEmoji = '😋';
           if (cat.state === 'fail') otterEmoji = '😭';
@@ -535,7 +559,6 @@
         }
         p.pop();
 
-        // 魚
         fishes.forEach(f => {
           p.push();
           p.translate(f.x, f.y);
@@ -551,7 +574,6 @@
           p.pop();
         });
 
-        // パーティクル
         particles.forEach(pt => {
           p.push();
           p.translate(pt.x, pt.y);
@@ -661,7 +683,6 @@
           f.vy += 0.5; 
           f.rotation += f.rotSpeed;
 
-          // 【修正点】まるちゃんが大きくなったため、キャッチできる横の判定幅を広げました（50 → 75）
           if (p.abs(f.x - cat.x) < 75 && f.y > cat.y - 60 && f.y < cat.y + 10) {
             score++;
             updateHUD();
@@ -722,6 +743,7 @@
       cat.state = 'idle';
       phaseTextTimer = 0;
       document.getElementById('time-box').classList.remove('danger');
+      document.getElementById('new-record-text').style.display = 'none'; // 新記録テキストを隠す
       updateHUD();
     }
 
@@ -746,10 +768,27 @@
       gameState = 'FINISHED';
       audio.playFinish();
       
+      // --- 【追加】ハイスコアの判定と保存ロジック ---
+      let currentHighScore = Number(localStorage.getItem('maru_highscore') || 0);
+      let isNewRecord = false;
+      
+      if (score > currentHighScore) {
+        localStorage.setItem('maru_highscore', score); // 新記録を保存
+        isNewRecord = true;
+      }
+
       setTimeout(() => {
         gameState = 'RESULT';
         document.getElementById('ui-layer').style.display = 'none';
         document.getElementById('result-score').innerText = `結果: ${score} 匹！`;
+        
+        // 新記録達成なら「ニュウ記録たっせい！」の文字を出す
+        if (isNewRecord) {
+          document.getElementById('new-record-text').style.display = 'block';
+        }
+        
+        // 最新の最高スコアに数値を書き直してリザルト画面を表示
+        displayHighScore();
         document.getElementById('result-overlay').style.display = 'flex';
       }, 1500);
     }

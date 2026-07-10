@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>まるのお魚キャッチ</title>
+  <title>まるちゃんのお魚キャッチ</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@900&family=Mochiy+Pop+One&display=swap');
     
@@ -310,7 +310,7 @@
 
       <div class="header-area">
         <h1 class="main-title">まるの<br>お魚キャッチ</h1>
-        <div class="highscore-badge" id="title-highscore">👑 さいこう記録: 0匹</div>
+        <div class="highscore-badge" id="title-highscore">👑 最高記録: 0匹</div>
       </div>
 
       <div class="char-area">
@@ -332,7 +332,7 @@
       </div>
       
       <div class="result-center">
-        <div id="new-record-text" style="font-size: 24px; color: #ff52a2; font-weight: bold; display: none; text-shadow: 2px 2px 0 #fff;">🎉 ニュウ記録たっせい！ 🎉</div>
+        <div id="new-record-text" style="font-size: 24px; color: #ff52a2; font-weight: bold; display: none; text-shadow: 2px 2px 0 #fff;">🎉 新記録達成！ 🎉</div>
         
         <div class="description-box" id="result-score" style="font-size: 26px; padding: 25px 40px; margin-bottom: 0; width: 100%; max-width: 320px;">
           結果: 0 匹！
@@ -357,8 +357,8 @@
       let savedHighScore = localStorage.getItem('maru_highscore') || 0;
       
       // タイトル画面とリザルト画面の枠にそれぞれ点数を書き込む
-      document.getElementById('title-highscore').innerText = `👑 さいこう記録: ${savedHighScore}匹`;
-      document.getElementById('result-highscore').innerText = `👑 さいこう記録: ${savedHighScore}匹`;
+      document.getElementById('title-highscore').innerText = `👑 最高記録: ${savedHighScore}匹`;
+      document.getElementById('result-highscore').innerText = `👑 最高記録: ${savedHighScore}匹`;
     }
 
     function showTitleScreen() {
@@ -782,7 +782,7 @@
         document.getElementById('ui-layer').style.display = 'none';
         document.getElementById('result-score').innerText = `結果: ${score} 匹！`;
         
-        // 新記録達成なら「ニュウ記録たっせい！」の文字を出す
+        // 新記録達成なら「新記録達成！」の文字を出す
         if (isNewRecord) {
           document.getElementById('new-record-text').style.display = 'block';
         }

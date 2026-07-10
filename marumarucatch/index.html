@@ -3,87 +3,193 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Pastel Otter Catch</title>
+  <title>まるのお魚キャッチ</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght=800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@900&family=Mochiy+Pop+One&display=swap');
     
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      overflow: hidden;
-      touch-action: none;
-      background-color: #e3f2fd;
-      font-family: 'Nunito', sans-serif;
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
       user-select: none;
       -webkit-user-select: none;
     }
     
-    #game-container {
-      position: relative;
-      width: 100%;
-      height: 100vh;
+    body {
+      background-color: #fce4ec;
+      font-family: 'Mochiy Pop One', 'Nunito', sans-serif;
       overflow: hidden;
       display: flex;
       justify-content: center;
       align-items: center;
+      height: 100vh;
+      width: 100vw;
+      touch-action: none;
     }
-    
-    #game-container canvas {
+
+    /* アスペクト比を維持するメインコンテナ */
+    #game-outer-container {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      max-width: 540px; 
+      max-height: 1168px;
+      aspect-ratio: 1125 / 2436;
+      background: linear-gradient(to bottom, #ffebee 0%, #fce4ec 50%, #fff9c4 100%);
+      overflow: hidden;
+      box-shadow: 0 0 30px rgba(0,0,0,0.1);
+    }
+
+    /* p5.jsのキャンバス配置用の入れ物 */
+    #canvas-container {
       position: absolute;
-      z-index: 1 !important;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: 1;
     }
-    
-    .overlay {
-      position: fixed;
+    #canvas-container canvas {
+      display: block;
+    }
+
+    /* 各種画面オーバーレイの共通設定 */
+    .screen-overlay {
+      position: absolute;
       inset: 0;
-      background: rgba(255, 255, 255, 0.85);
       display: flex;
       flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 80px 40px;
+      z-index: 10;
+      background: linear-gradient(to bottom, #ffebee 0%, #fce4ec 50%, #fff9c4 100%);
+    }
+
+    /* 背景のふわふわ浮かぶお魚演出（タイトル用） */
+    .bg-deco {
+      position: absolute;
+      font-size: 32px;
+      opacity: 0.25;
+      animation: floatAnim 4s infinite ease-in-out alternate;
+      pointer-events: none;
+    }
+    @keyframes floatAnim {
+      0% { transform: translateY(0) rotate(0deg); }
+      100% { transform: translateY(-20px) rotate(15deg); }
+    }
+
+    /* ヘッダー・タイトルエリア */
+    .header-area {
+      text-align: center;
+      width: 100%;
+      margin-top: 40px;
+    }
+
+    .main-title {
+      font-size: 46px;
+      color: #ff6eb4;
+      line-height: 1.3;
+      text-shadow: 
+        3px 3px 0 #fff, 
+        -3px -3px 0 #fff, 
+        3px -3px 0 #fff, 
+        -3px 3px 0 #fff, 
+        0 6px 12px rgba(255,110,180,0.4);
+      margin-bottom: 20px;
+      animation: titleBounce 2s infinite ease-in-out alternate;
+    }
+
+    @keyframes titleBounce {
+      0% { transform: scale(0.98) translateY(0); }
+      100% { transform: scale(1.02) translateY(-10px); }
+    }
+
+    /* キャラクター配置エリア */
+    .char-area {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 1000;
-      pointer-events: auto;
-      backdrop-filter: blur(4px);
     }
-    
-    .title {
-      font-size: 36px;
-      color: #0288d1;
-      text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 0 4px 10px rgba(2,136,209,0.3);
-      margin-bottom: 30px;
+
+    .char-fallback {
+      font-size: 120px;
+      animation: characterFloat 3s infinite ease-in-out alternate;
+    }
+
+    @keyframes characterFloat {
+      0% { transform: translateY(0) rotate(-3deg); }
+      100% { transform: translateY(-15px) rotate(3deg); }
+    }
+
+    /* 説明文・ボタンエリア */
+    .bottom-area {
+      width: 100%;
       text-align: center;
-      line-height: 1.2;
+      margin-bottom: 40px;
     }
-    
-    .btn {
-      padding: 15px 40px;
-      font-size: 24px;
-      font-family: 'Nunito', sans-serif;
-      font-weight: 800;
+
+    .description-box {
+      background: rgba(255, 255, 255, 0.85);
+      border: 3px dashed #ffb6d5;
+      border-radius: 24px;
+      padding: 20px;
+      font-size: 18px;
+      color: #444;
+      line-height: 1.6;
+      margin-bottom: 40px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+      font-weight: bold;
+    }
+
+    /* パステル統一ボタン */
+    .pastel-btn {
+      width: 100%;
+      max-width: 280px;
+      padding: 18px 0;
+      font-size: 28px;
+      font-family: 'Mochiy Pop One', sans-serif;
       color: #fff;
-      background: linear-gradient(135deg, #81d4fa, #b2dfdb);
+      background: linear-gradient(135deg, #ffb6d5, #81d4fa);
       border: 4px solid #fff;
-      border-radius: 40px;
+      border-radius: 50px;
       cursor: pointer;
-      box-shadow: 0 8px 15px rgba(129, 212, 250, 0.5);
+      box-shadow: 0 10px 20px rgba(255, 182, 213, 0.6);
       transition: transform 0.1s, box-shadow 0.1s;
-      pointer-events: auto;
     }
-    
-    .btn:active {
+
+    .pastel-btn:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(255, 182, 213, 0.8);
+    }
+
+    .pastel-btn:active {
       transform: translateY(4px);
-      box-shadow: 0 4px 8px rgba(129, 212, 250, 0.5);
+      box-shadow: 0 4px 8px rgba(255, 182, 213, 0.6);
     }
-    
+
+    /* リザルト用の中央配置 */
+    .result-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-grow: 1;
+      gap: 20px;
+    }
+
+    /* HUD（ゲーム中のUIレイヤー） */
     #ui-layer {
       position: absolute;
       top: 0;
-      left: 50%;
-      transform: translateX(-50%);
+      left: 0;
       width: 100%;
-      max-width: 390px;
-      height: 100vh;
-      z-index: 10;
+      height: 100%;
+      z-index: 5;
       pointer-events: none;
       display: flex;
       flex-direction: column;
@@ -92,17 +198,17 @@
     .hud-top {
       display: flex;
       justify-content: space-between;
-      padding: 20px 20px;
+      padding: 30px 20px;
       align-items: flex-start;
     }
     
     .hud-box {
       background: rgba(255, 255, 255, 0.9);
-      border: 3px solid #81d4fa;
+      border: 3px solid #ffb6d5;
       border-radius: 20px;
       padding: 8px 16px;
       font-size: 22px;
-      color: #0288d1;
+      color: #ff6eb4;
       box-shadow: 0 4px 10px rgba(0,0,0,0.05);
       display: flex;
       align-items: center;
@@ -110,9 +216,9 @@
     }
     
     .hud-time {
-      font-size: 28px;
-      border-color: #a8e7ff;
-      color: #4fc3f7;
+      font-size: 24px;
+      border-color: #81d4fa;
+      color: #0288d1;
     }
     
     .hud-time.danger {
@@ -125,42 +231,32 @@
       from { transform: scale(1); }
       to { transform: scale(1.1); }
     }
-    
+
+    /* ローディングスピナー */
+    #loading-overlay {
+      background: linear-gradient(to bottom, #ffebee 0%, #fce4ec 50%, #fff9c4 100%);
+    }
     #loading-spinner {
-      width: 50px;
-      height: 50px;
-      border: 6px solid #f3f3f3;
-      border-top: 6px solid #81d4fa;
+      width: 60px;
+      height: 60px;
+      border: 6px solid #fff;
+      border-top: 6px solid #ffb6d5;
       border-radius: 50%;
       animation: spin 1s linear infinite;
       margin-bottom: 20px;
     }
-    
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
   </style>
-  <script id="dc-ui-texts" type="application/json">
-  {
-    "sourceLang": "ja",
-    "texts": {
-      "ja": {
-        "ui.title": "かわうそ\nお魚キャッチ！",
-        "ui.start": "スタート",
-        "ui.score": "{score}",
-        "ui.time": "{time}",
-        "ui.result": "結果: {score} 匹！",
-        "ui.retry": "もう1回遊ぶ",
-        "msg.speedup": "スピードアップ！",
-        "msg.last10": "ラストスパート！"
-      }
-    }
-  }
-  </script>
 </head>
 <body>
-  <div id="game-container">
+
+  <div id="game-outer-container">
+    
+    <div id="canvas-container"></div>
+
     <div id="ui-layer" style="display:none;">
       <div class="hud-top">
         <div class="hud-box">
@@ -173,36 +269,70 @@
         </div>
       </div>
     </div>
-  </div>
 
-  <div id="loading-overlay" class="overlay">
-    <div id="loading-spinner"></div>
-    <div class="title">Loading...</div>
-  </div>
+    <div id="loading-overlay" class="screen-overlay">
+      <div></div>
+      <div class="result-center">
+        <div id="loading-spinner"></div>
+        <h2 class="main-title" style="font-size: 32px;">Loading...</h2>
+      </div>
+      <div></div>
+    </div>
 
-  <div id="start-overlay" class="overlay" style="display:none;">
-    <div class="title" id="title-text">かわうそ<br>お魚キャッチ！</div>
-    <button id="start-btn" class="btn">スタート</button>
-  </div>
+    <div id="start-overlay" class="screen-overlay" style="display:none;">
+      <div class="bg-deco" style="top: 15%; left: 10%; animation-delay: 0s;">🐟</div>
+      <div class="bg-deco" style="top: 25%; right: 12%; animation-delay: 0.5s;">🦐</div>
+      <div class="bg-deco" style="top: 55%; left: 15%; animation-delay: 1s;">🐙</div>
+      <div class="bg-deco" style="top: 65%; right: 10%; animation-delay: 1.5s;">🐟</div>
 
-  <div id="result-overlay" class="overlay" style="display:none;">
-    <div class="title" id="result-score">結果: 0 匹！</div>
-    <button id="retry-btn" class="btn">もう1回遊ぶ</button>
+      <div class="header-area">
+        <h1 class="main-title">まるの<br>お魚キャッチ</h1>
+      </div>
+
+      <div class="char-area">
+        <div class="char-fallback">🦦</div>
+      </div>
+
+      <div class="bottom-area">
+        <div class="description-box">
+          ペンギンが釣り上げたお魚を<br>キャッチしよう！<br>何匹とれるかな？
+        </div>
+        <button id="start-btn" class="pastel-btn">スタート</button>
+      </div>
+    </div>
+
+    <div id="result-overlay" class="screen-overlay" style="display:none;">
+      <div class="header-area">
+        <h1 class="main-title">タイムアップ！</h1>
+      </div>
+      
+      <div class="result-center">
+        <div class="description-box" id="result-score" style="font-size: 26px; padding: 30px 50px;">
+          結果: 0 匹！
+        </div>
+      </div>
+
+      <div class="bottom-area">
+        <button id="retry-btn" class="pastel-btn">もう1回遊ぶ</button>
+      </div>
+    </div>
+
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/p5@1.11.0/lib/p5.min.js"></script>
+  
   <script>
-    const uiPayload = JSON.parse(document.getElementById('dc-ui-texts').textContent);
-    const sourceLang = uiPayload.sourceLang || 'ja';
-    const uiTexts = uiPayload.texts || {};
-    const currentLang = 'ja';
-    
-    function t(key, vars) {
-      let s = (uiTexts[currentLang] && uiTexts[currentLang][key]) || key;
-      if (vars) Object.keys(vars).forEach((k) => { s = s.replaceAll('{' + k + '}', String(vars[k])); });
-      return s;
+    function showTitleScreen() {
+      const loading = document.getElementById('loading-overlay');
+      if (loading && loading.style.display !== 'none') {
+        loading.style.display = 'none';
+        document.getElementById('start-overlay').style.display = 'flex';
+      }
     }
 
+    setTimeout(showTitleScreen, 1000);
+
+    // --- 音声生成システム (SynthAudio) ---
     class SynthAudio {
       constructor() { this.ctx = null; }
       init() {
@@ -239,13 +369,13 @@
       }
     }
     const audio = new SynthAudio();
-    document.addEventListener('pointerdown', () => audio.init(), { once: true });
 
+    // --- ゲームの基本設定・状態管理 ---
     const VIRTUAL_WIDTH = 390;
     const VIRTUAL_HEIGHT = 844;
     const TOTAL_TIME = 30;
     
-    let gameState = 'READY'; 
+    let gameState = 'TITLE'; 
     let score = 0;
     let gameTime = TOTAL_TIME;
     let lastSecondTime = 0;
@@ -254,182 +384,181 @@
     let phaseText = "";
     let phaseTextTimer = 0;
     
-    const assets = {};
-    let assetsLoadedCount = 0;
-    const totalAssets = 7; // 使用アセット数を整理
-
-    let cat = { x: 150, y: 740, targetX: 150, dir: 1, state: 'idle', stateTimer: 0 };
+    let cat = { x: 195, y: 720, targetX: 195, dir: 1, state: 'idle', stateTimer: 0 };
     let fishers = [
-      { x: 340, y: 350, state: 'idle', stateTimer: 0 },
-      { x: 350, y: 480, state: 'idle', stateTimer: 0 },
-      { x: 360, y: 610, state: 'idle', stateTimer: 0 }
+      { x: 330, y: 250, state: 'idle', stateTimer: 0 },
+      { x: 340, y: 400, state: 'idle', stateTimer: 0 },
+      { x: 350, y: 550, state: 'idle', stateTimer: 0 }
     ];
     let fishes = [];
     let particles = [];
+    let assets = {};
+    
+    let triggerResize = null;
 
+    // --- p5.js メインスケッチ ---
     const sketch = (p) => {
       let scale = 1, offsetX = 0, offsetY = 0;
 
       p.preload = () => {
         const loadImg = (key, path) => {
-          if(!path || path === '') {
-            assetsLoadedCount++;
-            if (assetsLoadedCount === totalAssets) onAllAssetsLoaded();
-            return;
-          }
-          assets[key] = p.loadImage(path, () => {
-            assetsLoadedCount++;
-            if (assetsLoadedCount === totalAssets) onAllAssetsLoaded();
-          }, () => {
-            assets[key] = null;
-            assetsLoadedCount++;
-            if (assetsLoadedCount === totalAssets) onAllAssetsLoaded();
-          });
+          if(!path) return;
+          assets[key] = p.loadImage(path, null, () => assets[key] = null);
         };
-        
-        // 【画像URL設定エリア】用意したPNGのURLをここに貼り付けてください
         loadImg('otter_idle', 'otter_idle.png'); 
         loadImg('otter_run', 'otter_run.png');
-        
-        // その他ゲーム用アセット（必要に応じてURLを入れてください。空欄なら自動で可愛い絵文字になります）
-        loadImg('bg', '');
-        loadImg('fish_blue', '');
-        loadImg('fish_pink', '');
-        loadImg('fish_yellow', '');
-        loadImg('star', '');
       };
 
       p.setup = () => {
-        const canvas = p.createCanvas(p.windowWidth, p.windowHeight);
-        canvas.parent('game-container');
+        const container = document.getElementById('game-outer-container');
+        const canvas = p.createCanvas(container.clientWidth || p.windowWidth, container.clientHeight || p.windowHeight);
+        canvas.parent('canvas-container');
         p.imageMode(p.CENTER);
+        
         calculateScale();
         
-        document.getElementById('title-text').innerHTML = t('ui.title');
-        document.getElementById('start-btn').innerText = t('ui.start');
-        document.getElementById('retry-btn').innerText = t('ui.retry');
+        triggerResize = () => {
+          p.resizeCanvas(container.clientWidth || p.windowWidth, container.clientHeight || p.windowHeight);
+          calculateScale();
+        };
+
+        showTitleScreen();
       };
 
       function calculateScale() {
-        const scaleX = p.windowWidth / VIRTUAL_WIDTH;
-        const scaleY = p.windowHeight / VIRTUAL_HEIGHT;
+        const container = document.getElementById('game-outer-container');
+        if (!container) return;
+        const rect = container.getBoundingClientRect();
+        
+        const scaleX = rect.width / VIRTUAL_WIDTH;
+        const scaleY = rect.height / VIRTUAL_HEIGHT;
         scale = Math.min(scaleX, scaleY);
-        offsetX = (p.windowWidth - VIRTUAL_WIDTH * scale) / 2;
-        offsetY = (p.windowHeight - VIRTUAL_HEIGHT * scale) / 2;
+        offsetX = (p.width - VIRTUAL_WIDTH * scale) / 2;
+        offsetY = (p.height - VIRTUAL_HEIGHT * scale) / 2;
       }
 
       function toVirtualX(x) { return (x - offsetX) / scale; }
 
       p.windowResized = () => {
-        p.resizeCanvas(p.windowWidth, p.windowHeight);
+        const container = document.getElementById('game-outer-container');
+        p.resizeCanvas(container.clientWidth || p.windowWidth, container.clientHeight || p.windowHeight);
         calculateScale();
       };
 
       p.draw = () => {
-        p.background(227, 242, 253);
+        // 【修正ポイント1】p.clear()を廃止し、p.background()で毎フレーム確実に初期化
+        p.background(252, 228, 236); 
         
+        if (gameState !== 'PLAYING' && gameState !== 'FINISHED') return;
+
         p.push();
         p.translate(offsetX, offsetY);
         p.scale(scale);
         
-        drawGame(p);
+        drawGameScene(p);
+        updateLogic(p);
         
         p.pop();
       };
 
-      function drawGame(p) {
-        if (assets.bg) {
-          p.image(assets.bg, VIRTUAL_WIDTH/2, VIRTUAL_HEIGHT/2, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
-        } else {
-          p.fill(129, 212, 250);
-          p.rect(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT * 0.7);
-          p.fill(255, 248, 220);
-          p.rect(0, VIRTUAL_HEIGHT * 0.7, VIRTUAL_WIDTH, VIRTUAL_HEIGHT * 0.3);
+      function drawGameScene(p) {
+        // 【修正ポイント2】タイトル画面と世界観を統一した美しいグラデーション背景をp5.js内で描画
+        p.noStroke();
+        for (let i = 0; i < VIRTUAL_HEIGHT; i++) {
+          let inter = p.map(i, 0, VIRTUAL_HEIGHT, 0, 1);
+          let c;
+          if (inter < 0.5) {
+            c = p.lerpColor(p.color('#ffebee'), p.color('#fce4ec'), inter * 2);
+          } else {
+            c = p.lerpColor(p.color('#fce4ec'), p.color('#fff9c4'), (inter - 0.5) * 2);
+          }
+          p.stroke(c);
+          p.line(0, i, VIRTUAL_WIDTH, i);
         }
+        
+        // 砂浜の描画
+        p.noStroke();
+        p.fill(255, 248, 220, 160); 
+        p.rect(0, VIRTUAL_HEIGHT * 0.75, VIRTUAL_WIDTH, VIRTUAL_HEIGHT * 0.25);
 
-        // ラストスパート時の画面色オーバーレイ（薄くなる処理）をここから完全に削除しました
+        // 【修正ポイント3】絵文字を描画する前に明示的にfill(0)などで透明化を打ち消す
+        p.fill(0); 
 
-        if (gameState === 'PLAYING') {
-          updateLogic(p);
-        }
-
-        // 釣り人の描画
+        // 釣り人（ペンギン）
         fishers.forEach(f => {
           p.push();
           p.translate(f.x, f.y);
           p.textAlign(p.CENTER, p.CENTER);
-          p.textSize(50);
-          p.text(f.state === 'pull' ? '🎣' : '🐧', 0, -30);
+          p.textSize(45);
+          p.text(f.state === 'pull' ? '🎣' : '🐧', 0, 0);
           p.pop();
         });
 
-        // カワウソの描画（200x200を最適なゲームサイズに美しく縮小表示）
+        // 魚の影
+        fishes.forEach(f => {
+          let groundY = cat.y;
+          let shadowSize = p.map(groundY - f.y, 0, VIRTUAL_HEIGHT, 35, 10);
+          if (shadowSize > 0) {
+            p.fill(0, 0, 0, 30);
+            p.noStroke();
+            p.ellipse(f.x, groundY, shadowSize, shadowSize * 0.4);
+          }
+        });
+
+        // カワウソ
         p.push();
         p.translate(cat.x, cat.y);
         p.scale(cat.dir, 1);
         
-        // 状態（待機・走る・キャッチ・失敗）に応じて適切な画像をセット
-        let cImg = assets.otter_idle;
-        if (cat.state === 'run' && assets.otter_run) cImg = assets.otter_run;
-        if (cat.state === 'catch') cImg = assets.otter_run || assets.otter_idle; // キャッチ時は走るポーズを流用
-        if (cat.state === 'fail') cImg = assets.otter_idle; // 失敗時は立ち止まるポーズを流用
-        
+        let cImg = cat.state === 'run' ? assets.otter_run : assets.otter_idle;
+        if (cat.state === 'catch') cImg = assets.otter_run || assets.otter_idle;
+
         if (cImg) {
-          // 画面にちょうどいいサイズ（横幅105px、縦幅105px）に縮小して描画
-          p.image(cImg, 0, -52, 105, 105);
+          p.image(cImg, 0, -45, 90, 90);
         } else {
+          p.fill(0); // テキスト描画色のリセット
           p.textAlign(p.CENTER, p.CENTER);
-          p.textSize(65);
+          p.textSize(60);
           let otterEmoji = '🦦';
           if (cat.state === 'catch') otterEmoji = '😋';
           if (cat.state === 'fail') otterEmoji = '😭';
-          p.text(otterEmoji, 0, -35);
+          p.text(otterEmoji, 0, -30);
         }
         p.pop();
 
-        // お魚の描画
+        // 魚
         fishes.forEach(f => {
           p.push();
           p.translate(f.x, f.y);
           p.rotate(f.rotation);
-          let fImg = assets['fish_' + f.color];
-          if (fImg) {
-            p.image(fImg, 0, 0, 50, 50);
-          } else {
-            p.textAlign(p.CENTER, p.CENTER);
-            p.textSize(35);
-            let fishEmoji = '🐟';
-            if (f.color === 'pink') fishEmoji = '🐙';
-            if (f.color === 'yellow') fishEmoji = '🦐';
-            p.text(fishEmoji, 0, 0);
-          }
+          p.fill(0); // テキスト描画色のリセット
+          p.textAlign(p.CENTER, p.CENTER);
+          p.textSize(35);
+          
+          let fishEmoji = '🐟';
+          if (f.color === 'pink') fishEmoji = '🐙';
+          if (f.color === 'yellow') fishEmoji = '🦐';
+          p.text(fishEmoji, 0, 0);
           p.pop();
         });
 
-        // パーティクルの描画
+        // パーティクル
         particles.forEach(pt => {
           p.push();
           p.translate(pt.x, pt.y);
-          if (pt.type === 'star' && assets.star) {
-            p.rotate(pt.life * 0.1);
-            p.tint(255, pt.life * 10);
-            p.image(assets.star, 0, 0, 30, 30);
-          } else {
-            p.noStroke();
-            p.fill(pt.type === 'star' ? [128, 222, 234, pt.life * 12] : [189, 189, 189, pt.life * 10]);
-            p.ellipse(0, 0, pt.size, pt.size);
-          }
+          p.noStroke();
+          p.fill(pt.type === 'star' ? [255, 235, 59, pt.life * 12] : [244, 143, 177, pt.life * 12]);
+          p.ellipse(0, 0, pt.size, pt.size);
           p.pop();
         });
 
-        // 特殊テキスト
         if (phaseTextTimer > 0) {
           p.push();
           p.textAlign(p.CENTER, p.CENTER);
-          p.textSize(42);
+          p.textSize(36);
           p.strokeWeight(6);
           p.stroke(255);
-          p.fill(2, 136, 209);
+          p.fill(255, 110, 180);
           let ty = VIRTUAL_HEIGHT / 2 - (60 - phaseTextTimer) * 1.5;
           p.text(phaseText, VIRTUAL_WIDTH / 2, ty);
           p.pop();
@@ -437,17 +566,20 @@
       }
 
       function updateLogic(p) {
+        if (gameState !== 'PLAYING') return;
+
         let currentMillis = p.millis();
+        
         if (currentMillis - lastSecondTime >= 1000) {
           lastSecondTime = currentMillis;
           gameTime--;
           updateHUD();
           
-          if (gameTime === 25) {
-            phaseText = t('msg.speedup');
+          if (gameTime === 20) {
+            phaseText = "スピードアップ！";
             phaseTextTimer = 60;
           } else if (gameTime === 10) {
-            phaseText = t('msg.last10');
+            phaseText = "ラストスパート！";
             phaseTextTimer = 60;
             document.getElementById('time-box').classList.add('danger');
           }
@@ -459,15 +591,15 @@
 
         if (p.mouseIsPressed || p.touches.length > 0) {
           let vx = toVirtualX(p.mouseX);
-          cat.targetX = p.constrain(vx, 40, 310);
+          cat.targetX = p.constrain(vx, 40, 350);
         }
         if (p.keyIsDown(p.LEFT_ARROW) || p.keyIsDown(65)) cat.targetX -= 12;
         if (p.keyIsDown(p.RIGHT_ARROW) || p.keyIsDown(68)) cat.targetX += 12;
-        cat.targetX = p.constrain(cat.targetX, 40, 310);
+        cat.targetX = p.constrain(cat.targetX, 40, 350);
 
         let dx = cat.targetX - cat.x;
         if (p.abs(dx) > 2) {
-          cat.x += dx * 0.25;
+          cat.x += dx * 0.3;
           cat.dir = dx > 0 ? 1 : -1;
           if (cat.state === 'idle') cat.state = 'run';
         } else {
@@ -478,7 +610,6 @@
           cat.stateTimer--;
           if (cat.stateTimer <= 0) cat.state = 'idle';
         }
-
         fishers.forEach(f => {
           if (f.stateTimer > 0) {
             f.stateTimer--;
@@ -486,9 +617,9 @@
           }
         });
 
-        let interval = 600;
-        if (gameTime <= 25) interval = 350;
-        if (gameTime <= 10) interval = 220;
+        let interval = 700;
+        if (gameTime <= 20) interval = 450;
+        if (gameTime <= 10) interval = 280;
 
         if (currentMillis - lastSpawnTime > interval) {
           lastSpawnTime = currentMillis;
@@ -497,19 +628,19 @@
           fisher.state = 'pull';
           fisher.stateTimer = 15;
           
-          let targetX = p.random(50, 290);
-          let t_frames = 50;
+          let targetX = p.random(40, 320);
+          let t_frames = p.random(45, 60);
           let startX = fisher.x - 20;
-          let startY = fisher.y - 40;
+          let startY = fisher.y - 15;
           
           let vx = (targetX - startX) / t_frames;
-          let vy = (cat.y - 40 - startY - 0.5 * 0.6 * t_frames * t_frames) / t_frames;
+          let vy = (cat.y - startY - 0.5 * 0.5 * t_frames * t_frames) / t_frames;
           
           fishes.push({
             x: startX, y: startY, vx: vx, vy: vy,
             color: p.random(['blue', 'pink', 'yellow']),
             rotation: p.random(p.TWO_PI),
-            rotSpeed: p.random(-0.12, 0.12)
+            rotSpeed: p.random(-0.1, 0.1)
           });
           audio.playThrow();
         }
@@ -518,23 +649,23 @@
           let f = fishes[i];
           f.x += f.vx;
           f.y += f.vy;
-          f.vy += 0.55;
+          f.vy += 0.5; 
           f.rotation += f.rotSpeed;
 
-          if (f.y > cat.y - 30) {
-            if (p.abs(f.x - cat.x) < 55 && f.y < cat.y + 30) {
-              score++;
-              updateHUD();
-              cat.state = 'catch';
-              cat.stateTimer = 15;
-              spawnParticles(p, f.x, f.y, 'star');
-              audio.playCatch();
-            } else if (f.y > cat.y + 20) {
-              cat.state = 'fail';
-              cat.stateTimer = 15;
-              spawnParticles(p, f.x, f.y, 'dust');
-              audio.playMiss();
-            }
+          if (p.abs(f.x - cat.x) < 50 && f.y > cat.y - 45 && f.y < cat.y + 10) {
+            score++;
+            updateHUD();
+            cat.state = 'catch';
+            cat.stateTimer = 15;
+            spawnParticles(p, f.x, f.y, 'star');
+            audio.playCatch();
+            fishes.splice(i, 1);
+          } 
+          else if (f.y > cat.y + 15) {
+            cat.state = 'fail';
+            cat.stateTimer = 20;
+            spawnParticles(p, f.x, cat.y, 'dust');
+            audio.playMiss();
             fishes.splice(i, 1);
           }
         }
@@ -554,11 +685,11 @@
         for (let i = 0; i < 6; i++) {
           particles.push({
             x: x, y: y,
-            vx: p.random(-4, 4),
-            vy: p.random(-6, -2),
+            vx: p.random(-3, 3),
+            vy: p.random(-5, -1),
             life: p.random(15, 25),
             type: type,
-            size: p.random(8, 16)
+            size: p.random(6, 12)
           });
         }
       }
@@ -566,14 +697,9 @@
 
     const myP5 = new p5(sketch);
 
-    function onAllAssetsLoaded() {
-      document.getElementById('loading-overlay').style.display = 'none';
-      document.getElementById('start-overlay').style.display = 'flex';
-    }
-
     function updateHUD() {
-      document.getElementById('score-display').innerText = t('ui.score', {score: score});
-      document.getElementById('time-display').innerText = t('ui.time', {time: gameTime});
+      document.getElementById('score-display').innerText = score;
+      document.getElementById('time-display').innerText = gameTime;
     }
 
     function resetGame() {
@@ -581,8 +707,8 @@
       gameTime = TOTAL_TIME;
       fishes = [];
       particles = [];
-      cat.x = 150;
-      cat.targetX = 150;
+      cat.x = 195;
+      cat.targetX = 195;
       cat.state = 'idle';
       phaseTextTimer = 0;
       document.getElementById('time-box').classList.remove('danger');
@@ -590,10 +716,17 @@
     }
 
     function startGame() {
+      audio.init(); 
       resetGame();
+      
       document.getElementById('start-overlay').style.display = 'none';
       document.getElementById('result-overlay').style.display = 'none';
       document.getElementById('ui-layer').style.display = 'flex';
+      
+      if (triggerResize) {
+        triggerResize();
+      }
+      
       gameState = 'PLAYING';
       lastSecondTime = myP5.millis();
       lastSpawnTime = myP5.millis();
@@ -606,31 +739,20 @@
       setTimeout(() => {
         gameState = 'RESULT';
         document.getElementById('ui-layer').style.display = 'none';
+        document.getElementById('result-score').innerText = `結果: ${score} 匹！`;
         document.getElementById('result-overlay').style.display = 'flex';
-        document.getElementById('result-score').innerText = t('ui.result', {score: score});
-        
-        if (typeof DreamCoreSDK2 !== 'undefined') {
-          DreamCoreSDK2.gameComplete({ score: score, progressMarker: 'time_up' });
-        }
       }, 1500);
     }
 
-    document.getElementById('start-btn').addEventListener('pointerdown', () => {
+    document.getElementById('start-btn').addEventListener('pointerdown', (e) => {
+      e.preventDefault();
       startGame();
     });
 
-    document.getElementById('retry-btn').addEventListener('pointerdown', () => {
-      if (typeof DreamCoreSDK2 !== 'undefined') {
-        DreamCoreSDK2.retry({ reason: 'retry_button' });
-      }
+    document.getElementById('retry-btn').addEventListener('pointerdown', (e) => {
+      e.preventDefault();
       startGame();
     });
-
-    setTimeout(() => {
-      if (gameState === 'READY' && document.getElementById('loading-overlay').style.display !== 'none') {
-        onAllAssetsLoaded();
-      }
-    }, 1500);
   </script>
 </body>
 </html>

@@ -319,18 +319,68 @@
       margin-right: 15px;
     }
     
-    /* クイズ画面：考え中画像のラッパー */
-    .think-img-wrapper {
-      text-align: right;
+    /* クイズ画面：右下の考え中画像とヒント吹き出しのコンテナ */
+    .think-container {
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-end;
+      gap: 15px;
+      margin-top: 1vh;
       flex-shrink: 0;
-      margin-top: 1vh; /* 選択肢ボタンとの間に余白を持たせる */
     }
     .think-img {
       width: 25vw;
-      max-width: 100px; /* 大きくなりすぎないように制限 */
+      max-width: 100px;
       height: auto;
-      mix-blend-mode: multiply; /* 白背景を透過 */
-      display: inline-block;
+      mix-blend-mode: multiply; 
+      display: block;
+    }
+    
+    /* ヒントの吹き出しスタイル */
+    .hint-balloon {
+      position: relative;
+      background-color: #fff;
+      border: 2px solid #e69b65;
+      color: #333;
+      font-size: 0.85rem;
+      font-weight: bold;
+      padding: 10px 15px;
+      border-radius: 12px;
+      max-width: 60%;
+      margin-bottom: 15px; /* 画像の高さに合わせる微調整 */
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      
+      /* アニメーションの初期状態（非表示・少し下にずらす） */
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    /* タイマーでクラスが付与されたら表示（フェードイン） */
+    .hint-balloon.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    /* 吹き出しのしっぽ（右側） */
+    .hint-balloon::before,
+    .hint-balloon::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    /* しっぽの枠線（外側） */
+    .hint-balloon::before {
+      right: -12px;
+      border: 6px solid transparent;
+      border-left: 6px solid #e69b65;
+    }
+    /* しっぽの背景色（内側） */
+    .hint-balloon::after {
+      right: -8px;
+      border: 5px solid transparent;
+      border-left: 5px solid #fff;
     }
 
     /* =========================================
@@ -489,8 +539,9 @@
         <!-- JSで生成 -->
       </div>
       
-      <!-- 追加：問題画面の右下に表示される考え中画像 -->
-      <div class="think-img-wrapper">
+      <!-- 問題画面の右下：吹き出しと画像 -->
+      <div class="think-container">
+        <div id="quiz-hint" class="hint-balloon">ヒントテキスト</div>
         <img src="think.jpg" alt="考え中" class="think-img">
       </div>
     </section>
@@ -548,6 +599,7 @@
         question: "レバーの臭みを消し、香ばしさを爆発させている油は？",
         choices: ["ごま油", "オリーブオイル", "にんにくラード"],
         correctIndex: 0,
+        hint: "香ばしい香りが特徴だよ！",
         explanation: "鉄板でジュワッと焼く際、たっぷりの『ごま油』を使用しています。表面をサッと炙ることで香ばしさが増し、レバー特有の甘みが引き出されます。",
         pairingDrink: "本格芋焼酎（ロック）",
         pairingDescription: "ごま油の強烈な香ばしさとレバーの濃厚な旨味には、同じくパンチのある芋焼酎のロックが相性抜群。",
@@ -560,6 +612,7 @@
         question: "新鮮な魚介の旨味を最大限に引き出す、このお醤油のベースは？",
         choices: ["たまり醤油", "白醤油", "昆布醤油"],
         correctIndex: 2,
+        hint: "お出汁を取る時によく使うよ！",
         explanation: "ただの醤油ではなく、自家製の『昆布醤油』を使用しています。魚のイノシン酸と、昆布のグルタミン酸が合わさることで旨味の相乗効果が生まれます。",
         pairingDrink: "大吟醸（冷酒）",
         pairingDescription: "新鮮な海鮮の繊細な甘みを邪魔しない、フルーティーで雑味のない大吟醸がぴったりです。",
@@ -572,6 +625,7 @@
         question: "出汁の深みを引き立たせている、隠し味の調味料はどれ？",
         choices: ["赤ワイン", "隠し醤油", "八丁味噌"],
         correctIndex: 2,
+        hint: "名古屋名物のアレだよ！",
         explanation: "コク深い旨味の正体は、ほんの少し加えた『八丁味噌』。お肉の脂の甘みと合わさって、ご飯やお酒が止まらなくなる味に仕上げています。",
         pairingDrink: "熱燗（辛口純米酒）",
         pairingDescription: "濃厚な和の旨味には、やっぱり熱燗！出汁の染みたお豆腐と辛口の日本酒が口の中で最高のハーモニーを奏でます。",
@@ -584,6 +638,7 @@
         question: "舌がビリビリ痺れる、本場四川の香辛料の名前は？",
         choices: ["黒胡椒", "花椒（ホアジャオ）", "山椒"],
         correctIndex: 1,
+        hint: "食べると舌がビリビリするよ！",
         explanation: "ただ辛いだけではなく、爽やかな香りと強烈な痺れを生み出す『花椒（ホアジャオ）』を熱した油で香りを引き出してから加えています。",
         pairingDrink: "ジャスミンハイ",
         pairingDescription: "口の中の痺れと辛味を、ジャスミン茶の華やかな香りがリセットしてくれます。",
@@ -596,6 +651,7 @@
         question: "濃厚な特製味噌ダレに、フルーティーな甘みをプラスしているものは？",
         choices: ["りんごのすりおろし", "はちみつ", "黒砂糖"],
         correctIndex: 0,
+        hint: "フルーツの甘みだよ！",
         explanation: "こってりとした味噌の重さを和らげるため、秘伝のタレに『りんごのすりおろし』を加えています。自然な甘みが豚肉の脂とベストマッチ！",
         pairingDrink: "生ビール（中ジョッキ）",
         pairingDescription: "サクッと揚がった衣に染み込む濃厚な味噌。これを迎え撃つには、喉越しの良い冷たい生ビール以外にありえません！",
@@ -608,6 +664,7 @@
         question: "この玉子、ほのかに香るカレーのような風味のスパイスが含まれています。それは何？",
         choices: ["ターメリック", "クミン", "コリアンダー"],
         correctIndex: 1,
+        hint: "カレーの香りの主成分だよ！",
         explanation: "半熟の味付け玉子に、ローストして香りを引き出した『クミン』を中心としたオリジナルスパイスを纏わせています。",
         pairingDrink: "ザ・プレミアム・モルツ",
         pairingDescription: "クミンの風味と濃厚な黄身の旨味に、ビールのほろ苦さが良く合います。",
@@ -620,6 +677,7 @@
         question: "餡に練り込まれた、シャキシャキとした食感の正体は？",
         choices: ["レンコン", "クワイ", "タケノコ"],
         correctIndex: 0,
+        hint: "穴が空いていて縁起が良い野菜だよ！",
         explanation: "ジューシーな豚肉に負けない食感のアクセントとして『レンコン』を粗みじんにして混ぜ込んでいます。噛むたびに楽しい食感が広がります。",
         pairingDrink: "強炭酸レモンサワー",
         pairingDescription: "熱々の肉汁と油を、キンキンに冷えた強炭酸のレモンサワーでサッパリと流し込むのが鉄板です。",
@@ -632,6 +690,7 @@
         question: "弾力のある赤鶏の甘みを最も引き立てる、オススメの薬味は？",
         choices: ["わさび＆白だし", "生姜＆甘口醤油", "にんにく＆ごま油"],
         correctIndex: 1,
+        hint: "甘いお醤油と相性バツグンだよ！",
         explanation: "九州発祥の食べ方である『生姜＆甘口醤油』が正解！とろみのある甘口醤油が鶏肉に絡みつき、生姜の風味が全体を引き締めます。",
         pairingDrink: "麦焼酎（水割り）",
         pairingDescription: "赤鶏の繊細でクリアな旨味には、クセの少ない麦焼酎の水割りが寄り添います。",
@@ -644,6 +703,7 @@
         question: "ジューシーなお肉の中に隠された、コリコリ食感のアクセントは？",
         choices: ["ヤゲン軟骨", "キクラゲ", "エリンギ"],
         correctIndex: 0,
+        hint: "鶏の胸の骨だよ！",
         explanation: "ミンチ肉の中に、細かく砕いた『ヤゲン軟骨』を混ぜ込んでいます。柔らかいお肉の中から現れるコリコリ感がクセになる一品です。",
         pairingDrink: "ハイボール",
         pairingDescription: "肉の旨味が詰まったジューシーなミンチには、炭酸が効いた爽快なハイボール！",
@@ -655,11 +715,18 @@
        アプリケーションロジック
        ========================================= */
     let currentMenu = null;
+    let hintTimer = null; // ヒント表示用のタイマー
 
     const overlay = document.getElementById('overlay');
 
     // 画面遷移管理
     function showScreen(screenId) {
+      // 画面が変わったらヒントタイマーをリセット
+      if(hintTimer) {
+        clearTimeout(hintTimer);
+        hintTimer = null;
+      }
+      
       document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
       });
@@ -720,10 +787,26 @@
         btn.addEventListener('click', () => handleAnswer(index));
         choicesContainer.appendChild(btn);
       });
+      
+      // ヒントの初期化とタイマー設定
+      const hintBalloon = document.getElementById('quiz-hint');
+      hintBalloon.classList.remove('show'); // 一旦非表示に
+      hintBalloon.textContent = currentMenu.hint || "よく考えてみてね！"; // データがない場合の安全策
+      
+      // 10秒(10000ミリ秒)経過でヒントを表示（フェードイン）
+      hintTimer = setTimeout(() => {
+        hintBalloon.classList.add('show');
+      }, 10000);
     }
 
     // 4. 結果画面処理
     function handleAnswer(selectedIndex) {
+      // 答えた時点でヒントのタイマーを止める
+      if(hintTimer) {
+        clearTimeout(hintTimer);
+        hintTimer = null;
+      }
+      
       const isCorrect = (selectedIndex === currentMenu.correctIndex);
       const titleEl = document.getElementById('result-title');
       const resultIconEl = document.getElementById('result-img-icon'); 

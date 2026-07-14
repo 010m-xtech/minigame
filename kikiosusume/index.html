@@ -78,12 +78,12 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* ふくろうアイコン画像用のスタイル */
+    /* アイコン画像用のスタイル（トップのふくろう＆結果画面用） */
     .icon-owl {
       text-align: center;
     }
-    .hukuro-img {
-      width: 55px; /* アイコンのサイズ */
+    .hukuro-img, .result-img {
+      width: 60px; /* アイコンのサイズ */
       height: auto;
       margin: 0 auto;
       /* JPGの白背景を透過させるCSS */
@@ -432,7 +432,6 @@
     <section id="screen-top" class="screen active">
       <div class="top-header">
         <div class="icon-owl">
-          <!-- 絵文字から画像に変更 -->
           <img src="hukuro.jpg" alt="ふくろう" class="hukuro-img">
         </div>
         <h1 class="top-title">味覚クイズに挑戦！</h1>
@@ -484,10 +483,11 @@
     <section id="screen-result" class="screen">
       <div class="result-header">
         <div class="icon-owl">
-          <!-- 結果画面のトップアイコンも画像に変更 -->
-          <img src="hukuro.jpg" alt="ふくろう" class="hukuro-img">
+          <!-- 正解・不正解に応じてJSで画像（ok.jpg / zannen.jpg）がセットされます -->
+          <img src="" alt="結果アイコン" class="result-img" id="result-img-icon">
         </div>
-        <div id="result-title" class="result-title">ざんねん！</div>
+        <!-- タイトルの絵文字を削除しました -->
+        <div id="result-title" class="result-title"></div>
       </div>
       
       <div class="result-content">
@@ -710,13 +710,16 @@
     function handleAnswer(selectedIndex) {
       const isCorrect = (selectedIndex === currentMenu.correctIndex);
       const titleEl = document.getElementById('result-title');
+      const resultIconEl = document.getElementById('result-img-icon'); // 結果画面のアイコン画像
       
       if (isCorrect) {
-        titleEl.textContent = "正解！🎉";
+        titleEl.textContent = "正解！";
         titleEl.style.color = "#c64242";
+        resultIconEl.src = "ok.jpg"; // 正解画像をセット
       } else {
-        titleEl.textContent = "ざんねん！💦";
+        titleEl.textContent = "ざんねん！";
         titleEl.style.color = "#c64242";
+        resultIconEl.src = "zannen.jpg"; // 不正解画像をセット
       }
 
       document.getElementById('result-correct-text').textContent = currentMenu.choices[currentMenu.correctIndex];

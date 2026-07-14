@@ -428,8 +428,9 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 1.5vh;
-      font-size: 0.9rem;
-      color: #777;
+      font-size: 0.95rem; /* 見やすくサイズアップ */
+      font-weight: bold; /* 見やすく太字に変更 */
+      color: #555; /* 見やすく色を濃く変更 */
     }
     .res-answer-text {
       font-size: 1.1rem;
@@ -450,8 +451,9 @@
       line-height: 1.5;
     }
     .pairing-label {
-      font-size: 0.75rem;
-      color: #999;
+      font-size: 0.85rem; /* 見やすくサイズアップ */
+      font-weight: bold; /* 見やすく太字に変更 */
+      color: #555; /* 見やすく色を濃く変更 */
       margin-bottom: 0.5vh;
     }
     .pairing-name {
@@ -476,8 +478,9 @@
       margin-bottom: 1vh;
     }
     .suggest-note {
-      font-size: 0.7rem;
-      color: #aaa;
+      font-size: 0.75rem; /* 見やすくサイズアップ */
+      font-weight: bold; /* 見やすく太字に変更 */
+      color: #555; /* 見やすく色を濃く変更 */
     }
     .btn-return-top {
       background: #203354;
@@ -529,7 +532,8 @@
         香り、食感、そして隠し味...<br>
         じっくりと味わってみてください。
       </div>
-      <button id="btn-to-quiz" class="btn-orange">味わった！問題へ進む</button>
+      <!-- 修正：ボタンテキストを変更 -->
+      <button id="btn-to-quiz" class="btn-orange">問題へすすむ</button>
       <button id="btn-back-from-tasting" class="btn-back-link">← まだ料理が来ていない</button>
     </section>
 
@@ -589,10 +593,12 @@
         <div class="res-box suggest-box">
           <div class="suggest-title">⚡ 次はコレがいかがですか？</div>
           <div id="suggest-text" class="suggest-text">おすすめテキスト</div>
-          <div class="suggest-note">※ご注文は卓上または店員へお申し付けください</div>
+          <!-- 修正：テキストを変更 -->
+          <div class="suggest-note">※ご注文はQRコードもしくは店員へお申し付けください</div>
         </div>
 
-        <button id="btn-return-top" class="btn-return-top">トップに戻る</button>
+        <!-- 修正：ボタンテキストを変更 -->
+        <button id="btn-return-top" class="btn-return-top">他のメニューに挑戦する</button>
       </div>
     </section>
   </div>
@@ -867,7 +873,7 @@
       document.getElementById('result-correct-text').textContent = currentMenu.choices[currentMenu.correctIndex];
       document.getElementById('result-explanation').textContent = currentMenu.explanation;
       
-      // ===== 追加：ペアリングドリンクを配列の中からランダムに1つ選択 =====
+      // ペアリングドリンクを配列の中からランダムに1つ選択
       const randomPairing = currentMenu.pairingOptions[Math.floor(Math.random() * currentMenu.pairingOptions.length)];
       
       document.getElementById('pairing-drink').textContent = randomPairing.drink;

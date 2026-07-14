@@ -78,10 +78,16 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* ふくろうアイコン画像用のスタイル */
     .icon-owl {
-      font-size: 2rem;
       text-align: center;
-      line-height: 1;
+    }
+    .hukuro-img {
+      width: 55px; /* アイコンのサイズ */
+      height: auto;
+      margin: 0 auto;
+      /* JPGの白背景を透過させるCSS */
+      mix-blend-mode: multiply; 
     }
 
     /* =========================================
@@ -126,7 +132,6 @@
       font-weight: bold;
       color: #c64242;
       margin-bottom: 1vh;
-      /* 常にふわふわと動かす */
       animation: pulse 1.5s infinite ease-in-out; 
     }
 
@@ -179,11 +184,9 @@
       display: block;
       text-align: center;
       font-weight: bold;
-      /* 省略されずに完全に1行で収まるようにさらに微調整 */
       font-size: 0.58rem; 
       letter-spacing: -0.05em; 
       margin-top: 0.5vh;
-      /* 1行強制＆はみ出しを隠す設定 */
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -428,7 +431,10 @@
          ========================================= -->
     <section id="screen-top" class="screen active">
       <div class="top-header">
-        <div class="icon-owl">🦉</div>
+        <div class="icon-owl">
+          <!-- 絵文字から画像に変更 -->
+          <img src="hukuro.jpg" alt="ふくろう" class="hukuro-img">
+        </div>
         <h1 class="top-title">味覚クイズに挑戦！</h1>
         <div class="top-instruction-box">
           <p>目の前の料理を<span class="text-red">実際に食べながら</span><br>お店のこだわりに迫ろう！</p>
@@ -477,7 +483,10 @@
          ========================================= -->
     <section id="screen-result" class="screen">
       <div class="result-header">
-        <div class="icon-owl">🦉</div>
+        <div class="icon-owl">
+          <!-- 結果画面のトップアイコンも画像に変更 -->
+          <img src="hukuro.jpg" alt="ふくろう" class="hukuro-img">
+        </div>
         <div id="result-title" class="result-title">ざんねん！</div>
       </div>
       

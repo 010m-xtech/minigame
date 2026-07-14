@@ -78,7 +78,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* アイコン画像用のスタイル（トップのふくろう＆結果画面用） */
+    /* アイコン画像用のスタイル */
     .icon-owl {
       text-align: center;
     }
@@ -86,8 +86,7 @@
       width: 60px; /* アイコンのサイズ */
       height: auto;
       margin: 0 auto;
-      /* JPGの白背景を透過させるCSS */
-      mix-blend-mode: multiply; 
+      mix-blend-mode: multiply; /* JPGの白背景を透過させるCSS */
     }
 
     /* =========================================
@@ -294,7 +293,7 @@
       margin-bottom: 3vh;
     }
     .choices-container {
-      flex-grow: 1;
+      flex-grow: 1; /* 余ったスペースを占有して、下の画像を最下部へ押しやる */
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
@@ -318,6 +317,20 @@
     .choice-icon {
       font-size: 1.5rem;
       margin-right: 15px;
+    }
+    
+    /* クイズ画面：考え中画像のラッパー */
+    .think-img-wrapper {
+      text-align: right;
+      flex-shrink: 0;
+      margin-top: 1vh; /* 選択肢ボタンとの間に余白を持たせる */
+    }
+    .think-img {
+      width: 25vw;
+      max-width: 100px; /* 大きくなりすぎないように制限 */
+      height: auto;
+      mix-blend-mode: multiply; /* 白背景を透過 */
+      display: inline-block;
     }
 
     /* =========================================
@@ -475,6 +488,11 @@
       <div id="quiz-choices" class="choices-container">
         <!-- JSで生成 -->
       </div>
+      
+      <!-- 追加：問題画面の右下に表示される考え中画像 -->
+      <div class="think-img-wrapper">
+        <img src="think.jpg" alt="考え中" class="think-img">
+      </div>
     </section>
 
     <!-- =========================================
@@ -483,10 +501,8 @@
     <section id="screen-result" class="screen">
       <div class="result-header">
         <div class="icon-owl">
-          <!-- 正解・不正解に応じてJSで画像（ok.jpg / zannen.jpg）がセットされます -->
           <img src="" alt="結果アイコン" class="result-img" id="result-img-icon">
         </div>
-        <!-- タイトルの絵文字を削除しました -->
         <div id="result-title" class="result-title"></div>
       </div>
       
@@ -710,16 +726,16 @@
     function handleAnswer(selectedIndex) {
       const isCorrect = (selectedIndex === currentMenu.correctIndex);
       const titleEl = document.getElementById('result-title');
-      const resultIconEl = document.getElementById('result-img-icon'); // 結果画面のアイコン画像
+      const resultIconEl = document.getElementById('result-img-icon'); 
       
       if (isCorrect) {
         titleEl.textContent = "正解！";
         titleEl.style.color = "#c64242";
-        resultIconEl.src = "ok.jpg"; // 正解画像をセット
+        resultIconEl.src = "ok.jpg"; 
       } else {
         titleEl.textContent = "ざんねん！";
         titleEl.style.color = "#c64242";
-        resultIconEl.src = "zannen.jpg"; // 不正解画像をセット
+        resultIconEl.src = "zannen.jpg"; 
       }
 
       document.getElementById('result-correct-text').textContent = currentMenu.choices[currentMenu.correctIndex];

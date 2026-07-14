@@ -26,7 +26,7 @@
     #bg-container {
       position: absolute;
       top: 0; left: 0; width: 100%; height: 100%;
-      background-image: url('gameback2.jpg'); /* ここを gameback2.jpg に変更 */
+      background-image: url('gameback.jpg');
       background-size: 100% auto; 
       background-position: top center;
       background-repeat: no-repeat;
@@ -38,7 +38,7 @@
     #overlay {
       position: absolute;
       top: 0; left: 0; width: 100%; height: 100%;
-      background-color: rgba(255, 255, 255, 0.85);
+      background-color: rgba(255, 255, 255, 0.75);
       transition: background-color 0.3s ease;
       z-index: -1;
     }
@@ -122,13 +122,12 @@
     }
 
     /* =========================================
-       メニューグリッド (画像を完全に均等にする修正)
+       メニューグリッド
        ========================================= */
     .menu-grid {
       flex-grow: 1;
       min-height: 0;
       display: grid;
-      /* 列と行をきっちり3等分し、はみ出しを防ぐ */
       grid-template-columns: repeat(3, minmax(0, 1fr));
       grid-template-rows: repeat(3, minmax(0, 1fr)); 
       gap: 2vw;
@@ -141,13 +140,12 @@
       cursor: pointer;
       transition: transform 0.1s;
       width: 100%;
-      height: 100%; /* セルいっぱいに広げる */
+      height: 100%; 
       min-height: 0; 
     }
     .menu-card:active { transform: scale(0.95); }
     
     .menu-card-img-wrap {
-      /* 重要: flex-basisを0%にすることで、元の画像比率を無視して強制的に等分する */
       flex: 1 1 0%; 
       width: 100%;
       min-height: 0; 
@@ -166,17 +164,21 @@
     }
     
     .menu-card-name {
-      /* 重要: テキストエリアの高さを完全固定し、伸縮させない */
       flex: 0 0 auto; 
-      height: 1.2rem;
-      line-height: 1.2rem;
+      /* 高さを2行分に固定。1行でも2行でも中央に配置され、画像の均等性が保たれます */
+      height: 2.4em; 
+      display: flex;
+      align-items: center;
+      justify-content: center;
       text-align: center;
       font-weight: bold;
-      font-size: 0.75rem;
+      /* スマホの狭い幅でも収まりやすいようサイズを微調整 */
+      font-size: 0.7rem; 
+      line-height: 1.2;
       margin-top: 0.5vh;
-      white-space: nowrap;
       overflow: hidden;
-      text-overflow: ellipsis;
+      /* 折り返しを許可 */
+      overflow-wrap: break-word;
     }
 
     /* =========================================

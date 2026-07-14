@@ -285,26 +285,30 @@
       background: #fff;
       border: 1px solid #ebd0c4;
       border-radius: 12px;
-      padding: 3vh 5vw;
+      padding: 2.5vh 4vw;
       font-size: 1rem;
       font-weight: bold;
       text-align: center;
       box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-      margin-bottom: 3vh;
+      margin-bottom: 2vh;
     }
+    
+    /* はみ出し防止のため、余ったスペースを占有しつつ最小高さを0に設定 */
     .choices-container {
-      flex-grow: 1; /* 余ったスペースを占有して、下の画像を最下部へ押しやる */
+      flex: 1 1 auto; 
       display: flex;
       flex-direction: column;
-      justify-content: flex-start;
-      gap: 2vh;
+      justify-content: center;
+      gap: 1.5vh; /* 縦の余白を少し詰める */
+      min-height: 0;
+      margin-bottom: 1vh;
     }
     .choice-btn {
       background: #fff;
       border: none;
       border-radius: 16px;
-      padding: 2.5vh 5vw;
-      font-size: 1.1rem;
+      padding: 2vh 5vw; /* 高さを少し削る */
+      font-size: 1.05rem; /* 文字サイズを微調整 */
       font-weight: bold;
       color: #333;
       text-align: left;
@@ -324,13 +328,13 @@
       display: flex;
       justify-content: flex-end;
       align-items: flex-end;
-      gap: 15px;
-      margin-top: 1vh;
+      gap: 10px;
+      margin-top: auto; /* 常に一番下に押し付ける */
       flex-shrink: 0;
     }
     .think-img {
-      width: 25vw;
-      max-width: 100px;
+      width: 20vw;
+      max-width: 80px; /* サイズを少し抑えて確実に入るように */
       height: auto;
       mix-blend-mode: multiply; 
       display: block;
@@ -347,21 +351,22 @@
       padding: 10px 15px;
       border-radius: 12px;
       max-width: 60%;
-      margin-bottom: 15px; /* 画像の高さに合わせる微調整 */
+      margin-bottom: 20px; /* フクロウの顔の高さに合うように調整 */
       box-shadow: 0 4px 6px rgba(0,0,0,0.05);
       
-      /* アニメーションの初期状態（非表示・少し下にずらす） */
+      /* アニメーションの初期状態（透明・少し下にずらす） */
       opacity: 0;
-      visibility: hidden;
-      transform: translateY(10px);
-      transition: opacity 0.5s ease, transform 0.5s ease;
+      pointer-events: none; /* 透明な時は触れないように */
+      transform: translateY(15px);
+      transition: all 0.5s ease;
     }
     /* タイマーでクラスが付与されたら表示（フェードイン） */
     .hint-balloon.show {
       opacity: 1;
-      visibility: visible;
+      pointer-events: auto;
       transform: translateY(0);
     }
+    
     /* 吹き出しのしっぽ（右側） */
     .hint-balloon::before,
     .hint-balloon::after {
@@ -790,7 +795,9 @@
       
       // ヒントの初期化とタイマー設定
       const hintBalloon = document.getElementById('quiz-hint');
-      hintBalloon.classList.remove('show'); // 一旦非表示に
+      
+      // 最初は確実に非表示（透明）状態に戻す
+      hintBalloon.classList.remove('show'); 
       hintBalloon.textContent = currentMenu.hint;
       
       // 10秒(10000ミリ秒)経過でヒントを表示（フェードイン）

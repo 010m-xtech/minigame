@@ -1,538 +1,723 @@
-<!DOCTYPE html>
+v<!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>味覚クイズ - おのお店のごこだわり発見！</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#e63946',
-                        secondary: '#457b9d',
-                        accent: '#f4a261',
-                        dark: '#1d3557',
-                        light: '#f1faee'
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        :root {
-            --sat: env(safe-area-inset-top, 0px);
-            --sar: env(safe-area-inset-right, 0px);
-            --sab: env(safe-area-inset-bottom, 0px);
-            --sal: env(safe-area-inset-left, 0px);
-        }
-
-        body {
-            -webkit-tap-highlight-color: transparent;
-            -webkit-user-select: none;
-            user-select: none;
-            touch-action: manipulation;
-            overscroll-behavior-y: none;
-            background-color: #f3f4f6;
-        }
-
-        /* 🚨 iPhoneのツールバー対策：100dvh（動的ビューポート）を全面採用 */
-        #app-container {
-            max-width: 480px;
-            margin: 0 auto;
-            height: 100vh;
-            height: 100dvh; 
-            padding-top: var(--sat);
-            padding-bottom: var(--sab);
-            padding-left: var(--sal);
-            padding-right: var(--sar);
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .screen {
-            display: none !important;
-            flex-grow: 1;
-            padding: 0.75rem;
-            overflow: hidden;
-            height: 100%;
-            width: 100%;
-        }
-        
-        /* 全画面、コンテンツの量に合わせて上下の配分を最適化 */
-        #screen-top.screen.active {
-            display: flex !important;
-            flex-direction: column;
-            justify-content: start;
-            animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        #screen-tasting.screen.active,
-        #screen-quiz.screen.active,
-        #screen-result.screen.active {
-            display: flex !important;
-            flex-direction: column;
-            justify-content: space-between;
-            animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .tap-effect {
-            transition: transform 0.1s, opacity 0.1s;
-        }
-        .tap-effect:active {
-            transform: scale(0.95);
-            opacity: 0.8;
-        }
-
-        .img-cover-center {
-            object-fit: cover;
-            object-position: center;
-        }
-    </style>
-</head>
-<body class="font-sans text-gray-800 antialiased h-screen overflow-hidden">
-
-<div id="app-container" class="bg-white">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>味覚クイズに挑戦！</title>
+  <style>
+    /* =========================================
+       ベーススタイル・リセット (スクロール禁止設計)
+       ========================================= */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden; /* 全画面スクロール禁止 */
+      font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+      color: #333;
+    }
     
-    <img src="gameback.jpg" alt="ゲーム画面背景" class="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none">
-    <div class="absolute inset-0 w-full h-full bg-white bg-opacity-70 z-[5] pointer-events-none"></div>
+    /* 背景コンテナ */
+    #bg-container {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-image: url('gameback.jpg');
+      /* 画像がアップになりすぎないよう、横幅100%で上部揃えに変更 */
+      background-size: 100% auto; 
+      background-position: top center;
+      background-repeat: no-repeat;
+      /* 画像が届かない下部の余白部分を自然に馴染ませるベースカラー */
+      background-color: #e5e5e5; 
+      z-index: -2;
+    }
+    
+    /* オーバーレイ（画面によって明暗を切り替え） */
+    #overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-color: rgba(255, 255, 255, 0.85); /* デフォルトは白系 */
+      transition: background-color 0.3s ease;
+      z-index: -1;
+    }
+    #overlay.dark {
+      background-color: rgba(32, 51, 84, 0.92); /* テイスティング画面用の紺色 */
+    }
 
-    <!-- 1. メニュー選択画面 -->
-    <div id="screen-top" class="screen active relative z-10 pb-16">
-        <header class="text-center pt-2 flex flex-col items-center flex-shrink-0 mb-1">
-            <img src="hukuro.jpg" alt="キャラクター" class="w-14 h-auto object-contain mb-1 mix-blend-multiply" onerror="this.style.display='none';">
-            <h1 class="text-lg font-black text-dark tracking-tight drop-shadow-md mb-1">味覚クイズに挑戦！</h1>
-            
-            <div class="bg-white bg-opacity-80 p-1.5 rounded-xl border border-accent border-opacity-30 inline-block shadow-sm w-full max-w-[90%] mb-1">
-                <p class="text-xs leading-relaxed text-gray-700 font-bold">
-                    目の前の料理を<span class="text-primary text-sm font-black">実際に食べながら</span><br>お店のこだわりに迫ろう！
-                </p>
-            </div>
-            <p class="text-sm font-black text-primary animate-bounce mt-0.5">メニューを選んでタップしてね</p>
-        </header>
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
 
-        <!-- 下段メニューが見切れないようgapとpaddingを極小に再調整 -->
-        <div id="menu-grid" class="grid grid-cols-3 gap-x-2 gap-y-2 flex-grow overflow-hidden pt-1 pb-4">
+    /* アプリラッパー */
+    #app {
+      /* スマホブラウザのツールバーを考慮した高さ設定 */
+      height: 100dvh; 
+      width: 100%;
+      max-width: 600px; /* PC閲覧時の中央配置用 */
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* 画面共通クラス */
+    .screen {
+      display: none;
+      height: 100%;
+      flex-direction: column;
+      padding: 3vh 4vw;
+      animation: fadeIn 0.3s ease-out;
+    }
+    .screen.active {
+      display: flex;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* フクロウアイコン用ユーティリティ */
+    .icon-owl {
+      font-size: 2rem;
+      text-align: center;
+      line-height: 1;
+    }
+
+    /* =========================================
+       1. トップ画面
+       ========================================= */
+    .top-header {
+      text-align: center;
+      flex-shrink: 0;
+      margin-bottom: 2vh;
+    }
+    .top-title {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: #203354;
+      margin: 1vh 0;
+    }
+    .top-instruction-box {
+      background: #fff;
+      border: 1.5px solid #ebd0c4;
+      border-radius: 20px;
+      padding: 2vh 0;
+      margin-bottom: 1vh;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    }
+    .top-instruction-box p {
+      font-size: 0.95rem;
+      font-weight: bold;
+      color: #555;
+      line-height: 1.4;
+    }
+    .text-red { color: #c64242; font-weight: 900; }
+    .top-prompt {
+      text-align: center;
+      font-size: 1rem;
+      font-weight: bold;
+      color: #c64242;
+      margin-bottom: 1.5vh;
+    }
+
+    /* メニューグリッド (3列 x 3行 固定) */
+    .menu-grid {
+      flex-grow: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 2vw;
+      padding-bottom: 2vh;
+    }
+    .menu-card {
+      background-color: transparent;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .menu-card:active { transform: scale(0.95); }
+    .menu-card-img-wrap {
+      flex-grow: 1;
+      min-height: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid transparent;
+    }
+    .menu-card-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .menu-card-name {
+      text-align: center;
+      font-weight: bold;
+      font-size: 0.75rem;
+      margin-top: 0.5vh;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-shrink: 0;
+    }
+
+    /* =========================================
+       2. テイスティング画面 (まずは、ひとくち。)
+       ========================================= */
+    #screen-tasting {
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+    }
+    .tasting-img {
+      width: 45vw;
+      height: 45vw;
+      max-width: 200px;
+      max-height: 200px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid #fff;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      margin-bottom: 3vh;
+    }
+    .tasting-title {
+      font-size: 1.5rem;
+      font-weight: 900;
+      margin-bottom: 1.5vh;
+      letter-spacing: 1px;
+    }
+    .tasting-menu-name {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #e69b65;
+      border-bottom: 1px solid #e69b65;
+      padding-bottom: 2px;
+      margin-bottom: 2vh;
+    }
+    .tasting-desc {
+      font-size: 0.9rem;
+      text-align: center;
+      line-height: 1.6;
+      margin-bottom: 5vh;
+    }
+    .btn-orange {
+      background-color: #e69b65;
+      color: #fff;
+      border: none;
+      width: 90%;
+      max-width: 300px;
+      padding: 18px 0;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 2vh;
+    }
+    .btn-orange:active { opacity: 0.8; }
+    .btn-back-link {
+      background: none;
+      border: none;
+      color: #aaa;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    /* =========================================
+       3. クイズ画面
+       ========================================= */
+    .quiz-header {
+      text-align: center;
+      flex-shrink: 0;
+      margin-bottom: 2vh;
+    }
+    .quiz-pill {
+      display: inline-block;
+      background-color: #203354;
+      color: #fff;
+      padding: 6px 20px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      margin-bottom: 2vh;
+    }
+    .mission-title {
+      color: #c64242;
+      font-size: 1.1rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+    }
+    .mission-sub {
+      font-size: 0.85rem;
+      font-weight: bold;
+      margin-bottom: 2vh;
+    }
+    .question-box {
+      background: #fff;
+      border: 1px solid #ebd0c4;
+      border-radius: 12px;
+      padding: 3vh 5vw;
+      font-size: 1rem;
+      font-weight: bold;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+      margin-bottom: 3vh;
+    }
+    .choices-container {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 2vh;
+    }
+    .choice-btn {
+      background: #fff;
+      border: none;
+      border-radius: 16px;
+      padding: 2.5vh 5vw;
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #333;
+      text-align: left;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+    .choice-btn:active { background-color: #f8f8f8; }
+    .choice-icon {
+      font-size: 1.5rem;
+      margin-right: 15px;
+    }
+
+    /* =========================================
+       4. 結果画面
+       ========================================= */
+    .result-header {
+      text-align: center;
+      flex-shrink: 0;
+      margin-bottom: 2vh;
+    }
+    .result-title {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #c64242;
+      margin-top: 1vh;
+    }
+    .result-content {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5vh;
+      overflow-y: auto;
+      padding-bottom: 2vh;
+    }
+    /* 解説ボックス */
+    .res-box {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      padding: 2vh 4vw;
+      position: relative;
+    }
+    .res-answer-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5vh;
+      font-size: 0.9rem;
+      color: #777;
+    }
+    .res-answer-text {
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: #203354;
+    }
+    .res-badge {
+      display: inline-block;
+      background: #507192;
+      color: #fff;
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 4px;
+      margin-bottom: 1vh;
+    }
+    .res-text {
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    /* ペアリングボックス */
+    .pairing-label {
+      font-size: 0.75rem;
+      color: #999;
+      margin-bottom: 0.5vh;
+    }
+    .pairing-name {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #c64242;
+      margin-bottom: 0.5vh;
+    }
+    /* サジェストボックス */
+    .suggest-box {
+      background: linear-gradient(135deg, #fffcfb, #fff1eb);
+      text-align: center;
+    }
+    .suggest-title {
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #e69b65;
+      margin-bottom: 0.5vh;
+    }
+    .suggest-text {
+      font-size: 0.9rem;
+      font-weight: bold;
+      margin-bottom: 1vh;
+    }
+    .suggest-note {
+      font-size: 0.7rem;
+      color: #aaa;
+    }
+
+    /* 戻るボタン（結果画面最下部） */
+    .btn-return-top {
+      background: #203354;
+      color: #fff;
+      border: none;
+      padding: 15px;
+      border-radius: 30px;
+      font-weight: bold;
+      width: 100%;
+      margin-top: auto; 
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 背景・オーバーレイ -->
+  <div id="bg-container"></div>
+  <div id="overlay"></div>
+
+  <div id="app">
+    <!-- =========================================
+         1. トップ画面
+         ========================================= -->
+    <section id="screen-top" class="screen active">
+      <div class="top-header">
+        <div class="icon-owl">🦉</div>
+        <h1 class="top-title">味覚クイズに挑戦！</h1>
+        <div class="top-instruction-box">
+          <p>目の前の料理を<span class="text-red">実際に食べながら</span><br>お店のこだわりに迫ろう！</p>
         </div>
-    </div>
+        <p class="top-prompt">メニューを選んでタップしてね</p>
+      </div>
+      <div id="menu-grid" class="menu-grid">
+        <!-- JSで動的にメニュータイルが生成されます -->
+      </div>
+    </section>
 
-    <!-- 2. まずは、ひとくち画面 -->
-    <div id="screen-tasting" class="screen bg-dark bg-opacity-95 relative z-10 pb-16">
-        <div class="w-full max-w-sm mx-auto flex flex-col items-center pt-6 flex-grow justify-center z-10">
-            <div class="mb-4 w-32 h-32 rounded-full overflow-hidden border-4 border-light shadow-2xl bg-gray-800 flex items-center justify-center relative flex-shrink-0">
-                <img src="" id="tasting-image" alt="料理画像" class="w-full h-full img-cover-center absolute inset-0">
-            </div>
-            
-            <h2 class="text-white text-xl font-black mb-2 tracking-widest drop-shadow-md">まずは、ひとくち。</h2>
-            <p class="text-gray-100 text-sm mb-6 leading-relaxed text-center px-4 font-bold">
-                <span id="tasting-menu-name" class="text-accent font-black text-base border-b-2 border-accent pb-0.5 inline-block mb-2"></span><br>
-                香り、食感、そして隠し味...<br>
-                じっくりと味わってみてください。
-            </p>
-            
-            <button onclick="showScreen('quiz')" class="w-full max-w-[90%] bg-accent hover:bg-orange-500 text-white font-black py-3 px-4 rounded-xl shadow-xl tap-effect text-sm animate-pulse tracking-wide">
-                味わった！問題へ進む
-            </button>
-            
-            <button onclick="showScreen('top')" class="mt-4 p-1 text-xs text-gray-400 tap-effect flex items-center gap-1 font-bold">
-                <svg class="w-3 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                まだ料理が来ていない
-            </button>
+    <!-- =========================================
+         2. テイスティング画面
+         ========================================= -->
+    <section id="screen-tasting" class="screen">
+      <img id="tasting-img" class="tasting-img" src="" alt="メニュー画像">
+      <div class="tasting-title">まずは、ひとくち。</div>
+      <div id="tasting-menu-name" class="tasting-menu-name">メニュー名</div>
+      <div class="tasting-desc">
+        香り、食感、そして隠し味...<br>
+        じっくりと味わってみてください。
+      </div>
+      <button id="btn-to-quiz" class="btn-orange">味わった！問題へ進む</button>
+      <button id="btn-back-from-tasting" class="btn-back-link">← まだ料理が来ていない</button>
+    </section>
+
+    <!-- =========================================
+         3. クイズ画面
+         ========================================= -->
+    <section id="screen-quiz" class="screen">
+      <div class="quiz-header">
+        <div id="quiz-menu-name" class="quiz-pill">メニュー名</div>
+        <div class="mission-title">MISSION</div>
+        <div class="mission-sub">味覚と嗅覚を研ぎ澄まして考えてみよう！</div>
+      </div>
+      <div id="quiz-question" class="question-box">
+        <!-- 問題文 -->
+      </div>
+      <div id="quiz-choices" class="choices-container">
+        <!-- JSで生成 -->
+      </div>
+    </section>
+
+    <!-- =========================================
+         4. 結果画面
+         ========================================= -->
+    <section id="screen-result" class="screen">
+      <div class="result-header">
+        <div class="icon-owl">🦉</div>
+        <div id="result-title" class="result-title">ざんねん！</div>
+      </div>
+      
+      <div class="result-content">
+        <!-- 解説 -->
+        <div class="res-box">
+          <div class="res-answer-row">
+            <span>正解は...</span>
+            <span id="result-correct-text" class="res-answer-text">正解テキスト</span>
+          </div>
+          <div class="res-badge">お店のこだわり（解説）</div>
+          <div id="result-explanation" class="res-text">解説文が入ります。</div>
         </div>
 
-        <!-- 🚨 iPhoneツールバーの上にしっかり表示されるようサイズ拡大＆下部マージン調整 -->
-        <div class="w-full flex justify-center z-0 select-none pointer-events-none flex-shrink-0 mb-6">
-            <img src="hukuro3.jpg" alt="見上げるキャラクター" class="w-full max-w-[48%] h-auto object-contain mix-blend-multiply block origin-bottom" style="filter: contrast(1.1) brightness(1.05);" onerror="this.style.display='none';">
+        <!-- ペアリング -->
+        <div class="res-box">
+          <div class="pairing-label">おすすめのペアリングドリンク</div>
+          <div id="pairing-drink" class="pairing-name">お酒の名前</div>
+          <div id="pairing-desc" class="res-text" style="font-size:0.8rem;">ペアリング説明。</div>
         </div>
-    </div>
 
-    <!-- 3. 問題回答画面 -->
-    <div id="screen-quiz" class="screen relative z-10 pb-16">
-        <div class="w-full max-w-sm mx-auto flex flex-col flex-grow justify-between h-full items-center text-center py-1">
-            
-            <div class="text-center flex-shrink-0 mt-1 w-full">
-                <span id="quiz-menu-name" class="inline-block bg-dark text-white px-4 py-1 rounded-full text-xs font-black tracking-wider shadow-sm"></span>
-            </div>
-            
-            <div class="text-center flex-shrink-0 my-1 w-full">
-                <h2 class="font-black text-primary text-lg tracking-widest drop-shadow-sm leading-none">MISSION</h2>
-                <p class="text-center text-sm text-gray-600 font-black drop-shadow-sm mt-1.5">味覚と嗅覚を研ぎ澄まして考えてみよう！</p>
-            </div>
-
-            <div class="bg-white bg-opacity-95 px-4 py-4 rounded-2xl shadow-md border-2 border-accent border-opacity-20 relative flex-shrink-0 my-2 w-full max-w-[95%] mx-auto">
-                <p id="quiz-question" class="text-sm font-black leading-relaxed text-gray-900 text-center"></p>
-            </div>
-
-            <div id="quiz-options" class="space-y-2.5 relative z-10 flex-shrink-0 w-full max-w-[95%] mx-auto text-left">
-            </div>
-            
-            <div class="w-full max-w-[95%] flex justify-end items-end select-none relative flex-shrink-0 my-1 mx-auto min-h-[90px]">
-                <div id="quiz-hint-bubble" class="absolute bottom-[95%] right-[24%] w-40 bg-dark text-white text-[10px] font-bold p-2.5 rounded-xl shadow-2xl z-20 opacity-0 scale-0 pointer-events-none transition-all duration-300">
-                    <p id="quiz-hint-text" class="leading-normal"></p>
-                    <div class="absolute bottom-2 -right-1 w-2 h-2 bg-dark transform rotate-45"></div>
-                </div>
-                
-                <!-- 🚨 ふくろうのサイズを1段階さらに拡大 -->
-                <img src="think.jpg" alt="考えるキャラクター" class="w-full max-w-[28%] h-auto object-contain mix-blend-multiply block pointer-events-none z-0 mr-2" style="filter: contrast(1.1) brightness(1.05);" onerror="this.style.display='none';">
-            </div>
-            
-            <!-- 🚨 キャンセルボタンがツールバーに被らないよう位置を確保 -->
-            <div class="text-center relative z-10 pt-1 pb-2 flex-shrink-0 w-full">
-                <button onclick="cancelQuiz()" class="py-1.5 text-xs text-gray-500 tap-effect font-black bg-white bg-opacity-80 rounded-full px-6 border border-gray-300 shadow-sm">キャンセルして戻る</button>
-            </div>
+        <!-- サジェスト -->
+        <div class="res-box suggest-box">
+          <div class="suggest-title">⚡ 次はコレがいかがですか？</div>
+          <div id="suggest-text" class="suggest-text">おすすめテキスト</div>
+          <div class="suggest-note">※ご注文は卓上または店員へお申し付けください</div>
         </div>
-    </div>
 
-    <!-- 4. 解説画面 -->
-    <div id="screen-result" class="screen pt-1 relative z-10 pb-16">
-        <div class="w-full max-w-sm mx-auto flex flex-col flex-grow h-full justify-start">
-            
-            <!-- 🚨 ヘッダーアイコンと文字のサイズアップ ＆ 下部との余白を削減(mb-2) -->
-            <div id="result-header" class="text-center flex-shrink-0 mb-2 mt-1">
-            </div>
+        <button id="btn-return-top" class="btn-return-top">トップに戻る</button>
+      </div>
+    </section>
+  </div>
 
-            <!-- カード群の間隔を少し詰めて全体の縦幅を節約 -->
-            <div class="space-y-2 flex-grow flex flex-col justify-start my-1">
-                
-                <!-- 解説カード -->
-                <div class="bg-white bg-opacity-95 rounded-xl shadow-sm border border-gray-100 overflow-hidden flex-shrink-0 relative z-10">
-                    <div class="bg-gray-50 px-3 py-1.5 border-b border-gray-100 flex items-center justify-between">
-                        <span class="text-[10px] font-bold text-gray-400">正解は...</span>
-                        <span id="result-correct-answer" class="text-sm font-black text-dark"></span>
-                    </div>
-                    <div class="p-2.5">
-                        <p class="text-[9px] font-bold text-white bg-secondary inline-block px-1.5 py-0.5 rounded mb-1">お店のこだわり（解説）</p>
-                        <p id="result-explanation" class="text-[11px] leading-relaxed text-gray-700 font-medium"></p>
-                    </div>
-                </div>
-
-                <!-- ペアリングカード -->
-                <div class="bg-white bg-opacity-95 rounded-xl shadow-sm border border-gray-100 p-2 flex-shrink-0 flex items-center gap-2 relative z-10">
-                    <div class="w-7 h-7 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0 text-orange-500">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21V10M3.284 14.253A8.917 8.917 0 013 12V5a2 2 0 012-2h14a2 2 0 012 2v7c0 .777-.107 1.525-.308 2.233M19.02 17.5A9.012 9.004 0 0019 12V5"></path></svg>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                        <p class="text-[9px] font-bold text-gray-400 leading-none mb-1">おすすめのペアリングドリンク</p>
-                        <p id="result-drink-pairing" class="text-xs font-black text-primary leading-none truncate"></p>
-                        <p id="result-drink-reason" class="text-[10px] font-medium text-gray-500 mt-1 leading-normal"></p>
-                    </div>
-                </div>
-
-                <!-- 提案カード -->
-                <div class="bg-white bg-opacity-90 border border-accent border-opacity-30 rounded-xl p-2 text-center flex-shrink-0 shadow-sm relative z-10">
-                    <p class="text-[9px] font-black text-accent-dark mb-1 flex items-center justify-center gap-1 leading-none">
-                        <svg class="w-2.5 h-2.5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        次はコレがいかがですか？
-                    </p>
-                    <p id="result-recommend" class="text-xs font-bold text-dark mb-1 leading-tight"></p>
-                    <div class="text-[8.5px] text-gray-500 font-bold bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100 inline-block scale-95 origin-center">
-                        ※ご注文は卓上または店員へお申し付けください
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- 🚨 下部の挑戦ボタンを確実に引っ張り上げて表示 -->
-            <div class="relative z-20 flex-shrink-0 pt-2 pb-4 mt-auto">
-                <button onclick="showScreen('top')" class="w-full bg-primary hover:bg-red-600 text-white font-black py-3 rounded-xl shadow-md tap-effect text-sm tracking-wide">
-                    他のメニューのクイズに挑戦！
-                </button>
-            </div>
-        </div>
-    </div>
-
-</div>
-
-<script>
+  <script>
+    /* =========================================
+       データ管理エリア
+       ========================================= */
     const menuData = [
-        {
-            id: 1, name: "生レバーのジュワッと焼き", image: "liver.jpg",
-            question: "このメニュー、焼くときに「ジュワッ」と香ばしさを引き立てている油の正体は？",
-            options: ["ごま油", "にんにく油", "ネギ油"],
-            answerIndex: 0,
-            hint: "💡ヒント：焼肉屋さんで一番よく合わせる香ばしい油だよ！",
-            explanation: "新鮮なレバーの旨味を最大限に引き立てるため、一番搾りの風味豊かな『ごま油』を使用しています。サッと炙るのがコツです！",
-            nextRecommend: "さっぱりと！「赤鶏のお刺身」はいかがですか？",
-            drinks: [
-                { name: "ザ・プレミアム・モルツ", reason: "ごま油の香ばしさと濃厚なコクに負けない深い味わいです。" },
-                { name: "ジムビームハイボール", reason: "強炭酸の刺激が、炙った脂の旨味をすっきりと流します。" },
-                { name: "天羽ハイボール", reason: "下町風のどこか懐かしいキレ味が、味の強いレバーと絶妙にマッチ！" },
-                { name: "カルダモン焼酎", reason: "独特なスパイスの香りが、レバーの風味を上品に変えます。" }
-            ]
-        },
-        {
-            id: 2, name: "海鮮プチぜいたく盛り", image: "seahood.jpg",
-            question: "この海鮮盛りを食べるお醤油。まろやかな旨味を出すための「隠し味」は何でしょう？",
-            options: ["すだち果汁", "昆布だし", "たまり醤油"],
-            answerIndex: 1,
-            hint: "💡ヒント：お醤油にツンとした角がなくて、出汁の深みを感じないかな？",
-            explanation: "新鮮な魚介の旨味を底上げするため、お店で引いた『昆布だし』をブレンドした特製醤油で提供しています。",
-            nextRecommend: "海鮮の後は、ほっこり温かい「肉豆腐」がおすすめです。",
-            drinks: [
-                { name: "クラフトジンの水出し緑茶", reason: "緑茶の渋みが、魚介の生臭さを消して引き立てます。" },
-                { name: "だいやめ", reason: "まるでライチのような華やかな香りが、贅沢な白身魚の甘みを高めます。" },
-                { name: "国盛 本醸造辛口", reason: "すっきりした辛口日本酒が、出汁醤油の旨味に寄り添います。" }
-            ]
-        },
-        {
-            id: 3, name: "肉豆腐", image: "beefandtohu.jpg",
-            question: "この肉豆腐、お肉の旨味をしっかりと吸わせるために使っている豆腐の種類は？",
-            options: ["絹ごし豆腐", "木綿豆腐", "焼き豆腐"],
-            answerIndex: 2,
-            hint: "💡ヒント：お豆腐の表面に「焦げ目」がついているよ。",
-            explanation: "焼き豆腐を使用しています。じっくり煮込むことでお肉の旨味を閉じ込めています。",
-            nextRecommend: "豆腐の食べ比べ！次は「こぼれ麻婆豆腐」はいかが？",
-            drinks: [
-                { name: "ジムビームハイボール", reason: "甘辛い脂と出汁のコクを、バーボンの香りが綺麗に包みます。" },
-                { name: "天羽ハイボール", reason: "醤油ベースの煮込み料理には、昔ながらのハイボールが鉄板。" },
-                { name: "国盛 本醸造辛口", reason: "じっくり染み込んだお出汁に、キレの良い日本酒が五臓六腑に染みます。" }
-            ]
-        },
-        {
-            id: 4, name: "こぼれ麻婆豆腐", image: "mapotohu.jpg",
-            question: "この麻婆豆腐のクセになる「シビれる辛さ」の決め手となっているスパイスは？",
-            options: ["花椒（ホアジャオ）", "一味唐辛子", "黒こしょう"],
-            answerIndex: 0,
-            hint: "💡ヒント：舌がピリピリ、電気のように痺れるような感覚の定番スパイス！",
-            explanation: "本場から取り寄せた香り高い『花椒（ホアジャオ）』を使用. 痺れ（麻）と辛さ（辣）の絶妙なバランスにこだわっています。",
-            nextRecommend: "辛いものの後には「みそ串カツ」がおすすめです。",
-            drinks: [
-                { name: "ザ・プレミアム・モルツ", reason: "強烈なシビレを、ビールの重厚な泡と苦味が優しく癒やします。" },
-                { name: "いつものレモンサワー", reason: "レモンの圧倒的な酸味と冷涼感が、お口の中を瞬時にリセット！" },
-                { name: "クレイジートマトサワー", reason: "トマトのまろやかな旨味が、麻婆の激しい辛さをマイルドに中和。" }
-            ]
-        },
-        {
-            id: 5, name: "みそ串カツ", image: "kushikatsu.jpg",
-            question: "このみそ串カツのタレ、ベースとなっているコク深い味噌の種類は？",
-            options: ["白みそ", "八丁味噌（赤だし）", "合わせみそ"],
-            answerIndex: 1,
-            hint: "💡ヒント：独特の渋みと深いコクがある大豆の黒っぽいお味噌だよ。",
-            explanation: "コクと深みのある『八丁味噌』をベースに、独自の配合でじっくり煮込んだ秘伝の甘辛ダレです。衣にたっぷり染み込ませています。",
-            nextRecommend: "アツアツの「焼き餃子」を冷えたビールと一緒にどうぞ。",
-            drinks: [
-                { name: "ザ・プレミアム・モルツ", reason: "濃厚な甘辛ダレには、麦の旨味が強いプレミアムビールが完璧。" },
-                { name: "ジムビームハイボール", reason: "濃厚な味噌ダレで満たされた口を、炭酸がスッキリ爽快にします。" },
-                { name: "赤玉パンチ", reason: "味噌の独特の渋みとコクに、甘やかなフルーティーさがマッチ！" }
-            ]
-        },
-        {
-            id: 6, name: "スパイス玉子", image: "spiceegg.jpg",
-            question: "この玉子、ほのかに香るカレーのような風味のスパイスが含まれています。それは何？",
-            options: ["ターメリック", "クミン", "コリアンダー"],
-            answerIndex: 1,
-            hint: "💡ヒント：カレーの「あの独特な良い香り」の主役スパイス！",
-            explanation: "半熟の味付け玉子に、ローストして香りを引き出した『クミン』を中心としたオリジナルスパイスを纏わせています。",
-            nextRecommend: "名物「ふくろうミンチ」との相性も抜群です！ぜひ一緒に。",
-            drinks: [
-                { name: "ザ・プレミアム・モルツ", reason: "クミンの風味と濃厚な黄身の旨味に、ビールのほろ苦さが良く合います。" },
-                { name: "クレイジートマトサワー", reason: "スパイス（クミン）×トマトはカレーに通ずる最強の相性。" },
-                { name: "カルダモン焼酎", reason: "クミンとカルダモンの香りが口の中で弾けるスパイスコンボ！" }
-            ]
-        },
-        {
-            id: 7, name: "焼き餃子", image: "gyoza.jpg",
-            question: "この焼き餃子、ジュワッと溢れる肉汁の仕掛けとして、餡に練り込まれているのは？",
-            options: ["鶏ガラスープ", "豚骨スープ", "魚介スープ"],
-            answerIndex: 0,
-            hint: "💡ヒント：すっきりした旨味のスープが隠れているよ。中華の定番スープといえば…？",
-            explanation: "ゼリー状にした特製『鶏ガラスープ』を餡に練り込んでいます。焼くことで溶け出し、小籠包のような肉汁があふれます。",
-            nextRecommend: "スタミナチャージ！次は「生レバーのジュワッと焼き」をどうぞ。",
-            drinks: [
-                { name: "ザ・プレミアム・モルツ", reason: "溢れ出るアツアツのジューシーな肉汁には、黄金の生ビールが正義！" },
-                { name: "ジムビームハイボール", reason: "餡のニンニクや肉の旨味を、弾ける泡が爽やかに包み込みます。" },
-                { name: "いつものレモンサワー", reason: "パリッと焼けた香ばしい衣の油を、レモン果汁がサッパリ洗い流します。" }
-            ]
-        },
-        {
-            id: 8, name: "赤鶏のお刺身", image: "torisashi.jpg",
-            question: "この新鮮な赤鶏のお刺身、どこのエリアのご当地醤油を合わせて提供しているでしょう？",
-            options: ["北海道", "関東", "九州"],
-            answerIndex: 2,
-            hint: "💡ヒント：鳥刺し文化が盛んで、お醤油がトロッと甘くて濃いエリアといえば？",
-            explanation: "新鮮な赤鶏の弾力と甘みを引き立てるため、『九州』特有のコクのある甘口醤油をわざわざ取り寄せ使用しています。",
-            nextRecommend: "お刺身の後は、あつあつの「ふくろうミンチ」がおすすめです。",
-            drinks: [
-                { name: "だいやめ", reason: "九州の甘口醤油と、このフルーティーな芋焼酎の組み合わせは真骨頂！" },
-                { name: "カルダモン焼酎", reason: "洗練された清涼感が、地鶏ならではの引き締まった弾力を際立たせます。" },
-                { name: "国盛 本醸造辛口", reason: "淡麗な辛口が、甘口醤油を纏った鶏のねっとりとした脂を綺麗に引き締めます。" }
-            ]
-        },
-        {
-            id: 9, name: "ふくろうミンチ", image: "mince.jpg",
-            question: "名物「ふくろうミンチ」、ふんわりとした食感の秘密としてお肉に混ぜられているのは？",
-            options: ["山芋", "豆腐", "パン粉"],
-            answerIndex: 0,
-            hint: "💡ヒント：すりおろすとネバネバするあのお野菜だよ！",
-            explanation: "新鮮な鶏ミンチにすりおろした『山芋』を練り込むことで、外はカリッと、中は驚くほどふんわりとした食感を実現しています。",
-            nextRecommend: "〆にはさっぱりとした「海鮮プチぜいたく盛り」をもう一度！",
-            drinks: [
-                { name: "ザ・プレミアム・モルツ", reason: "カリッと香ばしい名物のミンチ肉には、冷えたビールの喉越しが最高。" },
-                { name: "ジムビームハイボール", reason: "山芋のふんわり軽い食感に, ハイボールの爽快な泡が軽快にマッチ。" },
-                { name: "いつものレモンサワー", reason: "ジューシーな鶏の旨味を、レモンの爽やかな酸味が引き締めます。" }
-            ]
-        }
+      {
+        id: 1,
+        name: "生レバーのジュワッと焼き",
+        imageUrl: "liver.jpg",
+        question: "レバーの臭みを消し、香ばしさを爆発させている油は？",
+        choices: ["ごま油", "オリーブオイル", "にんにくラード"],
+        correctIndex: 0,
+        explanation: "鉄板でジュワッと焼く際、たっぷりの『ごま油』を使用しています。表面をサッと炙ることで香ばしさが増し、レバー特有の甘みが引き出されます。",
+        pairingDrink: "本格芋焼酎（ロック）",
+        pairingDescription: "ごま油の強烈な香ばしさとレバーの濃厚な旨味には、同じくパンチのある芋焼酎のロックが相性抜群。",
+        nextSuggestion: "名物「ふくろうミンチ」との相性も抜群です！ぜひ一緒に。"
+      },
+      {
+        id: 2,
+        name: "海鮮プチぜいたく盛り",
+        imageUrl: "seahood.jpg",
+        question: "新鮮な魚介の旨味を最大限に引き出す、このお醤油のベースは？",
+        choices: ["たまり醤油", "白醤油", "昆布醤油"],
+        correctIndex: 2,
+        explanation: "ただの醤油ではなく、自家製の『昆布醤油』を使用しています。魚のイノシン酸と、昆布のグルタミン酸が合わさることで旨味の相乗効果が生まれます。",
+        pairingDrink: "大吟醸（冷酒）",
+        pairingDescription: "新鮮な海鮮の繊細な甘みを邪魔しない、フルーティーで雑味のない大吟醸がぴったりです。",
+        nextSuggestion: "さっぱりとした「アジの南蛮漬け」もおすすめですよ！"
+      },
+      {
+        id: 3,
+        name: "肉豆腐",
+        imageUrl: "beefandtohu.jpg",
+        question: "出汁の深みを引き立たせている、隠し味の調味料はどれ？",
+        choices: ["赤ワイン", "隠し醤油", "八丁味噌"],
+        correctIndex: 2,
+        explanation: "コク深い旨味の正体は、ほんの少し加えた『八丁味噌』。お肉の脂の甘みと合わさって、ご飯やお酒が止まらなくなる味に仕上げています。",
+        pairingDrink: "熱燗（辛口純米酒）",
+        pairingDescription: "濃厚な和の旨味には、やっぱり熱燗！出汁の染みたお豆腐と辛口の日本酒が口の中で最高のハーモニーを奏でます。",
+        nextSuggestion: "串揚げの定番「みそ串カツ」はいかがですか？"
+      },
+      {
+        id: 4,
+        name: "こぼれ麻婆豆腐",
+        imageUrl: "mapotohu.jpg",
+        question: "舌がビリビリ痺れる、本場四川の香辛料の名前は？",
+        choices: ["黒胡椒", "花椒（ホアジャオ）", "山椒"],
+        correctIndex: 1,
+        explanation: "ただ辛いだけではなく、爽やかな香りと強烈な痺れを生み出す『花椒（ホアジャオ）』を熱した油で香りを引き出してから加えています。",
+        pairingDrink: "ジャスミンハイ",
+        pairingDescription: "口の中の痺れと辛味を、ジャスミン茶の華やかな香りがリセットしてくれます。",
+        nextSuggestion: "辛さを和らげる「大人のポテトサラダ」が絶妙に合います。"
+      },
+      {
+        id: 5,
+        name: "みそ串カツ",
+        imageUrl: "kushikatsu.jpg",
+        question: "濃厚な特製味噌ダレに、フルーティーな甘みをプラスしているものは？",
+        choices: ["りんごのすりおろし", "はちみつ", "黒砂糖"],
+        correctIndex: 0,
+        explanation: "こってりとした味噌の重さを和らげるため、秘伝のタレに『りんごのすりおろし』を加えています。自然な甘みが豚肉の脂とベストマッチ！",
+        pairingDrink: "生ビール（中ジョッキ）",
+        pairingDescription: "サクッと揚がった衣に染み込む濃厚な味噌。これを迎え撃つには、喉越しの良い冷たい生ビール以外にありえません！",
+        nextSuggestion: "さっぱりした「赤鶏のお刺身」でお口直しはいかがですか？"
+      },
+      {
+        id: 6,
+        name: "スパイス玉子",
+        imageUrl: "spiceegg.jpg",
+        question: "この玉子、ほのかに香るカレーのような風味のスパイスが含まれています。それは何？",
+        choices: ["ターメリック", "クミン", "コリアンダー"],
+        correctIndex: 1,
+        explanation: "半熟の味付け玉子に、ローストして香りを引き出した『クミン』を中心としたオリジナルスパイスを纏わせています。",
+        pairingDrink: "ザ・プレミアム・モルツ",
+        pairingDescription: "クミンの風味と濃厚な黄身の旨味に、ビールのほろ苦さが良く合います。",
+        nextSuggestion: "名物「ふくろうミンチ」との相性も抜群です！ぜひ一緒に。"
+      },
+      {
+        id: 7,
+        name: "焼餃子",
+        imageUrl: "gyoza.jpg",
+        question: "餡に練り込まれた、シャキシャキとした食感の正体は？",
+        choices: ["レンコン", "クワイ", "タケノコ"],
+        correctIndex: 0,
+        explanation: "ジューシーな豚肉に負けない食感のアクセントとして『レンコン』を粗みじんにして混ぜ込んでいます。噛むたびに楽しい食感が広がります。",
+        pairingDrink: "強炭酸レモンサワー",
+        pairingDescription: "熱々の肉汁と油を、キンキンに冷えた強炭酸のレモンサワーでサッパリと流し込むのが鉄板です。",
+        nextSuggestion: "ガッツリいきたいなら「秘伝ダレの鶏唐揚げ」をどうぞ！"
+      },
+      {
+        id: 8,
+        name: "赤鶏のお刺身",
+        imageUrl: "torisashi.jpg",
+        question: "弾力のある赤鶏の甘みを最も引き立てる、オススメの薬味は？",
+        choices: ["わさび＆白だし", "生姜＆甘口醤油", "にんにく＆ごま油"],
+        correctIndex: 1,
+        explanation: "九州発祥の食べ方である『生姜＆甘口醤油』が正解！とろみのある甘口醤油が鶏肉に絡みつき、生姜の風味が全体を引き締めます。",
+        pairingDrink: "麦焼酎（水割り）",
+        pairingDescription: "赤鶏の繊細でクリアな旨味には、クセの少ない麦焼酎の水割りが寄り添います。",
+        nextSuggestion: "食感が楽しい「ふくろうミンチ」もイチオシです。"
+      },
+      {
+        id: 9,
+        name: "ふくろうミンチ",
+        imageUrl: "mince.jpg",
+        question: "ジューシーなお肉の中に隠された、コリコリ食感のアクセントは？",
+        choices: ["ヤゲン軟骨", "キクラゲ", "エリンギ"],
+        correctIndex: 0,
+        explanation: "ミンチ肉の中に、細かく砕いた『ヤゲン軟骨』を混ぜ込んでいます。柔らかいお肉の中から現れるコリコリ感がクセになる一品です。",
+        pairingDrink: "ハイボール",
+        pairingDescription: "肉の旨味が詰まったジューシーなミンチには、炭酸が効いた爽快なハイボール！",
+        nextSuggestion: "おつまみ感覚で食べられる「スパイス玉子」も一緒にどうぞ！"
+      }
     ];
 
-    const fallbackImage = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Cpath d='M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z'/%3E%3C/svg%3E";
+    /* =========================================
+       アプリケーションロジック
+       ========================================= */
+    let currentMenu = null;
 
-    let currentQuiz = null;
-    let hintTimer = null; 
+    const overlay = document.getElementById('overlay');
 
-    document.addEventListener('DOMContentLoaded', () => {
-        renderMenuGrid();
+    // 画面遷移管理
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+      });
+      document.getElementById(screenId).classList.add('active');
+
+      // テイスティング画面のみ背景を暗くする
+      if (screenId === 'screen-tasting') {
+        overlay.classList.add('dark');
+      } else {
+        overlay.classList.remove('dark');
+      }
+    }
+
+    // 1. トップ画面描画
+    function renderTopScreen() {
+      const grid = document.getElementById('menu-grid');
+      grid.innerHTML = '';
+      menuData.forEach(menu => {
+        const card = document.createElement('div');
+        card.className = 'menu-card';
+        card.innerHTML = `
+          <div class="menu-card-img-wrap">
+            <img class="menu-card-img" src="${menu.imageUrl}" alt="${menu.name}">
+          </div>
+          <div class="menu-card-name">${menu.name}</div>
+        `;
+        card.addEventListener('click', () => {
+          currentMenu = menu;
+          renderTastingScreen();
+          showScreen('screen-tasting');
+        });
+        grid.appendChild(card);
+      });
+    }
+
+    // 2. テイスティング画面セット
+    function renderTastingScreen() {
+      if (!currentMenu) return;
+      document.getElementById('tasting-img').src = currentMenu.imageUrl;
+      document.getElementById('tasting-menu-name').textContent = currentMenu.name;
+    }
+
+    // 3. クイズ画面セット
+    function renderQuizScreen() {
+      if (!currentMenu) return;
+      document.getElementById('quiz-menu-name').textContent = currentMenu.name;
+      document.getElementById('quiz-question').textContent = currentMenu.question;
+
+      const choicesContainer = document.getElementById('quiz-choices');
+      choicesContainer.innerHTML = '';
+      
+      const owlIcons = ['🦉', '🦉', '🦉']; // 選択肢のアイコン
+      
+      currentMenu.choices.forEach((choiceText, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.innerHTML = `<span class="choice-icon">${owlIcons[index]}</span> ${choiceText}`;
+        btn.addEventListener('click', () => handleAnswer(index));
+        choicesContainer.appendChild(btn);
+      });
+    }
+
+    // 4. 結果画面処理
+    function handleAnswer(selectedIndex) {
+      const isCorrect = (selectedIndex === currentMenu.correctIndex);
+      const titleEl = document.getElementById('result-title');
+      
+      if (isCorrect) {
+        titleEl.textContent = "正解！🎉";
+        titleEl.style.color = "#c64242";
+      } else {
+        titleEl.textContent = "ざんねん！💦";
+        titleEl.style.color = "#c64242";
+      }
+
+      document.getElementById('result-correct-text').textContent = currentMenu.choices[currentMenu.correctIndex];
+      document.getElementById('result-explanation').textContent = currentMenu.explanation;
+      document.getElementById('pairing-drink').textContent = currentMenu.pairingDrink;
+      document.getElementById('pairing-desc').textContent = currentMenu.pairingDescription;
+      document.getElementById('suggest-text').textContent = currentMenu.nextSuggestion;
+
+      showScreen('screen-result');
+    }
+
+    // イベントリスナー登録
+    document.getElementById('btn-back-from-tasting').addEventListener('click', () => {
+      currentMenu = null;
+      showScreen('screen-top');
     });
 
-    function showScreen(screenName) {
-        document.querySelectorAll('.screen').forEach(el => {
-            el.classList.remove('active');
-        });
-        const target = document.getElementById(`screen-${screenName}`);
-        if(target) {
-            target.classList.add('active');
-            target.scrollTop = 0; 
-        }
+    document.getElementById('btn-to-quiz').addEventListener('click', () => {
+      renderQuizScreen();
+      showScreen('screen-quiz');
+    });
 
-        if (screenName === 'quiz') {
-            startHintTimer();
-        } else {
-            clearHintTimer(); 
-        }
-    }
+    document.getElementById('btn-return-top').addEventListener('click', () => {
+      currentMenu = null;
+      showScreen('screen-top');
+    });
 
-    function startHintTimer() {
-        clearHintTimer(); 
-
-        const bubble = document.getElementById('quiz-hint-bubble');
-        bubble.classList.remove('opacity-100', 'scale-100');
-        bubble.classList.add('opacity-0', 'scale-0');
-
-        if(currentQuiz && currentQuiz.hint) {
-            document.getElementById('quiz-hint-text').textContent = currentQuiz.hint;
-            
-            hintTimer = setTimeout(() => {
-                bubble.classList.remove('opacity-0', 'scale-0');
-                bubble.classList.add('opacity-100', 'scale-100');
-            }, 10000);
-        }
-    }
-
-    function clearHintTimer() {
-        if (hintTimer) {
-            clearTimeout(hintTimer);
-            hintTimer = null;
-        }
-    }
-
-    function cancelQuiz() {
-        clearHintTimer();
-        showScreen('top');
-    }
-
-    function renderMenuGrid() {
-        const grid = document.getElementById('menu-grid');
-        grid.innerHTML = ''; 
-
-        menuData.forEach(item => {
-            const tile = document.createElement('div');
-            tile.className = "flex flex-col items-center tap-effect cursor-pointer group min-h-0 justify-center my-0.5";
-            tile.onclick = () => startQuiz(item.id);
-
-            tile.innerHTML = `
-                <div class="w-full aspect-square rounded-xl mb-0.5 shadow-sm border border-white group-hover:border-primary overflow-hidden bg-white flex items-center justify-center relative">
-                    <img src="${item.image}" alt="${item.name}" class="w-full h-full img-cover-center absolute inset-0" onerror="this.src='${fallbackImage}'; this.className='w-1/2 h-1/2 object-contain opacity-50 absolute top-1/4 left-1/4';">
-                </div>
-                <p class="text-[9px] font-black text-center leading-tight text-gray-800 w-full truncate px-0.5 drop-shadow-sm">${item.name}</p>
-            `;
-            grid.appendChild(tile);
-        });
-    }
-
-    function startQuiz(menuId) {
-        currentQuiz = menuData.find(item => item.id === menuId);
-        if(!currentQuiz) return;
-
-        document.getElementById('tasting-menu-name').textContent = currentQuiz.name;
-        
-        const tastingImg = document.getElementById('tasting-image');
-        tastingImg.src = currentQuiz.image;
-        tastingImg.className = "w-full h-full img-cover-center absolute inset-0"; 
-        tastingImg.onerror = function() {
-            this.src = fallbackImage;
-            this.className = "w-1/2 h-1/2 object-contain opacity-50 absolute top-1/4 left-1/4";
-        };
-
-        document.getElementById('quiz-menu-name').textContent = currentQuiz.name;
-        document.getElementById('quiz-question').textContent = currentQuiz.question;
-        
-        const optionsContainer = document.getElementById('quiz-options');
-        optionsContainer.innerHTML = '';
-
-        currentQuiz.options.forEach((optionText, index) => {
-            const btn = document.createElement('button');
-            btn.className = "w-full bg-white bg-opacity-95 border-2 border-gray-100 text-gray-900 font-black py-2 px-4 rounded-xl text-left shadow-md tap-effect text-sm active:border-secondary transition-colors flex items-center";
-            btn.onclick = () => checkAnswer(index);
-            
-            btn.innerHTML = `
-                <div class="w-6 h-6 rounded-md bg-gray-100 flex items-center justify-center mr-4 flex-shrink-0">
-                    <img src="number${index + 1}.jpg" alt="${index + 1}" class="w-full h-full object-contain object-center" onerror="this.style.display='none';">
-                </div>
-                <span class="leading-tight tracking-wide">${optionText}</span>
-            `;
-            optionsContainer.appendChild(btn);
-        });
-
-        showScreen('tasting');
-    }
-
-    function checkAnswer(selectedIndex) {
-        clearHintTimer(); 
-        
-        const isCorrect = (selectedIndex === currentQuiz.answerIndex);
-        const header = document.getElementById('result-header');
-        
-        // 🚨 アイコン画像を拡大(w-16 h-16)し、文字サイズを特大(text-xl)に調整
-        if (isCorrect) {
-            header.innerHTML = `
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-green-50 mb-1 shadow-sm border-2 border-white rounded-xl overflow-hidden p-0.5">
-                    <img src="ok.jpg" alt="正解アイコン" class="w-full h-full object-contain object-center mix-blend-multiply" onerror="this.style.display='none';">
-                </div>
-                <h2 class="text-xl font-black text-green-600 tracking-widest drop-shadow-sm leading-none">大正解！</h2>
-            `;
-        } else {
-            header.innerHTML = `
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-red-50 mb-1 shadow-sm border-2 border-white rounded-xl overflow-hidden p-0.5">
-                    <img src="zannen.jpg" alt="残念アイコン" class="w-full h-full object-contain object-center mix-blend-multiply" onerror="this.style.display='none';">
-                </div>
-                <h2 class="text-xl font-black text-primary tracking-widest drop-shadow-sm leading-none">ざんねん！</h2>
-            `;
-        }
-
-        const matchedDrinks = currentQuiz.drinks;
-        const randomDrinkObj = matchedDrinks[Math.floor(Math.random() * matchedDrinks.length)];
-
-        document.getElementById('result-correct-answer').textContent = currentQuiz.options[currentQuiz.answerIndex];
-        document.getElementById('result-explanation').textContent = currentQuiz.explanation;
-        
-        document.getElementById('result-drink-pairing').textContent = randomDrinkObj.name; 
-        document.getElementById('result-drink-reason').textContent = randomDrinkObj.reason; 
-        
-        document.getElementById('result-recommend').innerHTML = currentQuiz.nextRecommend;
-
-        showScreen('result');
-    }
-</script>
-
+    // 初期化
+    renderTopScreen();
+  </script>
 </body>
 </html>

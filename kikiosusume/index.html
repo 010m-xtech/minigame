@@ -26,7 +26,7 @@
     #bg-container {
       position: absolute;
       top: 0; left: 0; width: 100%; height: 100%;
-      background-image: url('gameback2.jpg'); /* ここを gameback2.jpg に変更しました */
+      background-image: url('gameback2.jpg');
       background-size: 100% auto; 
       background-position: top center;
       background-repeat: no-repeat;
@@ -113,12 +113,21 @@
       line-height: 1.4;
     }
     .text-red { color: #c64242; font-weight: 900; }
+    
+    /* 案内テキストのアニメーション */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
     .top-prompt {
       text-align: center;
-      font-size: 1rem;
+      font-size: 1.05rem;
       font-weight: bold;
       color: #c64242;
       margin-bottom: 1vh;
+      /* 常にふわふわと動かす */
+      animation: pulse 1.5s infinite ease-in-out; 
     }
 
     /* =========================================
@@ -165,20 +174,19 @@
     
     .menu-card-name {
       flex: 0 0 auto; 
-      /* 高さを2行分に固定。1行でも2行でも中央に配置され、画像の均等性が保たれます */
-      height: 2.4em; 
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      height: 1.5em; 
+      line-height: 1.5em;
+      display: block;
       text-align: center;
       font-weight: bold;
-      /* スマホの狭い幅でも収まりやすいようサイズを微調整 */
-      font-size: 0.7rem; 
-      line-height: 1.2;
+      /* 長い文字数（生レバーのジュワッと焼き等）を1行で収めるための調整 */
+      font-size: 0.62rem; 
+      letter-spacing: -0.03em;
       margin-top: 0.5vh;
+      /* 1行強制＆はみ出しを隠す設定 */
+      white-space: nowrap;
       overflow: hidden;
-      /* 折り返しを許可 */
-      overflow-wrap: break-word;
+      text-overflow: ellipsis;
     }
 
     /* =========================================
@@ -425,7 +433,7 @@
         <div class="top-instruction-box">
           <p>目の前の料理を<span class="text-red">実際に食べながら</span><br>お店のこだわりに迫ろう！</p>
         </div>
-        <p class="top-prompt">メニューを選んでタップしてね</p>
+        <p class="top-prompt">メニューを選んでタップしてね！</p>
       </div>
       <div id="menu-grid" class="menu-grid">
         <!-- JSで動的にメニュータイルが生成されます -->

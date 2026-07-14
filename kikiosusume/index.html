@@ -258,7 +258,7 @@
     .quiz-header {
       text-align: center;
       flex-shrink: 0;
-      margin-bottom: 1.5vh;
+      margin-bottom: 2vh;
     }
     .quiz-pill {
       display: inline-block;
@@ -268,7 +268,7 @@
       border-radius: 20px;
       font-size: 0.9rem;
       font-weight: bold;
-      margin-bottom: 1.5vh;
+      margin-bottom: 2vh;
     }
     .mission-title {
       color: #c64242;
@@ -279,36 +279,32 @@
     .mission-sub {
       font-size: 0.85rem;
       font-weight: bold;
-      margin-bottom: 1.5vh;
+      margin-bottom: 2vh;
     }
     .question-box {
       background: #fff;
       border: 1px solid #ebd0c4;
       border-radius: 12px;
-      padding: 2vh 4vw;
-      font-size: 0.95rem;
+      padding: 3vh 5vw;
+      font-size: 1rem;
       font-weight: bold;
       text-align: center;
       box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-      margin-bottom: 2vh;
-      flex-shrink: 0;
+      margin-bottom: 3vh;
     }
-    /* 選択肢エリアが広がりすぎてヒントを押し出さないように微調整 */
     .choices-container {
-      flex: 1 1 auto; 
+      flex-grow: 1; /* 余ったスペースを占有して、下の画像を最下部へ押しやる */
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      gap: 1.5vh;
-      min-height: 0; 
-      margin-bottom: 1vh;
+      justify-content: flex-start;
+      gap: 2vh;
     }
     .choice-btn {
       background: #fff;
       border: none;
       border-radius: 16px;
-      padding: 2vh 5vw;
-      font-size: 1.05rem;
+      padding: 2.5vh 5vw;
+      font-size: 1.1rem;
       font-weight: bold;
       color: #333;
       text-align: left;
@@ -319,54 +315,53 @@
     }
     .choice-btn:active { background-color: #f8f8f8; }
     .choice-icon {
-      font-size: 1.3rem;
+      font-size: 1.5rem;
       margin-right: 15px;
     }
     
-    /* 考え中画像とヒント吹き出しのコンテナ（絶対に画面下部に残るように設定） */
+    /* クイズ画面：右下の考え中画像とヒント吹き出しのコンテナ */
     .think-container {
       display: flex;
       justify-content: flex-end;
       align-items: flex-end;
-      gap: 10px;
-      margin-top: auto; /* 余白があれば一番下に押し下げる */
-      flex-shrink: 0; /* 潰れないように固定 */
+      gap: 15px;
+      margin-top: 1vh;
+      flex-shrink: 0;
     }
     .think-img {
-      width: 20vw;
-      max-width: 80px; /* サイズを少し絞って確実に入るように */
+      width: 25vw;
+      max-width: 100px;
       height: auto;
       mix-blend-mode: multiply; 
       display: block;
     }
     
-    /* 吹き出しのスタイル */
+    /* ヒントの吹き出しスタイル */
     .hint-balloon {
       position: relative;
       background-color: #fff;
       border: 2px solid #e69b65;
       color: #333;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       font-weight: bold;
-      padding: 8px 12px;
+      padding: 10px 15px;
       border-radius: 12px;
-      max-width: 65%;
-      margin-bottom: 20px; /* 画像の顔の高さに合わせる */
+      max-width: 60%;
+      margin-bottom: 15px; /* 画像の高さに合わせる微調整 */
       box-shadow: 0 4px 6px rgba(0,0,0,0.05);
       
-      /* アニメーション初期設定（透明・下にズレている状態） */
+      /* アニメーションの初期状態（非表示・少し下にずらす） */
       opacity: 0;
-      transform: translateY(15px);
-      transition: all 0.5s ease;
-      pointer-events: none; /* 透明な時は触れないように */
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
     }
-    /* JavaScriptで10秒後に付与されるクラス */
+    /* タイマーでクラスが付与されたら表示（フェードイン） */
     .hint-balloon.show {
       opacity: 1;
+      visibility: visible;
       transform: translateY(0);
-      pointer-events: auto;
     }
-    
     /* 吹き出しのしっぽ（右側） */
     .hint-balloon::before,
     .hint-balloon::after {
@@ -375,11 +370,13 @@
       top: 50%;
       transform: translateY(-50%);
     }
+    /* しっぽの枠線（外側） */
     .hint-balloon::before {
       right: -12px;
       border: 6px solid transparent;
       border-left: 6px solid #e69b65;
     }
+    /* しっぽの背景色（内側） */
     .hint-balloon::after {
       right: -8px;
       border: 5px solid transparent;
@@ -654,7 +651,7 @@
         question: "濃厚な特製味噌ダレに、フルーティーな甘みをプラスしているものは？",
         choices: ["りんごのすりおろし", "はちみつ", "黒砂糖"],
         correctIndex: 0,
-        hint: "フルーツの自然な甘みだよ！",
+        hint: "フルーツの甘みだよ！",
         explanation: "こってりとした味噌の重さを和らげるため、秘伝のタレに『りんごのすりおろし』を加えています。自然な甘みが豚肉の脂とベストマッチ！",
         pairingDrink: "生ビール（中ジョッキ）",
         pairingDescription: "サクッと揚がった衣に染み込む濃厚な味噌。これを迎え撃つには、喉越しの良い冷たい生ビール以外にありえません！",
@@ -718,14 +715,14 @@
        アプリケーションロジック
        ========================================= */
     let currentMenu = null;
-    let hintTimer = null; // ヒント表示用のタイマー変数
+    let hintTimer = null; // ヒント表示用のタイマー
 
     const overlay = document.getElementById('overlay');
 
     // 画面遷移管理
     function showScreen(screenId) {
-      // 画面が切り替わったらヒントタイマーをリセット
-      if (hintTimer) {
+      // 画面が変わったらヒントタイマーをリセット
+      if(hintTimer) {
         clearTimeout(hintTimer);
         hintTimer = null;
       }
@@ -791,14 +788,12 @@
         choicesContainer.appendChild(btn);
       });
       
-      // ===== ヒントの初期化とタイマー設定 =====
+      // ヒントの初期化とタイマー設定
       const hintBalloon = document.getElementById('quiz-hint');
-      
-      // 最初は確実に非表示（透明）状態に戻す
-      hintBalloon.classList.remove('show'); 
+      hintBalloon.classList.remove('show'); // 一旦非表示に
       hintBalloon.textContent = currentMenu.hint;
       
-      // 10秒 (10000ミリ秒) 経過後に show クラスを付けてフェードインさせる
+      // 10秒(10000ミリ秒)経過でヒントを表示（フェードイン）
       hintTimer = setTimeout(() => {
         hintBalloon.classList.add('show');
       }, 10000);
@@ -806,8 +801,8 @@
 
     // 4. 結果画面処理
     function handleAnswer(selectedIndex) {
-      // 答えた時点でヒントのタイマーを止める（10秒前に答えた場合の誤作動防止）
-      if (hintTimer) {
+      // 答えた時点でヒントのタイマーを止める
+      if(hintTimer) {
         clearTimeout(hintTimer);
         hintTimer = null;
       }

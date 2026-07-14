@@ -319,7 +319,7 @@
       margin-right: 15px;
     }
     
-    /* クイズ画面：右下の考え中画像とヒント吹き出しのコンテナ */
+    /* クイズ画面：考え中画像のラッパー */
     .think-container {
       display: flex;
       justify-content: flex-end;
@@ -350,16 +350,16 @@
       margin-bottom: 15px; /* 画像の高さに合わせる微調整 */
       box-shadow: 0 4px 6px rgba(0,0,0,0.05);
       
-      /* アニメーションの初期状態（非表示・少し下にずらす） */
+      /* アニメーションの初期状態（透明・下にずらす） */
       opacity: 0;
-      visibility: hidden;
-      transform: translateY(10px);
-      transition: opacity 0.5s ease, transform 0.5s ease;
+      pointer-events: none; /* 透明な時は触れないように */
+      transform: translateY(15px);
+      transition: all 0.5s ease;
     }
     /* タイマーでクラスが付与されたら表示（フェードイン） */
     .hint-balloon.show {
       opacity: 1;
-      visibility: visible;
+      pointer-events: auto;
       transform: translateY(0);
     }
     /* 吹き出しのしっぽ（右側） */
@@ -651,7 +651,7 @@
         question: "濃厚な特製味噌ダレに、フルーティーな甘みをプラスしているものは？",
         choices: ["りんごのすりおろし", "はちみつ", "黒砂糖"],
         correctIndex: 0,
-        hint: "フルーツの甘みだよ！",
+        hint: "フルーツの自然な甘みだよ！",
         explanation: "こってりとした味噌の重さを和らげるため、秘伝のタレに『りんごのすりおろし』を加えています。自然な甘みが豚肉の脂とベストマッチ！",
         pairingDrink: "生ビール（中ジョッキ）",
         pairingDescription: "サクッと揚がった衣に染み込む濃厚な味噌。これを迎え撃つには、喉越しの良い冷たい生ビール以外にありえません！",
@@ -790,7 +790,9 @@
       
       // ヒントの初期化とタイマー設定
       const hintBalloon = document.getElementById('quiz-hint');
-      hintBalloon.classList.remove('show'); // 一旦非表示に
+      
+      // 最初は確実に非表示（透明）状態に戻す
+      hintBalloon.classList.remove('show'); 
       hintBalloon.textContent = currentMenu.hint || "よく考えてみてね！"; // データがない場合の安全策
       
       // 10秒(10000ミリ秒)経過でヒントを表示（フェードイン）

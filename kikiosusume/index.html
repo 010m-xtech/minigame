@@ -320,6 +320,20 @@
     }
     
     /* クイズ画面：考え中画像のラッパー */
+    .think-img-wrapper {
+      text-align: right;
+      flex-shrink: 0;
+      margin-top: 1vh; /* 選択肢ボタンとの間に余白を持たせる */
+    }
+    .think-img {
+      width: 25vw;
+      max-width: 100px; /* 大きくなりすぎないように制限 */
+      height: auto;
+      mix-blend-mode: multiply; /* 白背景を透過 */
+      display: inline-block;
+    }
+
+    /* ヒントのコンテナと吹き出し */
     .think-container {
       display: flex;
       justify-content: flex-end;
@@ -328,15 +342,6 @@
       margin-top: 1vh;
       flex-shrink: 0;
     }
-    .think-img {
-      width: 25vw;
-      max-width: 100px;
-      height: auto;
-      mix-blend-mode: multiply; 
-      display: block;
-    }
-    
-    /* ヒントの吹き出しスタイル */
     .hint-balloon {
       position: relative;
       background-color: #fff;
@@ -350,7 +355,7 @@
       margin-bottom: 15px; /* 画像の高さに合わせる微調整 */
       box-shadow: 0 4px 6px rgba(0,0,0,0.05);
       
-      /* アニメーションの初期状態（透明・下にずらす） */
+      /* アニメーションの初期状態（透明・少し下にずらす） */
       opacity: 0;
       pointer-events: none; /* 透明な時は触れないように */
       transform: translateY(15px);
@@ -651,7 +656,7 @@
         question: "濃厚な特製味噌ダレに、フルーティーな甘みをプラスしているものは？",
         choices: ["りんごのすりおろし", "はちみつ", "黒砂糖"],
         correctIndex: 0,
-        hint: "フルーツの自然な甘みだよ！",
+        hint: "フルーツの甘みだよ！",
         explanation: "こってりとした味噌の重さを和らげるため、秘伝のタレに『りんごのすりおろし』を加えています。自然な甘みが豚肉の脂とベストマッチ！",
         pairingDrink: "生ビール（中ジョッキ）",
         pairingDescription: "サクッと揚がった衣に染み込む濃厚な味噌。これを迎え撃つには、喉越しの良い冷たい生ビール以外にありえません！",
@@ -721,8 +726,8 @@
 
     // 画面遷移管理
     function showScreen(screenId) {
-      // 画面が変わったらヒントタイマーをリセット
-      if(hintTimer) {
+      // クイズ画面以外に遷移するときはヒントタイマーをキャンセル
+      if (screenId !== 'screen-quiz' && hintTimer) {
         clearTimeout(hintTimer);
         hintTimer = null;
       }
@@ -772,6 +777,13 @@
     // 3. クイズ画面セット
     function renderQuizScreen() {
       if (!currentMenu) return;
+      
+      // クイズ画面を描画するたびにタイマーを確実にリセット
+      if (hintTimer) {
+        clearTimeout(hintTimer);
+        hintTimer = null;
+      }
+
       document.getElementById('quiz-menu-name').textContent = currentMenu.name;
       document.getElementById('quiz-question').textContent = currentMenu.question;
 
@@ -790,10 +802,8 @@
       
       // ヒントの初期化とタイマー設定
       const hintBalloon = document.getElementById('quiz-hint');
-      
-      // 最初は確実に非表示（透明）状態に戻す
-      hintBalloon.classList.remove('show'); 
-      hintBalloon.textContent = currentMenu.hint || "よく考えてみてね！"; // データがない場合の安全策
+      hintBalloon.classList.remove('show'); // 一旦非表示に
+      hintBalloon.textContent = currentMenu.hint || "よく考えてみてね！";
       
       // 10秒(10000ミリ秒)経過でヒントを表示（フェードイン）
       hintTimer = setTimeout(() => {
@@ -804,7 +814,7 @@
     // 4. 結果画面処理
     function handleAnswer(selectedIndex) {
       // 答えた時点でヒントのタイマーを止める
-      if(hintTimer) {
+      if (hintTimer) {
         clearTimeout(hintTimer);
         hintTimer = null;
       }

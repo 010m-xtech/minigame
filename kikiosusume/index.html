@@ -314,9 +314,14 @@
       cursor: pointer;
     }
     .choice-btn:active { background-color: #f8f8f8; }
-    .choice-icon {
-      font-size: 1.5rem;
-      margin-right: 15px;
+    
+    /* 選択肢ボタン内の画像アイコンのスタイル */
+    .choice-icon-img {
+      width: 40px; /* アイコンの横幅 */
+      height: auto;
+      margin-right: 15px; /* テキストとの間隔 */
+      mix-blend-mode: multiply; /* JPGの白背景を透過 */
+      flex-shrink: 0; /* 画像が潰れないようにする */
     }
     
     /* クイズ画面：考え中画像のラッパー */
@@ -656,7 +661,7 @@
         question: "濃厚な特製味噌ダレに、フルーティーな甘みをプラスしているものは？",
         choices: ["りんごのすりおろし", "はちみつ", "黒砂糖"],
         correctIndex: 0,
-        hint: "フルーツの甘みだよ！",
+        hint: "フルーツの自然な甘みだよ！",
         explanation: "こってりとした味噌の重さを和らげるため、秘伝のタレに『りんごのすりおろし』を加えています。自然な甘みが豚肉の脂とベストマッチ！",
         pairingDrink: "生ビール（中ジョッキ）",
         pairingDescription: "サクッと揚がった衣に染み込む濃厚な味噌。これを迎え撃つには、喉越しの良い冷たい生ビール以外にありえません！",
@@ -790,12 +795,14 @@
       const choicesContainer = document.getElementById('quiz-choices');
       choicesContainer.innerHTML = '';
       
-      const owlIcons = ['🦉', '🦉', '🦉'];
+      // ===== 修正箇所：選択肢のアイコンを画像に変更 =====
+      const numberIcons = ['number1.jpg', 'number2.jpg', 'number3.jpg'];
       
       currentMenu.choices.forEach((choiceText, index) => {
         const btn = document.createElement('button');
         btn.className = 'choice-btn';
-        btn.innerHTML = `<span class="choice-icon">${owlIcons[index]}</span> ${choiceText}`;
+        // <span> から <img> タグに差し替え、テキストをスパンで囲む
+        btn.innerHTML = `<img src="${numberIcons[index]}" alt="選択肢${index + 1}" class="choice-icon-img"> <span>${choiceText}</span>`;
         btn.addEventListener('click', () => handleAnswer(index));
         choicesContainer.appendChild(btn);
       });
@@ -803,7 +810,7 @@
       // ヒントの初期化とタイマー設定
       const hintBalloon = document.getElementById('quiz-hint');
       hintBalloon.classList.remove('show'); // 一旦非表示に
-      hintBalloon.textContent = currentMenu.hint || "よく考えてみてね！";
+      hintBalloon.textContent = currentMenu.hint || "よく考えてみてね！"; // データがない場合の安全策
       
       // 10秒(10000ミリ秒)経過でヒントを表示（フェードイン）
       hintTimer = setTimeout(() => {

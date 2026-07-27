@@ -2,83 +2,77 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QUIZ TIME SHOCK</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, orientation=landscape">
+  <title>年代別クイズ TIME SHOCK!</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <div class="app-container">
+<body id="main-body">
+
+  <div id="flash-layer" class="time-shock-flash"></div>
+  <div id="crack-layer" class="crack-overlay"></div>
+
+  <!-- 横向き推奨画面 -->
+  <div id="rotate-message">
+    <p style="font-size: 24px; margin-bottom: 10px;">🔄 スマホを【横向き】にしてください</p>
+  </div>
+
+  <!-- ホーム/設定画面 -->
+  <div id="start-overlay" class="overlay">
+    <h1 style="font-size: 36px; color: #ffc107; text-shadow: 0 0 20px #ffc107;">年代別 QUIZ TIME SHOCK</h1>
     
-    <!-- 1. ホーム（タイトル・モード＆条件選択）画面 -->
-    <section id="home-screen" class="screen active">
-      <h1 class="main-title">QUIZ TIME SHOCK</h1>
-      <p class="sub-title">あなたは何問正解できるか！？</p>
+    <!-- 年代選択 -->
+    <div class="setting-group">
+      <span class="setting-label">📅 クイズの年代を選択</span>
+      <div class="btn-group">
+        <button class="opt-btn active" onclick="selectEra('1990年代', this)">1990年代</button>
+        <button class="opt-btn" onclick="selectEra('2000年代', this)">2000年代</button>
+        <button class="opt-btn" onclick="selectEra('2010年代', this)">2010年代</button>
+      </div>
+    </div>
 
-      <div class="menu-card">
-        <h3>1. モード選択</h3>
-        <div class="button-group">
-          <button class="mode-btn active" data-mode="1p">1人プレイ</button>
-          <button class="mode-btn" data-mode="2p">2人対戦（早押し）</button>
+    <!-- 時間制限選択 -->
+    <div class="setting-group">
+      <span class="setting-label">⏱ 時間制限</span>
+      <div class="btn-group">
+        <button class="opt-btn active" onclick="selectTimerMode(true, this)">あり (1問10秒 / 全120秒)</button>
+        <button class="opt-btn" onclick="selectTimerMode(false, this)">なし (じっくり)</button>
+      </div>
+    </div>
+
+    <button class="menu-btn" onclick="startGame()">GAME START</button>
+  </div>
+
+  <!-- リザルト画面 -->
+  <div id="result-overlay" class="overlay hidden">
+    <h1 id="result-title" style="font-size: 36px;">GAME OVER</h1>
+    <p id="result-desc" style="font-size: 20px; font-family: sans-serif; white-space: pre-wrap; text-align: center; z-index: 101;"></p>
+    <button class="menu-btn" onclick="showHome()" style="z-index: 101;">設定画面に戻る</button>
+  </div>
+
+  <!-- メインゲーム画面 -->
+  <div id="game-container">
+    <div class="left-side">
+      <div class="clock-dial" id="dial">
+        <div class="clock-center">
+          <div class="time-display" id="timer-text">120</div>
+          <div class="score-display" id="correct-text">正解: 0/12</div>
         </div>
-
-        <h3>2. 年代を選択</h3>
-        <div class="button-group">
-          <button class="decade-btn active" data-decade="1990年代">1990年代</button>
-          <button class="decade-btn" data-decade="2000年代">2000年代</button>
-          <button class="decade-btn" data-decade="2010年代">2010年代</button>
-        </div>
-
-        <h3>3. ジャンルを選択</h3>
-        <div class="genre-list">
-          <button class="genre-btn active" data-genre="エモい！平成・令和スイーツ＆フード">
-            🍩 エモい！平成・令和スイーツ＆フード
-          </button>
-          <button class="genre-btn" data-genre="青春のプレイリスト！懐かしのメガヒットソング">
-            🎤 青春のプレイリスト！懐かしのメガヒットソング
-          </button>
-          <button class="genre-btn" data-genre="あの頃夢中になった！マンガ・アニメ・ゲーム">
-            🎮 あの頃夢中になった！マンガ・アニメ・ゲーム
-          </button>
-        </div>
-
-        <button id="start-btn" class="primary-btn">スタート！</button>
       </div>
-    </section>
+    </div>
 
-    <!-- 2. クイズプレイ画面 -->
-    <section id="quiz-screen" class="screen">
-      <div class="quiz-header">
-        <span id="current-decade-badge" class="badge">1990年代</span>
-        <span id="progress-text">第 1 / 5 問</span>
+    <div class="right-side">
+      <div class="target-message" id="era-badge">🎯 10問正解をめざせ！</div>
+      
+      <div class="quiz-box">
+        <p class="quiz-text" id="quiz-question">問題を読み込み中...</p>
       </div>
-
-      <!-- TIME SHOCK風 タイマーリング -->
-      <div class="timer-container">
-        <div id="timer-display" class="timer-number">10</div>
+      <div class="choices-grid">
+        <button class="choice-btn" onclick="selectAnswer(0)" id="btn0">選択肢1</button>
+        <button class="choice-btn" onclick="selectAnswer(1)" id="btn1">選択肢2</button>
+        <button class="choice-btn" onclick="selectAnswer(2)" id="btn2">選択肢3</button>
+        <button class="choice-btn" onclick="selectAnswer(3)" id="btn3">選択肢4</button>
       </div>
-
-      <div class="question-card">
-        <p id="question-text">ここに問題文が表示されます</p>
-      </div>
-
-      <!-- 選択肢ボタンエリア -->
-      <div id="options-container" class="options-grid">
-        <!-- JSで動的にボタン生成 -->
-      </div>
-    </section>
-
-    <!-- 3. 結果発表画面 -->
-    <section id="result-screen" class="screen">
-      <h2>TIME SHOCK RESULT</h2>
-      <div class="score-box">
-        <p class="score-label">正解数</p>
-        <p class="score-number"><span id="final-score">0</span> / <span id="total-questions">5</span></p>
-        <p id="result-comment" class="comment"></p>
-      </div>
-
-      <button id="restart-btn" class="primary-btn">もう一度あそぶ</button>
-    </section>
-
+    </div>
   </div>
 
   <script src="app.js"></script>

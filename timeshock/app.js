@@ -387,7 +387,7 @@ function showReview() {
       </div>
       <div class="review-q">Q. ${q.question}</div>
       <div class="review-ans">⭕ 正解: ${q.answer}</div>
-      <div style="font-size:13px; color:#aaa;">あなたの回答: ${userAnsText}</div>
+      <div class="review-user-ans">あなたの回答: ${userAnsText}</div>
       <div class="review-exp">💡 解説: ${q.explanation || '解説はありません。'}</div>
     `;
 

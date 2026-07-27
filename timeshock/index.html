@@ -16,8 +16,14 @@
     <p style="font-size: 24px; margin-bottom: 10px;">🔄 スマホを【横向き】にしてください</p>
   </div>
 
-  <!-- ホーム/設定画面 -->
-  <div id="start-overlay" class="overlay">
+  <!-- 🎬 0. 導入ムービー画面 -->
+  <div id="movie-overlay" class="overlay">
+    <video id="intro-video" src="movie.mp4" playsinline muted autoplay></video>
+    <button id="skip-btn" onclick="skipMovie()">SKIP ⏩</button>
+  </div>
+
+  <!-- 1. ホーム/設定画面 -->
+  <div id="start-overlay" class="overlay hidden">
     <h1 style="font-size: 36px; color: #ffc107; text-shadow: 0 0 20px #ffc107;">年代別 QUIZ TIME SHOCK</h1>
     
     <!-- 年代選択 -->
@@ -42,11 +48,24 @@
     <button class="menu-btn" onclick="startGame()">GAME START</button>
   </div>
 
-  <!-- リザルト画面 -->
+  <!-- 2. リザルト画面 -->
   <div id="result-overlay" class="overlay hidden">
     <h1 id="result-title" style="font-size: 36px;">GAME OVER</h1>
     <p id="result-desc" style="font-size: 20px; font-family: sans-serif; white-space: pre-wrap; text-align: center; z-index: 101;"></p>
-    <button class="menu-btn" onclick="showHome()" style="z-index: 101;">設定画面に戻る</button>
+    
+    <div class="result-btn-group">
+      <button class="menu-btn" onclick="showHome()">トップ画面に戻る</button>
+      <button class="menu-btn sub-btn" onclick="showReview()">正解と解説をみる</button>
+    </div>
+  </div>
+
+  <!-- 3. 正解・解説一覧画面 -->
+  <div id="review-overlay" class="overlay hidden">
+    <h2 style="font-size: 28px; color: #ffc107; margin-top: 10px;">正解と解説</h2>
+    <div id="review-list" class="review-scroll-container">
+      <!-- JavaScriptで動的生成 -->
+    </div>
+    <button class="menu-btn" onclick="showHome()" style="margin-bottom: 10px;">トップ画面に戻る</button>
   </div>
 
   <!-- メインゲーム画面 -->

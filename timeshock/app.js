@@ -4,7 +4,7 @@ let currentQuestions = [];
 let currentQuestionIndex = 0;
 let score = 0;
 let timer = null;
-let timeLeft = 5;
+let timeLeft = 10;
 
 // 設定値
 let selectedMode = '1p';
@@ -141,7 +141,7 @@ function showQuestion() {
   });
 
   // 5秒タイマー設定
-  timeLeft = 5;
+  timeLeft = 10;
   document.getElementById('timer-display').textContent = timeLeft;
 
   timer = setInterval(() => {

@@ -18,8 +18,8 @@
 
   <!-- 🎬 0. 導入ムービー画面 -->
   <div id="movie-overlay" class="overlay">
-    <video id="intro-video" src="movie.mp4" playsinline muted autoplay></video>
-    <button id="skip-btn" onclick="skipMovie()">SKIP ⏩</button>
+    <video id="intro-video" src="movie.mp4" playsinline muted autoplay preload="auto"></video>
+    <button id="skip-btn" onclick="event.stopPropagation(); skipMovie();">SKIP ⏩</button>
   </div>
 
   <!-- 1. ホーム/設定画面 -->

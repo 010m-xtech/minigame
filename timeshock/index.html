@@ -24,11 +24,11 @@
 
   <!-- 1. ホーム/設定画面 -->
   <div id="start-overlay" class="overlay hidden">
-    <h1 style="font-size: 36px; color: #ffc107; text-shadow: 0 0 20px #ffc107;">年代別 QUIZ TIME SHOCK</h1>
+    <h1 style="font-size: 36px; color: #ffc107; text-shadow: 0 0 20px #ffc107;">QUIZ TIME SHOCK</h1>
     
     <!-- 年代選択 -->
     <div class="setting-group">
-      <span class="setting-label">📅 クイズの年代を選択</span>
+      <span class="setting-label">クイズの年代を選択</span>
       <div class="btn-group">
         <button class="opt-btn active" onclick="selectEra('1990年代', this)">1990年代</button>
         <button class="opt-btn" onclick="selectEra('2000年代', this)">2000年代</button>
@@ -38,10 +38,10 @@
 
     <!-- 時間制限選択 -->
     <div class="setting-group">
-      <span class="setting-label">⏱ 時間制限</span>
+      <span class="setting-label">時間制限</span>
       <div class="btn-group">
         <button class="opt-btn active" onclick="selectTimerMode(true, this)">あり (1問10秒 / 全120秒)</button>
-        <button class="opt-btn" onclick="selectTimerMode(false, this)">なし (じっくり)</button>
+        <button class="opt-btn" onclick="selectTimerMode(false, this)">　なし　</button>
       </div>
     </div>
 
@@ -80,7 +80,7 @@
     </div>
 
     <div class="right-side">
-      <div class="target-message" id="era-badge">🎯 10問正解をめざせ！</div>
+      <div class="target-message" id="era-badge">10問正解をめざせ！</div>
       
       <div class="quiz-box">
         <p class="quiz-text" id="quiz-question">問題を読み込み中...</p>

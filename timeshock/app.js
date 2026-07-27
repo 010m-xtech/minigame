@@ -11,6 +11,7 @@ let gameInterval = null;
 let questionResults = [];
 let userAnswers = [];
 let shockTimeout = null;
+let isMovieSkipped = false; // ムービースキップ済みフラグ
 
 // 定義された3つのジャンル名
 const GENRES = [
@@ -29,32 +30,69 @@ document.addEventListener('DOMContentLoaded', () => {
 // 🎬 動画（movie.mp4）の制御処理
 function setupMovieEvents() {
   const video = document.getElementById('intro-video');
-  if (!video) return;
+  if (!video) {
+    skipMovie();
+    return;
+  }
+
+  // ループ再生を確実にオフにする
+  video.loop = false;
 
   // 動画再生終了時に自動でトップ画面へ切り替え
-  video.addEventListener('ended', () => {
+  video.onended = () => {
     skipMovie();
-  });
+  };
 
-  // 万が一動画ファイル（movie.mp4）が存在しない・読み込めない場合は自動スキップ
-  video.addEventListener('error', () => {
-    console.warn("movie.mp4が見つからないため、ムービー再生をスキップします。");
+  // 万が一動画ファイルが存在しない・エラーの場合は自動スキップ
+  video.onerror = () => {
+    console.warn("movie.mp4の読み込みエラーのためスキップします。");
     skipMovie();
-  });
+  };
 
-  // ブラウザの自動再生ポリシー対策：Play試行
+  // 動画画面全体をタップしてもスキップできるようにする
+  const movieOverlay = document.getElementById('movie-overlay');
+  if (movieOverlay) {
+    movieOverlay.addEventListener('click', (e) => {
+      // ボタン以外のタップでもスキップ可能に
+      skipMovie();
+    });
+  }
+
+  // 自動再生試行
   video.play().catch(err => {
-    console.log("自動再生がブロックされました。ユーザー操作待ちです。");
+    console.log("自動再生がブロックされました。タップで開始/スキップできます。");
   });
 }
 
-// スキップ機能
+// ⏩ 動画スキップ＆トップ画面表示処理
 function skipMovie() {
-  const video = document.getElementById('intro-video');
-  if (video) video.pause();
+  if (isMovieSkipped) return; // すでに処理済みの場合は二重実行しない
+  isMovieSkipped = true;
 
-  document.getElementById('movie-overlay').classList.add('hidden');
-  document.getElementById('start-overlay').classList.remove('hidden');
+  const video = document.getElementById('intro-video');
+  if (video) {
+    try {
+      video.pause();
+      video.removeAttribute('src'); // 動画のリソースを解放してフリーズを防ぐ
+      video.load();
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  // ムービーのオーバーレイを完全に非表示（DOM非表示＋hiddenクラス）
+  const movieOverlay = document.getElementById('movie-overlay');
+  if (movieOverlay) {
+    movieOverlay.classList.add('hidden');
+    movieOverlay.style.display = 'none'; // 確実に消去
+  }
+
+  // トップ画面を表示
+  const startOverlay = document.getElementById('start-overlay');
+  if (startOverlay) {
+    startOverlay.classList.remove('hidden');
+    startOverlay.style.display = 'flex';
+  }
 }
 
 // JSONデータのロード
@@ -115,10 +153,17 @@ function selectTimerMode(enabled, btn) {
 function showHome() {
   if (shockTimeout) clearTimeout(shockTimeout);
   stopShockEffects();
+  
+  // 各種オーバーレイを非表示に
   document.getElementById('result-overlay').classList.add('hidden');
   document.getElementById('review-overlay').classList.add('hidden');
-  document.getElementById('movie-overlay').classList.add('hidden');
-  document.getElementById('start-overlay').classList.remove('hidden');
+  
+  const movieOverlay = document.getElementById('movie-overlay');
+  if (movieOverlay) movieOverlay.style.display = 'none';
+
+  const startOverlay = document.getElementById('start-overlay');
+  startOverlay.classList.remove('hidden');
+  startOverlay.style.display = 'flex';
 }
 
 // 配列シャッフル関数 (Fisher-Yates)
@@ -142,6 +187,7 @@ function startGame() {
   stopShockEffects();
 
   document.getElementById('start-overlay').classList.add('hidden');
+  document.getElementById('start-overlay').style.display = 'none';
   document.getElementById('result-overlay').classList.add('hidden');
   document.getElementById('review-overlay').classList.add('hidden');
 
@@ -311,7 +357,9 @@ function endGame() {
     resDesc.innerText = `12問中、 ${correctCount} 問正解しました！\nあと一歩で目標の10問でしたね。`;
   }
 
-  document.getElementById('result-overlay').classList.remove('hidden');
+  const resultOverlay = document.getElementById('result-overlay');
+  resultOverlay.classList.remove('hidden');
+  resultOverlay.style.display = 'flex';
 }
 
 // 📜 正解と解説の一覧画面を表示
@@ -320,6 +368,8 @@ function showReview() {
   stopShockEffects();
 
   document.getElementById('result-overlay').classList.add('hidden');
+  document.getElementById('result-overlay').style.display = 'none';
+
   const reviewListEl = document.getElementById('review-list');
   reviewListEl.innerHTML = '';
 
@@ -344,5 +394,7 @@ function showReview() {
     reviewListEl.appendChild(item);
   });
 
-  document.getElementById('review-overlay').classList.remove('hidden');
+  const reviewOverlay = document.getElementById('review-overlay');
+  reviewOverlay.classList.remove('hidden');
+  reviewOverlay.style.display = 'flex';
 }

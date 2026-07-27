@@ -382,7 +382,7 @@ function showReview() {
 
     item.innerHTML = `
       <div class="review-header">
-        <span>第 ${index + 1} 問 【${q.genre}】</span>
+        <span>第 ${index + 1} 問</span>
         <span>${isCorrect ? '⭕ 正解' : '❌ 不正解'}</span>
       </div>
       <div class="review-q">Q. ${q.question}</div>

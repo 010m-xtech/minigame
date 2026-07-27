@@ -294,7 +294,7 @@ body, html {
   border-radius: 30px; 
   cursor: pointer; 
   box-shadow: 0 5px 15px rgba(255,193,7,0.4);
-  p: 45px;
+  margin-top: 45px;
 }
 
 .menu-btn.sub-btn {

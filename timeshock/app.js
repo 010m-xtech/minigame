@@ -35,59 +35,56 @@ function setupMovieEvents() {
     return;
   }
 
-  // ループ再生を確実にオフにする
   video.loop = false;
 
-  // 動画再生終了時に自動でトップ画面へ切り替え
+  // 動画再生終了時
   video.onended = () => {
     skipMovie();
   };
 
-  // 万が一動画ファイルが存在しない・エラーの場合は自動スキップ
+  // エラー時
   video.onerror = () => {
     console.warn("movie.mp4の読み込みエラーのためスキップします。");
     skipMovie();
   };
 
-  // 動画画面全体をタップしてもスキップできるようにする
+  // 画面タップでスキップ
   const movieOverlay = document.getElementById('movie-overlay');
   if (movieOverlay) {
-    movieOverlay.addEventListener('click', (e) => {
-      // ボタン以外のタップでもスキップ可能に
+    movieOverlay.addEventListener('click', () => {
       skipMovie();
     });
   }
 
-  // 自動再生試行
   video.play().catch(err => {
-    console.log("自動再生がブロックされました。タップで開始/スキップできます。");
+    console.log("自動再生ブロック。タップでスキップ可能。");
   });
 }
 
-// ⏩ 動画スキップ＆トップ画面表示処理
+// ⏩ 動画スキップ＆画面切り替え処理
 function skipMovie() {
-  if (isMovieSkipped) return; // すでに処理済みの場合は二重実行しない
+  if (isMovieSkipped) return;
   isMovieSkipped = true;
 
   const video = document.getElementById('intro-video');
   if (video) {
     try {
       video.pause();
-      video.removeAttribute('src'); // 動画のリソースを解放してフリーズを防ぐ
+      video.removeAttribute('src');
       video.load();
     } catch (e) {
       console.log(e);
     }
   }
 
-  // ムービーのオーバーレイを完全に非表示（DOM非表示＋hiddenクラス）
+  // 1. ムービー画面を完全に消去
   const movieOverlay = document.getElementById('movie-overlay');
   if (movieOverlay) {
     movieOverlay.classList.add('hidden');
-    movieOverlay.style.display = 'none'; // 確実に消去
+    movieOverlay.style.display = 'none';
   }
 
-  // トップ画面を表示
+  // 2. トップ画面を表示（※縦向きの場合はCSSの@mediaにより自動的に「横向きメッセージ」が上にかぶさります）
   const startOverlay = document.getElementById('start-overlay');
   if (startOverlay) {
     startOverlay.classList.remove('hidden');

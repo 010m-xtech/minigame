@@ -1,216 +1,279 @@
-// グローバル変数
-let allQuestions = [];
-let currentQuestions = [];
-let currentQuestionIndex = 0;
-let score = 0;
-let timer = null;
-let timeLeft = 10;
+// ─── グローバル変数 ───
+let rawQuizData = []; // jsonからロードしたデータ
+let selectedEra = '1990年代';
+let isTimerEnabled = true;
 
-// 設定値
-let selectedMode = '1p';
-let selectedDecade = '1990年代';
-let selectedGenre = 'エモい！平成・令和スイーツ＆フード';
+let currentQuizList = [];
+let currentQuestionIdx = 0;
+let correctCount = 0;
+let totalTime = 120; // 12問 × 10秒 = 120秒
+let gameInterval = null;
+let questionResults = [];
+let shockTimeout = null;
 
-// DOM要素の取得
-const screens = {
-  home: document.getElementById('home-screen'),
-  quiz: document.getElementById('quiz-screen'),
-  result: document.getElementById('result-screen')
-};
+// 定義された3つのジャンル名
+const GENRES = [
+  "エモい！平成・令和スイーツ＆フード",
+  "青春のプレイリスト！懐かしのメガヒットソング",
+  "あの頃夢中になった！マンガ・アニメ・ゲーム"
+];
 
-// 初期化：JSONファイルのロード
+// 初期ロード処理
 document.addEventListener('DOMContentLoaded', () => {
-  fetchQuizData();
-  setupEventListeners();
+  buildClockDial();
+  loadJsonData();
 });
 
-// JSONデータの取得
-async function fetchQuizData() {
+// JSONデータのロード
+async function loadJsonData() {
   try {
-    const response = await fetch('./data/questions.json');
-    if (!response.ok) throw new Error('データ読み込み失敗');
-    allQuestions = await response.json();
-    console.log(`全 ${allQuestions.length} 問のロード完了`);
-  } catch (error) {
-    alert("クイズデータの読み込みに失敗しました。data/questions.json の配置を確認してください。");
-    console.error(error);
+    const res = await fetch('./data/questions.json');
+    if (!res.ok) throw new Error('Failed to fetch json');
+    rawQuizData = await res.json();
+    console.log(`全 ${rawQuizData.length} 問ロード完了`);
+  } catch (err) {
+    console.error(err);
+    alert('クイズデータ(data/questions.json)の読み込みに失敗しました。');
   }
 }
 
-// イベントリスナー設定
-function setupEventListeners() {
-  // モード切替
-  document.querySelectorAll('.mode-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-      e.target.classList.add('active');
-      selectedMode = e.target.dataset.mode;
-    });
-  });
+// 時計ランプの生成
+function buildClockDial() {
+  const dial = document.getElementById('dial');
+  dial.innerHTML = `
+    <div class="clock-center">
+      <div class="time-display" id="timer-text">120</div>
+      <div class="score-display" id="correct-text">正解: 0/12</div>
+    </div>
+  `;
 
-  // 年代切替
-  document.querySelectorAll('.decade-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      document.querySelectorAll('.decade-btn').forEach(b => b.classList.remove('active'));
-      e.target.classList.add('active');
-      selectedDecade = e.target.dataset.decade;
-    });
-  });
-
-  // ジャンル切替
-  document.querySelectorAll('.genre-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      document.querySelectorAll('.genre-btn').forEach(b => b.classList.remove('active'));
-      e.target.classList.add('active');
-      selectedGenre = e.target.dataset.genre;
-    });
-  });
-
-  // スタートボタン
-  document.getElementById('start-btn').addEventListener('click', startQuiz);
-
-  // リスタートボタン
-  document.getElementById('restart-btn').addEventListener('click', () => {
-    showScreen('home');
-  });
+  for (let i = 1; i <= 12; i++) {
+    const lamp = document.createElement('div');
+    lamp.className = 'num-lamp';
+    lamp.id = `lamp-${i}`;
+    lamp.innerText = i;
+    const angle = (i * 30 - 90) * (Math.PI / 180);
+    const radius = 110;
+    const x = 140 + radius * Math.cos(angle);
+    const y = 140 + radius * Math.sin(angle);
+    lamp.style.left = `${x}px`;
+    lamp.style.top = `${y}px`;
+    dial.appendChild(lamp);
+  }
 }
 
-// 画面切替関数
-function showScreen(screenName) {
-  Object.keys(screens).forEach(key => {
-    screens[key].classList.remove('active');
-  });
-  screens[screenName].classList.add('active');
+// 設定：年代選択
+function selectEra(era, btn) {
+  selectedEra = era;
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
 }
 
-// 配列のシャッフル（Fisher-Yates）
-function shuffle(array) {
-  const arr = [...array];
-  for (let i = arr.length - 1; i > 0; i--) {
+// 設定：タイマー有無選択
+function selectTimerMode(enabled, btn) {
+  isTimerEnabled = enabled;
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ホーム画面を表示
+function showHome() {
+  if (shockTimeout) clearTimeout(shockTimeout);
+  stopShockEffects();
+  document.getElementById('result-overlay').classList.add('hidden');
+  document.getElementById('start-overlay').classList.remove('hidden');
+}
+
+// 配列シャッフル関数 (Fisher-Yates)
+function shuffleArray(arr) {
+  const array = [...arr];
+  for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
+    [array[i], array[j]] = [array[j], array[i]];
   }
-  return arr;
+  return array;
 }
 
-// ゲーム開始処理
-function startQuiz() {
-  // 選択条件に合う問題をフィルタリング
-  const filtered = allQuestions.filter(q => 
-    q.decade === selectedDecade && q.genre === selectedGenre
-  );
-
-  if (filtered.length === 0) {
-    alert("該当する問題が見つかりませんでした。");
+// ゲーム開始
+function startGame() {
+  if (rawQuizData.length === 0) {
+    alert("クイズデータを読み込んでいます。少々お待ちください。");
     return;
   }
 
-  // ランダムにシャッフルして5問抽出
-  currentQuestions = shuffle(filtered).slice(0, 5);
-  currentQuestionIndex = 0;
-  score = 0;
+  if (shockTimeout) clearTimeout(shockTimeout);
+  stopShockEffects();
 
-  // バッジ更新
-  document.getElementById('current-decade-badge').textContent = selectedDecade;
+  document.getElementById('start-overlay').classList.add('hidden');
+  document.getElementById('result-overlay').classList.add('hidden');
 
-  showScreen('quiz');
-  showQuestion();
-}
+  // 選択された年代でフィルタリング
+  const eraQuestions = rawQuizData.filter(q => q.decade === selectedEra);
 
-// 1問ごとの表示とタイマー開始
-function showQuestion() {
-  clearInterval(timer);
-  const qData = currentQuestions[currentQuestionIndex];
-
-  // 進捗表示
-  document.getElementById('progress-text').textContent = `第 ${currentQuestionIndex + 1} / ${currentQuestions.length} 問`;
-  document.getElementById('question-text').textContent = qData.question;
-
-  // 選択肢の配置（選択肢もランダムシャッフル）
-  const optionsContainer = document.getElementById('options-container');
-  optionsContainer.innerHTML = '';
-
-  const shuffledOptions = shuffle(qData.options);
-
-  shuffledOptions.forEach(optText => {
-    const btn = document.createElement('button');
-    btn.className = 'option-btn';
-    btn.textContent = optText;
-    btn.addEventListener('click', () => checkAnswer(optText, qData.answer, btn));
-    optionsContainer.appendChild(btn);
+  // 3つのジャンルからそれぞれ4問ずつ抽出してシャッフル
+  let selected12 = [];
+  GENRES.forEach(genre => {
+    const genreFiltered = eraQuestions.filter(q => q.genre === genre);
+    const picked4 = shuffleArray(genreFiltered).slice(0, 4);
+    selected12 = selected12.concat(picked4);
   });
 
-  // 5秒タイマー設定
-  timeLeft = 10;
-  document.getElementById('timer-display').textContent = timeLeft;
+  // 全12問をシャッフル
+  currentQuizList = shuffleArray(selected12);
 
-  timer = setInterval(() => {
-    timeLeft--;
-    document.getElementById('timer-display').textContent = timeLeft;
-
-    if (timeLeft <= 0) {
-      clearInterval(timer);
-      // 時間切れ処理
-      handleTimeOut(qData.answer);
-    }
-  }, 1000);
-}
-
-// 回答チェック処理
-function checkAnswer(selected, correct, clickedBtn) {
-  clearInterval(timer);
-
-  const allOptionBtns = document.querySelectorAll('.option-btn');
-  allOptionBtns.forEach(btn => btn.disabled = true);
-
-  if (selected === correct) {
-    score++;
-    clickedBtn.classList.add('correct');
-  } else {
-    clickedBtn.classList.add('wrong');
-    // 正解のボタンを緑色にして表示
-    allOptionBtns.forEach(btn => {
-      if (btn.textContent === correct) btn.classList.add('correct');
-    });
+  if (currentQuizList.length < 12) {
+    alert("問題数が足りません。jsonデータを確認してください。");
+    return;
   }
 
-  setTimeout(nextQuestion, 1200);
+  currentQuestionIdx = 0;
+  correctCount = 0;
+  totalTime = 120; // 12問 × 10秒 = 120秒
+  questionResults = Array(12).fill(0);
+
+  document.getElementById('era-badge').innerText = `🎯 【${selectedEra}】 10問正解をめざせ！`;
+  document.getElementById('correct-text').innerText = "正解: 0/12";
+
+  if (isTimerEnabled) {
+    document.getElementById('timer-text').innerText = totalTime;
+  } else {
+    document.getElementById('timer-text').innerText = "∞";
+  }
+
+  for (let i = 1; i <= 12; i++) {
+    document.getElementById(`lamp-${i}`).className = 'num-lamp';
+  }
+
+  showQuestion();
+
+  // タイマー設定（1秒ごとに減算、10秒ごとに問題切り替え）
+  if (gameInterval) clearInterval(gameInterval);
+  if (isTimerEnabled) {
+    gameInterval = setInterval(() => {
+      totalTime--;
+      document.getElementById('timer-text').innerText = totalTime;
+
+      // 10秒ごとのタイミングで未解答なら時間切れ（不正解）として次へ
+      if (totalTime % 10 === 0) {
+        if (questionResults[currentQuestionIdx] === 0) {
+          recordResult(false);
+          goToNext();
+        }
+      }
+
+      if (totalTime <= 0) endGame();
+    }, 1000);
+  }
 }
 
-// 時間切れ処理
-function handleTimeOut(correct) {
-  const allOptionBtns = document.querySelectorAll('.option-btn');
-  allOptionBtns.forEach(btn => {
-    btn.disabled = true;
-    if (btn.textContent === correct) btn.classList.add('correct');
-  });
+// 問題表示
+function showQuestion() {
+  if (currentQuestionIdx >= 12) {
+    endGame();
+    return;
+  }
 
-  setTimeout(nextQuestion, 1200);
+  const currentQuiz = currentQuizList[currentQuestionIdx];
+  document.getElementById('quiz-question').innerText = currentQuiz.question;
+
+  // 選択肢のシャッフル
+  const shuffledOptions = shuffleArray(currentQuiz.options);
+
+  for (let i = 0; i < 4; i++) {
+    const btn = document.getElementById(`btn${i}`);
+    btn.innerText = shuffledOptions[i];
+    btn.disabled = false;
+    btn.onclick = () => selectAnswerText(shuffledOptions[i], currentQuiz.answer);
+  }
+
+  const currentLamp = document.getElementById(`lamp-${currentQuestionIdx + 1}`);
+  if (currentLamp) currentLamp.classList.add('current');
 }
 
-// 次の問または結果画面へ
-function nextQuestion() {
-  currentQuestionIndex++;
-  if (currentQuestionIndex < currentQuestions.length) {
+// 解答チェック
+function selectAnswerText(selectedText, correctText) {
+  for (let i = 0; i < 4; i++) {
+    document.getElementById(`btn${i}`).disabled = true;
+  }
+
+  const isCorrect = (selectedText === correctText);
+  if (isCorrect) correctCount++;
+
+  recordResult(isCorrect);
+
+  setTimeout(() => {
+    goToNext();
+  }, 200);
+}
+
+// 記録処理
+function recordResult(isCorrect) {
+  questionResults[currentQuestionIdx] = isCorrect ? 1 : -1;
+  document.getElementById('correct-text').innerText = `正解: ${correctCount}/12`;
+
+  const currentLamp = document.getElementById(`lamp-${currentQuestionIdx + 1}`);
+  if (currentLamp) {
+    currentLamp.className = isCorrect ? 'num-lamp correct' : 'num-lamp wrong';
+  }
+}
+
+// 次の問へ移動
+function goToNext() {
+  currentQuestionIdx++;
+  if (currentQuestionIdx < 12) {
+    if (isTimerEnabled) {
+      totalTime = 120 - (currentQuestionIdx * 10);
+      document.getElementById('timer-text').innerText = totalTime;
+    }
     showQuestion();
   } else {
-    showResult();
+    endGame();
   }
 }
 
-// 結果画面表示
-function showResult() {
-  document.getElementById('final-score').textContent = score;
-  document.getElementById('total-questions').textContent = currentQuestions.length;
+// 特殊演出停止
+function stopShockEffects() {
+  document.getElementById('main-body').className = '';
+  document.getElementById('flash-layer').style.display = 'none';
+  document.getElementById('crack-layer').style.display = 'none';
+}
 
-  const commentEl = document.getElementById('result-comment');
-  if (score === 5) {
-    commentEl.textContent = "パーフェクト！素晴らしい記憶力です！";
-  } else if (score >= 3) {
-    commentEl.textContent = "お見事！かなりのアニキ・アネゴ級です。";
+// ゲーム終了処理
+function endGame() {
+  if (gameInterval) clearInterval(gameInterval);
+
+  const body = document.getElementById('main-body');
+  const resTitle = document.getElementById('result-title');
+  const resDesc = document.getElementById('result-desc');
+
+  // 時間制限あり＆3問以下のときのみTIME SHOCKペナルティ演出
+  if (isTimerEnabled && correctCount <= 3) {
+    resTitle.innerText = "💥 TIME SHOCK!!";
+    resTitle.style.color = "#ff3333";
+    resDesc.innerText = `正解数はわずか ${correctCount} 問！\n恐怖の回転ペナルティ発生！`;
+
+    body.className = 'time-shock-shake-active';
+    document.getElementById('flash-layer').style.display = 'block';
+    document.getElementById('crack-layer').style.display = 'block';
+
+    shockTimeout = setTimeout(() => {
+      stopShockEffects();
+      resTitle.innerText = "💀 CHALLENGE FAILED";
+      resTitle.style.color = "#ff8888";
+      resDesc.innerText = `ペナルティ終了。\n正解数は ${correctCount} 問でした。\n次は10問正解を目指しましょう！`;
+    }, 3000);
+
+  } else if (correctCount >= 10) {
+    resTitle.innerText = "👑👑 CLEAR 👑👑";
+    resTitle.style.color = "#ffc107";
+    resDesc.innerText = `見事目標達成！ ${correctCount} 問正解！\n素晴らしいクイズ王です！`;
   } else {
-    commentEl.textContent = "惜しい！もう一度挑戦してみましょう。";
+    resTitle.innerText = "✨ CHALLENGE END";
+    resTitle.style.color = "#4caf50";
+    resDesc.innerText = `12問中、 ${correctCount} 問正解しました！\nあと一歩で目標の10問でしたね。`;
   }
 
-  showScreen('result');
+  document.getElementById('result-overlay').classList.remove('hidden');
 }

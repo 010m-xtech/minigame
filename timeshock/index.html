@@ -1,1 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QUIZ TIME SHOCK</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- 1. ホーム（タイトル・モード＆条件選択）画面 -->
+    <section id="home-screen" class="screen active">
+      <h1 class="main-title">QUIZ TIME SHOCK</h1>
+      <p class="sub-title">あなたは何問正解できるか！？</p>
 
+      <div class="menu-card">
+        <h3>1. モード選択</h3>
+        <div class="button-group">
+          <button class="mode-btn active" data-mode="1p">1人プレイ</button>
+          <button class="mode-btn" data-mode="2p">2人対戦（早押し）</button>
+        </div>
+
+        <h3>2. 年代を選択</h3>
+        <div class="button-group">
+          <button class="decade-btn active" data-decade="1990年代">1990年代</button>
+          <button class="decade-btn" data-decade="2000年代">2000年代</button>
+          <button class="decade-btn" data-decade="2010年代">2010年代</button>
+        </div>
+
+        <h3>3. ジャンルを選択</h3>
+        <div class="genre-list">
+          <button class="genre-btn active" data-genre="エモい！平成・令和スイーツ＆フード">
+            🍩 エモい！平成・令和スイーツ＆フード
+          </button>
+          <button class="genre-btn" data-genre="青春のプレイリスト！懐かしのメガヒットソング">
+            🎤 青春のプレイリスト！懐かしのメガヒットソング
+          </button>
+          <button class="genre-btn" data-genre="あの頃夢中になった！マンガ・アニメ・ゲーム">
+            🎮 あの頃夢中になった！マンガ・アニメ・ゲーム
+          </button>
+        </div>
+
+        <button id="start-btn" class="primary-btn">スタート！</button>
+      </div>
+    </section>
+
+    <!-- 2. クイズプレイ画面 -->
+    <section id="quiz-screen" class="screen">
+      <div class="quiz-header">
+        <span id="current-decade-badge" class="badge">1990年代</span>
+        <span id="progress-text">第 1 / 5 問</span>
+      </div>
+
+      <!-- TIME SHOCK風 タイマーリング -->
+      <div class="timer-container">
+        <div id="timer-display" class="timer-number">5</div>
+      </div>
+
+      <div class="question-card">
+        <p id="question-text">ここに問題文が表示されます</p>
+      </div>
+
+      <!-- 選択肢ボタンエリア -->
+      <div id="options-container" class="options-grid">
+        <!-- JSで動的にボタン生成 -->
+      </div>
+    </section>
+
+    <!-- 3. 結果発表画面 -->
+    <section id="result-screen" class="screen">
+      <h2>TIME SHOCK RESULT</h2>
+      <div class="score-box">
+        <p class="score-label">正解数</p>
+        <p class="score-number"><span id="final-score">0</span> / <span id="total-questions">5</span></p>
+        <p id="result-comment" class="comment"></p>
+      </div>
+
+      <button id="restart-btn" class="primary-btn">もう一度あそぶ</button>
+    </section>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

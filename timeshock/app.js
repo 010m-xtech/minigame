@@ -9,6 +9,7 @@ let correctCount = 0;
 let totalTime = 120; // 12問 × 10秒 = 120秒
 let gameInterval = null;
 let questionResults = [];
+let userAnswers = [];
 let shockTimeout = null;
 
 // 定義された3つのジャンル名
@@ -22,7 +23,39 @@ const GENRES = [
 document.addEventListener('DOMContentLoaded', () => {
   buildClockDial();
   loadJsonData();
+  setupMovieEvents();
 });
+
+// 🎬 動画（movie.mp4）の制御処理
+function setupMovieEvents() {
+  const video = document.getElementById('intro-video');
+  if (!video) return;
+
+  // 動画再生終了時に自動でトップ画面へ切り替え
+  video.addEventListener('ended', () => {
+    skipMovie();
+  });
+
+  // 万が一動画ファイル（movie.mp4）が存在しない・読み込めない場合は自動スキップ
+  video.addEventListener('error', () => {
+    console.warn("movie.mp4が見つからないため、ムービー再生をスキップします。");
+    skipMovie();
+  });
+
+  // ブラウザの自動再生ポリシー対策：Play試行
+  video.play().catch(err => {
+    console.log("自動再生がブロックされました。ユーザー操作待ちです。");
+  });
+}
+
+// スキップ機能
+function skipMovie() {
+  const video = document.getElementById('intro-video');
+  if (video) video.pause();
+
+  document.getElementById('movie-overlay').classList.add('hidden');
+  document.getElementById('start-overlay').classList.remove('hidden');
+}
 
 // JSONデータのロード
 async function loadJsonData() {
@@ -83,6 +116,8 @@ function showHome() {
   if (shockTimeout) clearTimeout(shockTimeout);
   stopShockEffects();
   document.getElementById('result-overlay').classList.add('hidden');
+  document.getElementById('review-overlay').classList.add('hidden');
+  document.getElementById('movie-overlay').classList.add('hidden');
   document.getElementById('start-overlay').classList.remove('hidden');
 }
 
@@ -108,6 +143,7 @@ function startGame() {
 
   document.getElementById('start-overlay').classList.add('hidden');
   document.getElementById('result-overlay').classList.add('hidden');
+  document.getElementById('review-overlay').classList.add('hidden');
 
   // 選択された年代でフィルタリング
   const eraQuestions = rawQuizData.filter(q => q.decade === selectedEra);
@@ -132,6 +168,7 @@ function startGame() {
   correctCount = 0;
   totalTime = 120; // 12問 × 10秒 = 120秒
   questionResults = Array(12).fill(0);
+  userAnswers = Array(12).fill("時間切れ");
 
   document.getElementById('era-badge').innerText = `🎯 【${selectedEra}】 10問正解をめざせ！`;
   document.getElementById('correct-text').innerText = "正解: 0/12";
@@ -148,16 +185,16 @@ function startGame() {
 
   showQuestion();
 
-  // タイマー設定（1秒ごとに減算、10秒ごとに問題切り替え）
+  // タイマー設定
   if (gameInterval) clearInterval(gameInterval);
   if (isTimerEnabled) {
     gameInterval = setInterval(() => {
       totalTime--;
       document.getElementById('timer-text').innerText = totalTime;
 
-      // 10秒ごとのタイミングで未解答なら時間切れ（不正解）として次へ
       if (totalTime % 10 === 0) {
         if (questionResults[currentQuestionIdx] === 0) {
+          userAnswers[currentQuestionIdx] = "時間切れ";
           recordResult(false);
           goToNext();
         }
@@ -178,7 +215,6 @@ function showQuestion() {
   const currentQuiz = currentQuizList[currentQuestionIdx];
   document.getElementById('quiz-question').innerText = currentQuiz.question;
 
-  // 選択肢のシャッフル
   const shuffledOptions = shuffleArray(currentQuiz.options);
 
   for (let i = 0; i < 4; i++) {
@@ -198,6 +234,7 @@ function selectAnswerText(selectedText, correctText) {
     document.getElementById(`btn${i}`).disabled = true;
   }
 
+  userAnswers[currentQuestionIdx] = selectedText;
   const isCorrect = (selectedText === correctText);
   if (isCorrect) correctCount++;
 
@@ -248,7 +285,6 @@ function endGame() {
   const resTitle = document.getElementById('result-title');
   const resDesc = document.getElementById('result-desc');
 
-  // 時間制限あり＆3問以下のときのみTIME SHOCKペナルティ演出
   if (isTimerEnabled && correctCount <= 3) {
     resTitle.innerText = "💥 TIME SHOCK!!";
     resTitle.style.color = "#ff3333";
@@ -276,4 +312,37 @@ function endGame() {
   }
 
   document.getElementById('result-overlay').classList.remove('hidden');
+}
+
+// 📜 正解と解説の一覧画面を表示
+function showReview() {
+  if (shockTimeout) clearTimeout(shockTimeout);
+  stopShockEffects();
+
+  document.getElementById('result-overlay').classList.add('hidden');
+  const reviewListEl = document.getElementById('review-list');
+  reviewListEl.innerHTML = '';
+
+  currentQuizList.forEach((q, index) => {
+    const isCorrect = (questionResults[index] === 1);
+    const userAnsText = userAnswers[index] || "未回答";
+
+    const item = document.createElement('div');
+    item.className = `review-item ${isCorrect ? 'is-correct' : 'is-wrong'}`;
+
+    item.innerHTML = `
+      <div class="review-header">
+        <span>第 ${index + 1} 問 【${q.genre}】</span>
+        <span>${isCorrect ? '⭕ 正解' : '❌ 不正解'}</span>
+      </div>
+      <div class="review-q">Q. ${q.question}</div>
+      <div class="review-ans">⭕ 正解: ${q.answer}</div>
+      <div style="font-size:13px; color:#aaa;">あなたの回答: ${userAnsText}</div>
+      <div class="review-exp">💡 解説: ${q.explanation || '解説はありません。'}</div>
+    `;
+
+    reviewListEl.appendChild(item);
+  });
+
+  document.getElementById('review-overlay').classList.remove('hidden');
 }

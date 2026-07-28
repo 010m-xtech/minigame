@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>るーれっと</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 効果音再生用ライブラリ Tone.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #030303; /* Pure darkness background */
+            margin: 0;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @keyframes flash {
+            0%, 50%, 100% { opacity: 1; background-color: white; }
+            25%, 75% { opacity: 0.2; background-color: black; }
+        }
+        .animate-flash { animation: flash 0.15s infinite; }
+        
+        @keyframes rainbow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .rainbow-text {
+            background: linear-gradient(270deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: rainbow 1s ease infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) rotate(45deg); opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { transform: translateX(100%) rotate(45deg); opacity: 0; }
+        }
+        .metal-shimmer::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
+            transform: rotate(45deg);
+            animation: shimmer 3s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes sparkParticle {
+            0% { opacity: 1; stroke-dashoffset: 0; }
+            100% { opacity: 0; stroke-dashoffset: 100; transform: translate(20px, 30px) scale(0.5); }
+        }
+        .spark-line {
+            stroke-dasharray: 100;
+            animation: sparkParticle 0.15s linear infinite;
+            transform-origin: 500px 100px;
+        }
+        .spark-line:nth-child(1) { animation-duration: 0.1s; }
+        .spark-line:nth-child(2) { animation-duration: 0.18s; animation-delay: 0.05s; }
+        .spark-line:nth-child(3) { animation-duration: 0.12s; animation-delay: 0.02s; }
+        .spark-line:nth-child(4) { animation-duration: 0.2s; animation-delay: 0.08s; }
+
+        @keyframes sparkGlow {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+        .spark-core {
+            animation: sparkGlow 0.05s infinite alternate;
+            transform-origin: 500px 100px;
+        }
+
+        #ball-group {
+            transform-origin: 500px 100px;
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease-out;
+            will-change: transform, opacity;
+        }
+        .ball-idle {
+            transform: translate(200px, -300px) scale(3);
+            opacity: 0;
+        }
+        .ball-active {
+            transform: translate(0px, 0px) scale(1);
+            opacity: 1;
+        }
+
+        .preserve-3d {
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+        .wheel-layer {
+            position: absolute;
+            inset: 0;
+            transform-style: preserve-3d;
+            border-radius: 9999px;
+            will-change: transform;
+            backface-visibility: hidden;
+        }
+
+        .gold-gradient-text {
+            background: linear-gradient(to bottom, #FFF2B2, #FFDF00, #B8860B);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Cinematic ambient glare on the wheel surface */
+        .glass-glare {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: 
+                radial-gradient(circle at 35% 35%, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 40%),
+                linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.02) 20%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.01) 70%, rgba(255,255,255,0.2) 100%);
+            mix-blend-mode: screen;
+            pointer-events: none;
+            transform: translateZ(11px);
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+        }
+
+        /* ▼▼▼ 画面割れ演出用CSS追加 ▼▼▼ */
+        .blend-screen {
+            mix-blend-mode: screen !important;
+            pointer-events: none;
+            background: transparent !important; /* 透過を確実にするため追加 */
+        }
+
+        @keyframes shake-impact {
+            0% { transform: scale(1) translate(0, 0); }
+            20% { transform: scale(1.08) translate(-5px, 5px); }
+            40% { transform: scale(0.95) translate(5px, -5px); }
+            60% { transform: scale(1.02) translate(-3px, 0); }
+            100% { transform: scale(1) translate(0, 0); }
+        }
+        .impact-shake {
+            animation: shake-impact 0.3s ease-out;
+        }
+        /* ▲▲▲ 画面割れ演出用CSS追加 ▲▲▲ */
+
+        /* ▼▼▼ シネマティックタイトル用CSS追加 ▼▼▼ */
+        .title-cinematic {
+            background: linear-gradient(180deg, #FFF2B2 0%, #FFDF00 35%, #D4AF37 50%, #B8860B 60%, #5c4300 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .title-cinematic-red {
+            background: linear-gradient(180deg, #ff4444 0%, #cc0000 35%, #880000 50%, #550000 60%, #110000 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .title-cinematic-blue {
+            background: linear-gradient(180deg, #88ccff 0%, #0066ff 35%, #0033aa 50%, #001155 60%, #000011 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* ▼▼▼ 結果表示用：シネマティックな黄金テキストと立体枠のCSS追加 ▼▼▼ */
+        .text-cinematic-gold {
+            background: linear-gradient(to bottom, #FFF2B2 0%, #D4AF37 35%, #5c4300 50%, #B8860B 60%, #FFDF73 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0px 2px 1px rgba(255,255,255,0.3))
+                    drop-shadow(0px 4px 3px rgba(0,0,0,0.8))
+                    drop-shadow(0px 8px 10px rgba(0,0,0,0.9))
+                    drop-shadow(0px 0px 20px rgba(212,175,55,0.4));
+        }
+
+        .modal-cinematic {
+            background: linear-gradient(145deg, #1c1c1c 0%, #0d0d0d 40%, #050505 100%);
+            box-shadow: 
+                inset 0 2px 4px rgba(255,255,255,0.1),
+                inset 0 -4px 10px rgba(0,0,0,0.8),
+                0 15px 35px rgba(0,0,0,0.95),
+                0 0 30px rgba(212,175,55,0.15);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            position: relative;
+        }
+        
+        .modal-cinematic::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 2px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 25%, rgba(255,255,255,0) 75%, rgba(212,175,55,0.2) 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        /* ▼▼▼ 逆転結果表示用CSS追加 ▼▼▼ */
+        .text-cinematic-reverse {
+            background: linear-gradient(to bottom, #ffb3b3 0%, #ff1a1a 35%, #800000 50%, #b30000 60%, #ff4d4d 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0px 2px 1px rgba(255,255,255,0.3))
+                    drop-shadow(0px 4px 3px rgba(0,0,0,0.8))
+                    drop-shadow(0px 8px 10px rgba(0,0,0,0.9))
+                    drop-shadow(0px 0px 25px rgba(255,0,0,0.8));
+        }
+        
+        .title-cinematic-reverse {
+            background: linear-gradient(180deg, #ff4444 0%, #cc0000 35%, #aa0000 50%, #660000 60%, #220000 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0px 1px 0px #880000)
+                    drop-shadow(0px 2px 0px #660000)
+                    drop-shadow(0px 3px 0px #440000)
+                    drop-shadow(0px 8px 15px rgba(255,0,0,0.6));
+        }
+
+        .modal-cinematic-reverse {
+            background: linear-gradient(145deg, #1c0000 0%, #0d0000 40%, #050000 100%);
+            box-shadow: 
+                inset 0 2px 4px rgba(255,255,255,0.1),
+                inset 0 -4px 10px rgba(0,0,0,0.8),
+                0 15px 35px rgba(0,0,0,0.95),
+                0 0 40px rgba(255,0,0,0.4);
+            border: 1px solid rgba(255, 0, 0, 0.4);
+            position: relative;
+        }
+        
+        .modal-cinematic-reverse::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 2px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 25%, rgba(255,255,255,0) 75%, rgba(255,0,0,0.4) 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+        /* ▲▲▲ 逆転結果表示用CSS追加 ▲▲▲ */
+        /* ▲▲▲ 追加ここまで ▲▲▲ */
+
+        .shadow-cinematic {
+            filter: drop-shadow(0px 1px 0px #888)
+                    drop-shadow(0px 2px 0px #666)
+                    drop-shadow(0px 3px 0px #444)
+                    drop-shadow(0px 4px 0px #222)
+                    drop-shadow(0px 5px 0px #000)
+                    drop-shadow(0px 15px 25px rgba(0,0,0,0.95))
+                    drop-shadow(0px 0px 40px rgba(255,255,255,0.2));
+        }
+
+        .shadow-cinematic-sm {
+            filter: drop-shadow(0px 1px 0px #777)
+                    drop-shadow(0px 2px 0px #333)
+                    drop-shadow(0px 3px 0px #000)
+                    drop-shadow(0px 8px 15px rgba(0,0,0,0.9));
+        }
+        /* ▲▲▲ シネマティックタイトル用CSS追加 ▲▲▲ */
+
+        /* ▼▼▼ サブタイトル（案内テキスト）用アニメーション ▼▼▼ */
+        @keyframes elegantPulse {
+            0%, 100% { opacity: 0.5; text-shadow: 0 0 5px rgba(255,255,255,0); }
+            50% { opacity: 1; text-shadow: 0 0 10px rgba(255,255,255,0.4); }
+        }
+        .animate-elegant-pulse {
+            animation: elegantPulse 3s ease-in-out infinite;
+        }
+        /* ▲▲▲ サブタイトル（案内テキスト）用アニメーション ▲▲▲ */
+    </style>
+</head>
+<body class="h-[100dvh] w-full text-white font-sans overflow-hidden flex flex-col items-center relative">
+
+    <!-- 背景画像 -->
+    <div class="fixed inset-0 z-[-10] bg-no-repeat bg-center bg-black opacity-50" style="background-image: url('back2.jpg'); background-size: 100% 100%;"></div>
+
+    <!-- 全体BGM用（動画ファイルをソースとして読み込む） -->
+    <audio id="bgm-audio" src="Roulette1.mp4" loop preload="auto" muted></audio>
+
+    <div id="setup-view" class="absolute inset-0 z-30 w-full h-full transition-opacity duration-500">
+        <div class="flex flex-col w-full h-full max-w-md mx-auto p-6 relative">
+            <div class="text-center mb-6 mt-10">
+                <div class="shadow-cinematic">
+                    <h1 class="text-5xl md:text-6xl font-black tracking-[0.2em] uppercase mb-4 title-cinematic">
+                        るーれっと
+                    </h1>
+                </div>
+                <p class="text-gray-400 font-medium tracking-[0.1em] text-sm md:text-base drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] animate-elegant-pulse">
+                    お題と参加人数を決定してください
+                </p>
+            </div>
+
+        <div class="w-full mb-6 shrink-0 z-20">
+            <label class="block text-gray-400 font-bold text-xs mb-2 pl-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-widest">お題</label>
+            <div class="relative">
+                <select id="theme-select" class="w-full bg-black/80 border border-yellow-700/50 rounded-xl px-4 py-3 text-white font-bold appearance-none focus:outline-none focus:border-yellow-400 transition-colors shadow-[inset_0_2px_10px_rgba(0,0,0,1)] text-sm md:text-base cursor-pointer">
+                    <option value="支払う人を決める！">支払う人を決める！</option>
+                    <option value="当たった人が次のお店を決める！">当たった人が次のお店を決める！</option>
+                    <option value="次のお店を支払う人を決める！">次のお店を支払う人を決める！</option>
+                    <option value="custom">自由に作る</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-yellow-600">
+                    <svg class="fill-current h-4 w-4 drop-shadow-[0_0_2px_rgba(255,215,0,0.8)]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                </div>
+            </div>
+            <div id="custom-theme-container" class="mt-3 hidden">
+                <input type="text" id="custom-theme-input" placeholder="お題を入力..." class="w-full bg-[#0a0a0a] border border-yellow-700/50 rounded-xl px-4 py-3 text-white font-bold placeholder-gray-600 focus:outline-none focus:border-yellow-400 transition-colors shadow-inner text-sm md:text-base" />
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between bg-black/80 border border-yellow-700/50 rounded-xl px-4 py-2 mb-4 shrink-0 shadow-[inset_0_2px_10px_rgba(0,0,0,1)]">
+            <span class="text-gray-300 font-bold tracking-widest text-sm">参加人数</span>
+            <div class="flex items-center gap-3">
+                <button id="decrease-players-btn" class="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-900 text-yellow-600 hover:bg-gray-800 hover:text-yellow-400 border border-yellow-700/30 transition-colors active:scale-95 disabled:opacity-50 disabled:grayscale">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" x2="19" y1="12" y2="12"/></svg>
+                </button>
+                <span id="player-count-display" class="text-2xl font-black text-white w-8 text-center drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">2</span>
+                <button id="increase-players-btn" class="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-900 text-yellow-600 hover:bg-gray-800 hover:text-yellow-400 border border-yellow-700/30 transition-colors active:scale-95 disabled:opacity-50 disabled:grayscale">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <div id="player-list" class="flex-1 overflow-y-auto space-y-3 pb-28 scrollbar-hide"></div>
+            <div class="absolute bottom-6 left-6 right-6 z-20">
+                <button 
+                    id="enter-room-btn"
+                    class="w-full py-5 bg-gradient-to-b from-[#FFF2B2] via-[#D4AF37] to-[#8B6508] rounded-2xl text-black font-black text-xl tracking-widest shadow-[0_10px_30px_rgba(0,0,0,0.9),_inset_0_2px_15px_rgba(255,255,255,1)] hover:brightness-110 active:translate-y-1 transition-all uppercase flex items-center justify-center gap-2 border-b-4 border-[#3a2a00] metal-shimmer overflow-hidden relative disabled:opacity-50 disabled:grayscale"
+                >
+                    <span class="relative z-10 flex items-center gap-2 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]">
+                        NEXT 
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-view" class="absolute inset-0 flex flex-col w-full h-full max-w-[600px] mx-auto items-center transition-all duration-500 z-10">
+        
+        <div class="pt-14 pb-4 w-full flex justify-between items-start px-4 md:px-6 h-28 transition-opacity duration-500 z-20" id="game-header" style="opacity: 0; pointer-events: none;">
+            <button id="back-btn" class="text-gray-500 hover:text-white text-sm font-bold tracking-wider flex items-center transition-colors drop-shadow-[0_2px_4px_rgba(0,0,0,1)] w-16 md:w-20 z-20 mt-2">
+                ◀ BACK
+            </button>
+            <div class="shadow-cinematic-sm text-center flex flex-col items-center absolute left-1/2 -translate-x-1/2 w-[65%] z-10">
+                <h1 id="dev-toggle-title" class="text-4xl md:text-5xl font-black tracking-[0.2em] uppercase cursor-pointer title-cinematic whitespace-nowrap">
+                    るーれっと
+                </h1>
+            </div>
+            <div class="w-16 md:w-20 relative flex justify-end z-20 mt-2">
+                <span id="dev-indicator" class="hidden text-[10px] text-red-500 font-bold animate-pulse absolute top-1 right-0 whitespace-nowrap drop-shadow-[0_0_5px_rgba(255,0,0,1)]">DEV: ON</span>
+            </div>
+        </div>
+
+        <div id="roulette-wrapper" class="relative w-full aspect-square flex-shrink-0 z-10 mt-6 md:mt-10 transition-all duration-800" style="perspective: 1200px; transform: scale(0.85) translateY(-5%); opacity: 0;">
+            
+            <div class="w-full h-full relative preserve-3d" style="transform: rotateX(55deg);">
+                
+                <div id="wheel-layer" class="wheel-layer shadow-[0_50px_100px_rgba(0,0,0,0.98),_inset_0_0_80px_rgba(0,0,0,0.9)] bg-[#030303]">
+                    <div class="absolute inset-0 rounded-full border-[16px] border-[#3a2a00] shadow-[inset_0_10px_40px_rgba(0,0,0,1)] bg-gradient-to-br from-[#0a0a0a] to-[#000]" style="transform: translateZ(-16px);"></div>
+                    <div class="glass-glare"></div>
+
+                    <svg viewBox="0 0 1000 1000" class="w-full h-full overflow-visible absolute inset-0" style="transform: translateZ(10px);" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
+                        <defs>
+                            <radialGradient id="gold-rim" cx="40%" cy="30%" r="60%">
+                                <stop offset="70%" stop-color="#2a1f00" />
+                                <stop offset="85%" stop-color="#B8860B" />
+                                <stop offset="92%" stop-color="#FFF2B2" />
+                                <stop offset="95%" stop-color="#FFFFFF" />
+                                <stop offset="98%" stop-color="#D4AF37" />
+                                <stop offset="100%" stop-color="#1a1200" />
+                            </radialGradient>
+                            
+                            <radialGradient id="center-gold" cx="35%" cy="35%" r="65%">
+                                <stop offset="0%" stop-color="#ffffff" />
+                                <stop offset="10%" stop-color="#FFF8D6" />
+                                <stop offset="40%" stop-color="#D4AF37" />
+                                <stop offset="80%" stop-color="#8B6508" />
+                                <stop offset="100%" stop-color="#1a1200" />
+                            </radialGradient>
+
+                            <linearGradient id="black-metal" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#222" />
+                                <stop offset="40%" stop-color="#050505" />
+                                <stop offset="70%" stop-color="#000" />
+                                <stop offset="100%" stop-color="#111" />
+                            </linearGradient>
+
+                            <radialGradient id="red-velvet" cx="50%" cy="50%" r="80%">
+                                <stop offset="0%" stop-color="#8b0000" />
+                                <stop offset="60%" stop-color="#4a0000" />
+                                <stop offset="100%" stop-color="#1a0000" />
+                            </radialGradient>
+
+                            <linearGradient id="split-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#00FFFF" />
+                                <stop offset="40%" stop-color="#0044cc" />
+                                <stop offset="100%" stop-color="#000033" />
+                            </linearGradient>
+
+                            <radialGradient id="counter-grad" cx="50%" cy="50%" r="60%">
+                                <stop offset="0%" stop-color="#ff3333" />
+                                <stop offset="50%" stop-color="#8b0000" />
+                                <stop offset="100%" stop-color="#110000" />
+                            </radialGradient>
+                            
+                            <filter id="intense-glow" x="-50%" y="-50%" width="200%" height="200%">
+                                <feGaussianBlur stdDeviation="12" result="blur" />
+                                <feComponentTransfer in="blur" result="glow">
+                                    <feFuncA type="linear" slope="3.0"/>
+                                </feComponentTransfer>
+                                <feMerge>
+                                    <feMergeNode in="glow" />
+                                    <feMergeNode in="SourceGraphic" />
+                                </feMerge>
+                            </filter>
+                            
+                            <filter id="text-shadow">
+                                <feDropShadow dx="0" dy="8" stdDeviation="4" flood-color="#000" flood-opacity="1" />
+                            </filter>
+                            <filter id="text-glow">
+                                <feDropShadow dx="0" dy="0" stdDeviation="15" flood-color="#FFF" flood-opacity="0.9" />
+                            </filter>
+
+                            <radialGradient id="wood-track" cx="50%" cy="50%" r="50%">
+                                <stop offset="85%" stop-color="#030303" />
+                                <stop offset="89%" stop-color="#1a1200" />
+                                <stop offset="92%" stop-color="#3a2a00" />
+                                <stop offset="95%" stop-color="#111" />
+                                <stop offset="98%" stop-color="#2a1f00" />
+                                <stop offset="100%" stop-color="#000" />
+                            </radialGradient>
+                        </defs>
+
+                        <circle cx="500" cy="500" r="495" fill="none" stroke="url(#gold-rim)" stroke-width="12" filter="drop-shadow(0 15px 30px rgba(0,0,0,1))" />
+                        
+                        <circle cx="500" cy="500" r="465" fill="none" stroke="url(#wood-track)" stroke-width="60" />
+                        <circle cx="500" cy="500" r="495" fill="none" stroke="rgba(0,0,0,1)" stroke-width="6" />
+                        <circle cx="500" cy="500" r="435" fill="none" stroke="rgba(0,0,0,1)" stroke-width="10" />
+
+                        <circle cx="500" cy="500" r="435" fill="#000" />
+
+                        <g id="svg-slices-container"></g>
+                        
+                        <circle cx="500" cy="500" r="150" fill="none" stroke="url(#gold-rim)" stroke-width="18" filter="drop-shadow(0 20px 25px rgba(0,0,0,0.95))" />
+                        
+                        <circle cx="500" cy="500" r="140" fill="url(#center-gold)" stroke="#1a1200" stroke-width="4" />
+                        <circle cx="500" cy="500" r="80" fill="#0a0a0a" stroke="url(#gold-rim)" stroke-width="12" />
+                        <circle cx="500" cy="500" r="40" fill="url(#center-gold)" />
+                        <circle cx="490" cy="490" r="15" fill="#fff" opacity="0.4" filter="blur(3px)" />
+                        <circle cx="500" cy="500" r="10" fill="#fff" opacity="0.6" />
+                    </svg>
+                </div>
+
+                <div id="ball-layer" class="wheel-layer pointer-events-none z-20">
+                    <svg viewBox="0 0 1000 1000" class="w-full h-full overflow-visible absolute inset-0" style="transform: translateZ(12px);" shape-rendering="geometricPrecision">
+                        <defs>
+                            <radialGradient id="chrome-ball" cx="35%" cy="30%" r="65%">
+                                <stop offset="0%" stop-color="#ffffff" />
+                                <stop offset="10%" stop-color="#e2e8f0" />
+                                <stop offset="25%" stop-color="#64748b" />
+                                <stop offset="45%" stop-color="#0f172a" />
+                                <stop offset="55%" stop-color="#475569" />
+                                <stop offset="85%" stop-color="#020617" />
+                                <stop offset="100%" stop-color="#000000" />
+                            </radialGradient>
+
+                            <radialGradient id="sphere-shadow" cx="50%" cy="50%" r="50%">
+                                <stop offset="60%" stop-color="rgba(0,0,0,0)" />
+                                <stop offset="85%" stop-color="rgba(0,0,0,0.6)" />
+                                <stop offset="100%" stop-color="rgba(0,0,0,1)" />
+                            </radialGradient>
+
+                            <radialGradient id="ball-reflection-gold" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" stop-color="rgba(255,223,0,0.9)" />
+                                <stop offset="100%" stop-color="rgba(255,223,0,0)" />
+                            </radialGradient>
+                            
+                            <radialGradient id="ball-reflection-red" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" stop-color="rgba(220,0,0,0.8)" />
+                                <stop offset="100%" stop-color="rgba(220,0,0,0)" />
+                            </radialGradient>
+
+                            <linearGradient id="spark-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#ffffff" />
+                                <stop offset="20%" stop-color="#ffdf00" />
+                                <stop offset="60%" stop-color="#ff4500" />
+                                <stop offset="100%" stop-color="#8b0000" />
+                            </linearGradient>
+                        </defs>
+
+                        <g id="ball-spark" class="hidden" style="mix-blend-mode: screen;">
+                            <circle cx="500" cy="100" r="45" fill="url(#spark-grad)" class="spark-core" filter="blur(12px)" opacity="0.9" />
+                            <circle cx="500" cy="100" r="20" fill="#fff" class="spark-core" filter="blur(3px)" />
+                            
+                            <path d="M 500 100 Q 590 150 670 230" fill="none" stroke="url(#spark-grad)" stroke-width="10" stroke-linecap="round" class="spark-line" />
+                            <path d="M 500 100 Q 560 80 620 50" fill="none" stroke="url(#spark-grad)" stroke-width="6" stroke-linecap="round" class="spark-line" />
+                            <path d="M 500 100 Q 610 120 720 160" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" class="spark-line" />
+                            <path d="M 500 100 Q 540 130 590 180" fill="none" stroke="#ffdf00" stroke-width="8" stroke-linecap="round" class="spark-line" />
+                        </g>
+                        
+                        <g id="ball-group" class="ball-idle" filter="drop-shadow(0px 35px 20px rgba(0,0,0,1)) drop-shadow(0px 10px 8px rgba(0,0,0,0.9)) drop-shadow(0px 0px 10px rgba(255,255,255,0.4))">
+                            <circle cx="500" cy="100" r="16" fill="url(#chrome-ball)" />
+                            
+                            <g id="rolling-reflection" style="transform-origin: 500px 100px;">
+                                <path d="M 485 88 Q 500 73 515 88 T 500 118 Q 485 103 485 88" fill="rgba(255,255,255,0.2)" filter="blur(0.5px)"/>
+                                <path d="M 485 115 Q 500 127 515 115 T 500 85 Q 485 97 485 115" fill="rgba(0,0,0,0.6)" filter="blur(1.5px)"/>
+                                <circle cx="509" cy="107" r="8" fill="url(#ball-reflection-gold)" opacity="0.9"/>
+                                <circle cx="491" cy="103" r="10" fill="url(#ball-reflection-red)" opacity="0.9"/>
+                            </g>
+
+                            <circle cx="500" cy="100" r="16" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5" />
+                            <circle cx="500" cy="100" r="15.5" fill="none" stroke="rgba(0,0,0,0.8)" stroke-width="1" />
+                            <circle cx="500" cy="100" r="16" fill="url(#sphere-shadow)" />
+
+                            <circle cx="494" cy="92" r="3.5" fill="#FFFFFF" opacity="1" filter="blur(0.5px)" />
+                            <circle cx="492" cy="91" r="1.5" fill="#FFFFFF" opacity="1" />
+                            <path d="M 484 94 Q 491 86 504 90" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.9" filter="blur(1px)" />
+                            <path d="M 488 113 Q 500 117 512 113" stroke="#D4AF37" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.9" filter="blur(1px)" />
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div id="spin-container" class="absolute bottom-8 left-0 right-0 mx-auto w-full max-w-[320px] px-4 z-20 transition-all duration-800" style="opacity: 0; pointer-events: none;">
+            <button 
+                id="spin-btn"
+                class="w-full py-4 bg-gradient-to-b from-[#FFF2B2] via-[#D4AF37] to-[#8B6508] rounded-2xl text-black font-black text-2xl tracking-widest shadow-[0_10px_20px_rgba(0,0,0,0.9),_0_0_20px_rgba(212,175,55,0.3),_inset_0_2px_15px_rgba(255,255,255,1)] hover:brightness-110 active:translate-y-2 active:shadow-[0_5px_10px_rgba(0,0,0,0.9),_inset_0_2px_10px_rgba(255,255,255,0.8)] transition-all uppercase flex items-center justify-center gap-2 border-b-6 border-[#2a1f00] metal-shimmer overflow-hidden relative"
+            >
+                <span class="relative z-10 flex items-center gap-2 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    START
+                </span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN CUTIN OVERLAY FOR NORMAL VIDEOS (muted削除) -->
+    <div id="cutin-overlay" class="fixed inset-0 z-[60] bg-black flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <video id="cutin-video" playsinline class="absolute inset-0 w-full h-full object-contain transition-opacity duration-300" muted></video>
+    </div>
+
+    <!-- SEPARATE OVERLAY FOR SCREEN BLEND (PARIN.MP4) (muted削除) -->
+    <div id="cutin-blend-overlay" class="fixed inset-0 z-[70] bg-transparent flex items-center justify-center hidden opacity-0 transition-opacity duration-300 blend-screen">
+        <video id="cutin-blend-video" playsinline class="absolute inset-0 w-full h-full object-contain" muted></video>
+    </div>
+
+    <div id="blackout-overlay" class="fixed inset-0 z-40 pointer-events-none hidden bg-black transition-opacity duration-300 opacity-0"></div>
+
+    <div id="video-overlay" class="fixed inset-0 z-50 bg-black flex-col items-center justify-center hidden opacity-0 transition-opacity duration-500">
+        <video src="placeholder.mp4" autoplay loop class="absolute inset-0 w-full h-full object-cover opacity-60" muted></video>
+        
+        <div class="relative z-10 flex flex-col items-center justify-center space-y-8 p-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-600 animate-pulse drop-shadow-[0_0_30px_rgba(255,0,0,1)]"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+            <div class="text-red-600 font-black text-6xl md:text-8xl italic tracking-tighter drop-shadow-[0_0_20px_rgba(255,0,0,0.8)] text-center animate-bounce">
+                DANGER!!<br/>REVERSAL!!
+            </div>
+            <div class="text-white bg-black/80 px-6 py-2 rounded-full border border-red-500 font-bold text-xl">
+                // TODO: 復活演出動画再生中...
+            </div>
+        </div>
+    </div>
+
+    <div id="result-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-transparent p-6 hidden opacity-0 transition-opacity duration-500">
+        <div id="result-modal" class="modal-cinematic p-8 rounded-3xl max-w-sm w-full flex flex-col items-center overflow-hidden transition-transform duration-500 transform translate-y-12 scale-90">
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[200%] h-[50%] bg-gradient-to-b from-yellow-500/15 to-transparent blur-[40px] rounded-full pointer-events-none"></div>
+
+            <div id="result-content" class="w-full text-center space-y-6 relative z-10"></div>
+
+            <div class="flex gap-4 mt-10 w-full z-10">
+                <button id="edit-players-btn" class="flex-1 py-4 bg-transparent border border-white/30 hover:bg-white/10 rounded-xl text-gray-300 font-bold transition-colors">
+                    EDIT PLAYERS
+                </button>
+                <button id="next-round-btn" class="flex-1 py-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white font-bold text-lg transition-colors">
+                    NEXT ROUND
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SPIN_DURATION = 16000;
+        const FAKE_STOP_DURATION = 1500;
+        const BLACKOUT_DURATION = 2000;
+        const REVERSE_SPIN_DURATION = 3000;
+        const VIDEO_DURATION = 5000;
+        const SLICES_PER_PLAYER = 6;
+        const SPECIAL_SLICE_DEG = 6;
+
+        const COLORS = [
+            'url(#red-velvet)', 
+            'url(#black-metal)', 
+            'url(#red-velvet)', 
+            'url(#black-metal)', 
+            'url(#red-velvet)', 
+            'url(#black-metal)'
+        ];
+
+        let state = {
+            phase: 'setup',
+            gameState: 'idle',
+            theme: '支払う人を決める！',
+            customTheme: '',
+            players: [
+                { id: 1, name: '', penalties: 0 },
+                { id: 2, name: '', penalties: 0 }
+            ],
+            forceCounter: false,
+            rotation: 0,
+            ballAngle: 0,
+            spinResult: null,
+            victim: null,
+            slices: [],
+            hasCounter: false,
+            cutinTimeoutId: null,
+            willReverse: false,
+            hasReversed: false
+        };
+
+        const DOM = {
+            bgmAudio: document.getElementById('bgm-audio'),
+            setupView: document.getElementById('setup-view'),
+            gameView: document.getElementById('game-view'),
+            
+            decreasePlayersBtn: document.getElementById('decrease-players-btn'),
+            increasePlayersBtn: document.getElementById('increase-players-btn'),
+            playerCountDisplay: document.getElementById('player-count-display'),
+            
+            themeSelect: document.getElementById('theme-select'),
+            customThemeContainer: document.getElementById('custom-theme-container'),
+            customThemeInput: document.getElementById('custom-theme-input'),
+            
+            playerList: document.getElementById('player-list'),
+            enterRoomBtn: document.getElementById('enter-room-btn'),
+            
+            gameHeader: document.getElementById('game-header'),
+            backBtn: document.getElementById('back-btn'),
+            devToggleTitle: document.getElementById('dev-toggle-title'),
+            devIndicator: document.getElementById('dev-indicator'),
+            rouletteWrapper: document.getElementById('roulette-wrapper'),
+            wheelLayer: document.getElementById('wheel-layer'),
+            ballLayer: document.getElementById('ball-layer'),
+            ballSpark: document.getElementById('ball-spark'),
+            ballGroup: document.getElementById('ball-group'),
+            svgSlicesContainer: document.getElementById('svg-slices-container'),
+            spinBtn: document.getElementById('spin-btn'),
+            spinContainer: document.getElementById('spin-container'),
+            
+            cutinOverlay: document.getElementById('cutin-overlay'),
+            cutinVideo: document.getElementById('cutin-video'),
+            cutinBlendOverlay: document.getElementById('cutin-blend-overlay'),
+            cutinBlendVideo: document.getElementById('cutin-blend-video'),
+            
+            blackoutOverlay: document.getElementById('blackout-overlay'),
+            videoOverlay: document.getElementById('video-overlay'),
+            resultOverlay: document.getElementById('result-overlay'),
+            resultModal: document.getElementById('result-modal'),
+            resultContent: document.getElementById('result-content'),
+            editPlayersBtn: document.getElementById('edit-players-btn'),
+            nextRoundBtn: document.getElementById('next-round-btn')
+        };
+
+        // BGMを完全にミュート設定
+        DOM.bgmAudio.muted = true;
+        DOM.bgmAudio.volume = 0;
+
+        // BGMのシームレスループ処理（遅延軽減のため終了直前に先頭に戻す）
+        DOM.bgmAudio.addEventListener('timeupdate', function() {
+            const buffer = 0.15; // 終了0.15秒前に先頭に戻す
+            if (this.duration && this.currentTime >= this.duration - buffer) {
+                this.currentTime = 0;
+                this.play().catch(e => {}); // 再生を確実に行う
+            }
+        });
+
+        // Tone.jsの効果音再生関数
+        function playSound(type) {
+            // 完全にミュートするため早期リターン
+            return;
+            
+            // Tone.jsが起動していなければ無視
+            if (Tone.context.state !== 'running') return;
+            
+            const synth = new Tone.Synth().toDestination();
+            switch(type) {
+                case 'add':
+                    synth.triggerAttackRelease("C5", "16n");
+                    break;
+                case 'remove':
+                    synth.triggerAttackRelease("G4", "16n");
+                    break;
+                case 'next':
+                    synth.triggerAttackRelease("E5", "8n");
+                    break;
+                case 'back':
+                    synth.triggerAttackRelease("C4", "8n");
+                    break;
+                case 'spin':
+                    // ルーレットの回転をイメージしたノイズ音
+                    const noise = new Tone.NoiseSynth({
+                        noise: { type: 'pink' },
+                        envelope: { attack: 0.01, decay: 0.1 }
+                    }).toDestination();
+                    noise.volume.value = -10;
+                    noise.triggerAttackRelease("16n");
+                    break;
+            }
+        }
+
+        function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+            const angleInRadians = (angleInDegrees * Math.PI) / 180.0;
+            return {
+                x: centerX + (radius * Math.cos(angleInRadians)),
+                y: centerY + (radius * Math.sin(angleInRadians))
+            };
+        }
+
+        function describeArc(x, y, radius, startAngle, endAngle) {
+            const start = polarToCartesian(x, y, radius, endAngle);
+            const end = polarToCartesian(x, y, radius, startAngle);
+            const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+            return [
+                "M", x, y,
+                "L", start.x, start.y,
+                "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y,
+                "Z"
+            ].join(" ");
+        }
+
+        const icons = {
+            trash: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>`,
+            skull: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500/80 drop-shadow-[0_0_5px_rgba(255,0,0,0.5)]"><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8 20v2h8v-2"/><path d="m12.5 17-.5-1-.5 1h1z"/><path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20"/></svg>`,
+            skullRed: `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-600 mx-auto drop-shadow-[0_0_30px_rgba(255,0,0,1)]"><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8 20v2h8v-2"/><path d="m12.5 17-.5-1-.5 1h1z"/><path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20"/></svg>`,
+            minus: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" x2="19" y1="12" y2="12"/></svg>`,
+            plus: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/></svg>`,
+            zap: `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="url(#zapGrad)" stroke="#cceeff" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto drop-shadow-[0_0_30px_rgba(0,150,255,1)] drop-shadow-[0_5px_10px_rgba(0,0,0,0.8)] animate-pulse"><defs><linearGradient id="zapGrad" x1="0%" y1="0%" x2="50%" y2="100%"><stop offset="0%" stop-color="#ffffff"/><stop offset="30%" stop-color="#00aaff"/><stop offset="100%" stop-color="#001155"/></linearGradient></defs><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+            flame: `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute -bottom-4 -right-4 text-red-900/30"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>`
+        };
+
+        function renderSetupView() {
+            DOM.playerList.innerHTML = '';
+            DOM.enterRoomBtn.disabled = state.players.length < 2;
+            DOM.playerCountDisplay.textContent = state.players.length;
+            
+            DOM.decreasePlayersBtn.disabled = state.players.length <= 2;
+            DOM.increasePlayersBtn.disabled = state.players.length >= 20;
+
+            state.players.forEach((p, index) => {
+                const el = document.createElement('div');
+                el.className = "flex flex-col gap-2 bg-gradient-to-r from-[#1a0505] to-[#050505] p-3 rounded-xl border border-red-900/50 shadow-[0_5px_15px_rgba(0,0,0,0.8)] animate-[fadeIn_0.3s_ease-out]";
+                
+                el.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="text-yellow-600/50 font-black text-xl w-6 text-center drop-shadow-[0_2px_2px_rgba(0,0,0,1)]">${index + 1}</span>
+                        <input type="text" value="${p.name}" class="player-name-input flex-1 bg-[#0a0a0a] text-white font-bold px-3 py-2 rounded-lg border border-red-900/30 focus:border-yellow-500 focus:outline-none transition-colors shadow-inner placeholder-gray-600" placeholder="プレイヤー ${index + 1}" data-id="${p.id}"/>
+                    </div>
+                `;
+                DOM.playerList.appendChild(el);
+            });
+
+            document.querySelectorAll('.player-name-input').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const player = state.players.find(p => p.id === parseInt(e.target.dataset.id));
+                    if (player) player.name = e.target.value;
+                    calculateSlices();
+                });
+            });
+        }
+
+        function calculateSlices() {
+            state.hasCounter = state.players.some(p => p.penalties >= 3);
+            let totalSpecialDeg = SPECIAL_SLICE_DEG; 
+            if (state.hasCounter) totalSpecialDeg += SPECIAL_SLICE_DEG; 
+            
+            const totalPlayerDeg = 360 - totalSpecialDeg;
+            let currentAngle = 0;
+            const newSlices = [];
+
+            newSlices.push({
+                type: 'split',
+                label: '全員割り勘',
+                startAngle: currentAngle,
+                endAngle: currentAngle + SPECIAL_SLICE_DEG,
+                color: '#0033ff'
+            });
+            currentAngle += SPECIAL_SLICE_DEG;
+
+            if (state.hasCounter) {
+                newSlices.push({
+                    type: 'counter',
+                    label: '反撃',
+                    startAngle: currentAngle,
+                    endAngle: currentAngle + SPECIAL_SLICE_DEG,
+                    color: '#ff0000'
+                });
+                currentAngle += SPECIAL_SLICE_DEG;
+            }
+
+            if (state.players.length > 0) {
+                const totalSlices = state.players.reduce((sum, p) => sum + SLICES_PER_PLAYER + p.penalties, 0);
+                const sliceDeg = totalPlayerDeg / totalSlices;
+                
+                let tempPlayers = state.players.map((p, idx) => ({ 
+                    player: p, 
+                    total: SLICES_PER_PLAYER + p.penalties, 
+                    accumulator: 0,
+                    colorIndex: idx % COLORS.length
+                }));
+                
+                let finalSequence = [];
+                for (let i = 0; i < totalSlices; i++) {
+                    tempPlayers.forEach(tp => tp.accumulator += tp.total);
+                    tempPlayers.sort((a, b) => {
+                        if (b.accumulator !== a.accumulator) return b.accumulator - a.accumulator;
+                        return a.player.id - b.player.id;
+                    });
+                    
+                    let selected = tempPlayers[0];
+                    finalSequence.push({ player: selected.player, color: COLORS[selected.colorIndex] });
+                    selected.accumulator -= totalSlices;
+                }
+                
+                for (let i = 0; i < totalSlices; i++) {
+                    const seq = finalSequence[i];
+                    const playerIndex = state.players.findIndex(p => p.id === seq.player.id) + 1;
+                    newSlices.push({
+                        type: 'player',
+                        player: seq.player,
+                        label: seq.player.name || `Player ${playerIndex}`,
+                        startAngle: currentAngle,
+                        endAngle: currentAngle + sliceDeg,
+                        color: seq.color
+                    });
+                    currentAngle += sliceDeg;
+                }
+            }
+            state.slices = newSlices;
+            renderRouletteWheel();
+        }
+
+        function renderRouletteWheel() {
+            let svgHTML = '';
+            state.slices.forEach(slice => {
+                const d = describeArc(500, 500, 435, slice.startAngle, slice.endAngle);
+                let fill = slice.color;
+                let filterAttr = '';
+                
+                if (slice.type === 'split') { fill = 'url(#split-grad)'; filterAttr = 'filter="url(#intense-glow)"'; }
+                if (slice.type === 'counter') { fill = 'url(#counter-grad)'; filterAttr = 'filter="url(#intense-glow)"'; }
+                
+                const midAngle = (slice.startAngle + slice.endAngle) / 2;
+                const textRad = (midAngle * Math.PI) / 180;
+                const tx = 500 + 290 * Math.cos(textRad);
+                const ty = 500 + 290 * Math.sin(textRad);
+                
+                let rot = midAngle;
+                if (midAngle > 90 && midAngle < 270) rot += 180;
+
+                const textFill = slice.type === 'player' ? '#E5E7EB' : '#FFF';
+                const fontSize = slice.type === 'player' ? '35' : '45';
+                const textFilter = slice.type === 'player' ? 'url(#text-shadow)' : 'url(#text-glow)';
+                const labelText = slice.type === 'split' ? '⚡' : slice.type === 'counter' ? '☠' : slice.label;
+
+                const sepEnd = polarToCartesian(500, 500, 435, slice.startAngle);
+
+                svgHTML += `
+                    <g>
+                        <path d="${d}" fill="${fill}" ${filterAttr} />
+                        <line x1="500" y1="500" x2="${sepEnd.x}" y2="${sepEnd.y}" stroke="url(#gold-rim)" stroke-width="8" stroke-linecap="round" filter="drop-shadow(2px 6px 6px rgba(0,0,0,1))" />
+                        <line x1="500" y1="500" x2="${sepEnd.x}" y2="${sepEnd.y}" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.6" transform="translate(-1, -1)" filter="blur(0.5px)" />
+                        <text x="${tx}" y="${ty}" transform="rotate(${rot} ${tx} ${ty})" text-anchor="middle" dominant-baseline="middle" fill="${textFill}" font-size="${fontSize}" font-weight="900" font-family="sans-serif" filter="${textFilter}">${labelText}</text>
+                    </g>
+                `;
+            });
+            DOM.svgSlicesContainer.innerHTML = svgHTML;
+        }
+
+        function setAppPhase(newPhase) {
+            state.phase = newPhase;
+            if (newPhase === 'game') {
+                DOM.setupView.style.opacity = '0';
+                DOM.setupView.style.pointerEvents = 'none';
+
+                DOM.gameHeader.style.opacity = '1';
+                DOM.gameHeader.style.pointerEvents = 'auto';
+                
+                DOM.spinContainer.style.opacity = '1';
+                DOM.spinContainer.style.pointerEvents = 'auto';
+                
+                DOM.rouletteWrapper.style.opacity = '1';
+                DOM.rouletteWrapper.style.filter = 'blur(0px)';
+
+                setTimeout(() => {
+                    updateGameState('idle');
+                }, 500);
+            } else {
+                DOM.setupView.style.opacity = '1';
+                DOM.setupView.style.pointerEvents = 'auto';
+
+                DOM.gameHeader.style.opacity = '0';
+                DOM.gameHeader.style.pointerEvents = 'none';
+                
+                DOM.spinContainer.style.opacity = '0';
+                DOM.spinContainer.style.pointerEvents = 'none';
+                
+                DOM.rouletteWrapper.style.opacity = '0';
+                DOM.rouletteWrapper.style.filter = 'blur(2px)';
+                DOM.rouletteWrapper.style.transform = 'scale(0.85) translateY(-5%)';
+                
+                DOM.ballGroup.classList.add('ball-idle');
+                DOM.ballGroup.classList.remove('ball-active');
+            }
+        }
+
+        function updateGameState(newState) {
+            state.gameState = newState;
+            
+            if (newState === 'idle') {
+                DOM.backBtn.style.opacity = '1';
+                DOM.backBtn.style.pointerEvents = 'auto';
+                DOM.spinContainer.style.opacity = '1';
+                DOM.spinContainer.style.pointerEvents = 'auto';
+                DOM.spinContainer.style.transform = 'translateY(0)';
+                DOM.rouletteWrapper.style.transform = 'scale(0.9) translateY(0)';
+                
+                DOM.ballGroup.classList.add('ball-idle');
+                DOM.ballGroup.classList.remove('ball-active');
+                DOM.ballSpark.classList.add('hidden');
+            } else {
+                DOM.backBtn.style.opacity = '0';
+                DOM.backBtn.style.pointerEvents = 'none';
+                DOM.spinContainer.style.opacity = '0';
+                DOM.spinContainer.style.pointerEvents = 'none';
+                DOM.spinContainer.style.transform = 'translateY(100px)';
+                DOM.rouletteWrapper.style.transform = 'scale(1.05) translateY(5%)';
+                
+                if (newState === 'spinning') {
+                    DOM.ballSpark.classList.add('hidden');
+                    setTimeout(() => {
+                        if (state.gameState === 'spinning' || state.gameState === 'fake_stopped') {
+                            DOM.ballGroup.classList.remove('ball-idle');
+                            DOM.ballGroup.classList.add('ball-active');
+                            playSound('spin'); // スピン音
+                            
+                            setTimeout(() => {
+                                if (state.gameState !== 'idle') DOM.ballSpark.classList.remove('hidden');
+                            }, 600);
+                        }
+                    }, 1000);
+                } else if (newState === 'reverse_spinning') {
+                    DOM.ballSpark.classList.remove('hidden');
+                    playSound('spin'); // 逆回転時にもスピン音を鳴らす場合
+                }
+            }
+
+            // Effects
+            if (newState === 'blackout' || newState === 'reverse_spinning') {
+                DOM.blackoutOverlay.classList.remove('hidden');
+                void DOM.blackoutOverlay.offsetWidth;
+                DOM.blackoutOverlay.classList.remove('opacity-0');
+                if (newState === 'reverse_spinning') {
+                    DOM.blackoutOverlay.className = 'fixed inset-0 z-40 pointer-events-none animate-flash opacity-100';
+                    DOM.blackoutOverlay.style.mixBlendMode = 'screen';
+                } else {
+                    DOM.blackoutOverlay.className = 'fixed inset-0 z-40 pointer-events-none bg-black opacity-100 transition-opacity duration-300';
+                    DOM.blackoutOverlay.style.mixBlendMode = 'normal';
+                }
+            } else {
+                DOM.blackoutOverlay.classList.add('opacity-0');
+                setTimeout(() => DOM.blackoutOverlay.classList.add('hidden'), 300);
+            }
+
+            if (newState === 'video') {
+                DOM.videoOverlay.classList.remove('hidden');
+                void DOM.videoOverlay.offsetWidth;
+                DOM.videoOverlay.classList.remove('opacity-0');
+            } else {
+                DOM.videoOverlay.classList.add('opacity-0');
+                setTimeout(() => DOM.videoOverlay.classList.add('hidden'), 500);
+            }
+
+            if (newState === 'result') {
+                showResultModal();
+                // 逆転演出が確定している場合、1回目の結果発表と同時にBGMを停止（違和感の演出）
+                if (state.willReverse) {
+                    DOM.bgmAudio.pause();
+                }
+            } else {
+                DOM.resultOverlay.classList.add('opacity-0');
+                DOM.resultModal.classList.add('translate-y-12', 'scale-90');
+                setTimeout(() => DOM.resultOverlay.classList.add('hidden'), 500);
+            }
+
+            if (newState !== 'spinning' && newState !== 'result') {
+                DOM.cutinOverlay.classList.add('opacity-0');
+                DOM.cutinBlendOverlay.classList.add('opacity-0');
+                setTimeout(() => {
+                    DOM.cutinOverlay.classList.add('hidden');
+                    DOM.cutinBlendOverlay.classList.add('hidden');
+                }, 300);
+                DOM.cutinVideo.pause();
+                DOM.cutinBlendVideo.pause();
+                DOM.cutinVideo.onended = null;
+                DOM.cutinBlendVideo.onended = null;
+                if (state.cutinTimeoutId) {
+                    clearTimeout(state.cutinTimeoutId);
+                    state.cutinTimeoutId = null;
+                }
+            }
+        }
+
+        // アイコンを削除し、テキストのみを表示するように修正
+        function showResultModal() {
+            let html = '';
+            
+            if (state.hasReversed) {
+                DOM.resultModal.classList.remove('modal-cinematic');
+                DOM.resultModal.classList.add('modal-cinematic-reverse');
+                
+                if (state.spinResult?.type === 'counter') {
+                    html = `
+                        <div class="relative inline-block transform -skew-x-12 mt-4">
+                            <h2 class="text-5xl md:text-6xl font-black text-transparent bg-clip-text rainbow-text drop-shadow-[0_0_30px_rgba(255,0,0,0.8)] whitespace-nowrap">反逆の裁き!!</h2>
+                        </div>
+                        <div class="modal-cinematic-reverse p-6 rounded-2xl relative overflow-hidden mt-8 shadow-[0_0_30px_rgba(255,0,0,0.3)] border-0">
+                            <p class="text-3xl font-bold text-red-500 mb-3 drop-shadow-md">身代わり確定</p>
+                            <p class="text-5xl md:text-6xl font-black text-cinematic-reverse truncate uppercase">${state.victim?.name}</p>
+                        </div>
+                    `;
+                } else if (state.spinResult?.type === 'split') {
+                    html = `<h2 class="text-4xl font-black tracking-[0.3em] mt-6 title-cinematic-reverse shadow-cinematic-sm animate-pulse">TRUE MIRACLE</h2><p class="text-5xl md:text-6xl font-black text-cinematic-reverse mt-6 uppercase">全員割り勘</p>`;
+                } else {
+                    html = `<h2 class="text-3xl font-black text-red-700 tracking-[0.3em] mt-6 title-cinematic-reverse shadow-cinematic-sm animate-pulse">REVERSAL</h2><p class="text-5xl md:text-6xl font-black text-cinematic-reverse truncate px-2 mt-6 uppercase">${state.spinResult?.label}</p>`;
+                }
+            } else {
+                DOM.resultModal.classList.add('modal-cinematic');
+                DOM.resultModal.classList.remove('modal-cinematic-reverse');
+                
+                if (state.spinResult?.type === 'counter') {
+                    html = `
+                        <div class="relative inline-block transform -skew-x-12 mt-4">
+                            <h2 class="text-5xl md:text-6xl font-black text-transparent bg-clip-text rainbow-text drop-shadow-[0_0_30px_rgba(255,255,255,0.8)] whitespace-nowrap">起死回生!!</h2>
+                        </div>
+                        <div class="modal-cinematic p-6 rounded-2xl relative overflow-hidden mt-8">
+                            <p class="text-3xl font-bold text-gray-300 mb-3 drop-shadow-md">身代わり確定</p>
+                            <p class="text-5xl md:text-6xl font-black text-cinematic-gold truncate uppercase">${state.victim?.name}</p>
+                        </div>
+                    `;
+                } else if (state.spinResult?.type === 'split') {
+                    html = `<h2 class="text-4xl font-black tracking-[0.3em] mt-6 title-cinematic-blue shadow-cinematic-sm">MIRACLE</h2><p class="text-5xl md:text-6xl font-black text-cinematic-gold mt-6 uppercase">全員割り勘</p>`;
+                } else {
+                    html = `<h2 class="text-3xl font-black text-red-700 tracking-[0.3em] mt-6 title-cinematic-red shadow-cinematic-sm">DECIDED</h2><p class="text-5xl md:text-6xl font-black text-cinematic-gold truncate px-2 mt-6 uppercase">${state.spinResult?.label}</p>`;
+                }
+            }
+            
+            DOM.resultContent.innerHTML = html;
+            DOM.resultOverlay.classList.remove('hidden');
+            void DOM.resultOverlay.offsetWidth;
+            DOM.resultOverlay.classList.remove('opacity-0');
+            DOM.resultModal.classList.remove('translate-y-12', 'scale-90');
+        }
+
+        function setWheelRotation(wheelDeg, durationMs, wheelEase) {
+            DOM.wheelLayer.style.transition = `transform ${durationMs}ms ${wheelEase}`;
+            DOM.wheelLayer.style.transform = `rotateZ(${wheelDeg}deg)`;
+            state.rotation = wheelDeg;
+        }
+
+        function setBallRotation(ballDeg, durationMs, ballEase) {
+            DOM.ballLayer.style.transition = `transform ${durationMs}ms ${ballEase}`;
+            DOM.ballLayer.style.transform = `rotateZ(${ballDeg}deg)`;
+            
+            const rollingReflection = document.getElementById('rolling-reflection');
+            if (rollingReflection) {
+                const rollDeg = ballDeg * (400 / 16); // 軌道半径400に合わせて自転速度を調整
+                rollingReflection.style.transition = `transform ${durationMs}ms ${ballEase}`;
+                rollingReflection.style.transform = `rotateZ(${rollDeg}deg)`;
+            }
+            state.ballAngle = ballDeg;
+        }
+
+        function showResult() {
+            updateGameState('result');
+            
+            // 結果表示の1.5秒後に、事前の抽選結果(willReverse)に基づいて複雑な逆転シーケンスを開始
+            setTimeout(() => {
+                if (state.gameState === 'result' && state.willReverse) {
+                    
+                    // 共通の動画再生ヘルパー
+                    const playVideo = (src, onEnded) => {
+                        DOM.cutinVideo.onended = null;
+                        DOM.cutinVideo.pause();
+                        DOM.cutinVideo.classList.remove('opacity-0'); // 次の動画用に透明度をリセット
+                        
+                        setTimeout(() => {
+                            DOM.cutinVideo.src = src;
+                            DOM.cutinVideo.load();
+                            
+                            const onPlaying = () => {
+                                DOM.cutinOverlay.classList.remove('transition-opacity', 'duration-300');
+                                DOM.cutinOverlay.classList.remove('hidden', 'opacity-0');
+                                DOM.cutinVideo.removeEventListener('playing', onPlaying);
+                            };
+                            DOM.cutinVideo.addEventListener('playing', onPlaying);
+                            
+                            DOM.cutinVideo.onended = () => {
+                                DOM.cutinVideo.onended = null;
+                                if (onEnded) onEnded();
+                            };
+                            
+                            const playPromise = DOM.cutinVideo.play();
+                            if (playPromise !== undefined) {
+                                playPromise.catch(e => {
+                                    console.log(`Video play error (${src}):`, e);
+                                    DOM.cutinVideo.removeEventListener('playing', onPlaying);
+                                    // エラー時でも強制的に次の処理へ進める
+                                    if (onEnded) onEnded();
+                                });
+                            }
+                        }, 100);
+                    };
+
+                    const playParinSequence = (onComplete) => {
+                        DOM.cutinBlendOverlay.classList.remove('hidden');
+                        void DOM.cutinBlendOverlay.offsetWidth;
+                        DOM.cutinBlendOverlay.classList.remove('opacity-0');
+                        
+                        DOM.cutinBlendVideo.onended = null;
+                        DOM.cutinBlendVideo.pause();
+                        
+                        setTimeout(() => {
+                            DOM.cutinBlendVideo.src = 'parin.mp4';
+                            DOM.cutinBlendVideo.load();
+                            
+                            const blendPlayPromise = DOM.cutinBlendVideo.play();
+                            if (blendPlayPromise !== undefined) {
+                                blendPlayPromise.catch(e => console.log('Parin play error:', e));
+                            }
+
+                            DOM.cutinBlendVideo.onended = () => {
+                                DOM.cutinBlendOverlay.classList.add('opacity-0');
+                                setTimeout(() => {
+                                    DOM.cutinBlendOverlay.classList.add('hidden');
+                                    if (onComplete) onComplete();
+                                }, 300);
+                            };
+                        }, 100);
+                    };
+                    
+                    // === 変更後の逆転動画シーケンス実行 ===
+                    // 逆転演出中はBGMを一時停止
+                    DOM.bgmAudio.pause();
+
+                    // 1. ptn2.mp4 を再生
+                    playVideo('ptn2.mp4', () => {
+                        // 2. 終了直後、zwzw2.mp4 を再生
+                        playVideo('zwzw2.mp4', () => {
+                            // 3. zwzw2.mp4 終了0.5秒後、chaos.mp4 を再生
+                            setTimeout(() => {
+                                playVideo('chaos.mp4', () => {
+                                    // 4. chaos.mp4 終了後 (フェードアウトは timeupdate で完了済み)
+                                    
+                                    // 5. 1秒後（1000ms）に1回目の結果を表示したまま画面割れを再生し、終了後に結果を書き換える
+                                    setTimeout(() => {
+                                        // 黒背景のオーバーレイを消して盤面(1回目の結果)を見せる
+                                        DOM.cutinOverlay.classList.add('hidden');
+                                        // 次の再生のために動画の透明度を元に戻しておく
+                                        DOM.cutinVideo.classList.remove('opacity-0');
+
+                                        // 割れる瞬間の衝撃
+                                        DOM.resultModal.classList.add('impact-shake');
+                                        setTimeout(() => DOM.resultModal.classList.remove('impact-shake'), 300);
+
+                                        // 画面割れ（パリン）演出を再生
+                                        playParinSequence(() => {
+                                            // --- 画面割れ演出終了後 ---
+                                            // ここで結果を「1回目以外」に書き換える
+                                            state.hasReversed = true;
+                                            
+                                            const otherSlices = state.slices.filter(s => {
+                                                if (s.type === state.spinResult.type) {
+                                                    if (s.type === 'player') {
+                                                        return s.player.id !== state.spinResult.player.id;
+                                                    }
+                                                    return false;
+                                                }
+                                                return true;
+                                            });
+                                            
+                                            if (otherSlices.length > 0) {
+                                                const newSlice = otherSlices[Math.floor(Math.random() * otherSlices.length)];
+                                                state.spinResult = newSlice;
+                                                
+                                                if (newSlice.type === 'counter') {
+                                                    const maxPenalty = Math.max(...state.players.map(p => p.penalties));
+                                                    const targetPlayers = state.players.filter(p => p.penalties === maxPenalty);
+                                                    const fakeTargetPlayer = targetPlayers[Math.floor(Math.random() * targetPlayers.length)] || state.players[0];
+                                                    const others = state.players.filter(p => p.id !== fakeTargetPlayer.id);
+                                                    state.victim = others[Math.floor(Math.random() * others.length)] || fakeTargetPlayer;
+                                                }
+
+                                                // 盤面の角度を即座に変更
+                                                DOM.wheelLayer.style.transition = 'none';
+                                                const midAngle = (newSlice.startAngle + newSlice.endAngle) / 2;
+                                                const targetMod = (270 - midAngle + 360) % 360;
+                                                const baseRotation = Math.floor(state.rotation / 360) * 360;
+                                                const targetRotation = baseRotation + targetMod;
+                                                
+                                                DOM.wheelLayer.style.transform = `rotateZ(${targetRotation}deg)`;
+                                                state.rotation = targetRotation;
+
+                                                // 新しい結果を表示して揺らす
+                                                showResultModal();
+                                                DOM.resultModal.classList.add('impact-shake');
+                                                setTimeout(() => DOM.resultModal.classList.remove('impact-shake'), 300);
+
+                                                // 逆転演出終了後、BGMを再開
+                                                DOM.bgmAudio.play().catch(e => console.log('BGM Play Error:', e));
+                                            }
+                                        });
+                                    }, 1000); // 1秒間真っ暗な画面を維持
+                                });
+
+                                // chaos.mp4 の終わり 0.3秒前 にフェードアウトを開始して自然に真っ黒にする
+                                const fadeOutHandler = function() {
+                                    if (this.duration && this.currentTime >= this.duration - 0.3) {
+                                        this.classList.add('opacity-0');
+                                        this.removeEventListener('timeupdate', fadeOutHandler);
+                                    }
+                                };
+                                DOM.cutinVideo.addEventListener('timeupdate', fadeOutHandler);
+
+                            }, 500); // zwzw2.mp4終了から0.5秒待機
+                        });
+                    });
+                }
+            }, 1500);
+        }
+
+        function handleSpin() {
+            if (state.gameState !== 'idle' || state.players.length < 2) return;
+            
+            updateGameState('spinning');
+
+            // スピン開始時点で逆転演出の有無を抽選 (通常は50%、デバッグモード時は100%)
+            if (state.forceCounter) {
+                state.willReverse = true;
+            } else {
+                state.willReverse = Math.random() < 0.5;
+            }
+            state.hasReversed = false;
+
+            // 1.5秒後に Roulette1.mp4 再生
+            state.cutinTimeoutId = setTimeout(() => {
+                if (state.gameState === 'spinning') {
+                    DOM.cutinOverlay.classList.remove('hidden');
+                    void DOM.cutinOverlay.offsetWidth;
+                    DOM.cutinOverlay.classList.remove('opacity-0');
+                    
+                    DOM.cutinVideo.onended = null;
+                    DOM.cutinVideo.pause();
+                    DOM.cutinVideo.classList.remove('opacity-0'); // 透明度をリセット
+                    
+                    DOM.cutinVideo.src = 'Roulette1.mp4';
+                    DOM.cutinVideo.load();
+                    
+                    const playPromise = DOM.cutinVideo.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(e => console.log('Video play error:', e));
+                    }
+
+                    DOM.cutinVideo.onended = () => {
+                        DOM.cutinOverlay.classList.add('opacity-0');
+                        setTimeout(() => {
+                            if (!DOM.cutinOverlay.classList.contains('hidden')) {
+                                DOM.cutinOverlay.classList.add('hidden');
+                            }
+                        }, 300);
+
+                        // 逆転演出なしパターンの場合、Roulette1.mp4終了から1.7秒後にRoulette3.mp4を再生
+                        if (!state.willReverse && state.gameState === 'spinning') {
+                            setTimeout(() => {
+                                if (state.gameState === 'spinning') {
+                                    DOM.cutinOverlay.classList.remove('hidden');
+                                    void DOM.cutinOverlay.offsetWidth;
+                                    DOM.cutinOverlay.classList.remove('opacity-0');
+                                    
+                                    DOM.cutinVideo.onended = null;
+                                    DOM.cutinVideo.pause();
+                                    DOM.cutinVideo.classList.remove('opacity-0'); // 透明度をリセット
+                                    
+                                    DOM.cutinVideo.src = 'Roulette3.mp4';
+                                    DOM.cutinVideo.load();
+                                    
+                                    const playPromise3 = DOM.cutinVideo.play();
+                                    if (playPromise3 !== undefined) {
+                                        playPromise3.catch(e => console.log('Video play error:', e));
+                                    }
+                                    
+                                    DOM.cutinVideo.onended = () => {
+                                        DOM.cutinOverlay.classList.add('opacity-0');
+                                        setTimeout(() => {
+                                            if (!DOM.cutinOverlay.classList.contains('hidden')) {
+                                                DOM.cutinOverlay.classList.add('hidden');
+                                            }
+                                        }, 300);
+                                    };
+                                }
+                            }, 1700);
+                        }
+                    };
+                }
+            }, 1500);
+
+            let rand = Math.random() * 360;
+            if (state.forceCounter && state.hasCounter) {
+                const counterSlice = state.slices.find(s => s.type === 'counter');
+                if (counterSlice) rand = (counterSlice.startAngle + counterSlice.endAngle) / 2;
+            }
+
+            const selectedSlice = state.slices.find(s => rand >= s.startAngle && rand < s.endAngle);
+            const spins = 15;
+            const ballSpins = 30; 
+            
+            if (selectedSlice.type === 'counter') {
+                const maxPenalty = Math.max(...state.players.map(p => p.penalties));
+                const targetPlayers = state.players.filter(p => p.penalties === maxPenalty);
+                const fakeTargetPlayer = targetPlayers[Math.floor(Math.random() * targetPlayers.length)] || state.players[0];
+                
+                const fakeSlices = state.slices.filter(s => s.type === 'player' && s.player.id === fakeTargetPlayer.id);
+                const fakeTargetSlice = fakeSlices[Math.floor(Math.random() * fakeSlices.length)] || state.slices[0];
+                
+                const fakeMidAngle = (fakeTargetSlice.startAngle + fakeTargetSlice.endAngle) / 2;
+                const fakeTargetMod = (270 - fakeMidAngle + 360) % 360; 
+                const fakeTargetRotation = Math.floor(state.rotation / 360) * 360 + 360 * spins + fakeTargetMod;
+                
+                const currentBallBase = Math.floor(state.ballAngle / 360) * 360;
+                const fakeTargetBallAngle = currentBallBase - (360 * ballSpins); 
+
+                setWheelRotation(fakeTargetRotation, SPIN_DURATION, "cubic-bezier(0.1, 0.85, 0.2, 1)");
+                
+                const ballDelay = 1000;
+                setTimeout(() => {
+                    if (state.gameState === 'spinning' || state.gameState === 'fake_stopped') {
+                        setBallRotation(fakeTargetBallAngle, SPIN_DURATION - ballDelay, "cubic-bezier(0.05, 0.92, 0.1, 1)");
+                    }
+                }, ballDelay);
+                
+                state.spinResult = selectedSlice;
+                
+                setTimeout(() => {
+                    updateGameState('fake_stopped');
+                    
+                    setTimeout(() => {
+                        updateGameState('blackout');
+                        
+                        setTimeout(() => {
+                            const realMidAngle = (selectedSlice.startAngle + selectedSlice.endAngle) / 2;
+                            const targetModReal = (270 - realMidAngle + 360) % 360;
+                            
+                            const currentMod = fakeTargetRotation % 360;
+                            let diff = targetModReal - currentMod;
+                            if (diff > 0) diff -= 360; 
+                            
+                            const targetRevRotation = fakeTargetRotation - 360 * 4 + diff;
+                            const targetRevBallAngle = fakeTargetBallAngle + 360 * 4; 
+                            
+                            updateGameState('reverse_spinning');
+                            setWheelRotation(targetRevRotation, REVERSE_SPIN_DURATION, "cubic-bezier(0.8, 0, 0.2, 1)");
+                            setBallRotation(targetRevBallAngle, REVERSE_SPIN_DURATION, "cubic-bezier(0.8, 0, 0.2, 1)");
+                            
+                            setTimeout(() => {
+                                updateGameState('video');
+                                
+                                setTimeout(() => {
+                                    const others = state.players.filter(p => p.id !== fakeTargetPlayer.id);
+                                    state.victim = others[Math.floor(Math.random() * others.length)] || fakeTargetPlayer;
+                                    showResult();
+                                }, VIDEO_DURATION);
+                            }, REVERSE_SPIN_DURATION);
+                        }, BLACKOUT_DURATION);
+                    }, FAKE_STOP_DURATION);
+                }, SPIN_DURATION);
+
+            } else {
+                const midAngle = (selectedSlice.startAngle + selectedSlice.endAngle) / 2;
+                const targetMod = (270 - midAngle + 360) % 360;
+                const targetRotation = Math.floor(state.rotation / 360) * 360 + 360 * spins + targetMod;
+                
+                const currentBallBase = Math.floor(state.ballAngle / 360) * 360;
+                const targetBallAngle = currentBallBase - (360 * ballSpins);
+                
+                setWheelRotation(targetRotation, SPIN_DURATION, "cubic-bezier(0.1, 0.85, 0.2, 1)");
+                
+                const ballDelay = 1000;
+                setTimeout(() => {
+                    if (state.gameState === 'spinning') {
+                        setBallRotation(targetBallAngle, SPIN_DURATION - ballDelay, "cubic-bezier(0.05, 0.92, 0.1, 1)");
+                    }
+                }, ballDelay);
+                
+                state.spinResult = selectedSlice;
+                
+                setTimeout(() => {
+                    showResult();
+                }, SPIN_DURATION);
+            }
+        }
+
+        DOM.decreasePlayersBtn.addEventListener('click', () => {
+            if (state.players.length > 2) {
+                state.players.pop();
+                renderSetupView();
+                calculateSlices();
+            }
+        });
+
+        DOM.increasePlayersBtn.addEventListener('click', () => {
+            if (state.players.length < 20) {
+                state.players.push({ id: Date.now(), name: '', penalties: 0 });
+                renderSetupView();
+                calculateSlices();
+            }
+        });
+
+        DOM.enterRoomBtn.addEventListener('click', () => {
+            // Web Audio API と 全体BGM の再生を開始
+            if (Tone.context.state !== 'running') Tone.start();
+            DOM.bgmAudio.play().catch(e => console.log('BGM Play Error:', e));
+            
+            playSound('next');
+            setAppPhase('game');
+        });
+        
+        DOM.backBtn.addEventListener('click', () => {
+            playSound('back');
+            setAppPhase('setup');
+        });
+        
+        DOM.devToggleTitle.addEventListener('click', () => {
+            state.forceCounter = !state.forceCounter;
+            DOM.devIndicator.classList.toggle('hidden', !state.forceCounter);
+        });
+
+        DOM.spinBtn.addEventListener('click', handleSpin);
+
+        DOM.editPlayersBtn.addEventListener('click', () => {
+            playSound('back');
+            updateGameState('idle');
+            setAppPhase('setup');
+            // BGMが止まっていた場合は再開
+            DOM.bgmAudio.play().catch(e => console.log('BGM Play Error:', e));
+        });
+
+        DOM.nextRoundBtn.addEventListener('click', () => {
+            playSound('next');
+            updateGameState('idle');
+            // 次のラウンドに向けてBGMを再開
+            DOM.bgmAudio.play().catch(e => console.log('BGM Play Error:', e));
+        });
+
+        const style = document.createElement('style');
+        style.innerHTML = `@keyframes fadeIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }`;
+        document.head.appendChild(style);
+
+        DOM.themeSelect.addEventListener('change', (e) => {
+            if (e.target.value === 'custom') {
+                DOM.customThemeContainer.classList.remove('hidden');
+            } else {
+                DOM.customThemeContainer.classList.add('hidden');
+                state.theme = e.target.value;
+            }
+        });
+
+        DOM.customThemeInput.addEventListener('input', (e) => {
+            state.customTheme = e.target.value;
+        });
+
+        renderSetupView();
+        calculateSlices();
+    </script>
+</body>
+</html>

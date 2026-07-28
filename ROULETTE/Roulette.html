@@ -289,11 +289,11 @@
         <div class="flex flex-col w-full h-full max-w-md mx-auto p-6 relative">
             <div class="text-center mb-6 mt-10">
                 <div class="shadow-cinematic">
-                    <h1 class="text-5xl md:text-6xl font-black tracking-[0.2em] uppercase mb-4 title-cinematic">
+                    <h1 class="text-5xl md:text-6xl font-black tracking-[0.2em] uppercase mb-4 title-cinematic ml-[0.2em]">
                         るーれっと
                     </h1>
                 </div>
-                <p class="text-gray-400 font-medium tracking-[0.1em] text-sm md:text-base drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] animate-elegant-pulse">
+                <p class="text-gray-400 font-medium tracking-[0.1em] text-sm md:text-base drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] animate-elegant-pulse ml-[0.1em]">
                     お題と参加人数を決定してください
                 </p>
             </div>
@@ -317,7 +317,7 @@
         </div>
 
         <div class="flex items-center justify-between bg-black/80 border border-yellow-700/50 rounded-xl px-4 py-2 mb-4 shrink-0 shadow-[inset_0_2px_10px_rgba(0,0,0,1)]">
-            <span class="text-gray-300 font-bold tracking-widest text-sm">参加人数</span>
+            <span class="text-gray-300 font-bold tracking-widest text-sm ml-[0.1em]">参加人数</span>
             <div class="flex items-center gap-3">
                 <button id="decrease-players-btn" class="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-900 text-yellow-600 hover:bg-gray-800 hover:text-yellow-400 border border-yellow-700/30 transition-colors active:scale-95 disabled:opacity-50 disabled:grayscale">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" x2="19" y1="12" y2="12"/></svg>
@@ -578,10 +578,10 @@
 
             <div class="flex gap-4 mt-10 w-full z-10">
                 <button id="edit-players-btn" class="flex-1 py-4 bg-transparent border border-white/30 hover:bg-white/10 rounded-xl text-gray-300 font-bold transition-colors">
-                    EDIT PLAYERS
+                    終了
                 </button>
                 <button id="next-round-btn" class="flex-1 py-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white font-bold text-lg transition-colors">
-                    NEXT ROUND
+                    もう一度回す
                 </button>
             </div>
         </div>
@@ -760,8 +760,8 @@
                 
                 el.innerHTML = `
                     <div class="flex items-center gap-3">
-                        <span class="text-yellow-600/50 font-black text-xl w-6 text-center drop-shadow-[0_2px_2px_rgba(0,0,0,1)]">${index + 1}</span>
-                        <input type="text" value="${p.name}" class="player-name-input flex-1 bg-[#0a0a0a] text-white font-bold px-3 py-2 rounded-lg border border-red-900/30 focus:border-yellow-500 focus:outline-none transition-colors shadow-inner placeholder-gray-600" placeholder="プレイヤー ${index + 1}" data-id="${p.id}"/>
+                        <span class="text-yellow-400 font-black text-xl w-6 text-center drop-shadow-[0_2px_2px_rgba(0,0,0,1)]">${index + 1}</span>
+                        <input type="text" value="${p.name}" class="player-name-input flex-1 bg-[#0a0a0a] text-white font-bold px-3 py-2 rounded-lg border border-red-900/30 focus:border-yellow-500 focus:outline-none transition-colors shadow-inner placeholder-gray-600" placeholder="入力..." data-id="${p.id}"/>
                     </div>
                 `;
                 DOM.playerList.appendChild(el);
@@ -1039,7 +1039,7 @@
                 } else if (state.spinResult?.type === 'split') {
                     html = `<h2 class="text-4xl font-black tracking-[0.3em] mt-6 title-cinematic-reverse shadow-cinematic-sm animate-pulse">TRUE MIRACLE</h2><p class="text-5xl md:text-6xl font-black text-cinematic-reverse mt-6 uppercase">全員割り勘</p>`;
                 } else {
-                    html = `<h2 class="text-3xl font-black text-red-700 tracking-[0.3em] mt-6 title-cinematic-reverse shadow-cinematic-sm animate-pulse">REVERSAL</h2><p class="text-5xl md:text-6xl font-black text-cinematic-reverse truncate px-2 mt-6 uppercase">${state.spinResult?.label}</p>`;
+                    html = `<p class="text-5xl md:text-6xl font-black text-cinematic-reverse truncate px-2 mt-6 uppercase">${state.spinResult?.label}</p>`;
                 }
             } else {
                 DOM.resultModal.classList.add('modal-cinematic');

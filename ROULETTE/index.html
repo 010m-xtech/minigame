@@ -331,12 +331,8 @@
             <button id="back-btn" class="text-gray-500 hover:text-white text-sm font-bold tracking-wider flex items-center transition-colors drop-shadow-[0_2px_4px_rgba(0,0,0,1)] w-16 md:w-20 z-20 mt-2">
                 ◀ BACK
             </button>
-            <div class="shadow-cinematic-sm text-center flex flex-col items-center absolute left-1/2 -translate-x-1/2 w-[65%] z-10">
-                <h1 id="dev-toggle-title" class="text-4xl md:text-5xl font-black tracking-[0.2em] uppercase cursor-pointer title-cinematic whitespace-nowrap">
-                    るーれっと
-                </h1>
-            </div>
-            <div class="w-16 md:w-20 relative flex justify-end z-20 mt-2">
+            <!-- タイトルを廃止し、右上の空間をDEVモードの隠しスイッチに設定 -->
+            <div id="dev-toggle-btn" class="w-24 h-12 relative flex justify-end z-20 mt-2 cursor-pointer ml-auto">
                 <span id="dev-indicator" class="hidden text-[10px] text-red-500 font-bold animate-pulse absolute top-1 right-0 whitespace-nowrap drop-shadow-[0_0_5px_rgba(255,0,0,1)]">DEV: ON</span>
             </div>
         </div>
@@ -633,7 +629,7 @@
             
             gameHeader: document.getElementById('game-header'),
             backBtn: document.getElementById('back-btn'),
-            devToggleTitle: document.getElementById('dev-toggle-title'),
+            devToggleBtn: document.getElementById('dev-toggle-btn'),
             devIndicator: document.getElementById('dev-indicator'),
             rouletteWrapper: document.getElementById('roulette-wrapper'),
             wheelLayer: document.getElementById('wheel-layer'),
@@ -1428,7 +1424,7 @@
             setAppPhase('setup');
         });
         
-        DOM.devToggleTitle.addEventListener('click', () => {
+        DOM.devToggleBtn.addEventListener('click', () => {
             state.forceCounter = !state.forceCounter;
             DOM.devIndicator.classList.toggle('hidden', !state.forceCounter);
         });

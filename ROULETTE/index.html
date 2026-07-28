@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- スマホのキャッシュ（古いデータの保存）を防ぐ設定 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>るーれっと</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 効果音再生用ライブラリ Tone.js -->
@@ -289,11 +293,11 @@
         <div class="flex flex-col w-full h-full max-w-md mx-auto p-6 relative">
             <div class="text-center mb-6 mt-10">
                 <div class="shadow-cinematic">
-                    <h1 class="text-5xl md:text-6xl font-black tracking-[0.2em] uppercase mb-4 title-cinematic">
+                    <h1 class="text-5xl md:text-6xl font-black tracking-[0.2em] uppercase mb-4 title-cinematic ml-[0.2em]">
                         るーれっと
                     </h1>
                 </div>
-                <p class="text-gray-400 font-medium tracking-[0.1em] text-sm md:text-base drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] animate-elegant-pulse">
+                <p class="text-gray-400 font-medium tracking-[0.1em] text-sm md:text-base drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] animate-elegant-pulse ml-[0.1em]">
                     お題と参加人数を決定してください
                 </p>
             </div>
@@ -317,7 +321,7 @@
         </div>
 
         <div class="flex items-center justify-between bg-black/80 border border-yellow-700/50 rounded-xl px-4 py-2 mb-4 shrink-0 shadow-[inset_0_2px_10px_rgba(0,0,0,1)]">
-            <span class="text-gray-300 font-bold tracking-widest text-sm">参加人数</span>
+            <span class="text-gray-300 font-bold tracking-widest text-sm ml-[0.1em]">参加人数</span>
             <div class="flex items-center gap-3">
                 <button id="decrease-players-btn" class="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-900 text-yellow-600 hover:bg-gray-800 hover:text-yellow-400 border border-yellow-700/30 transition-colors active:scale-95 disabled:opacity-50 disabled:grayscale">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" x2="19" y1="12" y2="12"/></svg>
@@ -562,7 +566,7 @@
         <div class="relative z-10 flex flex-col items-center justify-center space-y-8 p-4">
             <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-600 animate-pulse drop-shadow-[0_0_30px_rgba(255,0,0,1)]"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
             <div class="text-red-600 font-black text-6xl md:text-8xl italic tracking-tighter drop-shadow-[0_0_20px_rgba(255,0,0,0.8)] text-center animate-bounce">
-                DANGER!!<br/>REVERSAL!!
+                DANGER!!
             </div>
             <div class="text-white bg-black/80 px-6 py-2 rounded-full border border-red-500 font-bold text-xl">
                 // TODO: 復活演出動画再生中...
@@ -578,10 +582,10 @@
 
             <div class="flex gap-4 mt-10 w-full z-10">
                 <button id="edit-players-btn" class="flex-1 py-4 bg-transparent border border-white/30 hover:bg-white/10 rounded-xl text-gray-300 font-bold transition-colors">
-                    EDIT PLAYERS
+                    終了
                 </button>
                 <button id="next-round-btn" class="flex-1 py-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white font-bold text-lg transition-colors">
-                    NEXT ROUND
+                    もう1回
                 </button>
             </div>
         </div>
@@ -755,19 +759,20 @@
             DOM.increasePlayersBtn.disabled = state.players.length >= 20;
 
             state.players.forEach((p, index) => {
-                const el = document.createElement('div');
-                el.className = "flex flex-col gap-2 bg-gradient-to-r from-[#1a0505] to-[#050505] p-3 rounded-xl border border-red-900/50 shadow-[0_5px_15px_rgba(0,0,0,0.8)] animate-[fadeIn_0.3s_ease-out]";
-                
-                el.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <span class="text-yellow-600/50 font-black text-xl w-6 text-center drop-shadow-[0_2px_2px_rgba(0,0,0,1)]">${index + 1}</span>
-                        <input type="text" value="${p.name}" class="player-name-input flex-1 bg-[#0a0a0a] text-white font-bold px-3 py-2 rounded-lg border border-red-900/30 focus:border-yellow-500 focus:outline-none transition-colors shadow-inner placeholder-gray-600" placeholder="プレイヤー ${index + 1}" data-id="${p.id}"/>
-                    </div>
-                `;
-                DOM.playerList.appendChild(el);
-            });
+            const el = document.createElement('div');
+            el.className = "flex flex-col gap-2 bg-gradient-to-r from-[#1a0505] to-[#050505] p-3 rounded-xl border border-red-900/50 shadow-[0_5px_15px_rgba(0,0,0,0.8)] animate-[fadeIn_0.3s_ease-out]";
+            
+            el.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="text-yellow-400 font-black text-2xl drop-shadow-[0_0_8px_rgba(255,215,0,1)] w-8 text-center shrink-0">${index + 1}</span>
+                    <input type="text" value="${p.name}" class="player-name-input flex-1 bg-[#0a0a0a] text-white font-bold px-3 py-2 rounded-lg border border-red-900/30 focus:border-yellow-500 focus:outline-none transition-colors shadow-inner placeholder-gray-500" placeholder="名前を入力..." data-id="${p.id}"/>
+                    <button class="remove-player-btn p-2 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors" data-id="${p.id}">${icons.trash}</button>
+                </div>
+            `;
+            DOM.playerList.appendChild(el);
+        });
 
-            document.querySelectorAll('.player-name-input').forEach(input => {
+        document.querySelectorAll('.player-name-input').forEach(input => {
                 input.addEventListener('change', (e) => {
                     const player = state.players.find(p => p.id === parseInt(e.target.dataset.id));
                     if (player) player.name = e.target.value;
@@ -1037,9 +1042,9 @@
                         </div>
                     `;
                 } else if (state.spinResult?.type === 'split') {
-                    html = `<h2 class="text-4xl font-black tracking-[0.3em] mt-6 title-cinematic-reverse shadow-cinematic-sm animate-pulse">TRUE MIRACLE</h2><p class="text-5xl md:text-6xl font-black text-cinematic-reverse mt-6 uppercase">全員割り勘</p>`;
+                    html = `<p class="text-5xl md:text-6xl font-black text-cinematic-reverse mt-6 uppercase">全員割り勘</p>`;
                 } else {
-                    html = `<h2 class="text-3xl font-black text-red-700 tracking-[0.3em] mt-6 title-cinematic-reverse shadow-cinematic-sm animate-pulse">REVERSAL</h2><p class="text-5xl md:text-6xl font-black text-cinematic-reverse truncate px-2 mt-6 uppercase">${state.spinResult?.label}</p>`;
+                    html = `<p class="text-5xl md:text-6xl font-black text-cinematic-reverse truncate px-2 mt-6 uppercase">${state.spinResult?.label}</p>`;
                 }
             } else {
                 DOM.resultModal.classList.add('modal-cinematic');
@@ -1056,9 +1061,9 @@
                         </div>
                     `;
                 } else if (state.spinResult?.type === 'split') {
-                    html = `<h2 class="text-4xl font-black tracking-[0.3em] mt-6 title-cinematic-blue shadow-cinematic-sm">MIRACLE</h2><p class="text-5xl md:text-6xl font-black text-cinematic-gold mt-6 uppercase">全員割り勘</p>`;
+                    html = `<p class="text-5xl md:text-6xl font-black text-cinematic-gold mt-6 uppercase">全員割り勘</p>`;
                 } else {
-                    html = `<h2 class="text-3xl font-black text-red-700 tracking-[0.3em] mt-6 title-cinematic-red shadow-cinematic-sm">DECIDED</h2><p class="text-5xl md:text-6xl font-black text-cinematic-gold truncate px-2 mt-6 uppercase">${state.spinResult?.label}</p>`;
+                    html = `<p class="text-5xl md:text-6xl font-black text-cinematic-gold truncate px-2 mt-6 uppercase">${state.spinResult?.label}</p>`;
                 }
             }
             

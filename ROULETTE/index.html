@@ -499,11 +499,23 @@
                                 <stop offset="60%" stop-color="#ff4500" />
                                 <stop offset="100%" stop-color="#8b0000" />
                             </linearGradient>
+
+                            <!-- iPhone対策用の標準フィルタ -->
+                            <filter id="ios-blur-sm">
+                                <feGaussianBlur stdDeviation="1.5" />
+                            </filter>
+                            <filter id="ios-blur-md">
+                                <feGaussianBlur stdDeviation="4" />
+                            </filter>
+                            <filter id="ios-blur-lg">
+                                <feGaussianBlur stdDeviation="12" />
+                            </filter>
                         </defs>
 
-                        <g id="ball-spark" class="hidden" style="mix-blend-mode: screen;">
-                            <circle cx="500" cy="100" r="45" fill="url(#spark-grad)" class="spark-core" filter="blur(12px)" opacity="0.9" />
-                            <circle cx="500" cy="100" r="20" fill="#fff" class="spark-core" filter="blur(3px)" />
+                        <!-- 火花演出（iPhone用にmix-blend-modeを使わず、フィルタを標準化） -->
+                        <g id="ball-spark" class="hidden">
+                            <circle cx="500" cy="100" r="45" fill="url(#spark-grad)" class="spark-core" filter="url(#ios-blur-lg)" opacity="0.9" />
+                            <circle cx="500" cy="100" r="20" fill="#fff" class="spark-core" filter="url(#ios-blur-md)" />
                             
                             <path d="M 500 100 Q 590 150 670 230" fill="none" stroke="url(#spark-grad)" stroke-width="10" stroke-linecap="round" class="spark-line" />
                             <path d="M 500 100 Q 560 80 620 50" fill="none" stroke="url(#spark-grad)" stroke-width="6" stroke-linecap="round" class="spark-line" />
@@ -511,12 +523,19 @@
                             <path d="M 500 100 Q 540 130 590 180" fill="none" stroke="#ffdf00" stroke-width="8" stroke-linecap="round" class="spark-line" />
                         </g>
                         
-                        <g id="ball-group" class="ball-idle" filter="drop-shadow(0px 35px 20px rgba(0,0,0,1)) drop-shadow(0px 10px 8px rgba(0,0,0,0.9)) drop-shadow(0px 0px 10px rgba(255,255,255,0.4))">
+                        <!-- 玉の演出（iPhone用にdrop-shadow属性の複数指定を廃止し、擬似影を追加） -->
+                        <g id="ball-group" class="ball-idle">
+                            <!-- 落ちる影 -->
+                            <ellipse cx="500" cy="130" rx="30" ry="15" fill="rgba(0,0,0,0.8)" filter="url(#ios-blur-md)" />
+                            <ellipse cx="500" cy="115" rx="20" ry="8" fill="rgba(0,0,0,1)" filter="url(#ios-blur-sm)" />
+                            <!-- 光の照り返し -->
+                            <circle cx="500" cy="100" r="22" fill="rgba(255,255,255,0.2)" filter="url(#ios-blur-md)" />
+
                             <circle cx="500" cy="100" r="16" fill="url(#chrome-ball)" />
                             
                             <g id="rolling-reflection" style="transform-origin: 500px 100px;">
-                                <path d="M 485 88 Q 500 73 515 88 T 500 118 Q 485 103 485 88" fill="rgba(255,255,255,0.2)" filter="blur(0.5px)"/>
-                                <path d="M 485 115 Q 500 127 515 115 T 500 85 Q 485 97 485 115" fill="rgba(0,0,0,0.6)" filter="blur(1.5px)"/>
+                                <path d="M 485 88 Q 500 73 515 88 T 500 118 Q 485 103 485 88" fill="rgba(255,255,255,0.2)" filter="url(#ios-blur-sm)"/>
+                                <path d="M 485 115 Q 500 127 515 115 T 500 85 Q 485 97 485 115" fill="rgba(0,0,0,0.6)" filter="url(#ios-blur-sm)"/>
                                 <circle cx="509" cy="107" r="8" fill="url(#ball-reflection-gold)" opacity="0.9"/>
                                 <circle cx="491" cy="103" r="10" fill="url(#ball-reflection-red)" opacity="0.9"/>
                             </g>
@@ -525,10 +544,10 @@
                             <circle cx="500" cy="100" r="15.5" fill="none" stroke="rgba(0,0,0,0.8)" stroke-width="1" />
                             <circle cx="500" cy="100" r="16" fill="url(#sphere-shadow)" />
 
-                            <circle cx="494" cy="92" r="3.5" fill="#FFFFFF" opacity="1" filter="blur(0.5px)" />
+                            <circle cx="494" cy="92" r="3.5" fill="#FFFFFF" opacity="1" filter="url(#ios-blur-sm)" />
                             <circle cx="492" cy="91" r="1.5" fill="#FFFFFF" opacity="1" />
-                            <path d="M 484 94 Q 491 86 504 90" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.9" filter="blur(1px)" />
-                            <path d="M 488 113 Q 500 117 512 113" stroke="#D4AF37" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.9" filter="blur(1px)" />
+                            <path d="M 484 94 Q 491 86 504 90" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.9" filter="url(#ios-blur-sm)" />
+                            <path d="M 488 113 Q 500 117 512 113" stroke="#D4AF37" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.9" filter="url(#ios-blur-sm)" />
                         </g>
                     </svg>
                 </div>

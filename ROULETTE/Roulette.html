@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- スマホのキャッシュ（古いデータの保存）を防ぐ設定 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>るーれっと</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 効果音再生用ライブラリ Tone.js -->
@@ -755,20 +759,20 @@
             DOM.increasePlayersBtn.disabled = state.players.length >= 20;
 
             state.players.forEach((p, index) => {
-                const el = document.createElement('div');
-                el.className = "flex flex-col gap-2 bg-gradient-to-r from-[#1a0505] to-[#050505] p-3 rounded-xl border border-red-900/50 shadow-[0_5px_15px_rgba(0,0,0,0.8)] animate-[fadeIn_0.3s_ease-out]";
-                
-                el.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <span class="text-yellow-300 font-black text-xl drop-shadow-[0_0_5px_rgba(255,255,0,1)] w-6 text-center shrink-0">${index + 1}</span>
-                        <input type="text" value="${p.name}" class="player-name-input flex-1 bg-[#0a0a0a] text-white font-bold px-3 py-2 rounded-lg border border-red-900/30 focus:border-yellow-500 focus:outline-none transition-colors shadow-inner placeholder-gray-500" placeholder="名前を入力..." data-id="${p.id}"/>
-                        <button class="remove-player-btn p-2 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors" data-id="${p.id}">${icons.trash}</button>
-                    </div>
-                `;
-                DOM.playerList.appendChild(el);
-            });
+            const el = document.createElement('div');
+            el.className = "flex flex-col gap-2 bg-gradient-to-r from-[#1a0505] to-[#050505] p-3 rounded-xl border border-red-900/50 shadow-[0_5px_15px_rgba(0,0,0,0.8)] animate-[fadeIn_0.3s_ease-out]";
+            
+            el.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="text-yellow-400 font-black text-2xl drop-shadow-[0_0_8px_rgba(255,215,0,1)] w-8 text-center shrink-0">${index + 1}</span>
+                    <input type="text" value="${p.name}" class="player-name-input flex-1 bg-[#0a0a0a] text-white font-bold px-3 py-2 rounded-lg border border-red-900/30 focus:border-yellow-500 focus:outline-none transition-colors shadow-inner placeholder-gray-500" placeholder="名前を入力..." data-id="${p.id}"/>
+                    <button class="remove-player-btn p-2 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors" data-id="${p.id}">${icons.trash}</button>
+                </div>
+            `;
+            DOM.playerList.appendChild(el);
+        });
 
-            document.querySelectorAll('.player-name-input').forEach(input => {
+        document.querySelectorAll('.player-name-input').forEach(input => {
                 input.addEventListener('change', (e) => {
                     const player = state.players.find(p => p.id === parseInt(e.target.dataset.id));
                     if (player) player.name = e.target.value;

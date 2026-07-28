@@ -62,29 +62,6 @@
             pointer-events: none;
         }
 
-        @keyframes sparkParticle {
-            0% { opacity: 1; stroke-dashoffset: 0; }
-            100% { opacity: 0; stroke-dashoffset: 100; transform: translate(20px, 30px) scale(0.5); }
-        }
-        .spark-line {
-            stroke-dasharray: 100;
-            animation: sparkParticle 0.15s linear infinite;
-            transform-origin: 500px 100px;
-        }
-        .spark-line:nth-child(1) { animation-duration: 0.1s; }
-        .spark-line:nth-child(2) { animation-duration: 0.18s; animation-delay: 0.05s; }
-        .spark-line:nth-child(3) { animation-duration: 0.12s; animation-delay: 0.02s; }
-        .spark-line:nth-child(4) { animation-duration: 0.2s; animation-delay: 0.08s; }
-
-        @keyframes sparkGlow {
-            0%, 100% { opacity: 0.5; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.5); }
-        }
-        .spark-core {
-            animation: sparkGlow 0.05s infinite alternate;
-            transform-origin: 500px 100px;
-        }
-
         #ball-group {
             transform-origin: 500px 100px;
             transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease-out;
@@ -511,17 +488,6 @@
                                 <feGaussianBlur stdDeviation="12" />
                             </filter>
                         </defs>
-
-                        <!-- 火花演出（iPhone用にmix-blend-modeを使わず、フィルタを標準化） -->
-                        <g id="ball-spark" class="hidden">
-                            <circle cx="500" cy="100" r="45" fill="url(#spark-grad)" class="spark-core" filter="url(#ios-blur-lg)" opacity="0.9" />
-                            <circle cx="500" cy="100" r="20" fill="#fff" class="spark-core" filter="url(#ios-blur-md)" />
-                            
-                            <path d="M 500 100 Q 590 150 670 230" fill="none" stroke="url(#spark-grad)" stroke-width="10" stroke-linecap="round" class="spark-line" />
-                            <path d="M 500 100 Q 560 80 620 50" fill="none" stroke="url(#spark-grad)" stroke-width="6" stroke-linecap="round" class="spark-line" />
-                            <path d="M 500 100 Q 610 120 720 160" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" class="spark-line" />
-                            <path d="M 500 100 Q 540 130 590 180" fill="none" stroke="#ffdf00" stroke-width="8" stroke-linecap="round" class="spark-line" />
-                        </g>
                         
                         <!-- 玉の演出（iPhone用にdrop-shadow属性の複数指定を廃止し、擬似影を追加） -->
                         <g id="ball-group" class="ball-idle">
@@ -672,7 +638,6 @@
             rouletteWrapper: document.getElementById('roulette-wrapper'),
             wheelLayer: document.getElementById('wheel-layer'),
             ballLayer: document.getElementById('ball-layer'),
-            ballSpark: document.getElementById('ball-spark'),
             ballGroup: document.getElementById('ball-group'),
             svgSlicesContainer: document.getElementById('svg-slices-container'),
             spinBtn: document.getElementById('spin-btn'),
@@ -958,7 +923,6 @@
                 
                 DOM.ballGroup.classList.add('ball-idle');
                 DOM.ballGroup.classList.remove('ball-active');
-                DOM.ballSpark.classList.add('hidden');
             } else {
                 DOM.backBtn.style.opacity = '0';
                 DOM.backBtn.style.pointerEvents = 'none';
@@ -968,20 +932,14 @@
                 DOM.rouletteWrapper.style.transform = 'scale(1.05) translateY(5%)';
                 
                 if (newState === 'spinning') {
-                    DOM.ballSpark.classList.add('hidden');
                     setTimeout(() => {
                         if (state.gameState === 'spinning' || state.gameState === 'fake_stopped') {
                             DOM.ballGroup.classList.remove('ball-idle');
                             DOM.ballGroup.classList.add('ball-active');
                             playSound('spin'); // スピン音
-                            
-                            setTimeout(() => {
-                                if (state.gameState !== 'idle') DOM.ballSpark.classList.remove('hidden');
-                            }, 600);
                         }
                     }, 1000);
                 } else if (newState === 'reverse_spinning') {
-                    DOM.ballSpark.classList.remove('hidden');
                     playSound('spin'); // 逆回転時にもスピン音を鳴らす場合
                 }
             }

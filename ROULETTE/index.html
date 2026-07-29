@@ -274,19 +274,23 @@
                         ルーレット
                     </h1>
                 </div>
-                <p class="text-white font-medium tracking-[0.1em] text-sm md:text-base drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] animate-elegant-pulse ml-[0.1em]">
-                    お題と参加人数を決定してください
+                <p class="text-white font-bold tracking-widest text-sm md:text-base mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">
+                    なに食べる？だれが支払う？<br>今日の決め手はこれ！
+                </p>
+                <p class="text-white font-medium tracking-[0.1em] text-xs md:text-sm drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] animate-elegant-pulse ml-[0.1em]">
+                    お題と選択肢の数を決定してください
                 </p>
             </div>
 
         <div class="w-full mb-6 shrink-0 z-20">
             <label class="block text-gray-300 font-bold text-xs mb-2 pl-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-widest">お題</label>
             <div class="relative">
-                <select id="theme-select" class="w-full bg-black/80 border border-yellow-700/50 rounded-xl px-4 py-3 text-white font-bold appearance-none focus:outline-none focus:border-yellow-400 transition-colors shadow-[inset_0_2px_10px_rgba(0,0,0,1)] text-sm md:text-base cursor-pointer">
-                    <option value="フードを決める">フードを決める</option>
-                    <option value="ドリンクを決める">ドリンクを決める</option>
-                    <option value="支払う人を決める">支払う人を決める</option>
-                    <option value="custom">自由に作る</option>
+                <select id="theme-select" required class="w-full bg-black/80 border border-yellow-700/50 rounded-xl px-4 py-3 text-white font-bold appearance-none focus:outline-none focus:border-yellow-400 transition-colors shadow-[inset_0_2px_10px_rgba(0,0,0,1)] text-sm md:text-base cursor-pointer invalid:text-gray-500">
+                    <option value="" disabled selected hidden>お題を決定してください</option>
+                    <option value="フードを決める" class="text-white">フードを決める</option>
+                    <option value="ドリンクを決める" class="text-white">ドリンクを決める</option>
+                    <option value="支払う人を決める" class="text-white">支払う人を決める</option>
+                    <option value="custom" class="text-white">自由に作る</option>
                 </select>
                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-yellow-600">
                     <svg class="fill-current h-4 w-4 drop-shadow-[0_0_2px_rgba(255,215,0,0.8)]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
@@ -297,8 +301,8 @@
             </div>
         </div>
 
-        <div class="flex items-center justify-between bg-black/80 border border-yellow-700/50 rounded-xl px-4 py-2 mb-4 shrink-0 shadow-[inset_0_2px_10px_rgba(0,0,0,1)]">
-            <span class="text-gray-300 font-bold tracking-widest text-sm ml-[0.1em]">参加人数</span>
+        <div class="flex items-center justify-between bg-black/80 border border-yellow-700/50 rounded-xl px-3 py-2 mb-4 shrink-0 shadow-[inset_0_2px_10px_rgba(0,0,0,1)]">
+            <span class="text-gray-300 font-bold tracking-wider text-[11px] sm:text-sm ml-[0.1em]">選択肢の数を決定してください</span>
             <div class="flex items-center gap-3">
                 <button id="decrease-players-btn" class="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-900 text-yellow-600 hover:bg-gray-800 hover:text-yellow-400 border border-yellow-700/30 transition-colors active:scale-95 disabled:opacity-50 disabled:grayscale">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" x2="19" y1="12" y2="12"/></svg>
@@ -593,7 +597,7 @@
         let state = {
             phase: 'setup',
             gameState: 'idle',
-            theme: 'フードを決める',
+            theme: '',
             customTheme: '',
             players: [
                 { id: 1, name: '', penalties: 0 },

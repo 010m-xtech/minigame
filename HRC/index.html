@@ -26,29 +26,6 @@
       animation: walk-cycle 0.6s infinite;
     }
 
-    /* 問題移動時（右へ歩いて画面外へ出た後、左から戻る）アニメーション */
-    /* ※ leftプロパティを動かすことで、画面サイズに関わらず確実に横移動させます */
-    @keyframes walk-to-next {
-      0% { left: 50%; opacity: 1; }
-      40% { left: 150%; opacity: 1; } /* 画面右外へはける */
-      45% { left: 150%; opacity: 0; } /* 画面外で透明に */
-      50% { left: -50%; opacity: 0; } /* 左の画面外へワープ */
-      55% { left: -50%; opacity: 1; } /* 左の画面外で実体化 */
-      100% { left: 50%; opacity: 1; } /* 左から中央へ到着 */
-    }
-    .char-walk-next {
-      animation: walk-to-next 8s ease-in-out forwards;
-    }
-
-    /* 退場時（右へ歩き去る）アニメーション */
-    @keyframes walk-out {
-      0% { left: 50%; opacity: 1; }
-      100% { left: 150%; opacity: 0; }
-    }
-    .char-walk-out {
-      animation: walk-out 8s linear forwards;
-    }
-
     /* 縦横比を調整し、空から道まですべてを確実に画面内に収める設定 */
     .bg-full-view {
       background-size: 100% 100%;
@@ -63,11 +40,12 @@
   <!-- 全画面背景レイヤー (スライド＆クロスフェード用) -->
   <div class="absolute inset-0 z-0 pointer-events-none bg-gray-900 overflow-hidden">
     <!-- 画像が横移動しながらフェードするためのレイヤー群。空と道を全て映すため bg-full-view を適用し、幅を110%に調整 -->
-    <div id="bg-0" class="absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[8000ms] ease-in-out translate-x-0 opacity-100" style="background-image: url('quiz1.jpg');"></div>
-    <div id="bg-1" class="absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[8000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz2.jpg');"></div>
-    <div id="bg-2" class="absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[8000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz3.jpg');"></div>
-    <div id="bg-3" class="absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[8000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz4.jpg');"></div>
-    <div id="bg-4" class="absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[8000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz5.jpg');"></div>
+    <!-- 変更: 背景の切り替え時間を3秒(3000ms)に短縮し、テンポ良く流れるように調整 -->
+    <div id="bg-0" class="absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[3000ms] ease-in-out translate-x-0 opacity-100" style="background-image: url('quiz1.jpg');"></div>
+    <div id="bg-1" class="absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[3000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz2.jpg');"></div>
+    <div id="bg-2" class="absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[3000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz3.jpg');"></div>
+    <div id="bg-3" class="absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[3000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz4.jpg');"></div>
+    <div id="bg-4" class="absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[3000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz5.jpg');"></div>
     
     <!-- UIや文字が見やすいように全体を少し暗くするオーバーレイ -->
     <div class="absolute inset-0 bg-black/30"></div>
@@ -92,12 +70,15 @@
   </main>
 
   <!-- 画面下部 (歩行キャラクター配置用エリア) -->
-  <div class="h-40 relative shrink-0 z-20 pointer-events-none overflow-hidden">
+  <!-- 修正: 画像が見切れないように overflow-hidden を overflow-visible に変更 -->
+  <div class="h-40 relative shrink-0 z-20 pointer-events-none overflow-visible">
     <!-- 歩行キャラクター (横移動用ラッパー) -->
     <!-- -translate-x-1/2 と left-1/2 で中央に配置 -->
-    <div id="character-wrapper" class="absolute bottom-8 left-1/2 -translate-x-1/2 w-24">
+    <!-- 修正: 枠のサイズに余裕を持たせ、画像を中央・下揃えに配置 -->
+    <div id="character-wrapper" class="absolute bottom-4 left-1/2 -translate-x-1/2 w-32 md:w-40 flex justify-center items-end h-32">
       <!-- 実際にアニメーションで揺れるキャラクター画像 (maru.png) -->
-      <img id="character" src="maru.png" alt="キャラクター" class="w-full h-auto drop-shadow-md origin-bottom">
+      <!-- 修正: object-contain を追加し、画像の縦横比を保ったまま見切れないように全体を表示 -->
+      <img id="character" src="maru.png" alt="キャラクター" class="w-full h-full object-contain drop-shadow-md origin-bottom">
     </div>
   </div>
 
@@ -285,7 +266,8 @@
             if (!layer) continue;
             
             // ベースとなるスタイルクラス (bg-full-view と 幅110% を設定)
-            const baseClasses = "absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[8000ms] ease-in-out";
+            // 変更: 切り替え時間を3秒(3000ms)に短縮
+            const baseClasses = "absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[3000ms] ease-in-out";
             
             if (i < currentIndex) {
               // 過去のステージ：左へ流れながら消える
@@ -299,21 +281,16 @@
             }
           }
           
-          // キャラクターを右へ歩かせるアニメーション開始
-          characterWrapper.classList.add('char-walk-next');
-          
-          // ★ アニメーションWebPに切り替えて滑らかに歩かせる
+          // ★ アニメーションWebPに切り替えてその場で歩かせる
           character.src = 'maruwalk.webp';
           
-          // アニメーション完了（8秒後）に次の問題をセットし、クラスを外す
+          // アニメーション完了（3秒後）に次の問題をセットし、立ち姿に戻す
           setTimeout(() => {
-            characterWrapper.classList.remove('char-walk-next');
-            
             // ★ 歩行アニメーションを止めて元の立ち姿に戻す
             character.src = 'maru.png';
             
             updateQuizUI();
-          }, 8000);
+          }, 3000);
 
         } else {
           // 全5問終了 -> クライマックス演出
@@ -324,13 +301,11 @@
 
     // --- クライマックス演出 ---
     function playClimax() {
-      // 1. キャラクターが右へ歩いて退場
-      characterWrapper.classList.add('char-walk-out');
-      
-      // ★ アニメーションWebPに切り替えて退場させる
+      // 1. キャラクターはその場で歩いて次へ進む演出
+      // ★ アニメーションWebPに切り替える
       character.src = 'maruwalk.webp';
 
-      // 2. ホワイトアウト画面を表示（歩く速度に合わせて表示を遅らせる）
+      // 2. ホワイトアウト画面を表示（3秒後）
       setTimeout(() => {
         whiteout.classList.remove('hidden');
         setTimeout(() => {

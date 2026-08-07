@@ -14,11 +14,6 @@
       /* スクロールによる画面の揺れを防ぐ */
       overscroll-behavior: none; 
     }
-
-    /* 縦横比を調整し、空から道まですべてを確実に画面内に収める設定 */
-    .bg-full-view {
-      background-size: 100% 100%;
-    }
   </style>
 </head>
 <body class="bg-gray-800 flex justify-center items-center min-h-[100dvh] w-full m-0 p-0 overflow-hidden">
@@ -29,11 +24,11 @@
   <!-- 全画面背景レイヤー (スライド＆クロスフェード用) -->
   <div class="absolute inset-0 z-0 pointer-events-none bg-gray-900 overflow-hidden">
     <!-- 背景の切り替え時間を3000ms(3秒)に設定 -->
-    <div id="bg-0" class="absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[3000ms] ease-in-out translate-x-0 opacity-100" style="background-image: url('quiz1.jpg');"></div>
-    <div id="bg-1" class="absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[3000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz2.jpg');"></div>
-    <div id="bg-2" class="absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[3000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz3.jpg');"></div>
-    <div id="bg-3" class="absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[3000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz4.jpg');"></div>
-    <div id="bg-4" class="absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[3000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz5.jpg');"></div>
+    <div id="bg-0" class="absolute w-[110%] -left-[5%] h-full top-0 bg-cover bg-bottom bg-no-repeat transition-all duration-[3000ms] ease-in-out translate-x-0 opacity-100" style="background-image: url('quiz1.jpg');"></div>
+    <div id="bg-1" class="absolute w-[110%] -left-[5%] h-full top-0 bg-cover bg-bottom bg-no-repeat transition-all duration-[3000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz2.jpg');"></div>
+    <div id="bg-2" class="absolute w-[110%] -left-[5%] h-full top-0 bg-cover bg-bottom bg-no-repeat transition-all duration-[3000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz3.jpg');"></div>
+    <div id="bg-3" class="absolute w-[110%] -left-[5%] h-full top-0 bg-cover bg-bottom bg-no-repeat transition-all duration-[3000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz4.jpg');"></div>
+    <div id="bg-4" class="absolute w-[110%] -left-[5%] h-full top-0 bg-cover bg-bottom bg-no-repeat transition-all duration-[3000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz5.jpg');"></div>
     
     <!-- UIや文字が見やすいように全体を少し暗くするオーバーレイ -->
     <div class="absolute inset-0 bg-black/30"></div>
@@ -256,18 +251,18 @@
             const layer = document.getElementById(`bg-${i}`);
             if (!layer) continue;
             
-            // ベースとなるスタイルクラス (bg-full-view と 幅110% を設定)
-            const baseClasses = "absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[3000ms] ease-in-out";
+            // ベース設定（クラス）を維持したまま、位置と透明度だけを変更する
+            layer.classList.remove('translate-x-0', '-translate-x-[5%]', 'translate-x-[5%]', 'opacity-0', 'opacity-100');
             
             if (i < currentIndex) {
               // 過去のステージ：左へ流れながら消える
-              layer.className = `${baseClasses} -translate-x-[5%] opacity-0`;
+              layer.classList.add('-translate-x-[5%]', 'opacity-0');
             } else if (i === currentIndex) {
               // 現在のステージ：右から中央へ現れながら表示される
-              layer.className = `${baseClasses} translate-x-0 opacity-100`;
+              layer.classList.add('translate-x-0', 'opacity-100');
             } else {
               // 未来のステージ：右に待機
-              layer.className = `${baseClasses} translate-x-[5%] opacity-0`;
+              layer.classList.add('translate-x-[5%]', 'opacity-0');
             }
           }
           

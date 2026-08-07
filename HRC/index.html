@@ -20,10 +20,10 @@
       will-change: transform, opacity;
     }
 
-    /* 背景画像を画面の下部（建物の位置）に合わせて表示させる設定 */
+    /* 背景画像を画面にぴったり収める設定 */
     .bg-full-view {
-      background-size: cover; /* 画面全体を覆う */
-      background-position: center bottom; /* 下端（建物）を最優先で表示する */
+      background-size: 100% 100%; /* 9:16の画像を画面全体に完全にフィットさせる */
+      background-position: center bottom;
     }
   </style>
 </head>
@@ -33,12 +33,12 @@
   <div class="bg-sky-100 text-gray-800 w-full h-[100dvh] max-w-md md:h-[85dvh] md:max-h-[900px] md:rounded-[2rem] md:shadow-2xl overflow-hidden flex flex-col relative ring-1 ring-white/10 md:ring-4 md:ring-black/20">
 
   <div class="absolute inset-0 z-0 pointer-events-none bg-sky-100 overflow-hidden">
-    <!-- 各背景画像。bg-full-view と bg-layer で軽く滑らかに動かします -->
-    <div id="bg-0" class="bg-layer absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-no-repeat duration-[3000ms] ease-in-out translate-x-0 opacity-100" style="background-image: url('quiz1.jpg');"></div>
-    <div id="bg-1" class="bg-layer absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-no-repeat duration-[3000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz2.jpg');"></div>
-    <div id="bg-2" class="bg-layer absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-no-repeat duration-[3000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz3.jpg');"></div>
-    <div id="bg-3" class="bg-layer absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-no-repeat duration-[3000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz4.jpg');"></div>
-    <div id="bg-4" class="bg-layer absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-no-repeat duration-[3000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz5.jpg');"></div>
+    <!-- 各背景画像。横幅を100%にし、スライド移動をなくして綺麗に収めます -->
+    <div id="bg-0" class="bg-layer absolute w-full h-full top-0 left-0 bg-full-view bg-no-repeat duration-[3000ms] ease-in-out opacity-100" style="background-image: url('quiz1.jpg');"></div>
+    <div id="bg-1" class="bg-layer absolute w-full h-full top-0 left-0 bg-full-view bg-no-repeat duration-[3000ms] ease-in-out opacity-0" style="background-image: url('quiz2.jpg');"></div>
+    <div id="bg-2" class="bg-layer absolute w-full h-full top-0 left-0 bg-full-view bg-no-repeat duration-[3000ms] ease-in-out opacity-0" style="background-image: url('quiz3.jpg');"></div>
+    <div id="bg-3" class="bg-layer absolute w-full h-full top-0 left-0 bg-full-view bg-no-repeat duration-[3000ms] ease-in-out opacity-0" style="background-image: url('quiz4.jpg');"></div>
+    <div id="bg-4" class="bg-layer absolute w-full h-full top-0 left-0 bg-full-view bg-no-repeat duration-[3000ms] ease-in-out opacity-0" style="background-image: url('quiz5.jpg');"></div>
     
     <!-- UIや文字が見やすいように全体を少し暗くするオーバーレイ -->
     <div class="absolute inset-0 bg-black/20"></div>
@@ -236,14 +236,15 @@
             if (!layer) continue;
             
             // クラスの上書きで設定がおかしくならないようベースのクラスを明記
-            const baseClasses = "bg-layer absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-no-repeat duration-[3000ms] ease-in-out";
+            // スライド（translate）を無くし、フェードのみで切り替える
+            const baseClasses = "bg-layer absolute w-full h-full top-0 left-0 bg-full-view bg-no-repeat duration-[3000ms] ease-in-out";
             
             if (i < currentIndex) {
-              layer.className = `${baseClasses} -translate-x-[5%] opacity-0`;
+              layer.className = `${baseClasses} opacity-0`;
             } else if (i === currentIndex) {
-              layer.className = `${baseClasses} translate-x-0 opacity-100`;
+              layer.className = `${baseClasses} opacity-100`;
             } else {
-              layer.className = `${baseClasses} translate-x-[5%] opacity-0`;
+              layer.className = `${baseClasses} opacity-0`;
             }
           }
           

@@ -15,9 +15,16 @@
       overscroll-behavior: none; 
     }
 
-    /* 縦横比を維持しつつ、建物の高さを抑えてボタンとのかぶりを防ぐ設定 */
+    /* --- 描画負荷を軽減し、WebPアニメーションのスローダウンを防ぐ設定 --- */
+    .bg-layer {
+      will-change: transform, opacity;
+      transition-property: transform, opacity;
+    }
+
+    /* 縦横比を維持しつつ、建物を画面下部に配置する設定 */
     .bg-full-view {
       background-size: 100% auto;
+      background-position: center bottom;
     }
   </style>
 </head>
@@ -28,23 +35,23 @@
 
   <!-- 全画面背景レイヤー (スライド＆クロスフェード用) -->
   <div class="absolute inset-0 z-0 pointer-events-none bg-gray-900 overflow-hidden">
-    <!-- 背景の切り替え時間を3000ms(3秒)に設定 -->
-    <!-- 変更: bg-cover を bg-full-view に変更し、画像が過剰に拡大されて建物が上に来るのを防ぐ -->
-    <div id="bg-0" class="absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[3000ms] ease-in-out translate-x-0 opacity-100" style="background-image: url('quiz1.jpg');"></div>
-    <div id="bg-1" class="absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[3000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz2.jpg');"></div>
-    <div id="bg-2" class="absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[3000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz3.jpg');"></div>
-    <div id="bg-3" class="absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[3000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz4.jpg');"></div>
-    <div id="bg-4" class="absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[3000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz5.jpg');"></div>
+    <!-- 変更: bg-layerクラスを追加しGPU処理を有効化。背景が重くならないように設定 -->
+    <div id="bg-0" class="bg-layer absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-no-repeat duration-[3000ms] ease-in-out translate-x-0 opacity-100" style="background-image: url('quiz1.jpg');"></div>
+    <div id="bg-1" class="bg-layer absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-no-repeat duration-[3000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz2.jpg');"></div>
+    <div id="bg-2" class="bg-layer absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-no-repeat duration-[3000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz3.jpg');"></div>
+    <div id="bg-3" class="bg-layer absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-no-repeat duration-[3000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz4.jpg');"></div>
+    <div id="bg-4" class="bg-layer absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-no-repeat duration-[3000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz5.jpg');"></div>
     
     <!-- UIや文字が見やすいように全体を少し暗くするオーバーレイ -->
     <div class="absolute inset-0 bg-black/30"></div>
   </div>
 
   <!-- 画面上部〜中央 (クイズエリア) -->
-  <main class="flex-1 flex flex-col relative z-10 px-4 pt-6 pb-2">
+  <!-- 変更: flex-colの次に justify-start と pt-8 を追加し、ボタン全体を上に持ち上げて建物と被らないようにする -->
+  <main class="flex-1 flex flex-col justify-start relative z-10 px-4 pt-8 pb-2">
     
     <!-- クイズ進行状況と問題文 -->
-    <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-5 shadow-lg border-2 border-orange-100 mb-6 text-center z-20">
+    <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-5 shadow-lg border-2 border-orange-100 mb-6 text-center z-20">
       <h2 id="quiz-number" class="text-orange-600 font-bold text-lg mb-2">第1問</h2>
       <p id="quiz-text" class="text-xl font-bold leading-relaxed min-h-[4.5rem] flex items-center justify-center">
         生ビール1L提供につき1円が寄付されるキャンペーンがある
@@ -57,16 +64,16 @@
       <button onclick="handleAnswer(false)" class="w-28 h-28 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border-2 border-orange-100 text-blue-500 text-6xl font-black active:bg-blue-50 active:scale-95 transition-all flex items-center justify-center">✖</button>
     </div>
   </main>
+      <button onclick="handleAnswer(false)" class="w-28 h-28 bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border-2 border-orange-100 text-blue-500 text-6xl font-black active:bg-blue-50 active:scale-95 transition-all flex items-center justify-center">✖</button>
+    </div>
+  </main>
 
   <!-- 画面下部 (歩行キャラクター配置用エリア) -->
   <div class="h-40 relative shrink-0 z-20 pointer-events-none overflow-visible">
     <!-- 歩行キャラクター (その場に留まる) -->
-    <!-- -translate-x-1/2 と left-1/2 で中央に配置 -->
     <div id="character-wrapper" class="absolute bottom-4 left-1/2 -translate-x-1/2 w-24 h-32 relative">
-      <!-- 【重要】src書き換えによる再読み込みラグを防ぐため、立ち姿と歩き姿を両方配置し、透明度で切り替える -->
-      <!-- object-contain で見切れを防止 -->
-      <img id="char-idle" src="maru.png" alt="キャラクター" class="absolute inset-0 w-full h-full object-contain drop-shadow-md origin-bottom opacity-100 transition-opacity duration-[50ms]">
-      <img id="char-walk" src="maruwalk.webp" alt="キャラクター歩行" class="absolute inset-0 w-full h-full object-contain drop-shadow-md origin-bottom opacity-0 transition-opacity duration-[50ms]">
+      <!-- 変更: シンプルに1つのimgタグに戻し、JSでsrcを切り替える方式に統一 -->
+      <img id="character" src="maru.png" alt="キャラクター" class="absolute inset-0 w-full h-full object-contain drop-shadow-md origin-bottom">
     </div>
   </div>
 
@@ -165,9 +172,8 @@
     const qNumberEl = document.getElementById('quiz-number');
     const qTextEl = document.getElementById('quiz-text');
     const characterWrapper = document.getElementById('character-wrapper');
-    // 2枚の画像をそれぞれ取得
-    const charIdle = document.getElementById('char-idle');
-    const charWalk = document.getElementById('char-walk');
+    // 変更: 取得する要素を1つに戻す
+    const character = document.getElementById('character');
     const quizButtons = document.getElementById('quiz-buttons');
     
     const modal = document.getElementById('explanation-modal');
@@ -257,8 +263,8 @@
             const layer = document.getElementById(`bg-${i}`);
             if (!layer) continue;
             
-            // ベース設定（クラス）を維持したまま、位置と透明度だけを変更する
-            layer.classList.remove('translate-x-0', '-translate-x-[5%]', 'translate-x-[5%]', 'opacity-0', 'opacity-100');
+            // 変更: bg-layer クラスを付与し、transitionの設定を軽量化
+            const baseClasses = "bg-layer absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-no-repeat duration-[3000ms] ease-in-out";
             
             if (i < currentIndex) {
               // 過去のステージ：左へ流れながら消える
@@ -268,23 +274,16 @@
               layer.classList.add('translate-x-0', 'opacity-100');
             } else {
               // 未来のステージ：右に待機
-              layer.classList.add('translate-x-[5%]', 'opacity-0');
+              layer.className = `${baseClasses} translate-x-[5%] opacity-0`;
             }
           }
           
-          // ★ アニメーションWebPの透明度を上げて表示し、立ち姿を消す
-          charIdle.classList.remove('opacity-100');
-          charIdle.classList.add('opacity-0');
-          charWalk.classList.remove('opacity-0');
-          charWalk.classList.add('opacity-100');
+          // ★ アニメーションWebPに切り替えてその場で歩かせる
+          character.src = 'maruwalk.webp';
           
           // アニメーション完了（3秒後）に次の問題をセットし、立ち姿に戻す
           setTimeout(() => {
-            // ★ 歩行アニメーションを隠して元の立ち姿を表示する
-            charWalk.classList.remove('opacity-100');
-            charWalk.classList.add('opacity-0');
-            charIdle.classList.remove('opacity-0');
-            charIdle.classList.add('opacity-100');
+            character.src = 'maru.png';
             
             updateQuizUI();
           }, 3000);
@@ -299,11 +298,7 @@
     // --- クライマックス演出 ---
     function playClimax() {
       // 1. キャラクターはその場で歩いて次へ進む演出
-      // ★ アニメーションWebPの透明度を上げて表示し、立ち姿を消す
-      charIdle.classList.remove('opacity-100');
-      charIdle.classList.add('opacity-0');
-      charWalk.classList.remove('opacity-0');
-      charWalk.classList.add('opacity-100');
+      character.src = 'maruwalk.webp';
 
       // 2. ホワイトアウト画面を表示（3秒後）
       setTimeout(() => {

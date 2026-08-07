@@ -31,27 +31,16 @@
 
     /* 退場時（右へ歩き去る）アニメーション */
     @keyframes walk-out {
-      0% { left: 50%; opacity: 1; }
-      100% { left: 150%; opacity: 0; }
+      0% { transform: translateX(-50%); opacity: 1; }
+      100% { transform: translateX(150vw); opacity: 0; }
     }
     .char-walk-out {
-      animation: walk-out 4s linear forwards;
+      animation: walk-out 8s linear forwards;
     }
 
-    /* 足が動いている（歩いている）ように見せるトコトコアニメーション */
-    @keyframes wobble {
-      0%, 100% { transform: translateX(-50%) rotate(0deg) translateY(0); }
-      25% { transform: translateX(-50%) rotate(15deg) translateY(-5px); }
-      50% { transform: translateX(-50%) rotate(0deg) translateY(0); }
-      75% { transform: translateX(-50%) rotate(-15deg) translateY(-5px); }
-    }
-    .wobbling {
-      animation: wobble 0.5s infinite !important;
-    }
-
-    /* 背景スライドの滑らかなトランジション */
-    .bg-slide-transition {
-      transition: transform 3s ease-in-out;
+    /* 縦横比を調整し、空から道まですべてを確実に画面内に収める設定 */
+    .bg-full-view {
+      background-size: 100% 100%;
     }
   </style>
 </head>
@@ -62,12 +51,12 @@
 
   <!-- 全画面背景レイヤー (スライド＆クロスフェード用) -->
   <div class="absolute inset-0 z-0 pointer-events-none bg-gray-900 overflow-hidden">
-    <!-- 画像が横移動しながらフェードするためのレイヤー群。幅を120%にして端が見えないようにする -->
-    <div id="bg-0" class="absolute w-[120%] -left-[10%] h-full top-0 bg-cover bg-bottom bg-no-repeat transition-all duration-[8000ms] ease-in-out translate-x-0 opacity-100" style="background-image: url('quiz1.jpg');"></div>
-    <div id="bg-1" class="absolute w-[120%] -left-[10%] h-full top-0 bg-cover bg-bottom bg-no-repeat transition-all duration-[8000ms] ease-in-out translate-x-[10%] opacity-0" style="background-image: url('quiz2.jpg');"></div>
-    <div id="bg-2" class="absolute w-[120%] -left-[10%] h-full top-0 bg-cover bg-bottom bg-no-repeat transition-all duration-[8000ms] ease-in-out translate-x-[10%] opacity-0" style="background-image: url('quiz3.jpg');"></div>
-    <div id="bg-3" class="absolute w-[120%] -left-[10%] h-full top-0 bg-cover bg-bottom bg-no-repeat transition-all duration-[8000ms] ease-in-out translate-x-[10%] opacity-0" style="background-image: url('quiz4.jpg');"></div>
-    <div id="bg-4" class="absolute w-[120%] -left-[10%] h-full top-0 bg-cover bg-bottom bg-no-repeat transition-all duration-[8000ms] ease-in-out translate-x-[10%] opacity-0" style="background-image: url('quiz5.jpg');"></div>
+    <!-- 画像が横移動しながらフェードするためのレイヤー群。空と道を全て映すため bg-full-view を適用し、幅を110%に調整 -->
+    <div id="bg-0" class="absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[8000ms] ease-in-out translate-x-0 opacity-100" style="background-image: url('quiz1.jpg');"></div>
+    <div id="bg-1" class="absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[8000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz2.jpg');"></div>
+    <div id="bg-2" class="absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[8000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz3.jpg');"></div>
+    <div id="bg-3" class="absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[8000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz4.jpg');"></div>
+    <div id="bg-4" class="absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[8000ms] ease-in-out translate-x-[5%] opacity-0" style="background-image: url('quiz5.jpg');"></div>
     
     <!-- UIや文字が見やすいように全体を少し暗くするオーバーレイ -->
     <div class="absolute inset-0 bg-black/30"></div>
@@ -280,22 +269,22 @@
             const layer = document.getElementById(`bg-${i}`);
             if (!layer) continue;
             
-            // ベースとなるスタイルクラス
-            const baseClasses = "absolute w-[120%] -left-[10%] h-full top-0 bg-cover bg-bottom bg-no-repeat transition-all duration-[8000ms] ease-in-out";
+            // ベースとなるスタイルクラス (bg-full-view と 幅110% を設定)
+            const baseClasses = "absolute w-[110%] -left-[5%] h-full top-0 bg-full-view bg-bottom bg-no-repeat transition-all duration-[8000ms] ease-in-out";
             
             if (i < currentIndex) {
               // 過去のステージ：左へ流れながら消える
-              layer.className = `${baseClasses} -translate-x-[10%] opacity-0`;
+              layer.className = `${baseClasses} -translate-x-[5%] opacity-0`;
             } else if (i === currentIndex) {
               // 現在のステージ：右から中央へ現れながら表示される
               layer.className = `${baseClasses} translate-x-0 opacity-100`;
             } else {
               // 未来のステージ：右に待機
-              layer.className = `${baseClasses} translate-x-[10%] opacity-0`;
+              layer.className = `${baseClasses} translate-x-[5%] opacity-0`;
             }
           }
           
-          // キャラクターのアニメーションを開始
+          // キャラクターを右へ歩かせるアニメーション開始
           character.classList.add('char-walk-next');
           character.classList.add('wobbling'); // トコトコ歩くアニメーションを追加
           

@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ハッピーリングクイズ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* 外側の背景 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #app-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            height: 100%;
+            background-color: #000;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .background-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 3s ease-in-out; /* 3秒かけてクロスフェード */
+            z-index: 1;
+        }
+
+        .background-layer.active {
+            opacity: 1;
+        }
+
+        /* 20%のオーバーレイ */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        #start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .start-btn {
+            pointer-events: auto;
+            opacity: 0;
+            transition: opacity 1s;
+            font-size: 1.5rem;
+            padding: 15px 50px;
+        }
+        
+        .start-btn.show {
+            opacity: 1;
+        }
+
+        #quiz-ui-container {
+            position: relative;
+            z-index: 10;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 40px 20px 20px;
+            max-height: 60vh; 
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+
+        #quiz-ui-container.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .choice-btn {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(5px);
+            border: 2px solid transparent;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.1s, border-color 0.2s;
+            cursor: pointer;
+        }
+
+        .choice-btn:active {
+            transform: scale(0.95);
+        }
+
+        #character-container {
+            position: absolute;
+            bottom: 0px;
+            left: 50%;
+            z-index: 5;
+            height: 200px; 
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            width: max-content;
+            flex-shrink: 0;
+            pointer-events: none;
+            will-change: transform;
+        }
+
+        /* 止まっている時の画像 (maru.png) の設定 */
+        #character-img {
+            height: 100%;
+            width: auto;
+            object-fit: contain;
+            border: none;
+            outline: none;
+            background-color: transparent;
+            transform-origin: bottom center; /* 足元を基準にする */
+            
+            /* ★ 止まっている時のサイズを1.02倍にさらに微調整 */
+            transform: scale(1.02); 
+        }
+
+        /* 歩いている時の画像 (maruwaalk) の設定 */
+        #character-img.walking {
+            /* ★ 歩いている時は基準サイズ(1.0倍) */
+            transform: scale(1.0); 
+        }
+
+        .modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s;
+            padding: 20px;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%);
+            color: #d13b53;
+            font-weight: bold;
+            padding: 12px 30px;
+            border-radius: 30px;
+            border: none;
+            box-shadow: 0 4px 10px rgba(255, 154, 158, 0.4);
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .next-btn:active {
+            transform: scale(0.95);
+        }
+
+        #completion-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 150;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0,0,0,0.7);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1s;
+            padding: 20px;
+        }
+
+        #completion-screen.active {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    <!-- スタート画面 -->
+    <div id="start-screen">
+        <button class="next-btn start-btn" id="start-btn-element" style="display: none;" onclick="startQuiz()">スタート</button>
+    </div>
+
+    <!-- 背景画像 (0がスタート、1〜5がクイズ用) -->
+    <div id="bg-0" class="background-layer active" style="background-image: url('start.jpg');"></div>
+    <div id="bg-1" class="background-layer" style="background-image: url('quiz1.jpg');"></div>
+    <div id="bg-2" class="background-layer" style="background-image: url('quiz2.jpg');"></div>
+    <div id="bg-3" class="background-layer" style="background-image: url('quiz3.jpg');"></div>
+    <div id="bg-4" class="background-layer" style="background-image: url('quiz4.jpg');"></div>
+    <div id="bg-5" class="background-layer" style="background-image: url('quiz5.jpg');"></div>
+    
+    <div class="overlay"></div>
+
+    <!-- クイズUI領域 -->
+    <div id="quiz-ui-container">
+        <div class="glass-panel text-center w-full max-w-sm mb-6">
+            <h2 id="question-number" class="text-xl font-bold text-gray-800 mb-2"></h2>
+            <p id="question-text" class="text-gray-700 text-lg font-medium leading-relaxed"></p>
+        </div>
+        <div class="flex gap-4 w-full max-w-sm">
+            <button class="choice-btn text-5xl text-blue-500 font-bold" onclick="answer('〇')">〇</button>
+            <button class="choice-btn text-5xl text-red-500 font-bold" onclick="answer('✖')">✖</button>
+        </div>
+    </div>
+
+    <!-- キャラクター -->
+    <div id="character-container">
+        <img id="character-img" src="" alt=""> <!-- altを空にして文字表示を防止 -->
+    </div>
+
+    <!-- 結果モーダル -->
+    <div id="result-modal" class="modal">
+        <div class="modal-content glass-panel w-full max-w-sm text-center">
+            <h2 id="modal-title" class="text-3xl font-bold mb-4"></h2>
+            <p id="modal-desc" class="text-gray-700 text-left text-sm mb-6 leading-relaxed"></p>
+            <button class="next-btn text-lg" onclick="nextQuestion()">次へ進む</button>
+        </div>
+    </div>
+
+    <!-- クリア画面 -->
+    <div id="completion-screen">
+        <div class="glass-panel text-center w-full max-w-sm">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">クリア！</h2>
+            <p class="text-gray-700 text-lg mb-6">全てのクイズに回答しました。<br>ご参加ありがとうございました！</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        {
+            qNum: 1,
+            question: "参加店舗で「生ビール」が1リットル提供されるごとに、1円が寄付される。",
+            answer: "〇",
+            explanation: "その通り！キャンペーン期間中、参加店で生ビールが1リットル注文されるごとに、1円が寄付金になります。"
+        },
+        {
+            qNum: 2,
+            question: "集まった寄付金は、子ども食堂や子どもの問題解決に取り組む団体に寄付される。",
+            answer: "〇",
+            explanation: "正解！「カンパイでつなぐ 子どもたちの笑顔の輪」を目指して、子ども食堂などの支援に役立てられます。"
+        },
+        {
+            qNum: 3,
+            question: "お客様がこのチャリティに参加するには、生ビール1杯につき追加で1円の募金箱へのお金（または追加料金）を払う必要がある。",
+            answer: "✖",
+            explanation: "実は「✖」です！寄付金の1円はマルト水谷より寄付されるため、お客様が追加でお金を払う必要はありません。お店でいつも通り美味しく楽しく生ビールを飲むだけで社会貢献につながる仕組みです！"
+        },
+        {
+            qNum: 4,
+            question: "子ども食堂は、食事を提供するだけで「勉強」や「交流」をする場所ではない。",
+            answer: "✖",
+            explanation: "実は「✖」です！子ども食堂は食事だけでなく、学習支援や絵本の読み聞かせ、地域の人との交流や体験の場としても活動しています。"
+        },
+        {
+            qNum: 5,
+            question: "このチャリティ活動は、国連が定める「SDGs（持続可能な開発目標）」の取り組みにもつながっている。",
+            answer: "〇",
+            explanation: "正解！「貧困をなくそう」「飢餓をゼロに」など、SDGsの目標達成にもつながる取り組みです。"
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+
+    const IMG_CHARACTER_STATIC = "maru.png";
+    const IMG_CHARACTER_WALK = "maruwaalk (3).webp";
+
+    const questionNumberEl = document.getElementById('question-number');
+    const questionTextEl = document.getElementById('question-text');
+    const characterContainer = document.getElementById('character-container');
+    const characterImageEl = document.getElementById('character-img');
+    const resultModal = document.getElementById('result-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDesc = document.getElementById('modal-desc');
+    const completionScreen = document.getElementById('completion-screen');
+    const quizUiContainer = document.getElementById('quiz-ui-container');
+
+    function initQuiz() {
+        characterContainer.style.display = "block";
+        // アニメーションが止まるのを防ぐため、毎回新しい画像として読み込ませる
+        characterImageEl.src = IMG_CHARACTER_WALK + "?t=" + new Date().getTime();
+        characterImageEl.classList.add('walking'); // 歩行用クラスを追加
+        characterContainer.style.transition = 'none';
+        characterContainer.style.transform = 'translateX(-50%) translateX(-400px)'; // 左外へ
+
+        // requestAnimationFrameを使って確実に初期位置をブラウザに認識させる
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                // キャラクターが左から中央へ歩いてくる (GPUを使って滑らかに移動)
+                characterContainer.style.transition = 'transform 3s linear';
+                characterContainer.style.transform = 'translateX(-50%) translateX(0px)'; // 中央へ
+            });
+        });
+
+        setTimeout(() => {
+            characterImageEl.src = IMG_CHARACTER_STATIC; // 中央で止まる
+            characterImageEl.classList.remove('walking'); // 歩行用クラスを外す
+            const startBtn = document.getElementById('start-btn-element');
+            startBtn.style.display = 'block';
+            setTimeout(() => {
+                startBtn.classList.add('show');
+            }, 50); 
+        }, 3000);
+    }
+
+    function transitionToNextStage(nextIndex) {
+        const currentActiveBg = document.querySelector('.background-layer.active');
+        const nextBg = (nextIndex < quizData.length) ? document.getElementById(`bg-${nextIndex + 1}`) : null;
+
+        const isNextQuestion4 = (nextIndex === 3);
+        const isLeavingQuestion4 = (currentQuestionIndex === 3);
+
+        // 1. キャラクターが右へ退場
+        if (!isLeavingQuestion4) {
+            // 画像を歩き状態にセットする (キャッシュによるアニメーション停止を防ぐためタイムスタンプ付与)
+            characterImageEl.src = IMG_CHARACTER_WALK + "?t=" + new Date().getTime();
+            characterImageEl.classList.add('walking');
+            
+            // ★追加: ブラウザに画像切り替えを確実に認識させてから移動を開始する
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    characterContainer.style.transition = 'transform 1.5s linear';
+                    characterContainer.style.transform = 'translateX(-50%) translateX(400px)';
+                });
+            });
+        }
+
+        if (nextBg && nextBg !== currentActiveBg) {
+            nextBg.classList.add('active');
+        }
+
+        // 2. 退場完了後、左側にワープして中央へ登場 (1.5秒)
+        setTimeout(() => {
+            if (!isNextQuestion4) {
+                // ★追加: 左から登場する際にも、確実に歩き画像をセットして表示をオンにする
+                characterImageEl.src = IMG_CHARACTER_WALK + "?t=" + new Date().getTime();
+                characterImageEl.classList.add('walking');
+                characterContainer.style.display = "flex";
+                
+                characterContainer.style.transition = 'none';
+                characterContainer.style.transform = 'translateX(-50%) translateX(-400px)';
+                
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        characterContainer.style.transition = 'transform 1.5s linear';
+                        characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
+                    });
+                });
+            } else {
+                characterContainer.style.display = "none";
+            }
+        }, 1500);
+
+        // 3. アニメーション完了 (合計3秒後) ＆ 次のUI表示
+        setTimeout(() => {
+            if (currentActiveBg && currentActiveBg !== nextBg && nextBg !== null) {
+                currentActiveBg.classList.remove('active');
+            }
+            
+            characterImageEl.src = IMG_CHARACTER_STATIC;
+            characterImageEl.classList.remove('walking');
+            
+            if (nextIndex >= quizData.length) {
+                completionScreen.classList.add('active');
+            } else {
+                currentQuestionIndex = nextIndex;
+                loadQuestion(currentQuestionIndex);
+                quizUiContainer.classList.add('active');
+            }
+        }, 3000);
+    }
+
+    function startQuiz() {
+        const startBtn = document.getElementById('start-btn-element');
+        startBtn.classList.remove('show');
+        
+        setTimeout(() => {
+            document.getElementById('start-screen').style.display = 'none';
+        }, 500);
+
+        // 共通のトランジション関数で1問目(index=0)へ
+        transitionToNextStage(0);
+    }
+
+    function loadQuestion(index) {
+        const q = quizData[index];
+        questionNumberEl.textContent = `第${q.qNum}問`;
+        questionTextEl.textContent = q.question;
+
+        if (index === 3) {
+            // 4問目なら非表示
+            characterContainer.style.display = "none";
+        } else {
+            // 4問目以外なら表示して中央に配置
+            characterContainer.style.transition = 'none';
+            characterContainer.style.display = "block";
+            characterContainer.style.left = '50%';
+            characterImageEl.src = IMG_CHARACTER_STATIC;
+        }
+    }
+
+    function answer(userChoice) {
+        const q = quizData[currentQuestionIndex];
+        const isCorrect = (userChoice === q.answer);
+
+        quizUiContainer.classList.remove('active');
+
+        if (isCorrect) {
+            modalTitle.textContent = "正解！";
+            modalTitle.style.color = "#ef4444"; 
+        } else {
+            modalTitle.textContent = "残念...";
+            modalTitle.style.color = "#3b82f6"; 
+        }
+        modalDesc.textContent = q.explanation;
+        
+        setTimeout(() => {
+            resultModal.classList.add('active');
+        }, 500); 
+    }
+
+    function nextQuestion() {
+        resultModal.classList.remove('active');
+        // 次の問題インデックスへ遷移
+        transitionToNextStage(currentQuestionIndex + 1);
+    }
+
+    window.onload = initQuiz;
+
+</script>
+</body>
+</html>

@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ハッピーリングクイズ</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 丸みのある極太フォントをGoogle Fontsから読み込む -->
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@900&display=swap" rel="stylesheet">
     <style>
         /* -------------------------------------
            全体設定
@@ -53,6 +55,20 @@
             opacity: 1;
         }
 
+        /* -------------------------------------
+           白オーバーレイの追加
+        ------------------------------------- */
+        .white-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.4);
+            z-index: 2;
+            pointer-events: none;
+        }
+
         .overlay {
             position: absolute;
             top: 0;
@@ -60,8 +76,26 @@
             width: 100%;
             height: 100%;
             background: rgba(255, 255, 255, 0.2);
-            z-index: 2;
+            z-index: 3;
             pointer-events: none;
+        }
+
+        /* -------------------------------------
+           スタート画面・クリア画面
+        ------------------------------------- */
+        #start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start; /* 変更: 上寄せに */
+            align-items: center;
+            pointer-events: none;
+            padding-top: 10%; /* 上部に余白を追加 */
         }
 
         /* -------------------------------------
@@ -81,12 +115,40 @@
             pointer-events: none;
         }
 
+        /* -------------------------------------
+           タイトルデザイン
+        ------------------------------------- */
+        .title-container {
+            text-align: center;
+            z-index: 200;
+            pointer-events: none;
+            margin-bottom: auto; /* 変更: ボタンを下部に押しやるため */
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 1s, transform 1s;
+        }
+
+        .title-container.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .title-img {
+            max-width: 90%;
+            height: auto;
+            margin: 0 auto;
+            display: block;
+            /* 画像自体が目立つように少しドロップシャドウをかける */
+            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3));
+        }
+
         .start-btn {
             pointer-events: auto;
             opacity: 0;
             transition: opacity 1s;
             font-size: 1.5rem;
             padding: 15px 50px;
+            margin-bottom: 20%; /* 変更: 下部からの余白 */
         }
         
         .start-btn.show {
@@ -243,8 +305,12 @@
     </style>
 </head>
 <body>
+
 <div id="app-container">
     <div id="start-screen">
+        <div id="start-title-container" class="title-container" style="display: none;">
+            <img src="image_332c64.png" alt="ハッピーリングチャリティ" class="title-img">
+        </div>
         <button class="next-btn start-btn" id="start-btn-element" style="display: none;" onclick="startQuiz()">スタート</button>
     </div>
 
@@ -257,6 +323,8 @@
     <div id="bg-5" class="background-layer" style="background-image: url('quiz5.jpg');"></div>
     <div id="bg-6" class="background-layer" style="background-image: url('result.jpg');"></div>
     
+    <!-- 新しく追加した40%の白オーバーレイ -->
+    <div class="white-overlay"></div>
     <div class="overlay"></div>
 
     <!-- クイズUI領域 -->
@@ -369,20 +437,25 @@
 
         await new Promise(resolve => setTimeout(resolve, 50));
 
-        // 画面外から移動開始するタイミングで歩行アニメーションをON
+        // 画面外からの登場時もキープアライブにより問題なく再生されるため、直接実行します
         setWalking(true);
 
         characterContainer.style.transition = 'transform 3s linear';
         characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
 
-        await new Promise(resolve => setTimeout(resolve, 3000));
-
-        setWalking(false); 
-        const startBtn = document.getElementById('start-btn-element');
-        startBtn.style.display = 'block';
         setTimeout(() => {
-            startBtn.classList.add('show');
-        }, 50); 
+            setWalking(false); 
+            const startBtn = document.getElementById('start-btn-element');
+            const startTitle = document.getElementById('start-title-container');
+            
+            startBtn.style.display = 'block';
+            startTitle.style.display = 'block';
+            
+            setTimeout(() => {
+                startBtn.classList.add('show');
+                startTitle.classList.add('show');
+            }, 50); 
+        }, 3000);
     }
 
     // ==========================================

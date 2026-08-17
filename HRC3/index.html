@@ -64,9 +64,14 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(255, 255, 255, 0.5);
+            background-color: rgba(255, 255, 255, 0.5); /* 初期状態（スタート画面）は50% */
             z-index: 2;
             pointer-events: none;
+            transition: background-color 1.5s; /* クイズ画面への遷移に合わせてフェードアウト */
+        }
+        
+        .white-overlay.hidden {
+            background-color: rgba(255, 255, 255, 0); /* 非表示状態 */
         }
 
         .overlay {
@@ -616,6 +621,8 @@
         
         setTimeout(() => {
             document.getElementById('start-screen').style.display = 'none';
+            // スタート画面が消えたら、白オーバーレイも非表示にする
+            document.querySelector('.white-overlay').classList.add('hidden');
         }, 500);
 
         transitionToNextStage(0);

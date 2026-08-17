@@ -416,16 +416,21 @@
 
     <!-- クリア画面 -->
     <div id="completion-screen">
-        <!-- 枠の背景を透明度高め(0.4)にし、ぼかしも弱くして透け感をアップ -->
-        <div class="glass-panel text-center w-full max-w-md" style="background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(4px);">
-            <!-- 文字が背景に埋もれないように白い縁取り（text-shadow）を追加し、文字色を濃く(gray-900)しました -->
-            <h2 class="text-4xl font-bold text-red-600 mb-6" style="text-shadow: 2px 2px 4px rgba(255,255,255,0.8);">クリア！</h2>
-            <p class="text-gray-900 text-lg mb-4 font-bold leading-relaxed text-left" style="text-shadow: 1px 1px 3px rgba(255,255,255,0.9);">
-                ご覧いただきありがとうございました！<br><br>
-                この後もいつも通り美味しく生ビールを飲んで楽しんでくださいね！<br><br>
-                あなたの「美味しい！」が、子どもたちの笑顔につながります。<br>
-                さあ、今日も楽しくカンパイしましょう！
-            </p>
+        <!-- 枠のモザイク(ぼかし)を無くし、透明度をさらに上げて透け感を強調 -->
+        <div class="glass-panel text-center w-full max-w-md" style="background: rgba(255, 255, 255, 0.25); backdrop-filter: none; border: 1px solid rgba(255,255,255,0.6);">
+            <!-- 文字が背景に埋もれないように白い縁取り（text-shadow）を強く設定しました -->
+            <h2 class="text-4xl font-bold text-red-600 mb-6" style="text-shadow: 2px 2px 0px #fff, -2px -2px 0px #fff, 2px -2px 0px #fff, -2px 2px 0px #fff, 0px 4px 5px rgba(255,255,255,1);">クリア！</h2>
+            <!-- 文章全体を左寄せにしつつ、枠の中央に配置。スマホでも変に折り返さないよう改行を入れました -->
+            <div class="inline-block text-left">
+                <p class="text-gray-900 text-lg mb-4 font-bold leading-relaxed" style="text-shadow: 1px 1px 0px #fff, -1px -1px 0px #fff, 1px -1px 0px #fff, -1px 1px 0px #fff, 0px 2px 4px rgba(255,255,255,1);">
+                    ご覧いただきありがとうございました！<br><br>
+                    この後もいつも通り美味しく<br>
+                    生ビールを飲んで楽しんでください！<br><br>
+                    あなたの「美味しい！」が、<br>
+                    子どもたちの笑顔につながります。<br>
+                    さあ、今日も楽しくカンパイしましょう！
+                </p>
+            </div>
         </div>
     </div>
 </div>

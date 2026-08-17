@@ -438,7 +438,7 @@
     const quizData = [
         {
             qNum: 1,
-            question: "参加店舗で「生ビール」が1リットル提供されるごとに、1円が寄付される。",
+            question: "参加店舗で「生ビール」が1リットル提供されるごとに、1円が<span class=\"whitespace-nowrap\">寄付</span>される。",
             answer: "〇",
             explanation: "その通り！キャンペーン期間中、参加店で生ビールが1リットル注文されるごとに、1円が寄付金になります。"
         },
@@ -456,7 +456,7 @@
         },
         {
             qNum: 4,
-            question: "子ども食堂は、食事を提供するだけで「勉強」や「交流」をする場所ではない。",
+            question: "子ども食堂は、食事を提供するだけで「勉強」や「交流」をする<span class=\"whitespace-nowrap\">場所</span>ではない。",
             answer: "✖",
             explanation: "実は「✖」です！子ども食堂は食事だけでなく、学習支援や絵本の読み聞かせ、地域の人との交流や体験の場としても活動しています。"
         },
@@ -626,7 +626,7 @@
     function loadQuestion(index) {
         const q = quizData[index];
         questionNumberEl.textContent = `第${q.qNum}問`;
-        questionTextEl.textContent = q.question;
+        questionTextEl.innerHTML = q.question; // textContentからinnerHTMLに変更してタグを有効化
 
         if (index === 3) {
             characterContainer.style.display = "none";

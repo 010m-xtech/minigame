@@ -92,27 +92,10 @@
             z-index: 200;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start; /* 変更: 上寄せに */
+            justify-content: center; /* 変更: 全体を中央寄せベースに */
             align-items: center;
             pointer-events: none;
-            padding-top: 10%; /* 上部に余白を追加 */
-        }
-
-        /* -------------------------------------
-           スタート画面・クリア画面
-        ------------------------------------- */
-        #start-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 200;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            pointer-events: none;
+            padding-top: 0; /* paddingをリセット */
         }
 
         /* -------------------------------------
@@ -122,7 +105,9 @@
             text-align: center;
             z-index: 200;
             pointer-events: none;
-            margin-bottom: auto; /* 変更: ボタンを下部に押しやるため */
+            position: absolute; /* 絶対配置に変更 */
+            top: 15%; /* 画面上部から15%の位置 */
+            width: 90%;
             opacity: 0;
             transform: translateY(-20px);
             transition: opacity 1s, transform 1s;
@@ -133,13 +118,44 @@
             transform: translateY(0);
         }
 
-        .title-img {
-            max-width: 90%;
-            height: auto;
-            margin: 0 auto;
-            display: block;
-            /* 画像自体が目立つように少しドロップシャドウをかける */
-            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3));
+        /* 新規追加: テキストタイトルのスタイリング */
+        .text-title-sub {
+            font-family: 'Zen Maru Gothic', sans-serif;
+            font-size: 1.1rem;
+            color: #fff;
+            margin-bottom: 5px;
+            /* 黒い縁取り */
+            text-shadow: 
+                -1px -1px 0 #000,
+                 1px -1px 0 #000,
+                -1px  1px 0 #000,
+                 1px  1px 0 #000;
+            letter-spacing: 1px;
+        }
+
+        .text-title-main {
+            font-family: 'Zen Maru Gothic', sans-serif;
+            font-size: 2.2rem;
+            line-height: 1.2;
+            font-weight: 900;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* 白い太い縁取りとシャドウ */
+            text-shadow: 
+                -2px -2px 0 #fff,  2px -2px 0 #fff,
+                -2px  2px 0 #fff,  2px  2px 0 #fff,
+                -3px  0   0 #fff,  3px  0   0 #fff,
+                 0   -3px 0 #fff,  0    3px 0 #fff,
+                 0 5px 10px rgba(0,0,0,0.3);
+        }
+
+        .text-title-red {
+            color: #ee3b24; /* 画像の赤色に近づける */
+        }
+
+        .text-title-blue {
+            color: #3b50a2; /* 画像の青色に近づける */
         }
 
         .start-btn {
@@ -148,7 +164,10 @@
             transition: opacity 1s;
             font-size: 1.5rem;
             padding: 15px 50px;
-            margin-bottom: 20%; /* 変更: 下部からの余白 */
+            margin-bottom: 0; /* marginをリセット */
+            position: absolute; /* 絶対配置に変更 */
+            top: 50%; /* 画面中央 */
+            transform: translateY(-50%); /* 完全に中央に揃える */
         }
         
         .start-btn.show {
@@ -309,7 +328,12 @@
 <div id="app-container">
     <div id="start-screen">
         <div id="start-title-container" class="title-container" style="display: none;">
-            <img src="image_332c64.png" alt="ハッピーリングチャリティ" class="title-img">
+            <!-- 追加: テキストタイトル -->
+            <div class="text-title-sub">知って楽しい！飲んで嬉しい！</div>
+            <div class="text-title-main">
+                <span class="text-title-red">ハッピーリング</span>
+                <span class="text-title-blue">クイズ！</span>
+            </div>
         </div>
         <button class="next-btn start-btn" id="start-btn-element" style="display: none;" onclick="startQuiz()">スタート</button>
     </div>

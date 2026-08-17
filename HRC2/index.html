@@ -209,16 +209,17 @@
             bottom: 2%; 
             left: 50%;
             z-index: 5;
-            /* 1つの画像にするためFlexboxで配置 */
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
+            display: grid;
+            place-items: end center;
             pointer-events: none;
             will-change: transform;
             transform: translateX(-50%) translateX(-400px); 
         }
 
-        #character-img {
+        /* 2つの画像に共通の設定 */
+        #character-img-static, 
+        #character-img-walk {
+            grid-area: 1 / 1; 
             height: 180px; 
             width: auto;
             object-fit: contain;
@@ -226,14 +227,24 @@
             outline: none;
             background-color: transparent;
             transform-origin: bottom center;
-            transition: transform 0.1s;
+        }
+
+        /* 止まっている時の画像 (maru.png) */
+        #character-img-static {
+            transform: scale(1.02); 
+            display: block; /* 初期は表示 */
+        }
+
+        /* 歩いている時の画像 (maruwaalk) */
+        #character-img-walk {
+            transform: scale(1.0);  
+            display: none; /* 初期は非表示 */
         }
     </style>
 </head>
 <body>
 
 <div id="app-container">
-    <!-- スタート画面 -->
     <div id="start-screen">
         <button class="next-btn start-btn" id="start-btn-element" style="display: none;" onclick="startQuiz()">スタート</button>
     </div>
@@ -261,9 +272,10 @@
         </div>
     </div>
 
-    <!-- キャラクター (タグを1つに統合) -->
+    <!-- キャラクター -->
     <div id="character-container">
-        <img id="character-img" src="maru.png" alt="">
+        <img id="character-img-static" src="maru.png" alt="">
+        <img id="character-img-walk" src="maruwaalk (3).webp" alt="">
     </div>
 
     <!-- 結果モーダル -->
@@ -330,37 +342,32 @@
     const quizUiContainer = document.getElementById('quiz-ui-container');
 
     // ==========================================
-    // スマホ対応の究極版：画像のsrcを入れ替えつつ要素を再生成する
+    // 歩き・止まりの切り替え（PC・スマホ両対応ハイブリッド）
     // ==========================================
     function setWalking(isWalk) {
-        const container = document.getElementById('character-container');
-        let charImg = document.getElementById('character-img');
+        const staticImg = document.getElementById('character-img-static');
+        const walkImg = document.getElementById('character-img-walk');
         
-        if (!charImg) return;
-
-        // 一旦クローン（複製）を作成
-        const newImg = charImg.cloneNode(true);
-
         if (isWalk) {
-            newImg.src = 'maruwaalk (3).webp';
-            newImg.style.transform = 'scale(1.0)';
-            newImg.onerror = () => { newImg.src = "https://placehold.co/100x100/9999ff/ffffff?text=Walk"; };
-        } else {
-            newImg.src = 'maru.png';
-            newImg.style.transform = 'scale(1.02)';
-            newImg.onerror = () => { newImg.src = "https://placehold.co/100x100/ff9999/ffffff?text=Stand"; };
-        }
+            staticImg.style.display = 'none';
+            walkImg.style.display = 'block';
 
-        // 古い画像を新しい画像（src変更済み）に置き換える
-        // これにより、スマホのブラウザに強制的に「新しい画像が来た」と認識させ、アニメーションを最初から再生させます
-        container.replaceChild(newImg, charImg);
+            // 【重要】PCのローカルファイル（file://）環境ではエラーになるため実行せず、
+            // スマホなどサーバー環境（http/https）の時のみ、キャッシュを無効化して強制的にアニメーションを再生させます。
+            if (window.location.protocol !== 'file:') {
+                walkImg.src = 'maruwaalk (3).webp?t=' + new Date().getTime();
+            }
+        } else {
+            staticImg.style.display = 'block';
+            walkImg.style.display = 'none';
+        }
     }
 
     // ==========================================
     // 初期ロード時のアニメーション
     // ==========================================
     async function initQuiz() {
-        characterContainer.style.display = "flex"; 
+        characterContainer.style.display = "grid"; 
         characterContainer.style.transition = 'none';
         characterContainer.style.transform = 'translateX(-50%) translateX(-400px)';
 
@@ -391,6 +398,7 @@
         const isLeavingQuestion4 = (currentQuestionIndex === 3);
         const isFinished = (nextIndex >= quizData.length);
 
+        // --- 1. 退場アニメーション ---
         if (!isFinished) {
             if (!isLeavingQuestion4) {
                 setWalking(true);
@@ -406,6 +414,7 @@
             characterContainer.style.display = "none";
         }
 
+        // 背景切り替え
         if (nextBg && nextBg !== currentActiveBg) {
             nextBg.classList.add('active');
         } else if (isFinished) {
@@ -415,9 +424,10 @@
             }
         }
 
+        // --- 2. 登場アニメーション ---
         if (!isFinished) {
             if (!isNextQuestion4) {
-                characterContainer.style.display = "flex";
+                characterContainer.style.display = "grid";
                 characterContainer.style.transition = 'none';
                 characterContainer.style.transform = 'translateX(-50%) translateX(-400px)';
                 
@@ -433,6 +443,7 @@
             }
         }
 
+        // --- 3. UIの表示と待機 ---
         if (currentActiveBg && currentActiveBg !== nextBg && nextBg !== null) {
             currentActiveBg.classList.remove('active');
         } else if (isFinished && currentActiveBg) {
@@ -474,7 +485,7 @@
             characterContainer.style.display = "none";
         } else {
             characterContainer.style.transition = 'none';
-            characterContainer.style.display = "flex"; 
+            characterContainer.style.display = "grid"; 
             characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
             setWalking(false);
         }
@@ -505,6 +516,9 @@
         transitionToNextStage(currentQuestionIndex + 1);
     }
 
+    // ----------------------------------------------------
+    // プレビュー環境で画像が見つからない場合の仮画像設定
+    // ----------------------------------------------------
     document.addEventListener("DOMContentLoaded", () => {
         const bgLayers = document.querySelectorAll('.background-layer');
         bgLayers.forEach((bg, index) => {
@@ -524,12 +538,15 @@
             img.src = imgUrl;
         });
 
-        const initialImg = document.getElementById('character-img');
-        if (initialImg) {
-            initialImg.onerror = () => {
-                initialImg.src = "https://placehold.co/100x100/ff9999/ffffff?text=Stand";
-            };
-        }
+        const staticImg = document.getElementById('character-img-static');
+        staticImg.onerror = () => {
+            staticImg.src = "https://placehold.co/100x100/ff9999/ffffff?text=Stand";
+        };
+        
+        const walkImg = document.getElementById('character-img-walk');
+        walkImg.onerror = () => {
+            walkImg.src = "https://placehold.co/100x100/9999ff/ffffff?text=Walk";
+        };
     });
 
     window.onload = initQuiz;

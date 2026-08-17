@@ -274,9 +274,11 @@
     <!-- キャラクター -->
     <div id="character-container">
         <img id="character-img-static" src="maru.png" alt="">
-        <!-- 歩行アニメーション画像はJavaScriptで動的に生成・追加するように変更するため、ここは削除またはプレースホルダーにする -->
-        <div id="character-walk-wrapper" style="display: none;"></div>
+        <img id="character-img-walk" src="maruwaalk5.webp" alt="">
     </div>
+
+    <!-- Safariのアニメーション停止バグを防ぐためのキープアライブ（常時表示・非可視） -->
+    <img src="maruwaalk5.webp" style="position: absolute; top: 50%; left: 50%; width: 1px; height: 1px; opacity: 0.01; pointer-events: none; z-index: -1;" alt="">
 
     <!-- 結果モーダル -->
     <div id="result-modal" class="modal">
@@ -340,124 +342,21 @@
     const modalDesc = document.getElementById('modal-desc');
     const completionScreen = document.getElementById('completion-screen');
     const quizUiContainer = document.getElementById('quiz-ui-container');
-    const walkWrapper = document.getElementById('character-walk-wrapper'); // 追加
-
-    // WebPアニメーションの元ファイル名
-    const WALK_IMG_SRC = 'maruwaalk5.webp';
 
     // ==========================================
-    // 事前に一度だけWebPを読み込んでブラウザキャッシュに
-    // 乗せておく（初回表示をもたつかせないため）
-    // ==========================================
-    function preloadWalkImage() {
-        const preloadImg = new Image();
-        preloadImg.src = WALK_IMG_SRC;
-    }
-
-    // ==========================================
-    // スマホ（特にSafari）でも確実にアニメーションを
-    // 再スタートさせるための対策版（DOM再生成方式）
+    // アニメーション切り替え
     // ==========================================
     function setWalking(isWalk) {
         const staticImg = document.getElementById('character-img-static');
+        const walkImg = document.getElementById('character-img-walk');
 
         if (isWalk) {
             staticImg.style.display = 'none';
-            walkWrapper.style.display = 'block';
-            
-            // 既存のwalk画像を削除
-            walkWrapper.innerHTML = '';
-            
-            // 新しいwalk画像要素を生成して追加
-            // これによりブラウザは完全に新しい画像として扱い、アニメーションを最初から再生する
-            const newWalkImg = new Image();
-            newWalkImg.id = 'character-img-walk';
-            
-            // 読み込み失敗時のフォールバック
-            newWalkImg.onerror = () => {
-                newWalkImg.src = "https://placehold.co/100x100/9999ff/ffffff?text=Walk";
-            };
-
-            // キャッシュを有効活用しつつ、iOS Safari等のバグを回避するため
-            // 単純なURL（クエリパラメータなし）を設定
-            newWalkImg.src = WALK_IMG_SRC;
-            
-            // スタイルを元のCSSに合わせて設定
-            newWalkImg.style.gridArea = '1 / 1';
-            newWalkImg.style.height = '180px';
-            newWalkImg.style.width = 'auto';
-            newWalkImg.style.objectFit = 'contain';
-            newWalkImg.style.border = 'none';
-            newWalkImg.style.outline = 'none';
-            newWalkImg.style.backgroundColor = 'transparent';
-            newWalkImg.style.transformOrigin = 'bottom center';
-            newWalkImg.style.transform = 'scale(1.0)';
-            newWalkImg.style.display = 'block';
-
-            walkWrapper.appendChild(newWalkImg);
+            walkImg.style.display = 'block';
         } else {
             staticImg.style.display = 'block';
-            walkWrapper.style.display = 'none';
-            // 非表示時は画像を削除してメモリを解放し、次回の確実な再生に備える
-            walkWrapper.innerHTML = '';
+            walkImg.style.display = 'none';
         }
-    }
-
-    // ==========================================
-    // 要素が実際に画面内（#app-containerの表示範囲内）に
-    // 入ったタイミングを検知するヘルパー
-    //
-    // 背景：Safari(iOS)は画面外（overflow:hiddenでクリップされて
-    // 見えていない）状態の<img>に対してアニメーションWebPの
-    // デコード（再生開始）を行わないことがある。
-    // そのため「画面外で歩行アニメーションを開始 → 画面内へ移動」
-    // という順序だと、移動後も静止画のままになってしまう。
-    // 画面内に入った瞬間を検知し、そのタイミングで
-    // setWalking(true)を呼ぶことでこれを回避する。
-    //
-    // IntersectionObserverはroot判定の相性問題で発火しない
-    // 環境があったため、より確実なgetBoundingClientRectによる
-    // 座標比較のポーリング方式を採用。
-    // maxWaitMsを超えても検知できない場合は、静止画のまま
-    // 固まってしまうことを防ぐため強制的に解決する。
-    // ==========================================
-    function waitUntilVisible(el, maxWaitMs = 3000) {
-        return new Promise(resolve => {
-            const appEl = document.getElementById('app-container');
-            let resolved = false;
-
-            function finish() {
-                if (resolved) return;
-                resolved = true;
-                resolve();
-            }
-
-            function check() {
-                if (resolved) return;
-
-                const containerRect = appEl.getBoundingClientRect();
-                const rect = el.getBoundingClientRect();
-
-                const visible =
-                    rect.right > containerRect.left &&
-                    rect.left < containerRect.right &&
-                    rect.bottom > containerRect.top &&
-                    rect.top < containerRect.bottom &&
-                    rect.width > 0 &&
-                    rect.height > 0;
-
-                if (visible) {
-                    finish();
-                    return;
-                }
-                requestAnimationFrame(check);
-            }
-
-            requestAnimationFrame(check);
-
-            // 安全策：想定時間内に検知できなくても必ず解決する
-            setTimeout(finish, maxWaitMs);
-        });
     }
 
     // ==========================================
@@ -470,20 +369,20 @@
 
         await new Promise(resolve => setTimeout(resolve, 50));
 
+        // 画面外から移動開始するタイミングで歩行アニメーションをON
+        setWalking(true);
+
         characterContainer.style.transition = 'transform 3s linear';
         characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
 
-        // 画面内に入った瞬間に歩行アニメーションを開始する（画面外での開始を避ける）
-        waitUntilVisible(characterContainer, 3000).then(() => setWalking(true));
+        await new Promise(resolve => setTimeout(resolve, 3000));
 
+        setWalking(false); 
+        const startBtn = document.getElementById('start-btn-element');
+        startBtn.style.display = 'block';
         setTimeout(() => {
-            setWalking(false); 
-            const startBtn = document.getElementById('start-btn-element');
-            startBtn.style.display = 'block';
-            setTimeout(() => {
-                startBtn.classList.add('show');
-            }, 50); 
-        }, 3000);
+            startBtn.classList.add('show');
+        }, 50); 
     }
 
     // ==========================================
@@ -532,11 +431,10 @@
 
                 await new Promise(resolve => setTimeout(resolve, 50));
 
+                setWalking(true);
+
                 characterContainer.style.transition = 'transform 1.5s linear';
                 characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
-
-                // 画面内に入った瞬間に歩行アニメーションを開始する（画面外での開始を避ける）
-                waitUntilVisible(characterContainer, 1500).then(() => setWalking(true));
 
                 await new Promise(resolve => setTimeout(resolve, 1500));
             } else {
@@ -645,10 +543,12 @@
             staticImg.src = "https://placehold.co/100x100/ff9999/ffffff?text=Stand";
         };
         
-        // character-img-walk は動的生成に変更したため、ここでの onerror 設定は不要（setWalking内で設定）
-
-        // walk画像のプリロードを開始（初回表示に間に合うよう早めに実行）
-        preloadWalkImage();
+        const walkImg = document.getElementById('character-img-walk');
+        if (walkImg) {
+            walkImg.onerror = () => {
+                walkImg.src = "https://placehold.co/100x100/9999ff/ffffff?text=Walk";
+            };
+        }
     });
 
     window.onload = initQuiz;

@@ -341,23 +341,31 @@
     const completionScreen = document.getElementById('completion-screen');
     const quizUiContainer = document.getElementById('quiz-ui-container');
 
+    // WebPアニメーションの元ファイル名（キャッシュバスター付与用）
+    const WALK_IMG_SRC = 'maruwaalk3.webp';
+
     // ==========================================
-    // スマホのアニメーション停止問題 最終解決版（srcリセット方式）
+    // スマホ（特にSafari）でも確実にアニメーションを
+    // 再スタートさせるための対策版
+    // cloneNodeではなく、srcにタイムスタンプを付けて
+    // 強制的に新規リソースとして再デコードさせる
     // ==========================================
     function setWalking(isWalk) {
         const staticImg = document.getElementById('character-img-static');
         const walkImg = document.getElementById('character-img-walk');
-        
+
         if (isWalk) {
             staticImg.style.display = 'none';
             walkImg.style.display = 'block';
 
-            // 一度 src を外し、ブラウザの描画を強制更新(reflow)させてから、再度同じ src を入れ直す。
-            // これにより、ファイル名やURLを変えずにアニメを最初から強制再生させます。
-            walkImg.src = "";
-            void walkImg.offsetWidth; 
-            walkImg.src = "maruwaalk3.webp";
-            
+            // srcにタイムスタンプ付きクエリを付与し、
+            // ブラウザに「新しい画像」として扱わせ、1コマ目から再生させる
+            walkImg.src = WALK_IMG_SRC + '?t=' + Date.now();
+
+            // 読み込み失敗時のフォールバック
+            walkImg.onerror = () => {
+                walkImg.src = "https://placehold.co/100x100/9999ff/ffffff?text=Walk";
+            };
         } else {
             staticImg.style.display = 'block';
             walkImg.style.display = 'none';

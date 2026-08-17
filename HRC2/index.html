@@ -342,7 +342,7 @@
     const quizUiContainer = document.getElementById('quiz-ui-container');
 
     // ==========================================
-    // 歩き・止まりの切り替え（PC・スマホ両対応ハイブリッド）
+    // タグ作り直し（DOMクローン）による最終対策版
     // ==========================================
     function setWalking(isWalk) {
         const staticImg = document.getElementById('character-img-static');
@@ -350,13 +350,19 @@
         
         if (isWalk) {
             staticImg.style.display = 'none';
-            walkImg.style.display = 'block';
 
-            // 【重要】PCのローカルファイル（file://）環境ではエラーになるため実行せず、
-            // スマホなどサーバー環境（http/https）の時のみ、キャッシュを無効化して強制的にアニメーションを再生させます。
-            if (window.location.protocol !== 'file:') {
-                walkImg.src = 'maruwaalk (3).webp?t=' + new Date().getTime();
-            }
+            // 完全に同じ画像を「新しい要素」として複製する（URLは変えずにキャッシュを利用）
+            const newWalkImg = walkImg.cloneNode(true);
+            newWalkImg.style.display = 'block';
+
+            // エラー時のフォールバック処理も引き継ぐ
+            newWalkImg.onerror = () => {
+                newWalkImg.src = "https://placehold.co/100x100/9999ff/ffffff?text=Walk";
+            };
+
+            // 古いタグと新しいタグを入れ替える（スマホブラウザに強制的に描画・再生を促す）
+            walkImg.parentNode.replaceChild(newWalkImg, walkImg);
+            
         } else {
             staticImg.style.display = 'block';
             walkImg.style.display = 'none';

@@ -344,39 +344,38 @@
     // WebPアニメーションの元ファイル名
     const WALK_IMG_SRC = 'maruwaalk3.webp';
 
-    // 取得済みのBlob（ページ内で使い回す）と、直近発行したBlob URL
-    let walkImgBlob = null;
-    let walkImgBlobFailed = false;
-    let currentWalkObjectUrl = null;
+    // フラグメント(#)を変えるたびにインクリメントするカウンター
+    let walkImgRestartCounter = 0;
 
     // ==========================================
-    // 事前に一度だけWebPをBlobとして取得しておく
-    // （毎回ネットワークへ取りに行くと、スマホ回線では
-    //   間に合わず「表示されない」原因になるため）
+    // 事前に一度だけWebPを読み込んでブラウザキャッシュに
+    // 乗せておく（初回表示をもたつかせないため）
     // ==========================================
-    async function preloadWalkImage() {
-        try {
-            const res = await fetch(WALK_IMG_SRC);
-            if (!res.ok) throw new Error('fetch failed: ' + res.status);
-            walkImgBlob = await res.blob();
-        } catch (e) {
-            // Blob取得に失敗した場合は、通常のsrc指定にフォールバックする
-            console.warn('walk画像のプリロードに失敗。通常src指定にフォールバックします。', e);
-            walkImgBlobFailed = true;
-        }
+    function preloadWalkImage() {
+        const preloadImg = new Image();
+        preloadImg.src = WALK_IMG_SRC;
     }
 
     // ==========================================
     // スマホ（特にSafari）でも確実にアニメーションを
     // 再スタートさせるための対策版
-    // 取得済みBlobから毎回「新しいBlob URL」を発行することで
-    // ネットワーク再取得なしにブラウザへ「新規画像」と認識させる
+    //
+    // ポイント：
+    // ・URLの「#フラグメント」部分を変更してsrcを再設定する
+    // ・フラグメントの変更はネットワークリクエストを発生させない
+    //   （＝表示されない問題を防ぐ）
+    // ・一方でブラウザは「新しい画像」として扱うため、
+    //   キャッシュ済みデータから1コマ目からアニメーションを
+    //   再デコードしてくれる（＝静止画で止まる問題を防ぐ）
+    //
+    // ※ Blob URL方式は、Safariでアニメーションが
+    //   再生されず静止画になる既知の問題があるため不採用
     // ==========================================
     function setWalking(isWalk) {
         const staticImg = document.getElementById('character-img-static');
         const walkImg = document.getElementById('character-img-walk');
 
-        // 読み込み失敗時のフォールバック（常に設定しておく）
+        // 読み込み失敗時のフォールバック
         walkImg.onerror = () => {
             walkImg.src = "https://placehold.co/100x100/9999ff/ffffff?text=Walk";
         };
@@ -385,20 +384,8 @@
             staticImg.style.display = 'none';
             walkImg.style.display = 'block';
 
-            if (walkImgBlob) {
-                // 直前のBlob URLは解放してからURLを発行し直す
-                if (currentWalkObjectUrl) {
-                    URL.revokeObjectURL(currentWalkObjectUrl);
-                }
-                currentWalkObjectUrl = URL.createObjectURL(walkImgBlob);
-                walkImg.src = currentWalkObjectUrl;
-            } else if (walkImgBlobFailed) {
-                // Blobが使えない環境向けのフォールバック（通常のsrc指定）
-                walkImg.src = WALK_IMG_SRC;
-            } else {
-                // プリロードがまだ完了していない場合は完了を待ってから設定
-                preloadWalkImage().then(() => setWalking(true));
-            }
+            walkImgRestartCounter++;
+            walkImg.src = WALK_IMG_SRC + '#' + walkImgRestartCounter;
         } else {
             staticImg.style.display = 'block';
             walkImg.style.display = 'none';

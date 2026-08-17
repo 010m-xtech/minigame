@@ -341,31 +341,64 @@
     const completionScreen = document.getElementById('completion-screen');
     const quizUiContainer = document.getElementById('quiz-ui-container');
 
-    // WebPアニメーションの元ファイル名（キャッシュバスター付与用）
+    // WebPアニメーションの元ファイル名
     const WALK_IMG_SRC = 'maruwaalk3.webp';
+
+    // 取得済みのBlob（ページ内で使い回す）と、直近発行したBlob URL
+    let walkImgBlob = null;
+    let walkImgBlobFailed = false;
+    let currentWalkObjectUrl = null;
+
+    // ==========================================
+    // 事前に一度だけWebPをBlobとして取得しておく
+    // （毎回ネットワークへ取りに行くと、スマホ回線では
+    //   間に合わず「表示されない」原因になるため）
+    // ==========================================
+    async function preloadWalkImage() {
+        try {
+            const res = await fetch(WALK_IMG_SRC);
+            if (!res.ok) throw new Error('fetch failed: ' + res.status);
+            walkImgBlob = await res.blob();
+        } catch (e) {
+            // Blob取得に失敗した場合は、通常のsrc指定にフォールバックする
+            console.warn('walk画像のプリロードに失敗。通常src指定にフォールバックします。', e);
+            walkImgBlobFailed = true;
+        }
+    }
 
     // ==========================================
     // スマホ（特にSafari）でも確実にアニメーションを
     // 再スタートさせるための対策版
-    // cloneNodeではなく、srcにタイムスタンプを付けて
-    // 強制的に新規リソースとして再デコードさせる
+    // 取得済みBlobから毎回「新しいBlob URL」を発行することで
+    // ネットワーク再取得なしにブラウザへ「新規画像」と認識させる
     // ==========================================
     function setWalking(isWalk) {
         const staticImg = document.getElementById('character-img-static');
         const walkImg = document.getElementById('character-img-walk');
 
+        // 読み込み失敗時のフォールバック（常に設定しておく）
+        walkImg.onerror = () => {
+            walkImg.src = "https://placehold.co/100x100/9999ff/ffffff?text=Walk";
+        };
+
         if (isWalk) {
             staticImg.style.display = 'none';
             walkImg.style.display = 'block';
 
-            // srcにタイムスタンプ付きクエリを付与し、
-            // ブラウザに「新しい画像」として扱わせ、1コマ目から再生させる
-            walkImg.src = WALK_IMG_SRC + '?t=' + Date.now();
-
-            // 読み込み失敗時のフォールバック
-            walkImg.onerror = () => {
-                walkImg.src = "https://placehold.co/100x100/9999ff/ffffff?text=Walk";
-            };
+            if (walkImgBlob) {
+                // 直前のBlob URLは解放してからURLを発行し直す
+                if (currentWalkObjectUrl) {
+                    URL.revokeObjectURL(currentWalkObjectUrl);
+                }
+                currentWalkObjectUrl = URL.createObjectURL(walkImgBlob);
+                walkImg.src = currentWalkObjectUrl;
+            } else if (walkImgBlobFailed) {
+                // Blobが使えない環境向けのフォールバック（通常のsrc指定）
+                walkImg.src = WALK_IMG_SRC;
+            } else {
+                // プリロードがまだ完了していない場合は完了を待ってから設定
+                preloadWalkImage().then(() => setWalking(true));
+            }
         } else {
             staticImg.style.display = 'block';
             walkImg.style.display = 'none';
@@ -556,6 +589,9 @@
         walkImg.onerror = () => {
             walkImg.src = "https://placehold.co/100x100/9999ff/ffffff?text=Walk";
         };
+
+        // walk画像のプリロードを開始（初回表示に間に合うよう早めに実行）
+        preloadWalkImage();
     });
 
     window.onload = initQuiz;

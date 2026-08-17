@@ -229,19 +229,19 @@
             outline: none;
             background-color: transparent;
             transform-origin: bottom center;
-            transition: opacity 0.05s; /* 透明度だけを瞬時に切り替え */
+            /* opacityのtransitionを削除し、JSでdisplayを切り替える方式に変更 */
         }
 
         /* 止まっている時の画像 (maru.png) */
         #character-img-static {
             transform: scale(1.02); /* 微調整したサイズ */
-            opacity: 1; /* 初期は表示 */
+            display: block; /* 初期は表示 */
         }
 
         /* 歩いている時の画像 (maruwaalk) */
         #character-img-walk {
-            transform: scale(1.0); 
-            opacity: 0; /* 初期は透明（裏で常に再生され続ける） */
+            transform: scale(1.0);  
+            display: none; /* 初期は非表示 */
         }
     </style>
 </head>
@@ -348,18 +348,20 @@
     const quizUiContainer = document.getElementById('quiz-ui-container');
 
     // ==========================================
-    // 歩き・止まりの切り替えを「透明度(opacity)」だけで行う
+    // 歩き・止まりの切り替えを「display」で行う
     // ==========================================
     function setWalking(isWalk) {
         const staticImg = document.getElementById('character-img-static');
         const walkImg = document.getElementById('character-img-walk');
         
         if (isWalk) {
-            staticImg.style.opacity = '0';
-            walkImg.style.opacity = '1';
+            staticImg.style.display = 'none';
+            walkImg.style.display = 'block';
+            // 【スマホ対策】強制的にアニメーションを最初からリスタートさせる
+            walkImg.src = "maruwaalk (3).webp?" + new Date().getTime();
         } else {
-            staticImg.style.opacity = '1';
-            walkImg.style.opacity = '0';
+            staticImg.style.display = 'block';
+            walkImg.style.display = 'none';
         }
     }
 
@@ -373,7 +375,7 @@
         characterContainer.style.transform = 'translateX(-50%) translateX(-400px)';
 
         setWalking(true);
-        // 透明度が切り替わるためのほんのわずかな時間を待つ
+        // DOM反映のためのほんのわずかな時間を待つ
         await new Promise(resolve => setTimeout(resolve, 50));
 
         // 3秒かけて中央へ移動

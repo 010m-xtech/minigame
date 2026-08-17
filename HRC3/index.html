@@ -393,6 +393,39 @@
     }
 
     // ==========================================
+    // 要素が実際に画面内（#app-containerのクリップ範囲内）に
+    // 入ったタイミングを検知するヘルパー
+    //
+    // 背景：Safari(iOS)は画面外（overflow:hiddenでクリップされて
+    // 見えていない）状態の<img>に対してアニメーションWebPの
+    // デコード（再生開始）を行わないことがある。
+    // そのため「画面外で歩行アニメーションを開始 → 画面内へ移動」
+    // という順序だと、移動後も静止画のままになってしまう。
+    // 画面内に入った瞬間を検知し、そのタイミングで
+    // setWalking(true)を呼ぶことでこれを回避する。
+    // ==========================================
+    function waitUntilVisible(el) {
+        return new Promise(resolve => {
+            if (typeof IntersectionObserver === 'undefined') {
+                // 非対応環境は従来通り即座に解決（フォールバック）
+                resolve();
+                return;
+            }
+            const root = document.getElementById('app-container');
+            const observer = new IntersectionObserver((entries) => {
+                for (const entry of entries) {
+                    if (entry.isIntersecting) {
+                        observer.disconnect();
+                        resolve();
+                        return;
+                    }
+                }
+            }, { root: root, threshold: 0 });
+            observer.observe(el);
+        });
+    }
+
+    // ==========================================
     // 初期ロード時のアニメーション
     // ==========================================
     async function initQuiz() {
@@ -400,11 +433,13 @@
         characterContainer.style.transition = 'none';
         characterContainer.style.transform = 'translateX(-50%) translateX(-400px)';
 
-        setWalking(true);
         await new Promise(resolve => setTimeout(resolve, 50));
 
         characterContainer.style.transition = 'transform 3s linear';
         characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
+
+        // 画面内に入った瞬間に歩行アニメーションを開始する（画面外での開始を避ける）
+        waitUntilVisible(characterContainer).then(() => setWalking(true));
 
         setTimeout(() => {
             setWalking(false); 
@@ -459,12 +494,15 @@
                 characterContainer.style.display = "grid";
                 characterContainer.style.transition = 'none';
                 characterContainer.style.transform = 'translateX(-50%) translateX(-400px)';
-                
-                setWalking(true);
+
                 await new Promise(resolve => setTimeout(resolve, 50));
 
                 characterContainer.style.transition = 'transform 1.5s linear';
                 characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
+
+                // 画面内に入った瞬間に歩行アニメーションを開始する（画面外での開始を避ける）
+                waitUntilVisible(characterContainer).then(() => setWalking(true));
+
                 await new Promise(resolve => setTimeout(resolve, 1500));
             } else {
                 characterContainer.style.display = "none";

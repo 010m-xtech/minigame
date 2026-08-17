@@ -348,15 +348,21 @@
     const quizUiContainer = document.getElementById('quiz-ui-container');
 
     // ==========================================
-    // 歩き・止まりの切り替えを「透明度(opacity)」だけで行う
+    // 歩き・止まりの切り替え
     // ==========================================
     function setWalking(isWalk) {
         const staticImg = document.getElementById('character-img-static');
-        const walkImg = document.getElementById('character-img-walk');
+        // 要素が新しくなることがあるため、毎回取得し直す
+        let walkImg = document.getElementById('character-img-walk');
         
         if (isWalk) {
             staticImg.style.opacity = '0';
-            walkImg.style.opacity = '1';
+            
+            // スマホ等でWebPアニメーションが止まる現象の対策:
+            // 要素を複製して置き換えることで、ブラウザに強制的にアニメーションを最初から再生させます。
+            const newWalkImg = walkImg.cloneNode(true);
+            newWalkImg.style.opacity = '1';
+            walkImg.parentNode.replaceChild(newWalkImg, walkImg);
         } else {
             staticImg.style.opacity = '1';
             walkImg.style.opacity = '0';

@@ -217,8 +217,9 @@
             width: 180px !important;
             min-width: 180px !important;
             max-width: none !important;
-            /* CSSによるアニメーション移動(transition)はスマホでバグるため初期位置のみ指定 */
-            margin-left: -400px;
+            /* 中央揃えと初期位置の設定 */
+            transform: translateX(-50%) translateX(-400px);
+            will-change: transform;
         }
 
         /* 2つの画像に共通の設定 */
@@ -234,17 +235,18 @@
             outline: none;
             background-color: transparent;
             transform-origin: bottom center;
-            /* opacityの変更だけを瞬時に行う */
             transition: opacity 0.05s;
         }
 
         /* 止まっている時の画像 (maru.png) */
         #character-img-static {
+            transform: scale(1.02);
             opacity: 1;
         }
 
         /* 歩いている時の画像 (maruwaalk) */
         #character-img-walk {
+            transform: scale(1.0);
             opacity: 0;
         }
     </style>
@@ -361,7 +363,7 @@
         if (isWalk) {
             staticImg.style.opacity = '0';
             
-            // スマホでのフリーズ対策：画像要素をクローンして差し替え、アニメーションを強制的に最初から再生
+            // スマホでのアニメーションフリーズ対策：要素をクローンして差し替え、強制的に最初から再生
             const newWalkImg = walkImg.cloneNode(true);
             walkImg.parentNode.replaceChild(newWalkImg, walkImg);
             newWalkImg.style.opacity = '1';
@@ -372,27 +374,23 @@
     }
 
     // ==========================================
-    // JSによる確実なアニメーション移動関数 (スマホバグ対策)
+    // JSによる確実なアニメーション移動関数 (CSS transformを使用し、リフローを強制)
     // ==========================================
-    function animateMove(element, startPx, endPx, durationMs) {
+    function moveCharacter(startPx, endPx, durationMs) {
         return new Promise(resolve => {
-            const startTime = performance.now();
-            // CSSのtransitionを無効化してJSで制御する
-            element.style.transition = 'none'; 
+            // 1. アニメーションをオフにして開始位置に瞬間移動（ワープ）
+            characterContainer.style.transition = 'none';
+            characterContainer.style.transform = `translateX(-50%) translateX(${startPx}px)`;
             
-            function update(currentTime) {
-                const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / durationMs, 1);
-                const currentPos = startPx + (endPx - startPx) * progress;
-                element.style.marginLeft = `${currentPos}px`;
-                
-                if (progress < 1) {
-                    requestAnimationFrame(update);
-                } else {
-                    resolve();
-                }
-            }
-            requestAnimationFrame(update);
+            // 2. ブラウザに「今ワープした」という情報を強制認識させる（魔法のコード）
+            void characterContainer.offsetWidth;
+            
+            // 3. アニメーションをオンにして終了位置へ移動
+            characterContainer.style.transition = `transform ${durationMs}ms linear`;
+            characterContainer.style.transform = `translateX(-50%) translateX(${endPx}px)`;
+            
+            // 4. アニメーション完了まで待機
+            setTimeout(resolve, durationMs);
         });
     }
 
@@ -401,12 +399,11 @@
     // ==========================================
     async function initQuiz() {
         characterContainer.style.display = "grid";
-        characterContainer.style.marginLeft = '-400px';
 
         setWalking(true);
 
-        // 左外(-400px)から中央(0px)へ、3秒(3000ms)かけて移動
-        await animateMove(characterContainer, -400, 0, 3000);
+        // 左外(-400px)から中央(0px)へ、3秒(3000ms)かけてゆっくり移動
+        await moveCharacter(-400, 0, 3000);
 
         setWalking(false); // 止まる
         const startBtn = document.getElementById('start-btn-element');
@@ -431,8 +428,8 @@
         if (!isFinished) {
             if (!isLeavingQuestion4) {
                 setWalking(true);
-                // 中央(0px)から右外(400px)へ、3秒かけて移動
-                await animateMove(characterContainer, 0, 400, 3000);
+                // 中央(0px)から右外(400px)へ、3秒かけてゆっくり移動
+                await moveCharacter(0, 400, 3000);
             } else {
                 await new Promise(resolve => setTimeout(resolve, 3000));
             }
@@ -453,14 +450,10 @@
         // --- 2. 登場アニメーション ---
         if (!isFinished) {
             if (!isNextQuestion4) {
-                // 一旦左外へワープ
                 characterContainer.style.display = "grid";
-                characterContainer.style.marginLeft = '-400px';
-                
                 setWalking(true);
-
-                // 左外(-400px)から中央(0px)へ、3秒かけて移動
-                await animateMove(characterContainer, -400, 0, 3000);
+                // 左外(-400px)から中央(0px)へ、3秒かけてゆっくり移動
+                await moveCharacter(-400, 0, 3000);
             } else {
                 characterContainer.style.display = "none";
                 await new Promise(resolve => setTimeout(resolve, 3000));
@@ -509,9 +502,9 @@
         if (index === 3) {
             characterContainer.style.display = "none";
         } else {
-            characterContainer.style.transition = 'none';
             characterContainer.style.display = "grid";
-            characterContainer.style.marginLeft = '0px';
+            characterContainer.style.transition = 'none';
+            characterContainer.style.transform = `translateX(-50%) translateX(0px)`;
             setWalking(false);
         }
     }

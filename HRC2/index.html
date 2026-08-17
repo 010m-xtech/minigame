@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ハッピーリングクイズ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* -------------------------------------
+           全体設定
+        ------------------------------------- */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* 外側の背景 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #app-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            height: 100%;
+            background-color: #000;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        /* -------------------------------------
+           背景設定
+        ------------------------------------- */
+        .background-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 3s ease-in-out; /* 3秒かけてクロスフェード */
+            z-index: 1;
+        }
+
+        .background-layer.active {
+            opacity: 1;
+        }
+
+        /* 20%のオーバーレイ */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2); /* 黒(0,0,0)から白(255,255,255)へ変更 */
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* -------------------------------------
+           スタート画面・クリア画面
+        ------------------------------------- */
+        #start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .start-btn {
+            pointer-events: auto;
+            opacity: 0;
+            transition: opacity 1s;
+            font-size: 1.5rem;
+            padding: 15px 50px;
+        }
+        
+        .start-btn.show {
+            opacity: 1;
+        }
+
+        #completion-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 150;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1s;
+            padding: 20px;
+        }
+
+        #completion-screen.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* -------------------------------------
+           クイズUI・モーダル
+        ------------------------------------- */
+        #quiz-ui-container {
+            position: relative;
+            z-index: 10;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 40px 20px 20px;
+            max-height: 60vh; 
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+
+        #quiz-ui-container.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .choice-btn {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(5px);
+            border: 2px solid transparent;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.1s, border-color 0.2s;
+            cursor: pointer;
+        }
+
+        .choice-btn:active {
+            transform: scale(0.95);
+        }
+
+        .modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s;
+            padding: 20px;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%);
+            color: #d13b53;
+            font-weight: bold;
+            padding: 12px 30px;
+            border-radius: 30px;
+            border: none;
+            box-shadow: 0 4px 10px rgba(255, 154, 158, 0.4);
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .next-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* -------------------------------------
+           キャラクター設定
+        ------------------------------------- */
+        #character-container {
+            position: absolute;
+            bottom: 2%; /* 5%から2%に変更し、少しだけ下に調整 */
+            left: 50%;
+            z-index: 5;
+            /* GRIDを使って2つの画像を同じ位置にピッタリ重ねる */
+            display: grid;
+            place-items: end center;
+            pointer-events: none;
+            will-change: transform;
+            transform: translateX(-50%) translateX(-400px); /* 画面ロード時、最初から左外に配置してチラつきを防止 */
+        }
+
+        /* 2つの画像に共通の設定 */
+        #character-img-static, 
+        #character-img-walk {
+            grid-area: 1 / 1; /* 重ね合わせる魔法のコード */
+            height: 180px; /* 150pxから180pxへ少し大きく調整 */
+            width: auto;
+            object-fit: contain;
+            border: none;
+            outline: none;
+            background-color: transparent;
+            transform-origin: bottom center;
+            transition: opacity 0.05s; /* 透明度だけを瞬時に切り替え */
+        }
+
+        /* 止まっている時の画像 (maru.png) */
+        #character-img-static {
+            transform: scale(1.02); /* 微調整したサイズ */
+            opacity: 1; /* 初期は表示 */
+        }
+
+        /* 歩いている時の画像 (maruwaalk) */
+        #character-img-walk {
+            transform: scale(1.0); 
+            opacity: 0; /* 初期は透明（裏で常に再生され続ける） */
+        }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    <!-- スタート画面 -->
+    <div id="start-screen">
+        <button class="next-btn start-btn" id="start-btn-element" style="display: none;" onclick="startQuiz()">スタート</button>
+    </div>
+
+    <!-- 背景画像 (0がスタート、1〜5がクイズ用) -->
+    <div id="bg-0" class="background-layer active" style="background-image: url('start.jpg');"></div>
+    <div id="bg-1" class="background-layer" style="background-image: url('quiz1.jpg');"></div>
+    <div id="bg-2" class="background-layer" style="background-image: url('quiz2.jpg');"></div>
+    <div id="bg-3" class="background-layer" style="background-image: url('quiz3.jpg');"></div>
+    <div id="bg-4" class="background-layer" style="background-image: url('quiz4.jpg');"></div>
+    <div id="bg-5" class="background-layer" style="background-image: url('quiz5.jpg');"></div>
+    <!-- クリア画面用の背景 -->
+    <div id="bg-6" class="background-layer" style="background-image: url('result.jpg');"></div>
+    
+    <div class="overlay"></div>
+
+    <!-- クイズUI領域 -->
+    <div id="quiz-ui-container">
+        <div class="glass-panel text-center w-full max-w-sm mb-6">
+            <h2 id="question-number" class="text-xl font-bold text-gray-800 mb-2"></h2>
+            <p id="question-text" class="text-gray-700 text-lg font-medium leading-relaxed"></p>
+        </div>
+        <div class="flex gap-4 w-full max-w-sm">
+            <button class="choice-btn text-5xl text-blue-500 font-bold" onclick="answer('〇')">〇</button>
+            <button class="choice-btn text-5xl text-red-500 font-bold" onclick="answer('✖')">✖</button>
+        </div>
+    </div>
+
+    <!-- キャラクター -->
+    <div id="character-container">
+        <!-- Gridで重なって配置されるため、どちらも常に存在します -->
+        <img id="character-img-static" src="maru.png" alt="">
+        <img id="character-img-walk" src="maruwaalk (3).webp" alt="">
+    </div>
+
+    <!-- 結果モーダル -->
+    <div id="result-modal" class="modal">
+        <div class="modal-content glass-panel w-full max-w-sm text-center">
+            <h2 id="modal-title" class="text-3xl font-bold mb-4"></h2>
+            <p id="modal-desc" class="text-gray-700 text-left text-sm mb-6 leading-relaxed"></p>
+            <button class="next-btn text-lg" onclick="nextQuestion()">次へ進む</button>
+        </div>
+    </div>
+
+    <!-- クリア画面 -->
+    <div id="completion-screen">
+        <div class="glass-panel text-center w-full max-w-sm">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">クリア！</h2>
+            <p class="text-gray-700 text-lg mb-6">全てのクイズに回答しました。<br>ご参加ありがとうございました！</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        {
+            qNum: 1,
+            question: "参加店舗で「生ビール」が1リットル提供されるごとに、1円が寄付される。",
+            answer: "〇",
+            explanation: "その通り！キャンペーン期間中、参加店で生ビールが1リットル注文されるごとに、1円が寄付金になります。"
+        },
+        {
+            qNum: 2,
+            question: "集まった寄付金は、子ども食堂や子どもの問題解決に取り組む団体に寄付される。",
+            answer: "〇",
+            explanation: "正解！「カンパイでつなぐ 子どもたちの笑顔の輪」を目指して、子ども食堂などの支援に役立てられます。"
+        },
+        {
+            qNum: 3,
+            question: "お客様がこのチャリティに参加するには、生ビール1杯につき追加で1円の募金箱へのお金（または追加料金）を払う必要がある。",
+            answer: "✖",
+            explanation: "実は「✖」です！寄付金の1円はマルト水谷より寄付されるため、お客様が追加でお金を払う必要はありません。お店でいつも通り美味しく楽しく生ビールを飲むだけで社会貢献につながる仕組みです！"
+        },
+        {
+            qNum: 4,
+            question: "子ども食堂は、食事を提供するだけで「勉強」や「交流」をする場所ではない。",
+            answer: "✖",
+            explanation: "実は「✖」です！子ども食堂は食事だけでなく、学習支援や絵本の読み聞かせ、地域の人との交流や体験の場としても活動しています。"
+        },
+        {
+            qNum: 5,
+            question: "このチャリティ活動は、国連が定める「SDGs（持続可能な開発目標）」の取り組みにもつながっている。",
+            answer: "〇",
+            explanation: "正解！「貧困をなくそう」「飢餓をゼロに」など、SDGsの目標達成にもつながる取り組みです。"
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+
+    const questionNumberEl = document.getElementById('question-number');
+    const questionTextEl = document.getElementById('question-text');
+    const characterContainer = document.getElementById('character-container');
+    const resultModal = document.getElementById('result-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDesc = document.getElementById('modal-desc');
+    const completionScreen = document.getElementById('completion-screen');
+    const quizUiContainer = document.getElementById('quiz-ui-container');
+
+    // ==========================================
+    // 歩き・止まりの切り替えを「透明度(opacity)」だけで行う
+    // ==========================================
+    function setWalking(isWalk) {
+        const staticImg = document.getElementById('character-img-static');
+        const walkImg = document.getElementById('character-img-walk');
+        
+        if (isWalk) {
+            staticImg.style.opacity = '0';
+            walkImg.style.opacity = '1';
+        } else {
+            staticImg.style.opacity = '1';
+            walkImg.style.opacity = '0';
+        }
+    }
+
+    // ==========================================
+    // 初期ロード時のアニメーション
+    // ==========================================
+    async function initQuiz() {
+        characterContainer.style.display = "grid"; // GRIDで表示
+        characterContainer.style.transition = 'none';
+        // 画面の左外にセット
+        characterContainer.style.transform = 'translateX(-50%) translateX(-400px)';
+
+        setWalking(true);
+        // 透明度が切り替わるためのほんのわずかな時間を待つ
+        await new Promise(resolve => setTimeout(resolve, 50));
+
+        // 3秒かけて中央へ移動
+        characterContainer.style.transition = 'transform 3s linear';
+        characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
+
+        setTimeout(() => {
+            setWalking(false); // 止まる
+            const startBtn = document.getElementById('start-btn-element');
+            startBtn.style.display = 'block';
+            setTimeout(() => {
+                startBtn.classList.add('show');
+            }, 50); 
+        }, 3000);
+    }
+
+    // ==========================================
+    // ステージ遷移のアニメーション
+    // ==========================================
+    async function transitionToNextStage(nextIndex) {
+        const currentActiveBg = document.querySelector('.background-layer.active');
+        const nextBg = (nextIndex < quizData.length) ? document.getElementById(`bg-${nextIndex + 1}`) : null;
+
+        const isNextQuestion4 = (nextIndex === 3);
+        const isLeavingQuestion4 = (currentQuestionIndex === 3);
+        const isFinished = (nextIndex >= quizData.length);
+
+        // --- 1. 退場アニメーション ---
+        // 最終画面へ行く場合は退場アニメーションをしない
+        if (!isFinished) {
+            if (!isLeavingQuestion4) {
+                setWalking(true);
+                await new Promise(resolve => setTimeout(resolve, 50));
+                
+                // 右へ1.5秒かけて移動
+                characterContainer.style.transition = 'transform 1.5s linear';
+                characterContainer.style.transform = 'translateX(-50%) translateX(400px)';
+                await new Promise(resolve => setTimeout(resolve, 1500));
+            } else {
+                await new Promise(resolve => setTimeout(resolve, 1500));
+            }
+        } else {
+            // 終了時は即座に非表示にする
+            characterContainer.style.display = "none";
+        }
+
+        // 背景切り替え
+        if (nextBg && nextBg !== currentActiveBg) {
+            nextBg.classList.add('active');
+        } else if (isFinished) {
+            // 終了画面の背景（bg-6があればそれを表示、など）
+            const resultBg = document.getElementById('bg-6');
+            if (resultBg && resultBg !== currentActiveBg) {
+                resultBg.classList.add('active');
+            }
+        }
+
+        // --- 2. 登場アニメーション ---
+        if (!isFinished) {
+            if (!isNextQuestion4) {
+                // 一瞬で左外へワープ
+                characterContainer.style.display = "grid";
+                characterContainer.style.transition = 'none';
+                characterContainer.style.transform = 'translateX(-50%) translateX(-400px)';
+                
+                setWalking(true);
+                await new Promise(resolve => setTimeout(resolve, 50));
+
+                // 中央へ1.5秒かけて移動
+                characterContainer.style.transition = 'transform 1.5s linear';
+                characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
+                await new Promise(resolve => setTimeout(resolve, 1500));
+            } else {
+                characterContainer.style.display = "none";
+                await new Promise(resolve => setTimeout(resolve, 1500));
+            }
+        }
+
+        // --- 3. UIの表示と待機 ---
+        if (currentActiveBg && currentActiveBg !== nextBg && nextBg !== null) {
+            currentActiveBg.classList.remove('active');
+        } else if (isFinished && currentActiveBg) {
+             currentActiveBg.classList.remove('active');
+        }
+        
+        setWalking(false); // 止まる
+        
+        if (isFinished) {
+            characterContainer.style.display = "none"; // 念のため再度非表示
+            completionScreen.classList.add('active');
+        } else {
+            currentQuestionIndex = nextIndex;
+            loadQuestion(currentQuestionIndex);
+            quizUiContainer.classList.add('active');
+        }
+    }
+
+    // ==========================================
+    // UI操作関数
+    // ==========================================
+    function startQuiz() {
+        const startBtn = document.getElementById('start-btn-element');
+        startBtn.classList.remove('show');
+        
+        setTimeout(() => {
+            document.getElementById('start-screen').style.display = 'none';
+        }, 500);
+
+        transitionToNextStage(0);
+    }
+
+    function loadQuestion(index) {
+        const q = quizData[index];
+        questionNumberEl.textContent = `第${q.qNum}問`;
+        questionTextEl.textContent = q.question;
+
+        // 第4問目はキャラクターを非表示にする
+        if (index === 3) {
+            characterContainer.style.display = "none";
+        } else {
+            characterContainer.style.transition = 'none';
+            characterContainer.style.display = "grid"; // GRIDで再表示
+            characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
+            setWalking(false);
+        }
+    }
+
+    function answer(userChoice) {
+        const q = quizData[currentQuestionIndex];
+        const isCorrect = (userChoice === q.answer);
+
+        quizUiContainer.classList.remove('active');
+
+        if (isCorrect) {
+            modalTitle.textContent = "正解！";
+            modalTitle.style.color = "#ef4444"; 
+        } else {
+            modalTitle.textContent = "残念...";
+            modalTitle.style.color = "#3b82f6"; 
+        }
+        modalDesc.textContent = q.explanation;
+        
+        setTimeout(() => {
+            resultModal.classList.add('active');
+        }, 500); 
+    }
+
+    function nextQuestion() {
+        resultModal.classList.remove('active');
+        transitionToNextStage(currentQuestionIndex + 1);
+    }
+
+    // ----------------------------------------------------
+    // プレビュー環境で画像が見つからない場合の仮画像設定
+    // ※ 実際の環境ではローカル画像が読み込まれます
+    // ----------------------------------------------------
+    document.addEventListener("DOMContentLoaded", () => {
+        // 背景画像のフォールバック
+        const bgLayers = document.querySelectorAll('.background-layer');
+        bgLayers.forEach((bg, index) => {
+            const imgUrl = bg.style.backgroundImage.slice(5, -2);
+            const img = new Image();
+            img.onerror = () => {
+                let color = "333333";
+                if(index===0) color = "1a365d";
+                else if(index===1) color = "2d3748";
+                else if(index===2) color = "276749";
+                else if(index===3) color = "742a2a";
+                else if(index===4) color = "553c9a";
+                else if(index===5) color = "2b6cb0";
+                else if(index===6) color = "b7791f"; // result用のカラー
+                bg.style.backgroundImage = `url('https://placehold.co/500x800/${color}/ffffff?text=Background+${index}')`;
+            };
+            img.src = imgUrl;
+        });
+
+        // キャラクター画像のフォールバック
+        const staticImg = document.getElementById('character-img-static');
+        staticImg.onerror = () => {
+            staticImg.src = "https://placehold.co/100x100/ff9999/ffffff?text=Stand";
+        };
+        
+        const walkImg = document.getElementById('character-img-walk');
+        walkImg.onerror = () => {
+            walkImg.src = "https://placehold.co/100x100/9999ff/ffffff?text=Walk";
+        };
+    });
+
+    // 読み込み完了時に実行
+    window.onload = initQuiz;
+
+</script>
+</body>
+</html>

@@ -326,7 +326,7 @@
             <!-- ロゴ画像 -->
             <div class="text-center w-full">
                 <span class="title-word title-word-1" style="display: inline-block; width: 85%; max-width: 320px;">
-                    <img src="rogo2.png" alt="ハッピーリングクイズ" style="width: 100%; height: auto; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); background: transparent;">
+                    <img id="main-logo" src="rogo2.png" alt="ハッピーリングクイズ" style="width: 100%; height: auto; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); background: transparent;">
                 </span>
             </div>
         </div>
@@ -431,6 +431,59 @@
     const quizUiContainer = document.getElementById('quiz-ui-container');
 
     // ==========================================
+    // ロゴの白背景を透過する処理 (Canvas API)
+    // ==========================================
+    function processLogoBackground() {
+        return new Promise((resolve) => {
+            const imgEl = document.getElementById('main-logo');
+            if (!imgEl) {
+                resolve();
+                return;
+            }
+
+            const img = new Image();
+            // CORS対策（外部ドメインなどでのエラー回避）
+            img.crossOrigin = "Anonymous";
+            img.src = imgEl.src;
+
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+
+                // RGBがこの数値以上なら「白」とみなして透過する（0〜255）
+                // フチが残る場合はこの数値を下げて（200など）調整します
+                const tolerance = 240; 
+
+                for (let i = 0; i < data.length; i += 4) {
+                    const r = data[i];
+                    const g = data[i + 1];
+                    const b = data[i + 2];
+
+                    // 白に近いピクセルのアルファ値(透明度)を0にする
+                    if (r > tolerance && g > tolerance && b > tolerance) {
+                        data[i + 3] = 0; 
+                    }
+                }
+
+                ctx.putImageData(imageData, 0, 0);
+                imgEl.src = canvas.toDataURL('image/png'); // 処理後の透過画像をセット
+                resolve();
+            };
+
+            img.onerror = () => {
+                console.warn("ロゴ画像の背景透過処理をスキップしました");
+                resolve(); // 失敗しても進行を止めない
+            };
+        });
+    }
+
+    // ==========================================
     // アニメーション切り替え
     // ==========================================
     function setWalking(isWalk) {
@@ -450,6 +503,9 @@
     // 初期ロード時のアニメーション
     // ==========================================
     async function initQuiz() {
+        // ロゴの背景透過処理が終わるまで待つ
+        await processLogoBackground();
+
         characterContainer.style.display = "grid"; 
         characterContainer.style.transition = 'none';
         characterContainer.style.transform = 'translateX(-50%) translateX(-400px)';

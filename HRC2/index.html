@@ -13,7 +13,7 @@
             margin: 0;
             padding: 0;
             font-family: 'Inter', sans-serif;
-            background-color: #1a202c; /* 外側の背景 */
+            background-color: #1a202c;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -45,7 +45,7 @@
             background-size: cover;
             background-position: center;
             opacity: 0;
-            transition: opacity 3s ease-in-out; /* 3秒かけてクロスフェード */
+            transition: opacity 3s ease-in-out;
             z-index: 1;
         }
 
@@ -53,14 +53,13 @@
             opacity: 1;
         }
 
-        /* 20%のオーバーレイ */
         .overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.2); /* 黒(0,0,0)から白(255,255,255)へ変更 */
+            background: rgba(255, 255, 255, 0.2);
             z-index: 2;
             pointer-events: none;
         }
@@ -228,43 +227,42 @@
             outline: none;
             background-color: transparent;
             transform-origin: bottom center;
-            /* opacityからdisplayの切り替えに変更 */
         }
 
         /* 止まっている時の画像 (maru.png) */
         #character-img-static {
             transform: scale(1.02); 
-            display: block; /* 初期は表示 */
+            /* 変更: display:noneではなく、visibilityで制御 */
+            visibility: visible;
+            opacity: 1;
         }
 
         /* 歩いている時の画像 (maruwaalk) */
         #character-img-walk {
             transform: scale(1.0);  
-            display: none; /* 初期は非表示 */
+            /* 変更: display:noneではなく、visibilityで制御 */
+            visibility: hidden;
+            opacity: 0;
         }
     </style>
 </head>
 <body>
 
 <div id="app-container">
-    <!-- スタート画面 -->
     <div id="start-screen">
         <button class="next-btn start-btn" id="start-btn-element" style="display: none;" onclick="startQuiz()">スタート</button>
     </div>
 
-    <!-- 背景画像 (0がスタート、1〜5がクイズ用) -->
     <div id="bg-0" class="background-layer active" style="background-image: url('start.jpg');"></div>
     <div id="bg-1" class="background-layer" style="background-image: url('quiz1.jpg');"></div>
     <div id="bg-2" class="background-layer" style="background-image: url('quiz2.jpg');"></div>
     <div id="bg-3" class="background-layer" style="background-image: url('quiz3.jpg');"></div>
     <div id="bg-4" class="background-layer" style="background-image: url('quiz4.jpg');"></div>
     <div id="bg-5" class="background-layer" style="background-image: url('quiz5.jpg');"></div>
-    <!-- クリア画面用の背景 -->
     <div id="bg-6" class="background-layer" style="background-image: url('result.jpg');"></div>
     
     <div class="overlay"></div>
 
-    <!-- クイズUI領域 -->
     <div id="quiz-ui-container">
         <div class="glass-panel text-center w-full max-w-sm mb-6">
             <h2 id="question-number" class="text-xl font-bold text-gray-800 mb-2"></h2>
@@ -282,7 +280,6 @@
         <img id="character-img-walk" src="maruwaalk (3).webp" alt="">
     </div>
 
-    <!-- 結果モーダル -->
     <div id="result-modal" class="modal">
         <div class="modal-content glass-panel w-full max-w-sm text-center">
             <h2 id="modal-title" class="text-3xl font-bold mb-4"></h2>
@@ -291,7 +288,6 @@
         </div>
     </div>
 
-    <!-- クリア画面 -->
     <div id="completion-screen">
         <div class="glass-panel text-center w-full max-w-sm">
             <h2 class="text-3xl font-bold text-gray-800 mb-4">クリア！</h2>
@@ -346,18 +342,30 @@
     const quizUiContainer = document.getElementById('quiz-ui-container');
 
     // ==========================================
-    // 歩き・止まりの切り替えを「display」で行う
+    // スマホ対応版：クローンによるアニメーション強制再開
     // ==========================================
     function setWalking(isWalk) {
         const staticImg = document.getElementById('character-img-static');
-        const walkImg = document.getElementById('character-img-walk');
+        let walkImg = document.getElementById('character-img-walk');
         
         if (isWalk) {
-            staticImg.style.display = 'none';
-            walkImg.style.display = 'block';
+            staticImg.style.visibility = 'hidden';
+            staticImg.style.opacity = '0';
+            
+            walkImg.style.visibility = 'visible';
+            walkImg.style.opacity = '1';
+
+            // 【重要】PC環境に影響を与えず、スマホのバグを回避する究極の技
+            // 画像タグそのものをクローンして置き換えることで、ブラウザに強制リレンダリング＆アニメ再生させます。
+            const newWalkImg = walkImg.cloneNode(true);
+            walkImg.parentNode.replaceChild(newWalkImg, walkImg);
+
         } else {
-            staticImg.style.display = 'block';
-            walkImg.style.display = 'none';
+            staticImg.style.visibility = 'visible';
+            staticImg.style.opacity = '1';
+
+            walkImg.style.visibility = 'hidden';
+            walkImg.style.opacity = '0';
         }
     }
 
@@ -367,19 +375,16 @@
     async function initQuiz() {
         characterContainer.style.display = "grid"; 
         characterContainer.style.transition = 'none';
-        
         characterContainer.style.transform = 'translateX(-50%) translateX(-400px)';
 
         setWalking(true);
-        
         await new Promise(resolve => setTimeout(resolve, 50));
 
-        // 3秒かけて中央へ移動
         characterContainer.style.transition = 'transform 3s linear';
         characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
 
         setTimeout(() => {
-            setWalking(false); // 止まる
+            setWalking(false); 
             const startBtn = document.getElementById('start-btn-element');
             startBtn.style.display = 'block';
             setTimeout(() => {
@@ -399,13 +404,11 @@
         const isLeavingQuestion4 = (currentQuestionIndex === 3);
         const isFinished = (nextIndex >= quizData.length);
 
-        // --- 1. 退場アニメーション ---
         if (!isFinished) {
             if (!isLeavingQuestion4) {
                 setWalking(true);
                 await new Promise(resolve => setTimeout(resolve, 50));
                 
-                // 右へ1.5秒かけて移動
                 characterContainer.style.transition = 'transform 1.5s linear';
                 characterContainer.style.transform = 'translateX(-50%) translateX(400px)';
                 await new Promise(resolve => setTimeout(resolve, 1500));
@@ -413,11 +416,9 @@
                 await new Promise(resolve => setTimeout(resolve, 1500));
             }
         } else {
-            // 終了時は即座に非表示にする
             characterContainer.style.display = "none";
         }
 
-        // 背景切り替え
         if (nextBg && nextBg !== currentActiveBg) {
             nextBg.classList.add('active');
         } else if (isFinished) {
@@ -427,7 +428,6 @@
             }
         }
 
-        // --- 2. 登場アニメーション ---
         if (!isFinished) {
             if (!isNextQuestion4) {
                 characterContainer.style.display = "grid";
@@ -437,7 +437,6 @@
                 setWalking(true);
                 await new Promise(resolve => setTimeout(resolve, 50));
 
-                // 中央へ1.5秒かけて移動
                 characterContainer.style.transition = 'transform 1.5s linear';
                 characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
                 await new Promise(resolve => setTimeout(resolve, 1500));
@@ -447,14 +446,13 @@
             }
         }
 
-        // --- 3. UIの表示と待機 ---
         if (currentActiveBg && currentActiveBg !== nextBg && nextBg !== null) {
             currentActiveBg.classList.remove('active');
         } else if (isFinished && currentActiveBg) {
              currentActiveBg.classList.remove('active');
         }
         
-        setWalking(false); // 止まる
+        setWalking(false); 
         
         if (isFinished) {
             characterContainer.style.display = "none"; 
@@ -520,9 +518,6 @@
         transitionToNextStage(currentQuestionIndex + 1);
     }
 
-    // ----------------------------------------------------
-    // プレビュー環境で画像が見つからない場合の仮画像設定
-    // ----------------------------------------------------
     document.addEventListener("DOMContentLoaded", () => {
         const bgLayers = document.querySelectorAll('.background-layer');
         bgLayers.forEach((bg, index) => {

@@ -243,7 +243,6 @@
     </style>
 </head>
 <body>
-
 <div id="app-container">
     <div id="start-screen">
         <button class="next-btn start-btn" id="start-btn-element" style="display: none;" onclick="startQuiz()">スタート</button>
@@ -275,7 +274,8 @@
     <!-- キャラクター -->
     <div id="character-container">
         <img id="character-img-static" src="maru.png" alt="">
-        <img id="character-img-walk" src="maruwaalk5.webp#0" alt="">
+        <!-- 歩行アニメーション画像はJavaScriptで動的に生成・追加するように変更するため、ここは削除またはプレースホルダーにする -->
+        <div id="character-walk-wrapper" style="display: none;"></div>
     </div>
 
     <!-- 結果モーダル -->
@@ -340,12 +340,10 @@
     const modalDesc = document.getElementById('modal-desc');
     const completionScreen = document.getElementById('completion-screen');
     const quizUiContainer = document.getElementById('quiz-ui-container');
+    const walkWrapper = document.getElementById('character-walk-wrapper'); // 追加
 
     // WebPアニメーションの元ファイル名
     const WALK_IMG_SRC = 'maruwaalk5.webp';
-
-    // フラグメント(#)を変えるたびにインクリメントするカウンター
-    let walkImgRestartCounter = 0;
 
     // ==========================================
     // 事前に一度だけWebPを読み込んでブラウザキャッシュに
@@ -358,37 +356,50 @@
 
     // ==========================================
     // スマホ（特にSafari）でも確実にアニメーションを
-    // 再スタートさせるための対策版
-    //
-    // ポイント：
-    // ・URLの「#フラグメント」部分を変更してsrcを再設定する
-    // ・フラグメントの変更はネットワークリクエストを発生させない
-    //   （＝表示されない問題を防ぐ）
-    // ・一方でブラウザは「新しい画像」として扱うため、
-    //   キャッシュ済みデータから1コマ目からアニメーションを
-    //   再デコードしてくれる（＝静止画で止まる問題を防ぐ）
-    //
-    // ※ Blob URL方式は、Safariでアニメーションが
-    //   再生されず静止画になる既知の問題があるため不採用
+    // 再スタートさせるための対策版（DOM再生成方式）
     // ==========================================
     function setWalking(isWalk) {
         const staticImg = document.getElementById('character-img-static');
-        const walkImg = document.getElementById('character-img-walk');
-
-        // 読み込み失敗時のフォールバック
-        walkImg.onerror = () => {
-            walkImg.src = "https://placehold.co/100x100/9999ff/ffffff?text=Walk";
-        };
 
         if (isWalk) {
             staticImg.style.display = 'none';
-            walkImg.style.display = 'block';
+            walkWrapper.style.display = 'block';
+            
+            // 既存のwalk画像を削除
+            walkWrapper.innerHTML = '';
+            
+            // 新しいwalk画像要素を生成して追加
+            // これによりブラウザは完全に新しい画像として扱い、アニメーションを最初から再生する
+            const newWalkImg = new Image();
+            newWalkImg.id = 'character-img-walk';
+            
+            // 読み込み失敗時のフォールバック
+            newWalkImg.onerror = () => {
+                newWalkImg.src = "https://placehold.co/100x100/9999ff/ffffff?text=Walk";
+            };
 
-            walkImgRestartCounter++;
-            walkImg.src = WALK_IMG_SRC + '#' + walkImgRestartCounter;
+            // キャッシュを有効活用しつつ、iOS Safari等のバグを回避するため
+            // 単純なURL（クエリパラメータなし）を設定
+            newWalkImg.src = WALK_IMG_SRC;
+            
+            // スタイルを元のCSSに合わせて設定
+            newWalkImg.style.gridArea = '1 / 1';
+            newWalkImg.style.height = '180px';
+            newWalkImg.style.width = 'auto';
+            newWalkImg.style.objectFit = 'contain';
+            newWalkImg.style.border = 'none';
+            newWalkImg.style.outline = 'none';
+            newWalkImg.style.backgroundColor = 'transparent';
+            newWalkImg.style.transformOrigin = 'bottom center';
+            newWalkImg.style.transform = 'scale(1.0)';
+            newWalkImg.style.display = 'block';
+
+            walkWrapper.appendChild(newWalkImg);
         } else {
             staticImg.style.display = 'block';
-            walkImg.style.display = 'none';
+            walkWrapper.style.display = 'none';
+            // 非表示時は画像を削除してメモリを解放し、次回の確実な再生に備える
+            walkWrapper.innerHTML = '';
         }
     }
 
@@ -634,10 +645,7 @@
             staticImg.src = "https://placehold.co/100x100/ff9999/ffffff?text=Stand";
         };
         
-        const walkImg = document.getElementById('character-img-walk');
-        walkImg.onerror = () => {
-            walkImg.src = "https://placehold.co/100x100/9999ff/ffffff?text=Walk";
-        };
+        // character-img-walk は動的生成に変更したため、ここでの onerror 設定は不要（setWalking内で設定）
 
         // walk画像のプリロードを開始（初回表示に間に合うよう早めに実行）
         preloadWalkImage();

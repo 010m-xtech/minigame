@@ -123,20 +123,28 @@
             transform: translateY(0);
         }
 
-        /* 新規追加: タイトル画像のアニメーション（画面左側からワンバウンド） */
+        /* 新規追加: タイトル画像のアニメーション（画面左側からバウンド） */
         @keyframes popIn {
             0% {
                 opacity: 0;
-                transform: translateX(-100vw) translateY(-50px) rotate(-15deg);
+                transform: translateX(-100vw) translateY(-150px) rotate(-20deg);
             }
-            50% {
+            35% {
                 opacity: 1;
-                /* 中央に到達して一度着地（勢いで少し潰れる） */
-                transform: translateX(20px) translateY(20px) scale(1.05, 0.9) rotate(5deg);
+                /* 1回目の着地：ドスンと潰れる */
+                transform: translateX(-20px) translateY(30px) scale(1.15, 0.8) rotate(5deg);
             }
-            75% {
-                /* 上にポンと跳ねる（少し伸びる） */
-                transform: translateX(-5px) translateY(-25px) scale(0.95, 1.05) rotate(-2deg);
+            60% {
+                /* ボヨーンと大きく上に跳ね返る（伸びる） */
+                transform: translateX(10px) translateY(-50px) scale(0.9, 1.1) rotate(-5deg);
+            }
+            80% {
+                /* 2回目の着地：軽く潰れる */
+                transform: translateX(-5px) translateY(10px) scale(1.05, 0.95) rotate(2deg);
+            }
+            90% {
+                /* 最後に小さく跳ねる */
+                transform: translateX(2px) translateY(-5px) scale(0.98, 1.02) rotate(-1deg);
             }
             100% {
                 opacity: 1;
@@ -159,9 +167,9 @@
         .title-container.show .title-word-1 {
             /* 飛び出すアニメーション(popIn)が完了した直後に、ふわふわアニメーション(floatLogo)に切り替えてループさせます */
             animation-name: popIn, floatLogo;
-            animation-duration: 0.8s, 3s;
-            animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1), ease-in-out;
-            animation-delay: 0s, 0.8s;
+            animation-duration: 1.2s, 3s;
+            animation-timing-function: ease-out, ease-in-out;
+            animation-delay: 0s, 1.2s;
             animation-fill-mode: forwards, forwards;
             animation-iteration-count: 1, infinite;
         }
@@ -503,13 +511,13 @@
                 startTitle.classList.add('show');
             }, 50); 
             
-            // 2. タイトルのバウンドが終わる頃(約1秒後)に、スタートボタンを表示
+            // 2. タイトルのバウンドが終わる頃(約1.2秒後)に、スタートボタンを表示
             setTimeout(() => {
                 startBtn.style.display = 'block';
                 setTimeout(() => {
                     startBtn.classList.add('show');
                 }, 50);
-            }, 1000);
+            }, 1200);
 
         }, 3000);
     }

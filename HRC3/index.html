@@ -339,8 +339,9 @@
 
         /* 歩いている時の画像 (maruwaalk5.webp) */
         #character-img-walk {
-            /* maru.pngの大きさに合わせるため、少し拡大して調整 */
-            transform: scale(1.15);  
+            /* 大きさは scale()、上下の足の位置は translateY() で微調整します */
+            /* translateYの数値を増やすと下に下がり、マイナスにすると上に上がります */
+            transform: scale(1.15) translateY(4px);  
             display: none; /* 初期は非表示 */
         }
     </style>

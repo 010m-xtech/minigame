@@ -223,8 +223,7 @@
         }
 
         /* 2つの画像に共通の設定 */
-        #character-img-static, 
-        #character-img-walk {
+        .character-img {
             grid-area: 1 / 1;
             width: 180px !important;
             height: 180px !important;
@@ -235,19 +234,27 @@
             outline: none;
             background-color: transparent;
             transform-origin: bottom center;
-            transition: opacity 0.05s;
+            /* opacityではなく、displayで切り替えるためtransitionは削除 */
         }
 
         /* 止まっている時の画像 (maru.png) */
         #character-img-static {
             transform: scale(1.02);
-            opacity: 1;
+            display: block; /* 初期は表示 */
         }
 
-        /* 歩いている時の画像 (maruwaalk) */
-        #character-img-walk {
-            transform: scale(1.0);
-            opacity: 0;
+        /* 歩いている時の画像 (maruwaalk) はコンテナを用意して動的に追加する */
+        #walk-img-wrapper {
+            grid-area: 1 / 1;
+            display: none; /* 初期は非表示 */
+            width: 180px !important;
+            height: 180px !important;
+        }
+        
+        #walk-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
     </style>
 </head>
@@ -285,8 +292,9 @@
 
     <!-- キャラクター -->
     <div id="character-container">
-        <img id="character-img-static" src="maru.png" alt="静止キャラクター">
-        <img id="character-img-walk" src="maruwaalk (3).webp" alt="歩くキャラクター">
+        <img id="character-img-static" class="character-img" src="maru.png" alt="静止キャラクター">
+        <!-- 歩行アニメーションは動的に生成してここに挿入する -->
+        <div id="walk-img-wrapper" class="character-img"></div>
     </div>
 
     <!-- 結果モーダル -->
@@ -352,47 +360,80 @@
     const completionScreen = document.getElementById('completion-screen');
     const quizUiContainer = document.getElementById('quiz-ui-container');
 
+    // プレビュー用フォールバックパス保持
+    let walkImageSrc = "maruwaalk (3).webp";
+
     // ==========================================
-    // 歩き・止まりの切り替え
+    // 歩き・止まりの切り替え（スマホアニメーション停止対策の最終版）
     // ==========================================
     function setWalking(isWalk) {
         const staticImg = document.getElementById('character-img-static');
-        let walkImg = document.getElementById('character-img-walk');
-        if (!staticImg || !walkImg) return;
+        const walkWrapper = document.getElementById('walk-img-wrapper');
         
         if (isWalk) {
-            staticImg.style.opacity = '0';
+            // 静止画を隠す
+            staticImg.style.display = 'none';
+            // ラッパーを表示
+            walkWrapper.style.display = 'block';
             
-            // スマホでのアニメーションフリーズ対策：要素をクローンして差し替え、強制的に最初から再生
-            const newWalkImg = walkImg.cloneNode(true);
-            walkImg.parentNode.replaceChild(newWalkImg, walkImg);
-            newWalkImg.style.opacity = '1';
+            // 中身を空にする
+            walkWrapper.innerHTML = '';
+            
+            // 毎回新しい<img>タグを生成してDOMに追加する
+            // これにより、スマホOSに「新しいアニメーションだ」と強制的に認識させ、最初から再生させる
+            const newWalkImg = document.createElement('img');
+            newWalkImg.src = walkImageSrc;
+            newWalkImg.alt = "歩くキャラクター";
+            
+            // フォールバックエラーハンドリングも引き継ぐ
+            newWalkImg.onerror = () => {
+                newWalkImg.src = "https://placehold.co/100x100/9999ff/ffffff?text=Walk";
+            };
+
+            walkWrapper.appendChild(newWalkImg);
         } else {
-            staticImg.style.opacity = '1';
-            walkImg.style.opacity = '0';
+            // 歩行ラッパーを隠し、中身を削除（リセット）
+            walkWrapper.style.display = 'none';
+            walkWrapper.innerHTML = '';
+            // 静止画を表示
+            staticImg.style.display = 'block';
         }
     }
 
     // ==========================================
-    // JSによる確実なアニメーション移動関数 (CSS transformを使用し、リフローを強制)
+    // JSによる確実なアニメーション移動関数 (requestAnimationFrame)
     // ==========================================
-    function moveCharacter(startPx, endPx, durationMs) {
+    // CSS transitionはスマホで画像のアニメーションを止める原因になるため、
+    // パラパラ漫画のように手動で座標を更新し、ブラウザを「働かせ続ける」
+    function moveCharacterJS(startPx, endPx, durationMs) {
         return new Promise(resolve => {
-            // 1. アニメーションをオフにして開始位置に瞬間移動（ワープ）
+            const startTime = performance.now();
+            // transitionを完全に切る
             characterContainer.style.transition = 'none';
-            characterContainer.style.transform = `translateX(-50%) translateX(${startPx}px)`;
-            
-            // 2. ブラウザに「今ワープした」という情報を強制認識させる（魔法のコード）
-            void characterContainer.offsetWidth;
-            
-            // 3. アニメーションをオンにして終了位置へ移動
-            characterContainer.style.transition = `transform ${durationMs}ms linear`;
-            characterContainer.style.transform = `translateX(-50%) translateX(${endPx}px)`;
-            
-            // 4. アニメーション完了まで待機
-            setTimeout(resolve, durationMs);
+
+            function step(currentTime) {
+                let elapsed = currentTime - startTime;
+                if (elapsed > durationMs) elapsed = durationMs;
+
+                // 進行割合 (0.0 ～ 1.0)
+                const progress = elapsed / durationMs;
+                // 現在位置の計算
+                const currentPx = startPx + (endPx - startPx) * progress;
+
+                // 座標を更新
+                characterContainer.style.transform = `translateX(-50%) translateX(${currentPx}px)`;
+
+                if (elapsed < durationMs) {
+                    requestAnimationFrame(step);
+                } else {
+                    resolve();
+                }
+            }
+
+            requestAnimationFrame(step);
         });
     }
+
 
     // ==========================================
     // 初期ロード時のアニメーション
@@ -400,10 +441,13 @@
     async function initQuiz() {
         characterContainer.style.display = "grid";
 
+        // 最初から左外に配置
+        characterContainer.style.transform = `translateX(-50%) translateX(-400px)`;
+
         setWalking(true);
 
         // 左外(-400px)から中央(0px)へ、3秒(3000ms)かけてゆっくり移動
-        await moveCharacter(-400, 0, 3000);
+        await moveCharacterJS(-400, 0, 3000);
 
         setWalking(false); // 止まる
         const startBtn = document.getElementById('start-btn-element');
@@ -429,7 +473,7 @@
             if (!isLeavingQuestion4) {
                 setWalking(true);
                 // 中央(0px)から右外(400px)へ、3秒かけてゆっくり移動
-                await moveCharacter(0, 400, 3000);
+                await moveCharacterJS(0, 400, 3000);
             } else {
                 await new Promise(resolve => setTimeout(resolve, 3000));
             }
@@ -451,9 +495,12 @@
         if (!isFinished) {
             if (!isNextQuestion4) {
                 characterContainer.style.display = "grid";
+                // 一旦、確実に左外へ配置
+                characterContainer.style.transform = `translateX(-50%) translateX(-400px)`;
+                
                 setWalking(true);
                 // 左外(-400px)から中央(0px)へ、3秒かけてゆっくり移動
-                await moveCharacter(-400, 0, 3000);
+                await moveCharacterJS(-400, 0, 3000);
             } else {
                 characterContainer.style.display = "none";
                 await new Promise(resolve => setTimeout(resolve, 3000));
@@ -503,7 +550,7 @@
             characterContainer.style.display = "none";
         } else {
             characterContainer.style.display = "grid";
-            characterContainer.style.transition = 'none';
+            // 確実に中央へ配置
             characterContainer.style.transform = `translateX(-50%) translateX(0px)`;
             setWalking(false);
         }
@@ -556,18 +603,18 @@
             img.src = imgUrl;
         });
 
+        // キャラクター画像のフォールバック
         const staticImg = document.getElementById('character-img-static');
         staticImg.onerror = () => {
             staticImg.src = "https://placehold.co/100x100/ff9999/ffffff?text=Stand";
         };
         
-        const walkImg = document.getElementById('character-img-walk');
-        walkImg.onerror = () => {
-            walkImg.src = "https://placehold.co/100x100/9999ff/ffffff?text=Walk";
+        // 歩行画像のエラーフォールバック設定（動的生成用）
+        const tempWalkImg = new Image();
+        tempWalkImg.onerror = () => {
+             walkImageSrc = "https://placehold.co/100x100/9999ff/ffffff?text=Walk";
         };
+        tempWalkImg.src = walkImageSrc;
     });
 
-    window.onload = initQuiz;
-</script>
-</body>
-</html>
+    // 読み込み完了時に実行

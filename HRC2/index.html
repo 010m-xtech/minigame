@@ -368,9 +368,9 @@
             // 新しいimg要素を作成
             const newWalkImg = document.createElement('img');
             newWalkImg.id = 'character-img-walk';
-            // キャッシュ対策としてタイムスタンプを付与
-            const currentSrc = fallbackWalkImgSrc || walkImgSrc;
-            newWalkImg.src = `${currentSrc}?t=${new Date().getTime()}`;
+            
+            // ローカル環境(file://)で読み込めなくなるため、タイムスタンプ(?t=)は付与せずそのままのパスを使用
+            newWalkImg.src = fallbackWalkImgSrc || walkImgSrc;
             newWalkImg.alt = "歩くキャラクター";
             
             // スタイルを適用（CSSに定義していたものと同等）

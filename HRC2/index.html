@@ -281,7 +281,8 @@
     <div id="character-container">
         <!-- Gridで重なって配置されるため、どちらも常に存在します -->
         <img id="character-img-static" src="maru.png" alt="">
-        <img id="character-img-walk" src="maruwaalk (3).webp" alt="">
+        <!-- 歩き画像はJavaScriptで動的に生成・削除します -->
+        <div id="walk-img-wrapper" style="grid-area: 1 / 1; width: 100%; height: 100%; display: flex; justify-content: center; align-items: flex-end;"></div>
     </div>
 
     <!-- 結果モーダル -->
@@ -336,6 +337,10 @@
         }
     ];
 
+    // 歩行アニメーション画像の元URL
+    const walkImgSrc = "maruwaalk (3).webp";
+    let fallbackWalkImgSrc = null; // フォールバック時のURLを保持
+
     let currentQuestionIndex = 0;
 
     const questionNumberEl = document.getElementById('question-number');
@@ -348,24 +353,47 @@
     const quizUiContainer = document.getElementById('quiz-ui-container');
 
     // ==========================================
-    // 歩き・止まりの切り替え
+    // 歩き・止まりの切り替え（DOM再構築による確実なアニメーション再生）
     // ==========================================
     function setWalking(isWalk) {
         const staticImg = document.getElementById('character-img-static');
-        // 要素が新しくなることがあるため、毎回取得し直す
-        let walkImg = document.getElementById('character-img-walk');
+        const walkWrapper = document.getElementById('walk-img-wrapper');
         
         if (isWalk) {
             staticImg.style.opacity = '0';
             
-            // スマホ等でWebPアニメーションが止まる現象の対策:
-            // 要素を複製して置き換えることで、ブラウザに強制的にアニメーションを最初から再生させます。
-            const newWalkImg = walkImg.cloneNode(true);
+            // 既存の歩き画像を削除
+            walkWrapper.innerHTML = '';
+            
+            // 新しいimg要素を作成
+            const newWalkImg = document.createElement('img');
+            newWalkImg.id = 'character-img-walk';
+            // キャッシュ対策としてタイムスタンプを付与
+            const currentSrc = fallbackWalkImgSrc || walkImgSrc;
+            newWalkImg.src = `${currentSrc}?t=${new Date().getTime()}`;
+            newWalkImg.alt = "歩くキャラクター";
+            
+            // スタイルを適用（CSSに定義していたものと同等）
+            newWalkImg.style.height = '180px';
+            newWalkImg.style.width = 'auto';
+            newWalkImg.style.objectFit = 'contain';
+            newWalkImg.style.transformOrigin = 'bottom center';
+            newWalkImg.style.transform = 'scale(1.0)';
             newWalkImg.style.opacity = '1';
-            walkImg.parentNode.replaceChild(newWalkImg, walkImg);
+            
+            // エラーハンドリング（プレビュー環境用）
+            newWalkImg.onerror = () => {
+                const fallback = "https://placehold.co/100x100/9999ff/ffffff?text=Walk";
+                newWalkImg.src = fallback;
+                fallbackWalkImgSrc = fallback; // 以降はフォールバックを使用
+            };
+
+            // DOMに追加して再生開始
+            walkWrapper.appendChild(newWalkImg);
         } else {
             staticImg.style.opacity = '1';
-            walkImg.style.opacity = '0';
+            // 歩き画像を削除して確実に停止
+            walkWrapper.innerHTML = '';
         }
     }
 
@@ -562,10 +590,12 @@
             staticImg.src = "https://placehold.co/100x100/ff9999/ffffff?text=Stand";
         };
         
-        const walkImg = document.getElementById('character-img-walk');
-        walkImg.onerror = () => {
-            walkImg.src = "https://placehold.co/100x100/9999ff/ffffff?text=Walk";
+        // 歩き画像の事前チェック（エラーならフォールバックURLをセット）
+        const preLoadWalkImg = new Image();
+        preLoadWalkImg.onerror = () => {
+            fallbackWalkImgSrc = "https://placehold.co/100x100/9999ff/ffffff?text=Walk";
         };
+        preLoadWalkImg.src = walkImgSrc;
     });
 
     // 読み込み完了時に実行

@@ -60,7 +60,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.2); /* 黒(0,0,0)から白(255,255,255)へ変更 */
             z-index: 2;
             pointer-events: none;
         }
@@ -207,54 +207,41 @@
         ------------------------------------- */
         #character-container {
             position: absolute;
-            bottom: 2%;
+            bottom: 2%; /* 5%から2%に変更し、少しだけ下に調整 */
             left: 50%;
             z-index: 5;
+            /* GRIDを使って2つの画像を同じ位置にピッタリ重ねる */
             display: grid;
             place-items: end center;
             pointer-events: none;
-            /* 吸い込まれる（圧縮される）問題の防止のためサイズを強固に固定 */
-            width: 180px !important;
-            min-width: 180px !important;
-            max-width: none !important;
-            /* 中央揃えと初期位置の設定 */
-            transform: translateX(-50%) translateX(-400px);
             will-change: transform;
+            transform: translateX(-50%) translateX(-400px); /* 画面ロード時、最初から左外に配置してチラつきを防止 */
         }
 
         /* 2つの画像に共通の設定 */
-        .character-img {
-            grid-area: 1 / 1;
-            width: 180px !important;
-            height: 180px !important;
-            min-width: 180px !important;
-            max-width: none !important;
+        #character-img-static, 
+        #character-img-walk {
+            grid-area: 1 / 1; /* 重ね合わせる魔法のコード */
+            height: 180px; /* 150pxから180pxへ少し大きく調整 */
+            width: auto;
             object-fit: contain;
             border: none;
             outline: none;
             background-color: transparent;
             transform-origin: bottom center;
-            /* opacityではなく、displayで切り替えるためtransitionは削除 */
+            transition: opacity 0.05s; /* 透明度だけを瞬時に切り替え */
         }
 
         /* 止まっている時の画像 (maru.png) */
         #character-img-static {
-            transform: scale(1.02);
-            display: block; /* 初期は表示 */
+            transform: scale(1.02); /* 微調整したサイズ */
+            opacity: 1; /* 初期は表示 */
         }
 
-        /* 歩いている時の画像 (maruwaalk) はコンテナを用意して動的に追加する */
-        #walk-img-wrapper {
-            grid-area: 1 / 1;
-            display: none; /* 初期は非表示 */
-            width: 180px !important;
-            height: 180px !important;
-        }
-        
-        #walk-img-wrapper img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
+        /* 歩いている時の画像 (maruwaalk) */
+        #character-img-walk {
+            transform: scale(1.0); 
+            opacity: 0; /* 初期は透明（裏で常に再生され続ける） */
         }
     </style>
 </head>
@@ -292,9 +279,9 @@
 
     <!-- キャラクター -->
     <div id="character-container">
-        <img id="character-img-static" class="character-img" src="maru.png" alt="静止キャラクター">
-        <!-- 歩行アニメーションは動的に生成してここに挿入する -->
-        <div id="walk-img-wrapper" class="character-img"></div>
+        <!-- Gridで重なって配置されるため、どちらも常に存在します -->
+        <img id="character-img-static" src="maru.png" alt="">
+        <img id="character-img-walk" src="maruwaalk (3).webp" alt="">
     </div>
 
     <!-- 結果モーダル -->
@@ -360,101 +347,47 @@
     const completionScreen = document.getElementById('completion-screen');
     const quizUiContainer = document.getElementById('quiz-ui-container');
 
-    // プレビュー用フォールバックパス保持
-    let walkImageSrc = "maruwaalk (3).webp";
-
     // ==========================================
-    // 歩き・止まりの切り替え（スマホアニメーション停止対策の最終版）
+    // 歩き・止まりの切り替えを「透明度(opacity)」だけで行う
     // ==========================================
     function setWalking(isWalk) {
         const staticImg = document.getElementById('character-img-static');
-        const walkWrapper = document.getElementById('walk-img-wrapper');
+        const walkImg = document.getElementById('character-img-walk');
         
         if (isWalk) {
-            // 静止画を隠す
-            staticImg.style.display = 'none';
-            // ラッパーを表示
-            walkWrapper.style.display = 'block';
-            
-            // 中身を空にする
-            walkWrapper.innerHTML = '';
-            
-            // 毎回新しい<img>タグを生成してDOMに追加する
-            // これにより、スマホOSに「新しいアニメーションだ」と強制的に認識させ、最初から再生させる
-            const newWalkImg = document.createElement('img');
-            newWalkImg.src = walkImageSrc;
-            newWalkImg.alt = "歩くキャラクター";
-            
-            // フォールバックエラーハンドリングも引き継ぐ
-            newWalkImg.onerror = () => {
-                newWalkImg.src = "https://placehold.co/100x100/9999ff/ffffff?text=Walk";
-            };
-
-            walkWrapper.appendChild(newWalkImg);
+            staticImg.style.opacity = '0';
+            walkImg.style.opacity = '1';
         } else {
-            // 歩行ラッパーを隠し、中身を削除（リセット）
-            walkWrapper.style.display = 'none';
-            walkWrapper.innerHTML = '';
-            // 静止画を表示
-            staticImg.style.display = 'block';
+            staticImg.style.opacity = '1';
+            walkImg.style.opacity = '0';
         }
     }
-
-    // ==========================================
-    // JSによる確実なアニメーション移動関数 (requestAnimationFrame)
-    // ==========================================
-    // CSS transitionはスマホで画像のアニメーションを止める原因になるため、
-    // パラパラ漫画のように手動で座標を更新し、ブラウザを「働かせ続ける」
-    function moveCharacterJS(startPx, endPx, durationMs) {
-        return new Promise(resolve => {
-            const startTime = performance.now();
-            // transitionを完全に切る
-            characterContainer.style.transition = 'none';
-
-            function step(currentTime) {
-                let elapsed = currentTime - startTime;
-                if (elapsed > durationMs) elapsed = durationMs;
-
-                // 進行割合 (0.0 ～ 1.0)
-                const progress = elapsed / durationMs;
-                // 現在位置の計算
-                const currentPx = startPx + (endPx - startPx) * progress;
-
-                // 座標を更新
-                characterContainer.style.transform = `translateX(-50%) translateX(${currentPx}px)`;
-
-                if (elapsed < durationMs) {
-                    requestAnimationFrame(step);
-                } else {
-                    resolve();
-                }
-            }
-
-            requestAnimationFrame(step);
-        });
-    }
-
 
     // ==========================================
     // 初期ロード時のアニメーション
     // ==========================================
     async function initQuiz() {
-        characterContainer.style.display = "grid";
-
-        // 最初から左外に配置
-        characterContainer.style.transform = `translateX(-50%) translateX(-400px)`;
+        characterContainer.style.display = "grid"; // GRIDで表示
+        characterContainer.style.transition = 'none';
+        // 画面の左外にセット
+        characterContainer.style.transform = 'translateX(-50%) translateX(-400px)';
 
         setWalking(true);
+        // 透明度が切り替わるためのほんのわずかな時間を待つ
+        await new Promise(resolve => setTimeout(resolve, 50));
 
-        // 左外(-400px)から中央(0px)へ、3秒(3000ms)かけてゆっくり移動
-        await moveCharacterJS(-400, 0, 3000);
+        // 3秒かけて中央へ移動
+        characterContainer.style.transition = 'transform 3s linear';
+        characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
 
-        setWalking(false); // 止まる
-        const startBtn = document.getElementById('start-btn-element');
-        startBtn.style.display = 'block';
         setTimeout(() => {
-            startBtn.classList.add('show');
-        }, 50); 
+            setWalking(false); // 止まる
+            const startBtn = document.getElementById('start-btn-element');
+            startBtn.style.display = 'block';
+            setTimeout(() => {
+                startBtn.classList.add('show');
+            }, 50); 
+        }, 3000);
     }
 
     // ==========================================
@@ -469,15 +402,21 @@
         const isFinished = (nextIndex >= quizData.length);
 
         // --- 1. 退場アニメーション ---
+        // 最終画面へ行く場合は退場アニメーションをしない
         if (!isFinished) {
             if (!isLeavingQuestion4) {
                 setWalking(true);
-                // 中央(0px)から右外(400px)へ、3秒かけてゆっくり移動
-                await moveCharacterJS(0, 400, 3000);
+                await new Promise(resolve => setTimeout(resolve, 50));
+                
+                // 右へ1.5秒かけて移動
+                characterContainer.style.transition = 'transform 1.5s linear';
+                characterContainer.style.transform = 'translateX(-50%) translateX(400px)';
+                await new Promise(resolve => setTimeout(resolve, 1500));
             } else {
-                await new Promise(resolve => setTimeout(resolve, 3000));
+                await new Promise(resolve => setTimeout(resolve, 1500));
             }
         } else {
+            // 終了時は即座に非表示にする
             characterContainer.style.display = "none";
         }
 
@@ -485,6 +424,7 @@
         if (nextBg && nextBg !== currentActiveBg) {
             nextBg.classList.add('active');
         } else if (isFinished) {
+            // 終了画面の背景（bg-6があればそれを表示、など）
             const resultBg = document.getElementById('bg-6');
             if (resultBg && resultBg !== currentActiveBg) {
                 resultBg.classList.add('active');
@@ -494,16 +434,21 @@
         // --- 2. 登場アニメーション ---
         if (!isFinished) {
             if (!isNextQuestion4) {
+                // 一瞬で左外へワープ
                 characterContainer.style.display = "grid";
-                // 一旦、確実に左外へ配置
-                characterContainer.style.transform = `translateX(-50%) translateX(-400px)`;
+                characterContainer.style.transition = 'none';
+                characterContainer.style.transform = 'translateX(-50%) translateX(-400px)';
                 
                 setWalking(true);
-                // 左外(-400px)から中央(0px)へ、3秒かけてゆっくり移動
-                await moveCharacterJS(-400, 0, 3000);
+                await new Promise(resolve => setTimeout(resolve, 50));
+
+                // 中央へ1.5秒かけて移動
+                characterContainer.style.transition = 'transform 1.5s linear';
+                characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
+                await new Promise(resolve => setTimeout(resolve, 1500));
             } else {
                 characterContainer.style.display = "none";
-                await new Promise(resolve => setTimeout(resolve, 3000));
+                await new Promise(resolve => setTimeout(resolve, 1500));
             }
         }
 
@@ -514,10 +459,10 @@
              currentActiveBg.classList.remove('active');
         }
         
-        setWalking(false); // 中央で停止
+        setWalking(false); // 止まる
         
         if (isFinished) {
-            characterContainer.style.display = "none";
+            characterContainer.style.display = "none"; // 念のため再度非表示
             completionScreen.classList.add('active');
         } else {
             currentQuestionIndex = nextIndex;
@@ -549,9 +494,9 @@
         if (index === 3) {
             characterContainer.style.display = "none";
         } else {
-            characterContainer.style.display = "grid";
-            // 確実に中央へ配置
-            characterContainer.style.transform = `translateX(-50%) translateX(0px)`;
+            characterContainer.style.transition = 'none';
+            characterContainer.style.display = "grid"; // GRIDで再表示
+            characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
             setWalking(false);
         }
     }
@@ -582,9 +527,11 @@
     }
 
     // ----------------------------------------------------
-    // プレビュー環境用フォールバック
+    // プレビュー環境で画像が見つからない場合の仮画像設定
+    // ※ 実際の環境ではローカル画像が読み込まれます
     // ----------------------------------------------------
     document.addEventListener("DOMContentLoaded", () => {
+        // 背景画像のフォールバック
         const bgLayers = document.querySelectorAll('.background-layer');
         bgLayers.forEach((bg, index) => {
             const imgUrl = bg.style.backgroundImage.slice(5, -2);
@@ -597,7 +544,7 @@
                 else if(index===3) color = "742a2a";
                 else if(index===4) color = "553c9a";
                 else if(index===5) color = "2b6cb0";
-                else if(index===6) color = "b7791f";
+                else if(index===6) color = "b7791f"; // result用のカラー
                 bg.style.backgroundImage = `url('https://placehold.co/500x800/${color}/ffffff?text=Background+${index}')`;
             };
             img.src = imgUrl;
@@ -609,12 +556,15 @@
             staticImg.src = "https://placehold.co/100x100/ff9999/ffffff?text=Stand";
         };
         
-        // 歩行画像のエラーフォールバック設定（動的生成用）
-        const tempWalkImg = new Image();
-        tempWalkImg.onerror = () => {
-             walkImageSrc = "https://placehold.co/100x100/9999ff/ffffff?text=Walk";
+        const walkImg = document.getElementById('character-img-walk');
+        walkImg.onerror = () => {
+            walkImg.src = "https://placehold.co/100x100/9999ff/ffffff?text=Walk";
         };
-        tempWalkImg.src = walkImageSrc;
     });
 
     // 読み込み完了時に実行
+    window.onload = initQuiz;
+
+</script>
+</body>
+</html>

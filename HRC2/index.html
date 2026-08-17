@@ -207,34 +207,33 @@
         ------------------------------------- */
         #character-container {
             position: absolute;
-            bottom: 2%; /* 5%から2%に変更し、少しだけ下に調整 */
+            bottom: 2%; 
             left: 50%;
             z-index: 5;
-            /* GRIDを使って2つの画像を同じ位置にピッタリ重ねる */
             display: grid;
             place-items: end center;
             pointer-events: none;
             will-change: transform;
-            transform: translateX(-50%) translateX(-400px); /* 画面ロード時、最初から左外に配置してチラつきを防止 */
+            transform: translateX(-50%) translateX(-400px); 
         }
 
         /* 2つの画像に共通の設定 */
         #character-img-static, 
         #character-img-walk {
-            grid-area: 1 / 1; /* 重ね合わせる魔法のコード */
-            height: 180px; /* 150pxから180pxへ少し大きく調整 */
+            grid-area: 1 / 1; 
+            height: 180px; 
             width: auto;
             object-fit: contain;
             border: none;
             outline: none;
             background-color: transparent;
             transform-origin: bottom center;
-            /* opacityのtransitionを削除し、JSでdisplayを切り替える方式に変更 */
+            /* opacityからdisplayの切り替えに変更 */
         }
 
         /* 止まっている時の画像 (maru.png) */
         #character-img-static {
-            transform: scale(1.02); /* 微調整したサイズ */
+            transform: scale(1.02); 
             display: block; /* 初期は表示 */
         }
 
@@ -279,7 +278,6 @@
 
     <!-- キャラクター -->
     <div id="character-container">
-        <!-- Gridで重なって配置されるため、どちらも常に存在します -->
         <img id="character-img-static" src="maru.png" alt="">
         <img id="character-img-walk" src="maruwaalk (3).webp" alt="">
     </div>
@@ -357,8 +355,6 @@
         if (isWalk) {
             staticImg.style.display = 'none';
             walkImg.style.display = 'block';
-            // 【スマホ対策】強制的にアニメーションを最初からリスタートさせる
-            walkImg.src = "maruwaalk (3).webp?" + new Date().getTime();
         } else {
             staticImg.style.display = 'block';
             walkImg.style.display = 'none';
@@ -369,13 +365,13 @@
     // 初期ロード時のアニメーション
     // ==========================================
     async function initQuiz() {
-        characterContainer.style.display = "grid"; // GRIDで表示
+        characterContainer.style.display = "grid"; 
         characterContainer.style.transition = 'none';
-        // 画面の左外にセット
+        
         characterContainer.style.transform = 'translateX(-50%) translateX(-400px)';
 
         setWalking(true);
-        // DOM反映のためのほんのわずかな時間を待つ
+        
         await new Promise(resolve => setTimeout(resolve, 50));
 
         // 3秒かけて中央へ移動
@@ -404,7 +400,6 @@
         const isFinished = (nextIndex >= quizData.length);
 
         // --- 1. 退場アニメーション ---
-        // 最終画面へ行く場合は退場アニメーションをしない
         if (!isFinished) {
             if (!isLeavingQuestion4) {
                 setWalking(true);
@@ -426,7 +421,6 @@
         if (nextBg && nextBg !== currentActiveBg) {
             nextBg.classList.add('active');
         } else if (isFinished) {
-            // 終了画面の背景（bg-6があればそれを表示、など）
             const resultBg = document.getElementById('bg-6');
             if (resultBg && resultBg !== currentActiveBg) {
                 resultBg.classList.add('active');
@@ -436,7 +430,6 @@
         // --- 2. 登場アニメーション ---
         if (!isFinished) {
             if (!isNextQuestion4) {
-                // 一瞬で左外へワープ
                 characterContainer.style.display = "grid";
                 characterContainer.style.transition = 'none';
                 characterContainer.style.transform = 'translateX(-50%) translateX(-400px)';
@@ -464,7 +457,7 @@
         setWalking(false); // 止まる
         
         if (isFinished) {
-            characterContainer.style.display = "none"; // 念のため再度非表示
+            characterContainer.style.display = "none"; 
             completionScreen.classList.add('active');
         } else {
             currentQuestionIndex = nextIndex;
@@ -492,12 +485,11 @@
         questionNumberEl.textContent = `第${q.qNum}問`;
         questionTextEl.textContent = q.question;
 
-        // 第4問目はキャラクターを非表示にする
         if (index === 3) {
             characterContainer.style.display = "none";
         } else {
             characterContainer.style.transition = 'none';
-            characterContainer.style.display = "grid"; // GRIDで再表示
+            characterContainer.style.display = "grid"; 
             characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
             setWalking(false);
         }
@@ -530,10 +522,8 @@
 
     // ----------------------------------------------------
     // プレビュー環境で画像が見つからない場合の仮画像設定
-    // ※ 実際の環境ではローカル画像が読み込まれます
     // ----------------------------------------------------
     document.addEventListener("DOMContentLoaded", () => {
-        // 背景画像のフォールバック
         const bgLayers = document.querySelectorAll('.background-layer');
         bgLayers.forEach((bg, index) => {
             const imgUrl = bg.style.backgroundImage.slice(5, -2);
@@ -546,13 +536,12 @@
                 else if(index===3) color = "742a2a";
                 else if(index===4) color = "553c9a";
                 else if(index===5) color = "2b6cb0";
-                else if(index===6) color = "b7791f"; // result用のカラー
+                else if(index===6) color = "b7791f"; 
                 bg.style.backgroundImage = `url('https://placehold.co/500x800/${color}/ffffff?text=Background+${index}')`;
             };
             img.src = imgUrl;
         });
 
-        // キャラクター画像のフォールバック
         const staticImg = document.getElementById('character-img-static');
         staticImg.onerror = () => {
             staticImg.src = "https://placehold.co/100x100/ff9999/ffffff?text=Stand";
@@ -564,7 +553,6 @@
         };
     });
 
-    // 読み込み完了時に実行
     window.onload = initQuiz;
 
 </script>

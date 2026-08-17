@@ -397,19 +397,16 @@
         const isFinished = (nextIndex >= quizData.length);
 
         // --- 1. 退場アニメーション ---
-        if (!isFinished) {
-            if (!isLeavingQuestion4) {
-                setWalking(true);
-                await new Promise(resolve => setTimeout(resolve, 50));
-                
-                characterContainer.style.transition = 'transform 1.5s linear';
-                characterContainer.style.transform = 'translateX(-50%) translateX(400px)';
-                await new Promise(resolve => setTimeout(resolve, 1500));
-            } else {
-                await new Promise(resolve => setTimeout(resolve, 1500));
-            }
+        // 最終問題（5問目）クリア時にも退場アニメーションを実行させるために分岐を統合
+        if (!isLeavingQuestion4) {
+            setWalking(true);
+            await new Promise(resolve => setTimeout(resolve, 50));
+            
+            characterContainer.style.transition = 'transform 1.5s linear';
+            characterContainer.style.transform = 'translateX(-50%) translateX(400px)';
+            await new Promise(resolve => setTimeout(resolve, 1500));
         } else {
-            characterContainer.style.display = "none";
+            await new Promise(resolve => setTimeout(resolve, 1500));
         }
 
         // 背景切り替え

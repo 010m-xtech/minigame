@@ -219,7 +219,7 @@
             opacity: 0;
             visibility: hidden;
             transition: opacity 1s;
-            padding: 20px;
+            padding: 10px; /* 文字を大きくするため左右の余白を少し縮小 */
         }
 
         #completion-screen.active {
@@ -417,11 +417,11 @@
     <!-- クリア画面 -->
     <div id="completion-screen">
         <!-- 背景の白さを25%から80%に上げて透けすぎないように調整 -->
-        <div class="glass-panel text-center w-full max-w-md px-4 sm:px-6" style="background: rgba(255, 255, 255, 0.8); backdrop-filter: none; border: 1px solid rgba(255,255,255,0.9);">
+        <div class="glass-panel text-center w-full max-w-md px-3 sm:px-6" style="background: rgba(255, 255, 255, 0.8); backdrop-filter: none; border: 1px solid rgba(255,255,255,0.9);">
             <h2 class="text-4xl font-bold text-red-600 mb-6" style="text-shadow: 2px 2px 0px #fff, -2px -2px 0px #fff, 2px -2px 0px #fff, -2px 2px 0px #fff, 0px 4px 5px rgba(255,255,255,1);">クリア！</h2>
             <!-- 文字サイズをスマホ幅に合わせて調整し、特定の文章が折り返さないように設定 -->
             <div class="inline-block text-left">
-                <p class="text-gray-900 text-[17px] sm:text-xl mb-4 font-bold leading-relaxed" style="text-shadow: 1px 1px 0px #fff, -1px -1px 0px #fff, 1px -1px 0px #fff, -1px 1px 0px #fff, 0px 2px 4px rgba(255,255,255,1);">
+                <p class="text-gray-900 text-[19px] sm:text-2xl mb-4 font-bold leading-relaxed" style="text-shadow: 1px 1px 0px #fff, -1px -1px 0px #fff, 1px -1px 0px #fff, -1px 1px 0px #fff, 0px 2px 4px rgba(255,255,255,1);">
                     <span class="whitespace-nowrap">ご覧いただきありがとうございました！</span><br><br>
                     この後もいつも通り美味しく<br>
                     生ビールを飲んで楽しんでください！<br><br>

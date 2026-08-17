@@ -416,19 +416,18 @@
 
     <!-- クリア画面 -->
     <div id="completion-screen">
-        <!-- 枠のモザイク(ぼかし)を無くし、透明度をさらに上げて透け感を強調 -->
-        <div class="glass-panel text-center w-full max-w-md" style="background: rgba(255, 255, 255, 0.25); backdrop-filter: none; border: 1px solid rgba(255,255,255,0.6);">
-            <!-- 文字が背景に埋もれないように白い縁取り（text-shadow）を強く設定しました -->
+        <!-- 背景の白さを25%から80%に上げて透けすぎないように調整 -->
+        <div class="glass-panel text-center w-full max-w-md px-4 sm:px-6" style="background: rgba(255, 255, 255, 0.8); backdrop-filter: none; border: 1px solid rgba(255,255,255,0.9);">
             <h2 class="text-4xl font-bold text-red-600 mb-6" style="text-shadow: 2px 2px 0px #fff, -2px -2px 0px #fff, 2px -2px 0px #fff, -2px 2px 0px #fff, 0px 4px 5px rgba(255,255,255,1);">クリア！</h2>
-            <!-- 文章全体を左寄せにしつつ、枠の中央に配置。スマホでも変に折り返さないよう改行を入れました -->
+            <!-- 文字サイズをスマホ幅に合わせて調整し、特定の文章が折り返さないように設定 -->
             <div class="inline-block text-left">
-                <p class="text-gray-900 text-lg mb-4 font-bold leading-relaxed" style="text-shadow: 1px 1px 0px #fff, -1px -1px 0px #fff, 1px -1px 0px #fff, -1px 1px 0px #fff, 0px 2px 4px rgba(255,255,255,1);">
-                    ご覧いただきありがとうございました！<br><br>
+                <p class="text-gray-900 text-[15px] sm:text-lg mb-4 font-bold leading-relaxed" style="text-shadow: 1px 1px 0px #fff, -1px -1px 0px #fff, 1px -1px 0px #fff, -1px 1px 0px #fff, 0px 2px 4px rgba(255,255,255,1);">
+                    <span class="whitespace-nowrap">ご覧いただきありがとうございました！</span><br><br>
                     この後もいつも通り美味しく<br>
                     生ビールを飲んで楽しんでください！<br><br>
                     あなたの「美味しい！」が、<br>
-                    子どもたちの笑顔につながります。<br>
-                    さあ、今日も楽しくカンパイしましょう！
+                    子どもたちの笑顔につながります。<br><br>
+                    <span class="whitespace-nowrap">さぁ、今日も楽しくカンパイしましょう！</span>
                 </p>
             </div>
         </div>

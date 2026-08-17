@@ -382,13 +382,15 @@
 <div id="app-container">
     <div id="start-screen">
         <div id="start-title-container" class="title-container" style="display: none;">
-            <!-- テキストタイトル -->
-            <div class="text-title-sub">知って楽しい！飲んで嬉しい！</div>
-            <div class="text-title-main">
-                <span class="title-word title-word-1 text-title-red">ハッピー</span>
-                <span class="title-word title-word-2 text-title-red">リング</span>
-                <div class="title-break"></div> <!-- ここで改行 -->
-                <span class="title-word title-word-3 text-title-blue">クイズ！</span>
+            <!-- ロゴ画像 -->
+            <div class="text-center w-full">
+                <span class="title-word title-word-1" style="display: inline-block; width: 85%; max-width: 320px;">
+                    <img src="rogo.png" alt="ハッピーリングチャリティ" style="width: 100%; height: auto; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));">
+                </span>
+            </div>
+            <!-- 追加のテキスト -->
+            <div class="text-title-main" style="margin-top: -10px;">
+                <span class="title-word title-word-2 text-title-red" style="font-size: 3.2rem; transform-origin: center;">クイズ！</span>
             </div>
         </div>
         <button class="next-btn start-btn" id="start-btn-element" style="display: none;" onclick="startQuiz()">スタート</button>

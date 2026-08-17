@@ -214,8 +214,10 @@
             display: grid;
             place-items: end center;
             pointer-events: none;
-            will-change: transform;
-            transform: translateX(-50%) translateX(-400px); /* 画面ロード時、最初から左外に配置してチラつきを防止 */
+            /* transformアニメーションを回避するため、中央寄せのみ固定で行う */
+            transform: translateX(-50%);
+            /* 初期位置を左外側に設定 */
+            margin-left: -400px;
         }
 
         /* 2つの画像に共通の設定 */
@@ -403,16 +405,18 @@
     async function initQuiz() {
         characterContainer.style.display = "grid"; // GRIDで表示
         characterContainer.style.transition = 'none';
-        // 画面の左外にセット
-        characterContainer.style.transform = 'translateX(-50%) translateX(-400px)';
+        // 画面の左外にセット（margin-leftで移動させる）
+        characterContainer.style.marginLeft = '-400px';
 
         setWalking(true);
         // 透明度が切り替わるためのほんのわずかな時間を待つ
         await new Promise(resolve => setTimeout(resolve, 50));
 
         // 3秒かけて中央へ移動
-        characterContainer.style.transition = 'transform 3s linear';
-        characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
+        // transformではなくmargin-leftをアニメーションさせることで、
+        // スマホでのWebPアニメーション停止バグを回避する
+        characterContainer.style.transition = 'margin-left 3s linear';
+        characterContainer.style.marginLeft = '0px';
 
         setTimeout(() => {
             setWalking(false); // 止まる
@@ -443,8 +447,8 @@
                 await new Promise(resolve => setTimeout(resolve, 50));
                 
                 // 右へ1.5秒かけて移動
-                characterContainer.style.transition = 'transform 1.5s linear';
-                characterContainer.style.transform = 'translateX(-50%) translateX(400px)';
+                characterContainer.style.transition = 'margin-left 1.5s linear';
+                characterContainer.style.marginLeft = '400px';
                 await new Promise(resolve => setTimeout(resolve, 1500));
             } else {
                 await new Promise(resolve => setTimeout(resolve, 1500));
@@ -471,14 +475,14 @@
                 // 一瞬で左外へワープ
                 characterContainer.style.display = "grid";
                 characterContainer.style.transition = 'none';
-                characterContainer.style.transform = 'translateX(-50%) translateX(-400px)';
+                characterContainer.style.marginLeft = '-400px';
                 
                 setWalking(true);
                 await new Promise(resolve => setTimeout(resolve, 50));
 
                 // 中央へ1.5秒かけて移動
-                characterContainer.style.transition = 'transform 1.5s linear';
-                characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
+                characterContainer.style.transition = 'margin-left 1.5s linear';
+                characterContainer.style.marginLeft = '0px';
                 await new Promise(resolve => setTimeout(resolve, 1500));
             } else {
                 characterContainer.style.display = "none";
@@ -530,7 +534,7 @@
         } else {
             characterContainer.style.transition = 'none';
             characterContainer.style.display = "grid"; // GRIDで再表示
-            characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
+            characterContainer.style.marginLeft = '0px';
             setWalking(false);
         }
     }

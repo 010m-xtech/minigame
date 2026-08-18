@@ -619,6 +619,22 @@
         }
 
         // --- 3. UIの表示と待機 ---
+        if (currentActiveBg && currentActiveBg !== nextBg && nextBg !== null) {
+            currentActiveBg.classList.remove('active');
+        } else if (isFinished && currentActiveBg) {
+             currentActiveBg.classList.remove('active');
+        }
+        
+        setWalking(false); 
+        
+        if (isFinished) {
+            characterContainer.style.display = "none"; 
+            completionScreen.classList.add('active');
+        } else {
+            currentQuestionIndex = nextIndex;
+            loadQuestion(currentQuestionIndex);
+            quizUiContainer.classList.add('active');
+        }
     }
 
     // ==========================================

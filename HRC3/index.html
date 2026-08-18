@@ -824,6 +824,12 @@
             currentQuestionIndex = nextIndex;
             loadQuestion(currentQuestionIndex);
             quizUiContainer.classList.add('active');
+
+            // 第4問目（暗闇の演出でキャラ非表示）以外は、クイズ中もずっと遊べるようにする
+            if (currentQuestionIndex !== 3) {
+                isDraggable = true;
+                characterContainer.style.pointerEvents = 'auto';
+            }
         }
     }
 
@@ -869,6 +875,10 @@
     }
 
     function answer(userChoice) {
+        // 解答ボタンを押した瞬間に遊びを終了し、アニメーションのバグを防ぐ
+        isDraggable = false; 
+        isJumping = false;   
+
         const q = quizData[currentQuestionIndex];
         const isCorrect = (userChoice === q.answer);
 

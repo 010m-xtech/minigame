@@ -148,20 +148,20 @@
             }
             35% {
                 opacity: 1;
-                /* 1回目の着地：ドスンと潰れる */
-                transform: translateX(-20px) translateY(30px) scale(1.15, 0.8) rotate(5deg);
+                /* 1回目の着地：ドスンと少し強く潰れる */
+                transform: translateX(-20px) translateY(30px) scale(1.2, 0.75) rotate(5deg);
             }
             60% {
-                /* ボヨーンと大きく上に跳ね返る（伸びる） */
-                transform: translateX(10px) translateY(-50px) scale(0.9, 1.1) rotate(-5deg);
+                /* ボヨーンとさらに大きく上に跳ね返る（高く、より伸びる） */
+                transform: translateX(10px) translateY(-100px) scale(0.85, 1.15) rotate(-5deg);
             }
             80% {
                 /* 2回目の着地：軽く潰れる */
-                transform: translateX(-5px) translateY(10px) scale(1.05, 0.95) rotate(2deg);
+                transform: translateX(-5px) translateY(15px) scale(1.1, 0.9) rotate(2deg);
             }
             90% {
-                /* 最後に小さく跳ねる */
-                transform: translateX(2px) translateY(-5px) scale(0.98, 1.02) rotate(-1deg);
+                /* 最後に少し高めに跳ねる */
+                transform: translateX(2px) translateY(-15px) scale(0.95, 1.05) rotate(-1deg);
             }
             100% {
                 opacity: 1;

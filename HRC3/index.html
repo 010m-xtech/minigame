@@ -11,8 +11,6 @@
            全体設定
         ------------------------------------- */
         body {
-            margin: 0;
-            padding: 0;
             font-family: 'Inter', sans-serif;
             background-color: #1a202c;
             display: flex;
@@ -117,7 +115,6 @@
             justify-content: center; /* 全体を中央寄せベースに */
             align-items: center;
             pointer-events: none;
-            padding-top: 0; 
         }
 
         /* -------------------------------------
@@ -225,7 +222,6 @@
             transition: opacity 0.8s ease;
             font-size: 1.5rem;
             padding: 15px 50px;
-            margin-bottom: 0; 
             position: absolute; 
             top: 62%; 
             transform: translateY(-50%); 
@@ -376,9 +372,6 @@
             height: 180px; 
             width: auto;
             object-fit: contain;
-            border: none;
-            outline: none;
-            background-color: transparent;
             transform-origin: bottom center;
         }
 
@@ -403,7 +396,7 @@
         <div id="start-title-container" class="title-container" style="display: none;">
             <!-- ロゴ画像 -->
             <div class="text-center w-full">
-                <span class="title-word title-word-1" style="display: inline-block; width: 85%; max-width: 320px;">
+                <span class="title-word title-word-1" style="width: 85%; max-width: 320px;">
                     <img id="main-logo" src="rogo3.png" alt="ハッピーリングクイズ" style="width: 100%; height: auto; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); background: transparent;">
                 </span>
             </div>
@@ -595,11 +588,17 @@
     }
 
     // --- スワイプイベントハンドラ ---
+    // タッチかマウスかを判定して座標を取得する共通関数
+    function getClientPos(e) {
+        return e.type.includes('touch') ? e.touches[0] : e;
+    }
+
     function handleDragStart(e) {
         if (!isDraggable) return;
         isDragging = true;
-        startClientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-        startClientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+        const pos = getClientPos(e);
+        startClientX = pos.clientX;
+        startClientY = pos.clientY;
         initialXOffset = currentXOffset;
         
         // ジャンプ中でなければtransitionを消す
@@ -611,16 +610,15 @@
         if (!isDragging || !isDraggable) return;
         if(e.type === 'touchmove') e.preventDefault(); // スクロール防止
         
-        const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-        const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-        const deltaX = clientX - startClientX;
-        const deltaY = clientY - startClientY;
+        const pos = getClientPos(e);
+        const deltaX = pos.clientX - startClientX;
+        const deltaY = pos.clientY - startClientY;
         
         // 【ジャンプ判定】
         // 上に40px以上、かつ横移動より縦移動が大きい（斜めではなく上に向かっている）場合に発動
         if (deltaY < -40 && Math.abs(deltaY) > Math.abs(deltaX) && !isJumping) {
             jump();
-            startClientY = clientY; // 着地まで連続発動しないように基準Yを更新
+            startClientY = pos.clientY; // 着地まで連続発動しないように基準Yを更新
         }
         
         // 進む方向によってキャラクターを振り向かせる
@@ -642,7 +640,7 @@
         updateCharacterTransform();
     }
 
-    function handleDragEnd(e) {
+    function handleDragEnd() {
         if (!isDragging || !isDraggable) return;
         isDragging = false;
         setWalking(false); // ドラッグが終わったら止まる
@@ -870,7 +868,6 @@
             characterContainer.style.transition = 'none';
             characterContainer.style.display = "grid"; 
             characterContainer.style.transform = 'translateX(-50%) translateX(0px) translateY(0px)';
-            setWalking(false);
         }
     }
 

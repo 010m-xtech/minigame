@@ -504,11 +504,19 @@
             qNum: 5,
             question: "このチャリティ活動は、国連が定める「SDGs（持続可能な開発目標）」の取り組みにもつながっている。",
             answer: "〇",
-            explanation: "正解は〇！「<span class=\"text-red-600\">貧困をなくそう</span>」「<span class=\"text-red-600\">飢餓をゼロに</span>」など、SDGsの目標達成にもつながる取り組みです。"
+            explanation: "正解は〇！「<span class=\"text-red-600 font-bold\">貧困をなくそう</span>」「<span class=\"text-red-600 font-bold\">飢餓をゼロに</span>」など、SDGsの目標達成にもつながる取り組みです。"
         }
     ];
 
     let currentQuestionIndex = 0;
+
+    // --- スワイプ操作用変数 ---
+    let isDraggable = false;
+    let isDragging = false;
+    let currentXOffset = 0;
+    let startClientX = 0;
+    let initialXOffset = 0;
+    let direction = 1; // 1: 右向き, -1: 左向き
 
     const questionNumberEl = document.getElementById('question-number');
     const questionTextEl = document.getElementById('question-text');
@@ -535,10 +543,68 @@
         }
     }
 
+    // --- キャラクターの向きを更新 ---
+    function updateCharacterDirection() {
+        const staticImg = document.getElementById('character-img-static');
+        const walkImg = document.getElementById('character-img-walk');
+        if (!staticImg || !walkImg) return;
+        staticImg.style.transform = direction === 1 ? 'scale(1.02)' : 'scale(-1.02, 1.02)';
+        walkImg.style.transform = direction === 1 ? 'scale(1.22) translateY(30px)' : 'scale(-1.22, 1.22) translateY(30px)';
+    }
+
+    // --- スワイプイベントハンドラ ---
+    function handleDragStart(e) {
+        if (!isDraggable) return;
+        isDragging = true;
+        startClientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        initialXOffset = currentXOffset;
+        
+        characterContainer.style.transition = 'none';
+        setWalking(true); // ドラッグ中は歩かせる
+    }
+
+    function handleDragMove(e) {
+        if (!isDragging || !isDraggable) return;
+        if(e.type === 'touchmove') e.preventDefault(); // スクロール防止
+        
+        const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const deltaX = clientX - startClientX;
+        
+        // 進む方向によってキャラクターを振り向かせる
+        if (deltaX > 0 && direction === -1) {
+            direction = 1;
+            updateCharacterDirection();
+        } else if (deltaX < 0 && direction === 1) {
+            direction = -1;
+            updateCharacterDirection();
+        }
+        
+        currentXOffset = initialXOffset + deltaX;
+        
+        // 画面外に完全に出ないように移動範囲を制限
+        const limit = window.innerWidth / 2 - 30; 
+        if (currentXOffset > limit) currentXOffset = limit;
+        if (currentXOffset < -limit) currentXOffset = -limit;
+
+        characterContainer.style.transform = `translateX(-50%) translateX(${currentXOffset}px)`;
+    }
+
+    function handleDragEnd(e) {
+        if (!isDragging || !isDraggable) return;
+        isDragging = false;
+        setWalking(false); // ドラッグが終わったら止まる
+    }
+
     // ==========================================
     // 初期ロード時のアニメーション
     // ==========================================
     async function initQuiz() {
+        isDraggable = false;
+        currentXOffset = 0;
+        direction = 1;
+        updateCharacterDirection();
+        characterContainer.style.pointerEvents = 'none';
+
         characterContainer.style.display = "grid"; 
         characterContainer.style.transition = 'none';
         characterContainer.style.transform = 'translateX(-50%) translateX(-400px)';
@@ -568,6 +634,10 @@
                     startBtn.classList.add('show');
                 }, 50);
             }, 1200);
+
+            // 定位置に到着後、キャラクターをドラッグ可能にする
+            isDraggable = true;
+            characterContainer.style.pointerEvents = 'auto';
 
         }, 3000);
     }
@@ -614,22 +684,30 @@
         // 最終問題（5問目）クリア時にも退場アニメーションを実行させるために分岐を統合
         if (!isLeavingQuestion4) {
             setWalking(true);
+            
+            // どちらを向いていても強制的に右を向かせて退場させる
+            direction = 1;
+            updateCharacterDirection();
+
             await new Promise(resolve => setTimeout(resolve, 50));
             
+            // スワイプで移動して遊んでいた場合を考慮して、現在地から確実に画面外へ出るように退場位置を計算
+            const exitX = Math.max(400, currentXOffset + 400);
+
             if (isFinished) {
                 // 最終問題クリア時は、エンディングに合わせて3秒かけてゆっくり歩く
                 characterContainer.style.transition = 'transform 3.0s linear';
-                characterContainer.style.transform = 'translateX(-50%) translateX(400px)';
+                characterContainer.style.transform = `translateX(-50%) translateX(${exitX}px)`;
                 await new Promise(resolve => setTimeout(resolve, 3000));
             } else if (isStartTransition) {
                 // スタート画面からの退場は、入場時と同じく3秒かけて歩く
                 characterContainer.style.transition = 'transform 3.0s linear';
-                characterContainer.style.transform = 'translateX(-50%) translateX(400px)';
+                characterContainer.style.transform = `translateX(-50%) translateX(${exitX}px)`;
                 await new Promise(resolve => setTimeout(resolve, 3000));
             } else {
                 // 通常は1.25秒で退場（登場の1.25秒と合わせてトータル2.5秒）
                 characterContainer.style.transition = 'transform 1.25s linear';
-                characterContainer.style.transform = 'translateX(-50%) translateX(400px)';
+                characterContainer.style.transform = `translateX(-50%) translateX(${exitX}px)`;
                 await new Promise(resolve => setTimeout(resolve, 1250));
             }
         } else {
@@ -639,6 +717,10 @@
         // --- 2. 登場アニメーション ---
         if (!isFinished) {
             if (!isNextQuestion4) {
+                currentXOffset = 0; // 次の登場位置を中央(0)にリセット
+                direction = 1; // 右向きにリセット
+                updateCharacterDirection();
+
                 characterContainer.style.display = "grid";
                 characterContainer.style.transition = 'none';
                 characterContainer.style.transform = 'translateX(-50%) translateX(-400px)';
@@ -696,6 +778,9 @@
     // UI操作関数
     // ==========================================
     function startQuiz() {
+        isDraggable = false; // スタートを押したらドラッグ不可にする
+        characterContainer.style.pointerEvents = 'none';
+
         const startBtn = document.getElementById('start-btn-element');
         startBtn.classList.remove('show');
         
@@ -753,7 +838,19 @@
         transitionToNextStage(currentQuestionIndex + 1);
     }
 
-    window.onload = initQuiz;
+    window.onload = () => {
+        initQuiz();
+        
+        // スワイプ（ドラッグ）イベントの登録
+        characterContainer.addEventListener('touchstart', handleDragStart, { passive: false });
+        characterContainer.addEventListener('touchmove', handleDragMove, { passive: false });
+        characterContainer.addEventListener('touchend', handleDragEnd);
+        
+        // PCでのマウス操作にも対応
+        characterContainer.addEventListener('mousedown', handleDragStart);
+        window.addEventListener('mousemove', handleDragMove);
+        window.addEventListener('mouseup', handleDragEnd);
+    };
 
 </script>
 </body>

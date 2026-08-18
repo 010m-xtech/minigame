@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ハッピーリングクイズ</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 丸みのある極太フォントをGoogle Fontsから読み込む -->
-    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@900&display=swap" rel="stylesheet">
     
     <style>
         /* -------------------------------------
@@ -48,12 +46,18 @@
             background-size: cover;
             background-position: center;
             opacity: 0;
-            transition: opacity 3s ease-in-out;
+            /* 背景の切り替わり速度を2.0秒に変更（キャラクター到着と完全に一致させる） */
+            transition: opacity 2.0s ease-in-out;
             z-index: 1;
         }
 
         .background-layer.active {
             opacity: 1;
+        }
+
+        /* 最後の画面への遷移用スローモーション */
+        .background-layer.slow-transition {
+            transition: opacity 3s ease-in-out !important;
         }
 
         /* -------------------------------------
@@ -65,12 +69,12 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(255, 255, 255, 0.4); /* 初期状態（スタート画面）は40% */
+            background-color: rgba(255, 255, 255, 0.4); /* 初期状態（スタート画面）は40%に変更 */
             z-index: 2;
             pointer-events: none;
             transition: background-color 1.5s; /* クイズ画面への遷移に合わせてフェードアウト */
         }
-        
+
         .white-overlay.hidden {
             background-color: rgba(255, 255, 255, 0); /* 非表示状態 */
         }
@@ -226,7 +230,8 @@
             align-items: center;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 1s;
+            /* 背景の変化に合わせて、文章もゆっくり2.5秒かけて表示させる */
+            transition: opacity 2.5s ease-in-out;
             padding: 10px;
         }
 
@@ -423,11 +428,13 @@
 
     <!-- クリア画面 -->
     <div id="completion-screen">
+        <!-- 背景の白さを25%から80%に上げて透けすぎないように調整 -->
         <div class="glass-panel text-center w-full max-w-md px-3 sm:px-6" style="background: rgba(255, 255, 255, 0.8); backdrop-filter: none; border: 1px solid rgba(255,255,255,0.9);">
             <h2 class="text-4xl font-bold text-red-600 mb-6" style="text-shadow: 2px 2px 0px #fff, -2px -2px 0px #fff, 2px -2px 0px #fff, -2px 2px 0px #fff, 0px 4px 5px rgba(255,255,255,1);">クリア！</h2>
+            <!-- 文字サイズをスマホ幅に合わせて調整し、特定の文章が折り返さないように設定 -->
             <div class="inline-block text-left">
                 <p class="text-gray-900 text-[19px] sm:text-2xl mb-4 font-bold leading-relaxed" style="text-shadow: 1px 1px 0px #fff, -1px -1px 0px #fff, 1px -1px 0px #fff, -1px 1px 0px #fff, 0px 2px 4px rgba(255,255,255,1);">
-                    <span class="whitespace-nowrap">ご覧いただきありがとうございました！</span><br><br>
+                    <span class="whitespace-nowrap">ご参加ありがとうございます！</span><br><br>
                     この後もいつも通り美味しく<br>
                     生ビールを飲んで楽しんでください！<br><br>
                     あなたの「美味しい！」が、<br>
@@ -548,7 +555,7 @@
         const isLeavingQuestion4 = (currentQuestionIndex === 3);
         const isFinished = (nextIndex >= quizData.length);
 
-        // 4問目のスポットライト効果
+        // 4問目の時だけオーバーレイの中心をくり抜く（スポットライト効果）
         const overlayLayer = document.querySelector('.overlay');
         if (isNextQuestion4) {
             overlayLayer.classList.add('hole');
@@ -556,26 +563,38 @@
             overlayLayer.classList.remove('hole');
         }
 
-        // --- 1. 退場アニメーション ---
-        if (!isLeavingQuestion4) {
-            setWalking(true);
-            await new Promise(resolve => setTimeout(resolve, 50));
-            
-            characterContainer.style.transition = 'transform 1.5s linear';
-            characterContainer.style.transform = 'translateX(-50%) translateX(400px)';
-            await new Promise(resolve => setTimeout(resolve, 1500));
-        } else {
-            await new Promise(resolve => setTimeout(resolve, 1500));
-        }
-
-        // 背景切り替え
+        // --- 背景切り替え（キャラクター退場と同時に変化を始めるようにタイミングを前倒し） ---
         if (nextBg && nextBg !== currentActiveBg) {
             nextBg.classList.add('active');
         } else if (isFinished) {
             const resultBg = document.getElementById('bg-6');
             if (resultBg && resultBg !== currentActiveBg) {
+                // 最後の画面だけ3秒かけてゆっくり切り替わるようにクラスを付与
+                if (currentActiveBg) currentActiveBg.classList.add('slow-transition');
+                resultBg.classList.add('slow-transition');
                 resultBg.classList.add('active');
             }
+        }
+
+        // --- 1. 退場アニメーション ---
+        // 最終問題（5問目）クリア時にも退場アニメーションを実行させるために分岐を統合
+        if (!isLeavingQuestion4) {
+            setWalking(true);
+            await new Promise(resolve => setTimeout(resolve, 50));
+            
+            if (isFinished) {
+                // 最終問題クリア時は、エンディングに合わせて3秒かけてゆっくり歩く
+                characterContainer.style.transition = 'transform 3.0s linear';
+                characterContainer.style.transform = 'translateX(-50%) translateX(400px)';
+                await new Promise(resolve => setTimeout(resolve, 1500));
+            } else {
+                // 通常は1.0秒で退場（登場の1.0秒と合わせてトータル2.0秒）
+                characterContainer.style.transition = 'transform 1.0s linear';
+                characterContainer.style.transform = 'translateX(-50%) translateX(400px)';
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+        } else {
+            await new Promise(resolve => setTimeout(resolve, 1000));
         }
 
         // --- 2. 登場アニメーション ---
@@ -586,35 +605,20 @@
                 characterContainer.style.transform = 'translateX(-50%) translateX(-400px)';
 
                 await new Promise(resolve => setTimeout(resolve, 50));
+
                 setWalking(true);
 
-                characterContainer.style.transition = 'transform 1.5s linear';
+                // 通常は1.0秒で登場
+                characterContainer.style.transition = 'transform 1.0s linear';
                 characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
-
-                await new Promise(resolve => setTimeout(resolve, 1500));
+                await new Promise(resolve => setTimeout(resolve, 1000));
             } else {
                 characterContainer.style.display = "none";
                 await new Promise(resolve => setTimeout(resolve, 1500));
             }
         }
 
-        // --- 3. UI表示 ---
-        if (currentActiveBg && currentActiveBg !== nextBg && nextBg !== null) {
-            currentActiveBg.classList.remove('active');
-        } else if (isFinished && currentActiveBg) {
-             currentActiveBg.classList.remove('active');
-        }
-        
-        setWalking(false); 
-        
-        if (isFinished) {
-            characterContainer.style.display = "none"; 
-            completionScreen.classList.add('active');
-        } else {
-            currentQuestionIndex = nextIndex;
-            loadQuestion(currentQuestionIndex);
-            quizUiContainer.classList.add('active');
-        }
+        // --- 3. UIの表示と待機 ---
     }
 
     // ==========================================
@@ -624,9 +628,15 @@
         const startBtn = document.getElementById('start-btn-element');
         startBtn.classList.remove('show');
         
+        // タイトルもフェードアウトさせる（より美しい演出のため）
+        const startTitle = document.getElementById('start-title-container');
+        if(startTitle) startTitle.classList.remove('show');
+
         setTimeout(() => {
             document.getElementById('start-screen').style.display = 'none';
-            document.querySelector('.white-overlay').classList.add('hidden');
+            // スタート画面が消えたら、白オーバーレイも非表示にする
+            const whiteOverlay = document.querySelector('.white-overlay');
+            whiteOverlay.classList.add('hidden');
         }, 500);
 
         transitionToNextStage(0);
@@ -671,39 +681,6 @@
         resultModal.classList.remove('active');
         transitionToNextStage(currentQuestionIndex + 1);
     }
-
-    // 仮画像設定（プレビュー用）
-    document.addEventListener("DOMContentLoaded", () => {
-        const bgLayers = document.querySelectorAll('.background-layer');
-        bgLayers.forEach((bg, index) => {
-            const imgUrl = bg.style.backgroundImage.slice(5, -2);
-            const img = new Image();
-            img.onerror = () => {
-                let color = "333333";
-                if(index===0) color = "1a365d";
-                else if(index===1) color = "2d3748";
-                else if(index===2) color = "276749";
-                else if(index===3) color = "742a2a";
-                else if(index===4) color = "553c9a";
-                else if(index===5) color = "2b6cb0";
-                else if(index===6) color = "b7791f"; 
-                bg.style.backgroundImage = `url('https://placehold.co/500x800/${color}/ffffff?text=Background+${index}')`;
-            };
-            img.src = imgUrl;
-        });
-
-        const staticImg = document.getElementById('character-img-static');
-        staticImg.onerror = () => {
-            staticImg.src = "https://placehold.co/100x100/ff9999/ffffff?text=Stand";
-        };
-        
-        const walkImg = document.getElementById('character-img-walk');
-        if (walkImg) {
-            walkImg.onerror = () => {
-                walkImg.src = "https://placehold.co/100x100/9999ff/ffffff?text=Walk";
-            };
-        }
-    });
 
     window.onload = initQuiz;
 

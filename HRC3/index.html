@@ -197,6 +197,18 @@
             50% { transform: translateY(calc(-50% - 8px)); }
         }
 
+        /* スタートボタンをぽわっと光らせる（発光）アニメーション */
+        @keyframes pulseGlow {
+            0%, 100% { 
+                box-shadow: 0 4px 10px rgba(255, 154, 158, 0.4);
+                filter: brightness(1);
+            }
+            50% { 
+                box-shadow: 0 0 25px rgba(255, 154, 158, 1);
+                filter: brightness(1.15); /* ボタン全体（文字も）が少し明るくなる */
+            }
+        }
+
         .start-btn {
             pointer-events: auto;
             opacity: 0;
@@ -212,8 +224,10 @@
         
         .start-btn.show {
             opacity: 1;
-            /* 透明からフェードインし終わる頃にふわふわを開始 */
-            animation: floatBtn 2.5s ease-in-out 0.8s infinite;
+            /* 透明からフェードインし終わる頃にふわふわ＆発光を開始 */
+            animation: 
+                floatBtn 2.5s ease-in-out 0.8s infinite,
+                pulseGlow 1.5s ease-in-out 0.8s infinite;
         }
 
         /* ふわふわ中のスタートボタンを押した時のへこみアニメーション調整 */

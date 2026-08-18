@@ -46,7 +46,8 @@
             background-size: cover;
             background-position: center;
             opacity: 0;
-            transition: opacity 3s ease-in-out;
+            /* 背景の切り替わり速度を3秒から1.8秒に変更（キャラクター到着に間に合わせる） */
+            transition: opacity 1.8s ease-in-out;
             z-index: 1;
         }
 
@@ -556,6 +557,16 @@
             overlayLayer.classList.remove('hole');
         }
 
+        // --- 背景切り替え（キャラクター退場と同時に変化を始めるようにタイミングを前倒し） ---
+        if (nextBg && nextBg !== currentActiveBg) {
+            nextBg.classList.add('active');
+        } else if (isFinished) {
+            const resultBg = document.getElementById('bg-6');
+            if (resultBg && resultBg !== currentActiveBg) {
+                resultBg.classList.add('active');
+            }
+        }
+
         // --- 1. 退場アニメーション ---
         if (!isLeavingQuestion4) {
             setWalking(true);
@@ -566,16 +577,6 @@
             await new Promise(resolve => setTimeout(resolve, 1000));
         } else {
             await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-
-        // 背景切り替え
-        if (nextBg && nextBg !== currentActiveBg) {
-            nextBg.classList.add('active');
-        } else if (isFinished) {
-            const resultBg = document.getElementById('bg-6');
-            if (resultBg && resultBg !== currentActiveBg) {
-                resultBg.classList.add('active');
-            }
         }
 
         // --- 2. 登場アニメーション ---

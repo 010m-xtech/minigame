@@ -46,8 +46,8 @@
             background-size: cover;
             background-position: center;
             opacity: 0;
-            /* 背景の切り替わり速度を3秒から1.8秒に変更（キャラクター到着に間に合わせる） */
-            transition: opacity 1.8s ease-in-out;
+            /* 背景の切り替わり速度を2.0秒に変更（キャラクター到着と完全に一致させる） */
+            transition: opacity 2.0s ease-in-out;
             z-index: 1;
         }
 
@@ -588,7 +588,7 @@
                 // 3秒待機すると文章の表示が遅れるため、キャラクターが半分くらい進んだ時点で次の処理（文字の表示）へ進む
                 await new Promise(resolve => setTimeout(resolve, 1500));
             } else {
-                // 通常は1秒でサクッと退場
+                // 通常は1.0秒で退場（登場の1.0秒と合わせてトータル2.0秒）
                 characterContainer.style.transition = 'transform 1.0s linear';
                 characterContainer.style.transform = 'translateX(-50%) translateX(400px)';
                 await new Promise(resolve => setTimeout(resolve, 1000));
@@ -607,6 +607,7 @@
                 await new Promise(resolve => setTimeout(resolve, 50));
                 setWalking(true);
 
+                // 通常は1.0秒で登場（退場の1.0秒と合わせてトータル2.0秒）
                 characterContainer.style.transition = 'transform 1.0s linear';
                 characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
 
@@ -617,7 +618,6 @@
             }
         } else {
             // 以前の待機は上の退場アニメーション側に統合しました
-            // キャラクターが画面端へ向かっている途中で文章が表示され始めます
         }
 
         // --- 3. UI表示 ---

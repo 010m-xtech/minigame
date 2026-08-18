@@ -518,6 +518,14 @@
     let initialXOffset = 0;
     let direction = 1; // 1: 右向き, -1: 左向き
 
+    // --- ジャンプ操作用変数 ---
+    let startClientY = 0;
+    let currentYOffset = 0;
+    let isJumping = false;
+    let jumpStartTime = 0;
+    const JUMP_DURATION = 500; // ジャンプにかかる時間(ミリ秒)
+    const JUMP_HEIGHT = 120;   // ジャンプの高さ(ピクセル)
+
     const questionNumberEl = document.getElementById('question-number');
     const questionTextEl = document.getElementById('question-text');
     const characterContainer = document.getElementById('character-container');
@@ -552,14 +560,50 @@
         walkImg.style.transform = direction === 1 ? 'scale(1.22) translateY(30px)' : 'scale(-1.22, 1.22) translateY(30px)';
     }
 
+    // --- XとYの位置をキャラクターに適用する関数 ---
+    function updateCharacterTransform() {
+        characterContainer.style.transform = `translateX(-50%) translateX(${currentXOffset}px) translateY(${currentYOffset}px)`;
+    }
+
+    // --- ジャンプアニメーション処理 ---
+    function jump() {
+        if (isJumping) return;
+        isJumping = true;
+        
+        requestAnimationFrame((timestamp) => {
+            jumpStartTime = timestamp;
+            jumpStep(timestamp);
+        });
+    }
+
+    function jumpStep(timestamp) {
+        if (!isJumping) return; // 次の画面に進んだ時などの強制終了用
+        
+        const elapsed = timestamp - jumpStartTime;
+        if (elapsed < JUMP_DURATION) {
+            // 放物線の計算（空中に上がって落ちてくる動き）
+            const t = elapsed / JUMP_DURATION;
+            currentYOffset = -4 * JUMP_HEIGHT * t * (1 - t);
+            updateCharacterTransform();
+            requestAnimationFrame(jumpStep);
+        } else {
+            // 着地
+            currentYOffset = 0;
+            isJumping = false;
+            updateCharacterTransform();
+        }
+    }
+
     // --- スワイプイベントハンドラ ---
     function handleDragStart(e) {
         if (!isDraggable) return;
         isDragging = true;
         startClientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        startClientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
         initialXOffset = currentXOffset;
         
-        characterContainer.style.transition = 'none';
+        // ジャンプ中でなければtransitionを消す
+        if (!isJumping) characterContainer.style.transition = 'none';
         setWalking(true); // ドラッグ中は歩かせる
     }
 
@@ -568,7 +612,16 @@
         if(e.type === 'touchmove') e.preventDefault(); // スクロール防止
         
         const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
         const deltaX = clientX - startClientX;
+        const deltaY = clientY - startClientY;
+        
+        // 【ジャンプ判定】
+        // 上に40px以上、かつ横移動より縦移動が大きい（斜めではなく上に向かっている）場合に発動
+        if (deltaY < -40 && Math.abs(deltaY) > Math.abs(deltaX) && !isJumping) {
+            jump();
+            startClientY = clientY; // 着地まで連続発動しないように基準Yを更新
+        }
         
         // 進む方向によってキャラクターを振り向かせる
         if (deltaX > 0 && direction === -1) {
@@ -586,7 +639,7 @@
         if (currentXOffset > limit) currentXOffset = limit;
         if (currentXOffset < -limit) currentXOffset = -limit;
 
-        characterContainer.style.transform = `translateX(-50%) translateX(${currentXOffset}px)`;
+        updateCharacterTransform();
     }
 
     function handleDragEnd(e) {
@@ -607,14 +660,14 @@
 
         characterContainer.style.display = "grid"; 
         characterContainer.style.transition = 'none';
-        characterContainer.style.transform = 'translateX(-50%) translateX(-400px)';
+        characterContainer.style.transform = 'translateX(-50%) translateX(-400px) translateY(0px)';
 
         await new Promise(resolve => setTimeout(resolve, 50));
 
         setWalking(true);
 
         characterContainer.style.transition = 'transform 3s linear';
-        characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
+        characterContainer.style.transform = 'translateX(-50%) translateX(0px) translateY(0px)';
 
         setTimeout(() => {
             setWalking(false); 
@@ -697,17 +750,17 @@
             if (isFinished) {
                 // 最終問題クリア時は、エンディングに合わせて3秒かけてゆっくり歩く
                 characterContainer.style.transition = 'transform 3.0s linear';
-                characterContainer.style.transform = `translateX(-50%) translateX(${exitX}px)`;
+                characterContainer.style.transform = `translateX(-50%) translateX(${exitX}px) translateY(0px)`;
                 await new Promise(resolve => setTimeout(resolve, 3000));
             } else if (isStartTransition) {
                 // スタート画面からの退場は、入場時と同じく3秒かけて歩く
                 characterContainer.style.transition = 'transform 3.0s linear';
-                characterContainer.style.transform = `translateX(-50%) translateX(${exitX}px)`;
+                characterContainer.style.transform = `translateX(-50%) translateX(${exitX}px) translateY(0px)`;
                 await new Promise(resolve => setTimeout(resolve, 3000));
             } else {
                 // 通常は1.25秒で退場（登場の1.25秒と合わせてトータル2.5秒）
                 characterContainer.style.transition = 'transform 1.25s linear';
-                characterContainer.style.transform = `translateX(-50%) translateX(${exitX}px)`;
+                characterContainer.style.transform = `translateX(-50%) translateX(${exitX}px) translateY(0px)`;
                 await new Promise(resolve => setTimeout(resolve, 1250));
             }
         } else {
@@ -732,12 +785,12 @@
                 if (isStartTransition) {
                     // 1問目への登場も、入場時と同じく3秒かけて歩く
                     characterContainer.style.transition = 'transform 3.0s linear';
-                    characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
+                    characterContainer.style.transform = 'translateX(-50%) translateX(0px) translateY(0px)';
                     await new Promise(resolve => setTimeout(resolve, 3000));
                 } else {
                     // 通常は1.25秒で登場
                     characterContainer.style.transition = 'transform 1.25s linear';
-                    characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
+                    characterContainer.style.transform = 'translateX(-50%) translateX(0px) translateY(0px)';
                     await new Promise(resolve => setTimeout(resolve, 1250));
                 }
             } else {
@@ -779,6 +832,8 @@
     // ==========================================
     function startQuiz() {
         isDraggable = false; // スタートを押したらドラッグ不可にする
+        isJumping = false;   // 遊んでいる途中のジャンプを強制キャンセル
+        currentYOffset = 0;
         characterContainer.style.pointerEvents = 'none';
 
         const startBtn = document.getElementById('start-btn-element');
@@ -808,7 +863,7 @@
         } else {
             characterContainer.style.transition = 'none';
             characterContainer.style.display = "grid"; 
-            characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
+            characterContainer.style.transform = 'translateX(-50%) translateX(0px) translateY(0px)';
             setWalking(false);
         }
     }

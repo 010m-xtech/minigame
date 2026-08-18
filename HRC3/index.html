@@ -55,6 +55,11 @@
             opacity: 1;
         }
 
+        /* 最後の画面への遷移用スローモーション */
+        .background-layer.slow-transition {
+            transition: opacity 3s ease-in-out !important;
+        }
+
         /* -------------------------------------
            白オーバーレイの追加
         ------------------------------------- */
@@ -225,7 +230,8 @@
             align-items: center;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 1.5s;
+            /* 背景の変化に合わせて、文章もゆっくり2.5秒かけて表示させる */
+            transition: opacity 2.5s ease-in-out;
             padding: 10px;
         }
 
@@ -563,6 +569,9 @@
         } else if (isFinished) {
             const resultBg = document.getElementById('bg-6');
             if (resultBg && resultBg !== currentActiveBg) {
+                // 最後の画面だけ3秒かけてゆっくり切り替わるようにクラスを付与
+                if (currentActiveBg) currentActiveBg.classList.add('slow-transition');
+                resultBg.classList.add('slow-transition');
                 resultBg.classList.add('active');
             }
         }
@@ -598,8 +607,9 @@
                 await new Promise(resolve => setTimeout(resolve, 1000));
             }
         } else {
-            // 最後のクリア画面に遷移する際、背景が切り替わるのを待ってから文章をゆっくり表示する
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            // 背景が3秒かけて切り替わるのに合わせ、
+            // キャラ退場(1秒)後、少し早めに文章も表示され始めるように調整
+            await new Promise(resolve => setTimeout(resolve, 500));
         }
 
         // --- 3. UI表示 ---

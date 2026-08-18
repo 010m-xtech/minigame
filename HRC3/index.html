@@ -60,6 +60,11 @@
             transition: opacity 3s ease-in-out !important;
         }
 
+        /* スタートから1問目への遷移用スローモーション */
+        .background-layer.very-slow-transition {
+            transition: opacity 6s ease-in-out !important;
+        }
+
         /* -------------------------------------
            白オーバーレイの追加
         ------------------------------------- */
@@ -554,6 +559,7 @@
         const isNextQuestion4 = (nextIndex === 3);
         const isLeavingQuestion4 = (currentQuestionIndex === 3);
         const isFinished = (nextIndex >= quizData.length);
+        const isStartTransition = (nextIndex === 0);
 
         // 4問目の時だけオーバーレイの中心をくり抜く（スポットライト効果）
         const overlayLayer = document.querySelector('.overlay');
@@ -565,6 +571,11 @@
 
         // --- 背景切り替え（キャラクター退場と同時に変化を始めるようにタイミングを前倒し） ---
         if (nextBg && nextBg !== currentActiveBg) {
+            if (isStartTransition) {
+                // スタート時は退場3秒＋登場3秒に合わせて、6秒かけて背景を切り替える
+                if (currentActiveBg) currentActiveBg.classList.add('very-slow-transition');
+                nextBg.classList.add('very-slow-transition');
+            }
             nextBg.classList.add('active');
         } else if (isFinished) {
             const resultBg = document.getElementById('bg-6');
@@ -586,7 +597,12 @@
                 // 最終問題クリア時は、エンディングに合わせて3秒かけてゆっくり歩く
                 characterContainer.style.transition = 'transform 3.0s linear';
                 characterContainer.style.transform = 'translateX(-50%) translateX(400px)';
-                await new Promise(resolve => setTimeout(resolve, 1500));
+                await new Promise(resolve => setTimeout(resolve, 3000));
+            } else if (isStartTransition) {
+                // スタート画面からの退場は、入場時と同じく3秒かけて歩く
+                characterContainer.style.transition = 'transform 3.0s linear';
+                characterContainer.style.transform = 'translateX(-50%) translateX(400px)';
+                await new Promise(resolve => setTimeout(resolve, 3000));
             } else {
                 // 通常は1.0秒で退場（登場の1.0秒と合わせてトータル2.0秒）
                 characterContainer.style.transition = 'transform 1.0s linear';
@@ -608,10 +624,17 @@
 
                 setWalking(true);
 
-                // 通常は1.0秒で登場
-                characterContainer.style.transition = 'transform 1.0s linear';
-                characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                if (isStartTransition) {
+                    // 1問目への登場も、入場時と同じく3秒かけて歩く
+                    characterContainer.style.transition = 'transform 3.0s linear';
+                    characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
+                    await new Promise(resolve => setTimeout(resolve, 3000));
+                } else {
+                    // 通常は1.0秒で登場
+                    characterContainer.style.transition = 'transform 1.0s linear';
+                    characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
             } else {
                 characterContainer.style.display = "none";
                 await new Promise(resolve => setTimeout(resolve, 1500));
@@ -621,10 +644,19 @@
         // --- 3. UIの表示と待機 ---
         if (currentActiveBg && currentActiveBg !== nextBg && nextBg !== null) {
             currentActiveBg.classList.remove('active');
+            
+            // スタート時のスローモーションクラスを次回以降に影響しないよう解除
+            if (isStartTransition) {
+                setTimeout(() => {
+                    if(currentActiveBg) currentActiveBg.classList.remove('very-slow-transition');
+                    if(nextBg) nextBg.classList.remove('very-slow-transition');
+                }, 6000);
+            }
         } else if (isFinished && currentActiveBg) {
              currentActiveBg.classList.remove('active');
         }
         
+        // ここから下が確実に実行されることでクイズが開始します
         setWalking(false); 
         
         if (isFinished) {

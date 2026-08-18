@@ -140,31 +140,33 @@
             transform: translateY(0);
         }
 
-        /* タイトル画像のアニメーション（画面左側からバウンド） */
+        /* タイトル画像のアニメーション（画面右側に当たってバウンド） */
         @keyframes popIn {
             0% {
                 opacity: 0;
-                transform: translateX(-100vw) translateY(-150px) rotate(-20deg);
+                /* 左外側から飛んでくる */
+                transform: translateX(-100vw) translateY(-100px) rotate(30deg);
             }
-            35% {
+            40% {
                 opacity: 1;
-                /* 1回目の着地：ドスンと少し強く潰れる */
-                transform: translateX(-20px) translateY(30px) scale(1.2, 0.75) rotate(5deg);
+                /* 右側の壁に激突（横から潰されて縦に伸びる） */
+                transform: translateX(12vw) translateY(-30px) scale(0.7, 1.2) rotate(-10deg);
             }
-            60% {
-                /* ボヨーンとさらに大きく上に跳ね返る（高く、より伸びる） */
-                transform: translateX(10px) translateY(-100px) scale(0.85, 1.15) rotate(-5deg);
+            65% {
+                /* 左（中央）に跳ね返って地面に着地（上から潰される） */
+                transform: translateX(-5vw) translateY(40px) scale(1.2, 0.8) rotate(10deg);
             }
             80% {
-                /* 2回目の着地：軽く潰れる */
-                transform: translateX(-5px) translateY(15px) scale(1.1, 0.9) rotate(2deg);
+                /* 少し上に跳ねる */
+                transform: translateX(2vw) translateY(-15px) scale(0.9, 1.1) rotate(-5deg);
             }
             90% {
-                /* 最後に少し高めに跳ねる */
-                transform: translateX(2px) translateY(-15px) scale(0.95, 1.05) rotate(-1deg);
+                /* 軽く着地 */
+                transform: translateX(-1vw) translateY(5px) scale(1.05, 0.95) rotate(2deg);
             }
             100% {
                 opacity: 1;
+                /* 定位置で停止 */
                 transform: translateX(0) translateY(0) scale(1) rotate(0deg);
             }
         }
@@ -184,9 +186,9 @@
         .title-container.show .title-word-1 {
             /* 飛び出すアニメーション(popIn)が完了した直後に、ふわふわアニメーション(floatLogo)に切り替えてループ */
             animation-name: popIn, floatLogo;
-            animation-duration: 1.2s, 3s;
+            animation-duration: 1.5s, 3s;
             animation-timing-function: ease-out, ease-in-out;
-            animation-delay: 0s, 1.2s;
+            animation-delay: 0s, 1.5s;
             animation-fill-mode: forwards, forwards;
             animation-iteration-count: 1, infinite;
         }

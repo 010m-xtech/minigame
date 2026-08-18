@@ -561,11 +561,11 @@
             setWalking(true);
             await new Promise(resolve => setTimeout(resolve, 50));
             
-            characterContainer.style.transition = 'transform 1.5s linear';
+            characterContainer.style.transition = 'transform 1.0s linear';
             characterContainer.style.transform = 'translateX(-50%) translateX(400px)';
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            await new Promise(resolve => setTimeout(resolve, 1000));
         } else {
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            await new Promise(resolve => setTimeout(resolve, 1000));
         }
 
         // 背景切り替え
@@ -588,13 +588,13 @@
                 await new Promise(resolve => setTimeout(resolve, 50));
                 setWalking(true);
 
-                characterContainer.style.transition = 'transform 1.5s linear';
+                characterContainer.style.transition = 'transform 1.0s linear';
                 characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
 
-                await new Promise(resolve => setTimeout(resolve, 1500));
+                await new Promise(resolve => setTimeout(resolve, 1000));
             } else {
                 characterContainer.style.display = "none";
-                await new Promise(resolve => setTimeout(resolve, 1500));
+                await new Promise(resolve => setTimeout(resolve, 1000));
             }
         }
 

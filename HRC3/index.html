@@ -46,8 +46,8 @@
             background-size: cover;
             background-position: center;
             opacity: 0;
-            /* 背景の切り替わり速度を2.0秒に変更（キャラクター到着と完全に一致させる） */
-            transition: opacity 2.0s ease-in-out;
+            /* 背景の切り替わり速度を2.5秒に変更（キャラクター到着と完全に一致させる） */
+            transition: opacity 2.5s ease-in-out;
             z-index: 1;
         }
 
@@ -604,13 +604,13 @@
                 characterContainer.style.transform = 'translateX(-50%) translateX(400px)';
                 await new Promise(resolve => setTimeout(resolve, 3000));
             } else {
-                // 通常は1.0秒で退場（登場の1.0秒と合わせてトータル2.0秒）
-                characterContainer.style.transition = 'transform 1.0s linear';
+                // 通常は1.25秒で退場（登場の1.25秒と合わせてトータル2.5秒）
+                characterContainer.style.transition = 'transform 1.25s linear';
                 characterContainer.style.transform = 'translateX(-50%) translateX(400px)';
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                await new Promise(resolve => setTimeout(resolve, 1250));
             }
         } else {
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 1250));
         }
 
         // --- 2. 登場アニメーション ---
@@ -630,14 +630,14 @@
                     characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
                     await new Promise(resolve => setTimeout(resolve, 3000));
                 } else {
-                    // 通常は1.0秒で登場
-                    characterContainer.style.transition = 'transform 1.0s linear';
+                    // 通常は1.25秒で登場
+                    characterContainer.style.transition = 'transform 1.25s linear';
                     characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
-                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    await new Promise(resolve => setTimeout(resolve, 1250));
                 }
             } else {
                 characterContainer.style.display = "none";
-                await new Promise(resolve => setTimeout(resolve, 1500));
+                await new Promise(resolve => setTimeout(resolve, 1250));
             }
         }
 

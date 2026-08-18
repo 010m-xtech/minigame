@@ -469,7 +469,7 @@
             qNum: 3,
             question: "お客様がこのチャリティに参加するには、生ビール1杯につき追加で1円のお金を払う必要がある。",
             answer: "✖",
-            explanation: "正解は✖！寄付金の1円はマルト水谷より寄付されるため、お客様が追加でお金を払う必要はありません。お店でいつも通り美味しく楽しく生ビールを飲むだけで社会貢献につながる仕組みです！"
+            explanation: "正解は✖！寄付金の1円はマルト水谷より寄付されるため、お客様が追加でお金を払う必要はありません。<br>お店でいつも通り美味しく楽しく生ビールを飲むだけで社会貢献につながる仕組みです！"
         },
         {
             qNum: 4,
@@ -718,7 +718,7 @@
             modalTitle.textContent = "残念...";
             modalTitle.style.color = "#3b82f6"; 
         }
-        modalDesc.textContent = q.explanation;
+        modalDesc.innerHTML = q.explanation;
         
         setTimeout(() => {
             resultModal.classList.add('active');

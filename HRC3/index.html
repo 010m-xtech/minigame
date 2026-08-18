@@ -140,29 +140,33 @@
             transform: translateY(0);
         }
 
-        /* タイトル画像のアニメーション（画面右側に当たってバウンド） */
+        /* タイトル画像のアニメーション（右の壁→天井→着地） */
         @keyframes popIn {
             0% {
                 opacity: 0;
-                /* 左外側から飛んでくる */
-                transform: translateX(-100vw) translateY(-100px) rotate(30deg);
+                /* 左下外側から勢いよく飛んでくる */
+                transform: translateX(-100vw) translateY(100px) rotate(45deg);
             }
-            40% {
+            30% {
                 opacity: 1;
                 /* 右側の壁に激突（横から潰されて縦に伸びる） */
-                transform: translateX(12vw) translateY(-30px) scale(0.7, 1.2) rotate(-10deg);
+                transform: translateX(15vw) translateY(-20px) scale(0.7, 1.2) rotate(-20deg);
             }
-            65% {
-                /* 左（中央）に跳ね返って地面に着地（上から潰される） */
-                transform: translateX(-5vw) translateY(40px) scale(1.2, 0.8) rotate(10deg);
+            55% {
+                /* 上（天井）に跳ね返って激突（縦に潰されて横に伸びる） */
+                transform: translateX(0vw) translateY(-140px) scale(1.2, 0.7) rotate(10deg);
             }
-            80% {
+            75% {
+                /* 下に落下して地面に着地（上から潰される） */
+                transform: translateX(-2vw) translateY(40px) scale(1.3, 0.7) rotate(-5deg);
+            }
+            88% {
                 /* 少し上に跳ねる */
-                transform: translateX(2vw) translateY(-15px) scale(0.9, 1.1) rotate(-5deg);
+                transform: translateX(1vw) translateY(-15px) scale(0.9, 1.1) rotate(2deg);
             }
-            90% {
+            95% {
                 /* 軽く着地 */
-                transform: translateX(-1vw) translateY(5px) scale(1.05, 0.95) rotate(2deg);
+                transform: translateX(-0.5vw) translateY(5px) scale(1.05, 0.95) rotate(-1deg);
             }
             100% {
                 opacity: 1;

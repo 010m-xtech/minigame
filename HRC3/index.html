@@ -224,7 +224,7 @@
             align-items: center;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 1s;
+            transition: opacity 1.5s;
             padding: 10px;
         }
 
@@ -596,6 +596,9 @@
                 characterContainer.style.display = "none";
                 await new Promise(resolve => setTimeout(resolve, 1000));
             }
+        } else {
+            // 最後のクリア画面に遷移する際、背景が切り替わるのを待ってから文章をゆっくり表示する
+            await new Promise(resolve => setTimeout(resolve, 1500));
         }
 
         // --- 3. UI表示 ---

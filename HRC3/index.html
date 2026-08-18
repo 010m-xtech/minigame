@@ -279,9 +279,8 @@
 
         .choice-btn {
             flex: 1;
-            background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(5px);
-            border: 2px solid transparent;
+            border: 3px solid;
             border-radius: 20px;
             padding: 20px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
@@ -408,8 +407,8 @@
             <p id="question-text" class="text-gray-800 text-xl font-bold leading-relaxed"></p>
         </div>
         <div class="flex gap-4 w-full max-w-sm">
-            <button class="choice-btn text-5xl text-blue-500 font-bold" onclick="answer('〇')">〇</button>
-            <button class="choice-btn text-5xl text-red-500 font-bold" onclick="answer('✖')">✖</button>
+            <button class="choice-btn bg-blue-100/90 border-blue-300 text-5xl text-blue-600 font-bold" onclick="answer('〇')">〇</button>
+            <button class="choice-btn bg-red-100/90 border-red-300 text-5xl text-red-600 font-bold" onclick="answer('✖')">✖</button>
         </div>
     </div>
 

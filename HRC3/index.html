@@ -581,9 +581,18 @@
             setWalking(true);
             await new Promise(resolve => setTimeout(resolve, 50));
             
-            characterContainer.style.transition = 'transform 1.0s linear';
-            characterContainer.style.transform = 'translateX(-50%) translateX(400px)';
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            if (isFinished) {
+                // 最終問題クリア時は、エンディングに合わせて3秒かけてゆっくり歩く
+                characterContainer.style.transition = 'transform 3.0s linear';
+                characterContainer.style.transform = 'translateX(-50%) translateX(400px)';
+                // 3秒待機すると文章の表示が遅れるため、キャラクターが半分くらい進んだ時点で次の処理（文字の表示）へ進む
+                await new Promise(resolve => setTimeout(resolve, 1500));
+            } else {
+                // 通常は1秒でサクッと退場
+                characterContainer.style.transition = 'transform 1.0s linear';
+                characterContainer.style.transform = 'translateX(-50%) translateX(400px)';
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
         } else {
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
@@ -607,9 +616,8 @@
                 await new Promise(resolve => setTimeout(resolve, 1000));
             }
         } else {
-            // 背景が3秒かけて切り替わるのに合わせ、
-            // キャラ退場(1秒)後、少し早めに文章も表示され始めるように調整
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // 以前の待機は上の退場アニメーション側に統合しました
+            // キャラクターが画面端へ向かっている途中で文章が表示され始めます
         }
 
         // --- 3. UI表示 ---

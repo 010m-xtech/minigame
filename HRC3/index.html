@@ -60,6 +60,11 @@
             transition: opacity 3s ease-in-out !important;
         }
 
+        /* 新規追加: スタート画面から1問目への遷移用（退場3秒＋登場3秒＝合計6秒） */
+        .background-layer.start-transition {
+            transition: opacity 6s ease-in-out !important;
+        }
+
         /* -------------------------------------
            白オーバーレイの追加
         ------------------------------------- */
@@ -69,12 +74,17 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(255, 255, 255, 0.4); /* 初期状態（スタート画面）は40% */
+            background-color: rgba(255, 255, 255, 0.4); /* 初期状態（スタート画面）は40%に変更 */
             z-index: 2;
             pointer-events: none;
             transition: background-color 1.5s; /* クイズ画面への遷移に合わせてフェードアウト */
         }
         
+        /* 新規追加: 白オーバーレイもスタート時はゆったり消す */
+        .white-overlay.start-transition {
+            transition: background-color 6s ease-in-out !important;
+        }
+
         .white-overlay.hidden {
             background-color: rgba(255, 255, 255, 0); /* 非表示状態 */
         }
@@ -551,11 +561,12 @@
         const currentActiveBg = document.querySelector('.background-layer.active');
         const nextBg = (nextIndex < quizData.length) ? document.getElementById(`bg-${nextIndex + 1}`) : null;
 
+        const isStartTransition = (nextIndex === 0);
         const isNextQuestion4 = (nextIndex === 3);
         const isLeavingQuestion4 = (currentQuestionIndex === 3);
         const isFinished = (nextIndex >= quizData.length);
 
-        // 4問目のスポットライト効果
+        // 4問目の時だけオーバーレイの中心をくり抜く（スポットライト効果）
         const overlayLayer = document.querySelector('.overlay');
         if (isNextQuestion4) {
             overlayLayer.classList.add('hole');
@@ -565,6 +576,11 @@
 
         // --- 背景切り替え（キャラクター退場と同時に変化を始めるようにタイミングを前倒し） ---
         if (nextBg && nextBg !== currentActiveBg) {
+            if (isStartTransition) {
+                // スタート画面からの遷移は6秒かけてゆっくりフェードイン
+                if (currentActiveBg) currentActiveBg.classList.add('start-transition');
+                nextBg.classList.add('start-transition');
+            }
             nextBg.classList.add('active');
         } else if (isFinished) {
             const resultBg = document.getElementById('bg-6');
@@ -577,6 +593,7 @@
         }
 
         // --- 1. 退場アニメーション ---
+        // 最終問題（5問目）クリア時にも退場アニメーションを実行させるために分岐を統合
         if (!isLeavingQuestion4) {
             setWalking(true);
             await new Promise(resolve => setTimeout(resolve, 50));
@@ -585,8 +602,12 @@
                 // 最終問題クリア時は、エンディングに合わせて3秒かけてゆっくり歩く
                 characterContainer.style.transition = 'transform 3.0s linear';
                 characterContainer.style.transform = 'translateX(-50%) translateX(400px)';
-                // 3秒待機すると文章の表示が遅れるため、キャラクターが半分くらい進んだ時点で次の処理（文字の表示）へ進む
                 await new Promise(resolve => setTimeout(resolve, 1500));
+            } else if (isStartTransition) {
+                // スタート画面からの退場時も、5問目終了と同じ歩行速度（3秒）にする
+                characterContainer.style.transition = 'transform 3.0s linear';
+                characterContainer.style.transform = 'translateX(-50%) translateX(400px)';
+                await new Promise(resolve => setTimeout(resolve, 3000));
             } else {
                 // 通常は1.0秒で退場（登場の1.0秒と合わせてトータル2.0秒）
                 characterContainer.style.transition = 'transform 1.0s linear';
@@ -605,38 +626,27 @@
                 characterContainer.style.transform = 'translateX(-50%) translateX(-400px)';
 
                 await new Promise(resolve => setTimeout(resolve, 50));
+
                 setWalking(true);
 
-                // 通常は1.0秒で登場（退場の1.0秒と合わせてトータル2.0秒）
-                characterContainer.style.transition = 'transform 1.0s linear';
-                characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
-
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                if (isStartTransition) {
+                    // 歩行速度を揃えるため、1問目への登場も3秒にする
+                    characterContainer.style.transition = 'transform 3.0s linear';
+                    characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
+                    await new Promise(resolve => setTimeout(resolve, 3000));
+                } else {
+                    // 通常は1.0秒で登場
+                    characterContainer.style.transition = 'transform 1.0s linear';
+                    characterContainer.style.transform = 'translateX(-50%) translateX(0px)';
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
             } else {
                 characterContainer.style.display = "none";
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                await new Promise(resolve => setTimeout(resolve, 1500));
             }
-        } else {
-            // 以前の待機は上の退場アニメーション側に統合しました
         }
 
-        // --- 3. UI表示 ---
-        if (currentActiveBg && currentActiveBg !== nextBg && nextBg !== null) {
-            currentActiveBg.classList.remove('active');
-        } else if (isFinished && currentActiveBg) {
-             currentActiveBg.classList.remove('active');
-        }
-        
-        setWalking(false); 
-        
-        if (isFinished) {
-            characterContainer.style.display = "none"; 
-            completionScreen.classList.add('active');
-        } else {
-            currentQuestionIndex = nextIndex;
-            loadQuestion(currentQuestionIndex);
-            quizUiContainer.classList.add('active');
-        }
+        // --- 3. UIの表示と待機 ---
     }
 
     // ==========================================
@@ -646,9 +656,16 @@
         const startBtn = document.getElementById('start-btn-element');
         startBtn.classList.remove('show');
         
+        // タイトルもフェードアウトさせる（より美しい演出のため）
+        const startTitle = document.getElementById('start-title-container');
+        if(startTitle) startTitle.classList.remove('show');
+
         setTimeout(() => {
             document.getElementById('start-screen').style.display = 'none';
-            document.querySelector('.white-overlay').classList.add('hidden');
+            // スタート画面が消えたら、白オーバーレイもゆっくり(6秒かけて)非表示にする
+            const whiteOverlay = document.querySelector('.white-overlay');
+            whiteOverlay.classList.add('start-transition');
+            whiteOverlay.classList.add('hidden');
         }, 500);
 
         transitionToNextStage(0);

@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ハッピーリングクイズ</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 丸みのある極太フォントをGoogle Fontsから読み込む -->
-    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@900&display=swap" rel="stylesheet">
     
     <style>
         /* -------------------------------------
@@ -423,11 +421,13 @@
 
     <!-- クリア画面 -->
     <div id="completion-screen">
+        <!-- 背景の白さを25%から80%に上げて透けすぎないように調整 -->
         <div class="glass-panel text-center w-full max-w-md px-3 sm:px-6" style="background: rgba(255, 255, 255, 0.8); backdrop-filter: none; border: 1px solid rgba(255,255,255,0.9);">
             <h2 class="text-4xl font-bold text-red-600 mb-6" style="text-shadow: 2px 2px 0px #fff, -2px -2px 0px #fff, 2px -2px 0px #fff, -2px 2px 0px #fff, 0px 4px 5px rgba(255,255,255,1);">クリア！</h2>
+            <!-- 文字サイズをスマホ幅に合わせて調整し、特定の文章が折り返さないように設定 -->
             <div class="inline-block text-left">
                 <p class="text-gray-900 text-[19px] sm:text-2xl mb-4 font-bold leading-relaxed" style="text-shadow: 1px 1px 0px #fff, -1px -1px 0px #fff, 1px -1px 0px #fff, -1px 1px 0px #fff, 0px 2px 4px rgba(255,255,255,1);">
-                    <span class="whitespace-nowrap">ご覧いただきありがとうございました！</span><br><br>
+                    <span class="whitespace-nowrap">ご参加ありがとうございます！</span><br><br>
                     この後もいつも通り美味しく<br>
                     生ビールを飲んで楽しんでください！<br><br>
                     あなたの「美味しい！」が、<br>
@@ -671,39 +671,6 @@
         resultModal.classList.remove('active');
         transitionToNextStage(currentQuestionIndex + 1);
     }
-
-    // 仮画像設定（プレビュー用）
-    document.addEventListener("DOMContentLoaded", () => {
-        const bgLayers = document.querySelectorAll('.background-layer');
-        bgLayers.forEach((bg, index) => {
-            const imgUrl = bg.style.backgroundImage.slice(5, -2);
-            const img = new Image();
-            img.onerror = () => {
-                let color = "333333";
-                if(index===0) color = "1a365d";
-                else if(index===1) color = "2d3748";
-                else if(index===2) color = "276749";
-                else if(index===3) color = "742a2a";
-                else if(index===4) color = "553c9a";
-                else if(index===5) color = "2b6cb0";
-                else if(index===6) color = "b7791f"; 
-                bg.style.backgroundImage = `url('https://placehold.co/500x800/${color}/ffffff?text=Background+${index}')`;
-            };
-            img.src = imgUrl;
-        });
-
-        const staticImg = document.getElementById('character-img-static');
-        staticImg.onerror = () => {
-            staticImg.src = "https://placehold.co/100x100/ff9999/ffffff?text=Stand";
-        };
-        
-        const walkImg = document.getElementById('character-img-walk');
-        if (walkImg) {
-            walkImg.onerror = () => {
-                walkImg.src = "https://placehold.co/100x100/9999ff/ffffff?text=Walk";
-            };
-        }
-    });
 
     window.onload = initQuiz;
 

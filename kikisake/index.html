@@ -112,7 +112,6 @@
 </head>
 <body class="op-active">
 
-  <!-- OP動画オーバーレイ（ここをタップするとスキップ） -->
   <div class="op-overlay" id="opOverlay" onclick="skipOp()">
     <video id="opVideo" class="op-video" src="title.mp4" autoplay muted playsinline></video>
     
@@ -123,7 +122,6 @@
     <div class="skip-text">タップでスキップ</div>
   </div>
 
-  <!-- アプリ本体画面（OP再生中は非表示になります） -->
   <div class="app pb-20 max-w-md mx-auto relative min-h-screen pt-12 px-4" id="appContent">
     <!-- ヘッダー -->
     <header class="text-center mb-8">
@@ -133,7 +131,7 @@
 
     <!-- 銘柄リスト -->
     <div class="space-y-4">
-      <!-- カード1（画像の内容を再現） -->
+      <!-- カード1 -->
       <div class="bg-white rounded-xl p-4 shadow-sm relative overflow-hidden flex items-center justify-between cursor-pointer active:scale-[0.98] transition-transform">
         <div class="flex-1">
           <h2 class="text-[1.1rem] font-bold text-gray-900 mb-2">作 インプレッション M</h2>

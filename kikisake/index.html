@@ -225,8 +225,9 @@
     color: var(--sumi);
     margin-bottom: 4px;
     display: flex;
-    align-items: center;
+    align-items: baseline;
     flex-wrap: wrap;
+    gap: 2px 8px;
   }
 
   .sake-card .brand-name {
@@ -246,7 +247,7 @@
 
   .sake-card .meta {
     font-size: 11.5px; color: var(--sumi);
-    display: flex; flex-wrap: wrap; gap: 6px 10px;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px;
   }
   .sake-card .meta span { white-space: nowrap; }
 
@@ -485,13 +486,23 @@
   .desc-card .eyebrow { color: #fff; }
   .desc-card h3 {
     font-family: var(--font-mincho);
-    font-size: 16px; margin: 0 0 10px;
+    margin: 0 0 10px;
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 2px 8px;
+  }
+  .desc-card h3 .brand-name {
+    font-size: 17px; font-weight: 800;
+  }
+  .desc-card h3 .sub-name {
+    font-size: 14.5px; font-weight: 500;
   }
   .desc-card p {
     font-size: 13px; line-height: 1.9; margin: 0 0 12px; color: #fff;
   }
   .desc-card .spec {
-    display: flex; flex-wrap: wrap; gap: 8px 16px;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px;
     font-size: 11.5px; color: #fff;
     border-top: 1px solid rgba(255,255,255,0.15);
     padding-top: 10px;
@@ -1282,7 +1293,7 @@ function renderSakeList(){
       <div class="info">
         <div class="name">
           <span class="brand-name">${s.brand}</span>
-          <span class="sub-name">　${linkify(s.subtitle)}</span>
+          <span class="sub-name">${linkify(s.subtitle)}</span>
         </div>
         <div class="meta">
           <span class="term-link" onclick="event.stopPropagation(); showKuraInfo('${s.kura}')">${s.kura}</span>
@@ -1508,7 +1519,6 @@ function showComparison(){
     html += `<div class="diff-comment">あなたの一言:「${escapeHtml(userAnswers.comment)}」</div>`;
   }
 
-  // こちらも同様に、重複する場合は表示を省略する
   const typeCore = s.type.replace('酒', '').replace('(原酒)', '');
   const showType = !s.subtitle.includes(typeCore);
   const typeHtmlDesc = showType ? `<span>特定名称:${linkify(s.type)}</span>` : '';
@@ -1516,7 +1526,10 @@ function showComparison(){
   html += `
     <div class="desc-card">
       <p class="eyebrow">この銘柄について</p>
-      <h3><span style="font-weight:800">${s.brand}</span><span style="font-weight:500; font-size: 14.5px;">　${linkify(s.subtitle)}</span></h3>
+      <h3>
+        <span class="brand-name">${s.brand}</span>
+        <span class="sub-name">${linkify(s.subtitle)}</span>
+      </h3>
       <p>${linkify(s.description)}</p>
       <div class="spec">
         <span>蔵元:<span class="term-link" onclick="showKuraInfo('${s.kura}')">${s.kura}</span></span>

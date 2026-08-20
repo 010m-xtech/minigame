@@ -1327,6 +1327,8 @@ function saveProfileAndNext() {
   // エラーが解消されたらメッセージを隠す
   if (errorEl) errorEl.style.display = 'none';
   
+  // ▼ 削減箇所：上で(!genderEl || !ageEl)のチェックをして弾いているため、
+  // ここでの if (genderEl) や if (ageEl) の確認は完全に無駄でした。そのまま代入するように削減・最適化しました。
   userInfo.gender = genderEl.value;
   userInfo.age = ageEl.value;
   

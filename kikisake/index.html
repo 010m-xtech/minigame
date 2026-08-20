@@ -984,13 +984,6 @@
             <option value="honjozo">本醸造</option>
           </select>
         </div>
-        <div class="filter-item">
-          <label for="f-fav">お気に入り</label>
-          <select id="f-fav" onchange="renderSakeList()">
-            <option value="all">すべて</option>
-            <option value="fav">♥ お気に入りのみ</option>
-          </select>
-        </div>
       </div>
 
       <div id="sakeList"></div>
@@ -1430,7 +1423,6 @@ function renderSakeList(){
   const t = document.getElementById('f-taste') ? document.getElementById('f-taste').value : 'all';
   const a = document.getElementById('f-aroma') ? document.getElementById('f-aroma').value : 'all';
   const ty = document.getElementById('f-type') ? document.getElementById('f-type').value : 'all';
-  const f = document.getElementById('f-fav') ? document.getElementById('f-fav').value : 'all';
 
   const wrap = document.getElementById('sakeList');
   wrap.innerHTML = "";
@@ -1448,10 +1440,9 @@ function renderSakeList(){
     if (ty === 'junmai' && !s.type.includes('純米吟醸')) match = false;
     if (ty === 'honjozo' && !s.type.includes('本醸造')) match = false;
 
-    const isFav = favorites.includes(s.id);
-    if (f === 'fav' && !isFav) match = false;
-
     if (!match) return;
+
+    const isFav = favorites.includes(s.id);
 
     count++;
     const btn = document.createElement('button');
@@ -1874,7 +1865,6 @@ function resetAll(){
   if(document.getElementById('f-taste')) document.getElementById('f-taste').value = 'all';
   if(document.getElementById('f-aroma')) document.getElementById('f-aroma').value = 'all';
   if(document.getElementById('f-type')) document.getElementById('f-type').value = 'all';
-  if(document.getElementById('f-fav')) document.getElementById('f-fav').value = 'all';
   
   renderSakeList();
   goScreen(1);

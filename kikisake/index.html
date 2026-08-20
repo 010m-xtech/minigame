@@ -1107,6 +1107,23 @@ const glossaryData = {
   "熟酒(じゅくしゅ)": "香りが高く、味わいが濃厚なタイプの日本酒。ドライフルーツやスパイスのような複雑な熟成香と、とろりとした深い深い旨みが特徴です（主に長期熟成酒などに多い傾向があります）。"
 };
 
+const kuraData = {
+  "はざま酒造(岐阜県)": "中仙道大井宿の古い町並みの中にあり、自然豊かな恵那山系の伏流水を用いて酒造りを行っています。代表銘柄は「恵那山」。",
+  "一ノ蔵(宮城県)": "1973年、浅見商店、勝来酒造、櫻井酒造店、松本酒造店の4蔵が企業合同して誕生。高品質な酒を安定して提供し続ける、宮城を代表する酒蔵です。",
+  "丸尾本店(香川県)": "「悦 凱陣(よろこび がいじん)」を醸す、香川県琴平町の小さな蔵。選び抜かれた酒米と金毘羅宮の伏流水を使い、力強く深い味わいの酒を造り出しています。",
+  "小林酒造(栃木県)": "1872年創業。代表銘柄「鳳凰美田」。マスカットやメロンのような華やかな香りと、ふくよかな味わいが特徴の、全国的に人気の高い酒蔵です。",
+  "清水清三郎商店(三重県)": "鈴鹿市にある唯一の酒蔵。「作（ざく）」や「鈴鹿川」を醸造。伊勢杜氏の伝統を引き継ぎ、国内外のコンペティションで高い評価を得ています。",
+  "土屋酒造店(長野県)": "佐久市にある酒蔵。千曲川の伏流水と地元産の米を用い、「亀の海」などの銘柄を醸しています。信州の自然が育む、きれいな味わいが特徴です。"
+};
+
+function showKuraInfo(kuraName) {
+  const desc = kuraData[kuraName];
+  if (!desc) return;
+  document.getElementById('glossaryTitle').textContent = kuraName;
+  document.getElementById('glossaryDesc').textContent = desc;
+  document.getElementById('glossaryModal').classList.add('show');
+}
+
 // テキスト内の専門用語を検知してリンク化する関数
 function linkify(text) {
   if (!text) return "";
@@ -1193,7 +1210,7 @@ function renderSakeList(){
       <div class="info">
         <div class="name">${linkify(s.name)}</div>
         <div class="meta">
-          <span>${s.kura}</span>
+          <span class="term-link" onclick="event.stopPropagation(); showKuraInfo('${s.kura}')">${s.kura}</span>
           <span>${linkify(s.type)}</span>
           <span>${linkify('精米歩合')}:${s.seimai}%</span>
         </div>
@@ -1394,7 +1411,7 @@ function showComparison(){
       <h3>${linkify(s.name)}</h3>
       <p>${linkify(s.description)}</p>
       <div class="spec">
-        <span>蔵元:${s.kura}</span>
+        <span>蔵元:<span class="term-link" onclick="showKuraInfo('${s.kura}')">${s.kura}</span></span>
         <span>特定名称:${linkify(s.type)}</span>
         <span>${linkify('精米歩合')}:${s.seimai}%</span>
         <span>アルコール分:${s.alcohol}</span>

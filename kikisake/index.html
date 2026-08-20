@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>利き酒帖</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -618,6 +618,8 @@
     overflow: hidden;
     touch-action: none; /* スマホでのスクロール（バウンス）を強制防止 */
     background-color: #000; /* iPhoneのセーフエリア（上下の余白）も黒で統一 */
+    margin: 0;
+    padding: 0;
   }
 
   /* 動画再生中は裏側の画面を非表示にし、下部のはみ出しを物理的に完全に防ぐ */
@@ -627,7 +629,10 @@
 
   .op-overlay {
     position: fixed; 
-    top: 0; left: 0; right: 0; bottom: 0; 
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
     z-index: 9999; 
     background: #000;
     display: flex;
@@ -643,8 +648,11 @@
   .op-video {
     position: absolute;
     top: 0; left: 0;
-    width: 100%; height: 100%;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
     object-fit: cover; /* 画面いっぱいに拡大して表示（黒枠をなくす） */
+    object-position: center;
     z-index: 1;
   }
   .op-title {

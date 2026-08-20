@@ -1163,6 +1163,8 @@ let userAnswers = {};
 // 修正: localStorageからプロフィール情報を読み込む（記録があればそれを使い、なければ初期値）
 let userInfo = JSON.parse(localStorage.getItem('kikizake_profile')) || { gender: null, age: null };
 let favorites = JSON.parse(localStorage.getItem('kikizake_favorites')) || [];
+// 追加: 「過去に飲んだことがあるか」の履歴も端末に保存する
+let drankHistory = JSON.parse(localStorage.getItem('kikizake_drankHistory')) || [];
 let sessionRecords = []; // 来店中の評価記録（ページを閉じるとリセット）
 
 /* ============ 初期描画:銘柄リスト(絞り込み対応) ============ */
@@ -1175,9 +1177,6 @@ function renderSakeList(){
   const wrap = document.getElementById('sakeList');
   wrap.innerHTML = "";
   let count = 0;
-  
-  // セッション中の記録済みのIDリストを取得
-  const drankIds = sessionRecords.map(r => r.id);
 
   sakeList.forEach(s=>{
     let match = true;
@@ -1205,7 +1204,8 @@ function renderSakeList(){
     btn.className = "sake-card";
     
     const favHtml = isFav ? `<div class="fav-icon" aria-label="お気に入り"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-linejoin="round" stroke-linecap="round"/></svg></div>` : '';
-    const drankHtml = drankIds.includes(s.id) ? `<div class="drank-icon" aria-label="記録済"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>` : '';
+    // 修正: 端末に保存された履歴(drankHistory)を参照してチェックマークを表示する
+    const drankHtml = drankHistory.includes(s.id) ? `<div class="drank-icon" aria-label="記録済"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>` : '';
 
     btn.innerHTML = `
       <div class="info">
@@ -1306,6 +1306,12 @@ function showComparison(){
       favorites = favorites.filter(id => id !== currentSakeId);
     }
     localStorage.setItem('kikizake_favorites', JSON.stringify(favorites));
+  }
+  
+  // 追加: 飲んだ履歴を端末に保存する
+  if (!drankHistory.includes(currentSakeId)) {
+    drankHistory.push(currentSakeId);
+    localStorage.setItem('kikizake_drankHistory', JSON.stringify(drankHistory));
   }
 
   // 来店中の記録を保存 (同じ銘柄を連続で記録し直した場合は上書き)

@@ -223,22 +223,24 @@
   .sake-card .name {
     font-family: var(--font-mincho);
     color: var(--sumi);
-    margin-bottom: 4px;
+    margin-bottom: 6px;
     display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 2px 8px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
   }
 
   .sake-card .brand-name {
     font-weight: 800;
     font-size: 17px;
     text-shadow: 0 0 0.5px var(--sumi);
+    line-height: 1.3;
   }
   
   .sake-card .sub-name {
     font-weight: 500;
-    font-size: 14.5px;
+    font-size: 14px;
+    line-height: 1.4;
   }
 
   .sake-card .sub-name .term-link {
@@ -247,7 +249,10 @@
 
   .sake-card .meta {
     font-size: 11.5px; color: var(--sumi);
-    display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px;
+    display: flex; flex-direction: column; gap: 5px;
+  }
+  .sake-card .meta-specs {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px;
   }
   .sake-card .meta span { white-space: nowrap; }
 
@@ -492,6 +497,7 @@
     flex-wrap: wrap;
     gap: 2px 8px;
   }
+  
   .desc-card h3 .brand-name {
     font-size: 17px; font-weight: 800;
   }
@@ -718,6 +724,7 @@
     padding-bottom: 12px;
     border-bottom: 1px dashed var(--line);
   }
+  
   .modal-header h3 {
     margin: 0; font-family: var(--font-mincho);
     font-size: 18px; color: var(--ai);
@@ -1296,9 +1303,11 @@ function renderSakeList(){
           <span class="sub-name">${linkify(s.subtitle)}</span>
         </div>
         <div class="meta">
-          <span class="term-link" onclick="event.stopPropagation(); showKuraInfo('${s.kura}')">${s.kura}</span>
-          ${typeHtml}
-          <span>${linkify('精米歩合')}:<span style="font-size:120%; font-weight:700;">${s.seimai}%</span></span>
+          <div><span class="term-link" onclick="event.stopPropagation(); showKuraInfo('${s.kura}')">${s.kura}</span></div>
+          <div class="meta-specs">
+            ${typeHtml}
+            <span>${linkify('精米歩合')}: <strong style="font-size:13px;">${s.seimai}%</strong></span>
+          </div>
         </div>
       </div>
       <div class="icon-group">
@@ -1372,8 +1381,6 @@ function saveProfileAndNext() {
   // エラーが解消されたらメッセージを隠す
   if (errorEl) errorEl.style.display = 'none';
   
-  // ▼ 削減箇所：上で(!genderEl || !ageEl)のチェックをして弾いているため、
-  // ここでの if (genderEl) や if (ageEl) の確認は完全に無駄でした。そのまま代入するように削減・最適化しました。
   userInfo.gender = genderEl.value;
   userInfo.age = ageEl.value;
   

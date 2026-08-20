@@ -617,12 +617,18 @@
   body.op-active {
     overflow: hidden;
     touch-action: none; /* スマホでのスクロール（バウンス）を強制防止 */
+    background-color: #000; /* iPhoneのセーフエリア（上下の余白）も黒で統一 */
+  }
+
+  /* 動画再生中は裏側の画面を非表示にし、下部のはみ出しを物理的に完全に防ぐ */
+  body.op-active .app {
+    display: none;
   }
 
   .op-overlay {
-    position: fixed; /* absolute から fixed に変更し、画面に完全固定 */
-    top: 0; left: 0; right: 0; bottom: 0; /* 画面の四辺にピッタリ張り付け */
-    z-index: 9999; /* 確実に一番手前に表示 */
+    position: fixed; 
+    top: 0; left: 0; right: 0; bottom: 0; 
+    z-index: 9999; 
     background: #000;
     display: flex;
     flex-direction: column;
@@ -685,21 +691,21 @@
 </head>
 <body class="op-active">
 
-<div class="app">
-  <!-- OP動画オーバーレイ -->
-  <div id="opOverlay" class="op-overlay" onclick="skipOp()">
-    <video id="opVideo" class="op-video" src="title.mp4" autoplay muted playsinline></video>
-    <div id="opTitle" class="op-title">
-      <svg class="op-seal" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="20" cy="20" r="18" stroke="#BD4630" stroke-width="2.5"/>
-        <text x="20" y="26" text-anchor="middle" font-size="15" fill="#BD4630" font-family="'Shippori Mincho', serif" font-weight="700">酒</text>
-      </svg>
-      <h1>利き酒帖</h1>
-      <p>KIKIZAKE NOTE</p>
-    </div>
-    <div class="op-skip-hint">タップでスキップ</div>
+<!-- OP動画オーバーレイ (app要素の外に完全に独立させて配置) -->
+<div id="opOverlay" class="op-overlay" onclick="skipOp()">
+  <video id="opVideo" class="op-video" src="title.mp4" autoplay muted playsinline></video>
+  <div id="opTitle" class="op-title">
+    <svg class="op-seal" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="20" cy="20" r="18" stroke="#BD4630" stroke-width="2.5"/>
+      <text x="20" y="26" text-anchor="middle" font-size="15" fill="#BD4630" font-family="'Shippori Mincho', serif" font-weight="700">酒</text>
+    </svg>
+    <h1>利き酒帖</h1>
+    <p>KIKIZAKE NOTE</p>
   </div>
+  <div class="op-skip-hint">タップでスキップ</div>
+</div>
 
+<div class="app">
   <header>
     <div class="brand">
       <svg class="seal" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">

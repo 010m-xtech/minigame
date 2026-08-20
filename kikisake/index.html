@@ -968,13 +968,18 @@ if (!deviceId) {
   localStorage.setItem('kikizake_device_id', deviceId);
 }
 
-// スプレッドシートへ送信する関数
-function sendLogToSheet(actionStr, genderStr, ageStr) {
+// スプレッドシートへ送信する関数（利き酒データも送れるように拡張）
+function sendLogToSheet(actionStr, genderStr, ageStr, sakeIdStr = "", amakaraVal = "", kaoriVal = "", keijuVal = "", commentStr = "") {
   const payload = {
     deviceId: deviceId,
     gender: genderStr || '未入力',
     age: ageStr || '未入力',
-    action: actionStr
+    action: actionStr,
+    sakeId: sakeIdStr,
+    amakara: amakaraVal,
+    kaori: kaoriVal,
+    keiju: keijuVal,
+    comment: commentStr
   };
 
   fetch(GAS_URL, {
@@ -1437,6 +1442,19 @@ function showComparison(){
     </div>
     <div class="source-line">${linkify(s.source)}</div>
   `;
+
+  // --- ↓ スプレッドシートへ利き酒評価データを送信 ↓ ---
+  sendLogToSheet(
+    '評価記録', 
+    userInfo.gender, 
+    userInfo.age, 
+    currentSakeId, 
+    userAnswers.amakara, 
+    userAnswers.kaori, 
+    userAnswers.keiju, 
+    userAnswers.comment
+  );
+  // --- ↑ ここまで追加 ↑ ---
 
   body.innerHTML = html;
   goScreen(3);

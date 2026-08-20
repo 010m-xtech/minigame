@@ -99,14 +99,14 @@
   .brand h1 {
     font-family: var(--font-mincho);
     font-weight: 700;
-    font-size: 20px;
+    font-size: 22px;
     letter-spacing: 0.08em;
     margin: 0;
     color: var(--ai);
   }
 
   .brand p {
-    margin: 0; font-size: 11px; color: var(--sumi); letter-spacing: 0.05em;
+    margin: 0; font-size: 12px; color: var(--sumi); letter-spacing: 0.05em;
   }
 
   .stepper {
@@ -128,7 +128,7 @@
   .step.done .dot-line { background: var(--ai-light); }
 
   .step span {
-    font-size: 10px; color: var(--sumi); letter-spacing: 0.03em;
+    font-size: 11px; color: var(--sumi); letter-spacing: 0.02em;
   }
   .step.active span { color: var(--shu); font-weight: 700; }
   .step.done span { color: var(--sumi); }
@@ -154,19 +154,19 @@
   }
 
   .eyebrow {
-    font-size: 11px; letter-spacing: 0.12em; color: var(--shu);
+    font-size: 12.5px; letter-spacing: 0.12em; color: var(--shu);
     font-weight: 700; margin: 0 0 6px;
   }
 
   h2.title {
     font-family: var(--font-mincho);
-    font-size: 19px; line-height: 1.5;
+    font-size: 22px; line-height: 1.5;
     margin: 0 0 18px;
     color: var(--ai);
   }
 
   .lead {
-    font-size: 13px; color: var(--sumi); line-height: 1.8; margin: 0 0 20px;
+    font-size: 15px; color: var(--sumi); line-height: 1.8; margin: 0 0 20px;
   }
 
   .filters {
@@ -174,11 +174,11 @@
     flex-wrap: wrap;
   }
   .filter-item {
-    flex: 1; min-width: 80px;
+    flex: 1; min-width: 90px;
     display: flex; flex-direction: column; gap: 6px;
   }
   .filter-item label {
-    font-size: 10.5px; color: var(--sumi); font-weight: 700;
+    font-size: 12px; color: var(--sumi); font-weight: 700;
   }
   .filter-item select {
     width: 100%; padding: 8px 10px; border-radius: 8px;
@@ -197,7 +197,7 @@
   .filter-item select:focus-visible { outline: 2px solid var(--shu); }
 
   .no-result {
-    text-align: center; font-size: 13px; color: #8b8172; padding: 20px 0 40px;
+    text-align: center; font-size: 15px; color: #8b8172; padding: 20px 0 40px;
     line-height: 1.6;
   }
 
@@ -232,14 +232,14 @@
 
   .sake-card .brand-name {
     font-weight: 800;
-    font-size: 17px;
+    font-size: 19px;
     text-shadow: 0 0 0.5px var(--sumi);
     line-height: 1.3;
   }
   
   .sake-card .sub-name {
     font-weight: 500;
-    font-size: 14px;
+    font-size: 15.5px;
     line-height: 1.4;
   }
 
@@ -248,7 +248,7 @@
   }
 
   .sake-card .meta {
-    font-size: 11.5px; color: var(--sumi);
+    font-size: 13px; color: var(--sumi);
     display: flex; flex-direction: column; gap: 5px;
   }
   .sake-card .meta-specs {
@@ -264,7 +264,7 @@
     margin-bottom: 24px;
   }
   .profile-group > label {
-    display: block; font-size: 12.5px; font-weight: 700; color: var(--ai); margin-bottom: 10px;
+    display: block; font-size: 14.5px; font-weight: 700; color: var(--ai); margin-bottom: 10px;
   }
   .radio-buttons {
     display: flex; gap: 8px; flex-wrap: wrap;
@@ -281,7 +281,7 @@
     display: flex; align-items: center; justify-content: center;
     padding: 12px 0;
     border: 1px solid var(--line); background: #fff; border-radius: 8px;
-    font-size: 13px; font-weight: 700; color: var(--sumi);
+    font-size: 15px; font-weight: 700; color: var(--sumi);
     transition: all 0.2s ease;
   }
   .radio-box::before {
@@ -304,18 +304,18 @@
 
   .selected-tag {
     display: inline-block;
-    font-size: 11px; color: var(--sumi);
+    font-size: 13px; color: var(--sumi);
     border: 1px solid var(--ai-pale); background: var(--ai-pale);
     border-radius: 20px; padding: 4px 12px; margin-bottom: 10px;
   }
 
   .slider-group {
-    margin-bottom: 30px;
+    margin-bottom: 40px; /* メモリ数字のスペースのため余白を広げる */
   }
 
   .slider-labels {
     display: flex; justify-content: space-between;
-    font-size: 12.5px; font-weight: 700; color: var(--ai);
+    font-size: 14px; font-weight: 700; color: var(--ai);
     margin-bottom: 10px;
   }
 
@@ -337,17 +337,30 @@
   
   .ticks {
     position: absolute;
-    left: 13px; right: 13px;
+    /* サムの半分の幅(13px)分だけ内側に寄せて、スライダーの可動域と合わせる */
+    left: 13px; right: 13px; 
     top: 50%; transform: translateY(-50%);
     display: flex; justify-content: space-between;
     z-index: 1;
     pointer-events: none;
   }
   
-  .tick {
+  .tick-mark {
+    position: relative;
+    display: flex;
+    justify-content: center;
     width: 2px; height: 10px;
     background: var(--line);
     border-radius: 1px;
+  }
+
+  .tick-number {
+    position: absolute;
+    top: 14px;
+    font-size: 10px;
+    color: var(--sumi);
+    transform: translateX(-50%);
+    left: 50%;
   }
 
   input[type=range] {
@@ -388,7 +401,7 @@
     margin-top: 6px;
   }
   .free-text label {
-    display: block; font-size: 12.5px; font-weight: 700; color: var(--ai); margin-bottom: 8px;
+    display: block; font-size: 14.5px; font-weight: 700; color: var(--ai); margin-bottom: 8px;
   }
   .free-text input {
     width: 100%;
@@ -409,7 +422,7 @@
   button.btn {
     font-family: var(--font-gothic);
     font-weight: 700;
-    font-size: 14px;
+    font-size: 15px;
     padding: 13px 18px;
     border-radius: 10px;
     border: none;
@@ -444,12 +457,12 @@
   }
   .compare-head .axis-name {
     font-family: var(--font-mincho);
-    font-size: 14.5px; font-weight: 700; color: var(--ai);
+    font-size: 16px; font-weight: 700; color: var(--ai);
   }
 
   .track-wrap {
     position: relative;
-    padding: 32px 0 46px; 
+    padding: 32px 13px 46px; /* 左右に13px(マーカー半径分)の余白を設ける */
   }
   .track {
     position: relative;
@@ -457,9 +470,37 @@
     background: var(--line);
     border-radius: 2px;
   }
+
+  .track-ticks {
+    position: absolute;
+    left: 0; right: 0;
+    top: 50%; transform: translateY(-50%);
+    display: flex; justify-content: space-between;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .track-tick-mark {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    width: 2px; height: 8px;
+    background: rgba(214, 204, 180, 0.6); /* --line色を少し薄く */
+    border-radius: 1px;
+  }
+
+  .track-tick-number {
+    position: absolute;
+    top: 12px;
+    font-size: 9px;
+    color: var(--sumi);
+    transform: translateX(-50%);
+    left: 50%;
+    opacity: 0.7;
+  }
   
   .track .end-label {
-    position: absolute; top: 38px; font-size: 10.5px; color: var(--sumi); 
+    position: absolute; top: 38px; font-size: 12px; color: var(--sumi); 
   }
   .track .end-label.left { left: 0; }
   .track .end-label.right { right: 0; }
@@ -481,11 +522,11 @@
     background: var(--shu);
     border-radius: 3px;
     transform: rotate(45deg);
-    width: 13px; height: 13px;
+    height: 13px;
   }
   
   .marker .tag {
-    font-size: 10px; font-weight: 700;
+    font-size: 11px; font-weight: 700;
     padding: 2px 7px; border-radius: 8px;
     white-space: nowrap;
   }
@@ -495,7 +536,7 @@
   .marker.ref { margin-top: 16px; }
 
   .diff-comment {
-    font-size: 13px; color: var(--sumi); line-height: 1.7;
+    font-size: 14.5px; color: var(--sumi); line-height: 1.7;
     background: #fff; border: 1px solid var(--line);
     border-radius: 10px; padding: 12px 14px; margin-top: 6px; 
   }
@@ -522,23 +563,23 @@
   }
   
   .desc-card h3 .brand-name {
-    font-size: 17px; font-weight: 800;
+    font-size: 19px; font-weight: 800;
   }
   .desc-card h3 .sub-name {
-    font-size: 14.5px; font-weight: 500;
+    font-size: 15.5px; font-weight: 500;
   }
   .desc-card p {
-    font-size: 13px; line-height: 1.9; margin: 0 0 12px; color: #fff;
+    font-size: 15px; line-height: 1.9; margin: 0 0 12px; color: #fff;
   }
   .desc-card .spec {
     display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px;
-    font-size: 11.5px; color: #fff;
+    font-size: 13px; color: #fff;
     border-top: 1px solid rgba(255,255,255,0.15);
     padding-top: 10px;
   }
 
   .source-line {
-    font-size: 10.5px; color: var(--sumi); text-align: right; margin-top: 6px;
+    font-size: 11.5px; color: var(--sumi); text-align: right; margin-top: 6px;
   }
 
   .analysis-card {
@@ -552,12 +593,12 @@
   .analysis-card h4 {
     margin: 0 0 10px;
     font-family: var(--font-mincho);
-    font-size: 15px;
+    font-size: 17px;
     color: var(--ai);
   }
   .analysis-card p {
     margin: 0;
-    font-size: 13px;
+    font-size: 15px;
     line-height: 1.8;
     color: var(--sumi);
   }
@@ -576,12 +617,12 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     color: var(--shu);
     cursor: pointer;
     background: var(--shu-pale);
-    padding: 12px 20px;
+    padding: 10px 16px;
     border-radius: 30px;
     transition: all 0.2s ease;
     border: 2px solid transparent;
@@ -672,16 +713,16 @@
   .pairing-card .band {
     background: var(--shu-pale);
     color: var(--shu);
-    font-size: 11px; font-weight: 700; letter-spacing: 0.05em;
+    font-size: 12.5px; font-weight: 700; letter-spacing: 0.05em;
     padding: 8px 16px;
   }
   .pairing-card .body { padding: 16px; }
   .pairing-card h3 {
     font-family: var(--font-mincho);
-    font-size: 17px; margin: 0 0 10px; color: var(--ai);
+    font-size: 19px; margin: 0 0 10px; color: var(--ai);
   }
   .pairing-card p {
-    font-size: 13px; line-height: 1.8; margin: 0; color: var(--sumi);
+    font-size: 15px; line-height: 1.8; margin: 0; color: var(--sumi);
   }
 
   .center-text { text-align: center; }
@@ -750,7 +791,7 @@
   
   .modal-header h3 {
     margin: 0; font-family: var(--font-mincho);
-    font-size: 18px; color: var(--ai);
+    font-size: 20px; color: var(--ai);
   }
   
   .close-btn {
@@ -762,7 +803,7 @@
   }
   .close-btn:hover { background: var(--ai-pale); }
   .modal-content p {
-    margin: 0; font-size: 13.5px; line-height: 1.8; color: var(--sumi);
+    margin: 0; font-size: 15px; line-height: 1.8; color: var(--sumi);
   }
 
   .op-overlay {
@@ -808,14 +849,14 @@
   }
   .op-title h1 {
     font-family: var(--font-mincho);
-    font-size: 32px;
+    font-size: 36px;
     color: #fff;
     letter-spacing: 0.1em;
     margin: 0 0 6px;
     text-shadow: 0 2px 10px rgba(0,0,0,0.8);
   }
   .op-title p {
-    font-size: 12px;
+    font-size: 14px;
     color: rgba(255,255,255,0.7);
     letter-spacing: 0.15em;
     margin: 0;
@@ -969,7 +1010,17 @@
         <div class="ruler">
           <div class="ruler-track"></div>
           <div class="ticks">
-            <span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span>
+            <div class="tick-mark"><span class="tick-number">0</span></div>
+            <div class="tick-mark"><span class="tick-number">10</span></div>
+            <div class="tick-mark"><span class="tick-number">20</span></div>
+            <div class="tick-mark"><span class="tick-number">30</span></div>
+            <div class="tick-mark"><span class="tick-number">40</span></div>
+            <div class="tick-mark"><span class="tick-number">50</span></div>
+            <div class="tick-mark"><span class="tick-number">60</span></div>
+            <div class="tick-mark"><span class="tick-number">70</span></div>
+            <div class="tick-mark"><span class="tick-number">80</span></div>
+            <div class="tick-mark"><span class="tick-number">90</span></div>
+            <div class="tick-mark"><span class="tick-number">100</span></div>
           </div>
           <input type="range" min="0" max="100" value="50" step="10" id="s-amakara">
         </div>
@@ -980,7 +1031,17 @@
         <div class="ruler">
           <div class="ruler-track"></div>
           <div class="ticks">
-            <span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span>
+            <div class="tick-mark"><span class="tick-number">0</span></div>
+            <div class="tick-mark"><span class="tick-number">10</span></div>
+            <div class="tick-mark"><span class="tick-number">20</span></div>
+            <div class="tick-mark"><span class="tick-number">30</span></div>
+            <div class="tick-mark"><span class="tick-number">40</span></div>
+            <div class="tick-mark"><span class="tick-number">50</span></div>
+            <div class="tick-mark"><span class="tick-number">60</span></div>
+            <div class="tick-mark"><span class="tick-number">70</span></div>
+            <div class="tick-mark"><span class="tick-number">80</span></div>
+            <div class="tick-mark"><span class="tick-number">90</span></div>
+            <div class="tick-mark"><span class="tick-number">100</span></div>
           </div>
           <input type="range" min="0" max="100" value="50" step="10" id="s-kaori">
         </div>
@@ -991,7 +1052,17 @@
         <div class="ruler">
           <div class="ruler-track"></div>
           <div class="ticks">
-            <span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span>
+            <div class="tick-mark"><span class="tick-number">0</span></div>
+            <div class="tick-mark"><span class="tick-number">10</span></div>
+            <div class="tick-mark"><span class="tick-number">20</span></div>
+            <div class="tick-mark"><span class="tick-number">30</span></div>
+            <div class="tick-mark"><span class="tick-number">40</span></div>
+            <div class="tick-mark"><span class="tick-number">50</span></div>
+            <div class="tick-mark"><span class="tick-number">60</span></div>
+            <div class="tick-mark"><span class="tick-number">70</span></div>
+            <div class="tick-mark"><span class="tick-number">80</span></div>
+            <div class="tick-mark"><span class="tick-number">90</span></div>
+            <div class="tick-mark"><span class="tick-number">100</span></div>
           </div>
           <input type="range" min="0" max="100" value="50" step="10" id="s-keiju">
         </div>
@@ -1347,7 +1418,7 @@ function renderSakeList(){
           <div><span class="term-link" onclick="event.stopPropagation(); showKuraInfo('${s.kura}')">${s.kura}</span></div>
           <div class="meta-specs">
             ${typeHtml}
-            <span>${linkify('精米歩合')}: <strong style="font-size:13px;">${s.seimai}%</strong></span>
+            <span>${linkify('精米歩合')}: <strong style="font-size:14.5px;">${s.seimai}%</strong></span>
           </div>
         </div>
       </div>
@@ -1369,7 +1440,7 @@ function renderSakeList(){
 function selectSake(id){
   currentSakeId = id;
   const s = sakeList.find(x=>x.id===id);
-  document.getElementById('selectedTag').innerHTML = `選んだ一杯: <strong style="font-size:115%;">${s.brand}</strong>　${linkify(s.subtitle)}`;
+  document.getElementById('selectedTag').innerHTML = `選んだ一杯: <strong style="font-size:110%;">${s.brand}</strong>　${linkify(s.subtitle)}`;
   document.getElementById('s-amakara').value = 50;
   document.getElementById('s-kaori').value = 50;
   document.getElementById('s-keiju').value = 50;
@@ -1513,6 +1584,19 @@ function showComparison(){
         <div class="compare-head"><span class="axis-name">${meta.label}</span></div>
         <div class="track-wrap">
           <div class="track">
+            <div class="track-ticks">
+              <div class="track-tick-mark"><span class="track-tick-number">0</span></div>
+              <div class="track-tick-mark"><span class="track-tick-number">10</span></div>
+              <div class="track-tick-mark"><span class="track-tick-number">20</span></div>
+              <div class="track-tick-mark"><span class="track-tick-number">30</span></div>
+              <div class="track-tick-mark"><span class="track-tick-number">40</span></div>
+              <div class="track-tick-mark"><span class="track-tick-number">50</span></div>
+              <div class="track-tick-mark"><span class="track-tick-number">60</span></div>
+              <div class="track-tick-mark"><span class="track-tick-number">70</span></div>
+              <div class="track-tick-mark"><span class="track-tick-number">80</span></div>
+              <div class="track-tick-mark"><span class="track-tick-number">90</span></div>
+              <div class="track-tick-mark"><span class="track-tick-number">100</span></div>
+            </div>
             <span class="end-label left">${meta.left}</span>
             <span class="end-label right">${meta.right}</span>
             <div class="marker user" style="left:${userVal}%">
@@ -1582,7 +1666,7 @@ function showComparison(){
       <div class="spec">
         <span>蔵元:<span class="term-link" onclick="showKuraInfo('${s.kura}')">${s.kura}</span></span>
         ${typeHtmlDesc}
-        <span>${linkify('精米歩合')}:<span style="font-size:120%; font-weight:700;">${s.seimai}%</span></span>
+        <span>${linkify('精米歩合')}:<span style="font-size:115%; font-weight:700;">${s.seimai}%</span></span>
         <span>アルコール分:${s.alcohol}</span>
       </div>
     </div>

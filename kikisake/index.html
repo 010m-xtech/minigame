@@ -231,6 +231,48 @@
     flex: 0 0 auto; width: 18px; height: 18px; color: var(--shu);
   }
 
+  /* --- profile screen --- */
+  .profile-group {
+    margin-bottom: 24px;
+  }
+  .profile-group > label {
+    display: block; font-size: 12.5px; font-weight: 700; color: var(--ai); margin-bottom: 10px;
+  }
+  .radio-buttons {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .radio-btn-wrap {
+    flex: 1; min-width: 90px; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .radio-btn-wrap input {
+    display: none;
+  }
+  .radio-box {
+    display: flex; align-items: center; justify-content: center;
+    padding: 12px 0;
+    border: 1px solid var(--line); background: #fff; border-radius: 8px;
+    font-size: 13px; font-weight: 700; color: var(--ai-light);
+    transition: all 0.2s ease;
+  }
+  .radio-box::before {
+    content: '';
+    display: inline-block;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    margin-right: 6px;
+    transition: all 0.2s ease;
+  }
+  .radio-btn-wrap input:checked + .radio-box {
+    background: var(--ai-pale); border-color: var(--ai); color: var(--ai);
+  }
+  .radio-btn-wrap input:checked + .radio-box::before {
+    border-width: 4px;
+    border-color: var(--ai);
+    background: #fff;
+  }
+
   /* --- question screen --- */
   .selected-tag {
     display: inline-block;
@@ -773,6 +815,50 @@
       <div id="sakeList"></div>
     </section>
 
+    <!-- Profile Screen: あなたのことを教えてください -->
+    <section class="screen" data-screen="profile">
+      <p class="eyebrow">PROFILE</p>
+      <h2 class="title">あなたのことを教えてください</h2>
+      <p class="lead">より詳しい傾向分析のために、少しだけプロフィールをお伺いします。(初回のみ)</p>
+
+      <div class="profile-group">
+        <label>性別</label>
+        <div class="radio-buttons">
+          <label class="radio-btn-wrap">
+            <input type="radio" name="p-gender" value="男性">
+            <span class="radio-box">男性</span>
+          </label>
+          <label class="radio-btn-wrap">
+            <input type="radio" name="p-gender" value="女性">
+            <span class="radio-box">女性</span>
+          </label>
+          <label class="radio-btn-wrap">
+            <input type="radio" name="p-gender" value="無回答" checked>
+            <span class="radio-box">無回答</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="profile-group">
+        <label>年齢</label>
+        <div class="radio-buttons">
+          <label class="radio-btn-wrap">
+            <input type="radio" name="p-age" value="35歳以下" checked>
+            <span class="radio-box">35歳以下</span>
+          </label>
+          <label class="radio-btn-wrap">
+            <input type="radio" name="p-age" value="35歳以上">
+            <span class="radio-box">35歳以上</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goScreen(1)">戻る</button>
+        <button class="btn btn-primary" onclick="saveProfileAndNext()">次へ進む</button>
+      </div>
+    </section>
+
     <!-- Screen 2: 質問 -->
     <section class="screen" data-screen="2">
       <p class="eyebrow">STEP 2</p>
@@ -1032,6 +1118,7 @@ function closeGlossary() {
 /* ============ 状態管理 ============ */
 let currentSakeId = null;
 let userAnswers = {};
+let userInfo = { gender: null, age: null }; // 追加: ユーザー情報
 let favorites = JSON.parse(localStorage.getItem('kikizake_favorites')) || [];
 let sessionRecords = []; // 来店中の評価記録（ページを閉じるとリセット）
 
@@ -1112,7 +1199,12 @@ function selectSake(id){
     favLabel.classList.toggle('checked', isFav);
   }
   
-  goScreen(2);
+  // 追加: プロフィールが未入力なら入力画面へ、入力済みならSTEP2へ
+  if (!userInfo.gender || !userInfo.age) {
+    goScreen('profile');
+  } else {
+    goScreen(2);
+  }
 }
 
 /* ============ 画面遷移 ============ */
@@ -1120,12 +1212,27 @@ function goScreen(n){
   document.querySelectorAll('.screen').forEach(el=>{
     el.classList.toggle('active', el.dataset.screen == n);
   });
+  
+  // 変更: profile画面表示中は、上部のステッパーを「STEP 1(選ぶ)」のまま点灯させておく
+  let stepTarget = (n === 'profile') ? 1 : parseInt(n);
+
   document.querySelectorAll('.step').forEach(el=>{
     const step = parseInt(el.dataset.step);
-    el.classList.toggle('active', step === n);
-    el.classList.toggle('done', step < n);
+    el.classList.toggle('active', step === stepTarget);
+    el.classList.toggle('done', step < stepTarget);
   });
   window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ============ プロフィール保存 ============ */
+function saveProfileAndNext() {
+  const genderEl = document.querySelector('input[name="p-gender"]:checked');
+  const ageEl = document.querySelector('input[name="p-age"]:checked');
+  
+  if (genderEl) userInfo.gender = genderEl.value;
+  if (ageEl) userInfo.age = ageEl.value;
+  
+  goScreen(2); // STEP 2 へ
 }
 
 /* ============ 比較結果生成 ============ */

@@ -1092,7 +1092,7 @@
       </div>
 
       <div class="slider-group">
-        <div class="slider-labels"><span>軽い</span><span>重い・どっしり</span></div>
+        <div class="slider-labels"><span>淡麗</span><span>濃厚</span></div>
         <div class="ruler">
           <div class="ruler-track"></div>
           <div class="ticks">
@@ -1342,8 +1342,8 @@ const axisMeta = {
     dirComment: (u,r)=> u < r ? "データより甘く感じたようです" : "データより辛く感じたようです" },
   kaori:   { label: "香り", left: "穏やか", right: "華やか",
     dirComment: (u,r)=> u < r ? "データより穏やかに感じたようです" : "データより華やかに感じたようです" },
-  keiju:   { label: "軽重", left: "軽い", right: "重い・どっしり",
-    dirComment: (u,r)=> u < r ? "データより軽く感じたようです" : "データより重く感じたようです" }
+  keiju:   { label: "ボディ", left: "淡麗", right: "濃厚",
+    dirComment: (u,r)=> u < r ? "データより淡麗に感じたようです" : "データより濃厚に感じたようです" }
 };
 
 /* ============ 用語辞典データと処理 ============ */
@@ -1608,8 +1608,8 @@ function showComparison(){
   const ans = userAnswers;
   let typeName = "";
   let typeDesc = "";
-  if (ans.kaori >= 50 && ans.keiju < 50) { typeName = "薫酒(くんしゅ)"; typeDesc = "香り高く軽快"; }
-  else if (ans.kaori < 50 && ans.keiju < 50) { typeName = "爽酒(そうしゅ)"; typeDesc = "香り穏やかで軽快"; }
+  if (ans.kaori >= 50 && ans.keiju < 50) { typeName = "薫酒(くんしゅ)"; typeDesc = "香り高く淡麗"; }
+  else if (ans.kaori < 50 && ans.keiju < 50) { typeName = "爽酒(そうしゅ)"; typeDesc = "香り穏やかで淡麗"; }
   else if (ans.kaori < 50 && ans.keiju >= 50) { typeName = "醇酒(じゅんしゅ)"; typeDesc = "香り穏やかで濃厚"; }
   else { typeName = "熟酒(じゅくしゅ)"; typeDesc = "香り高く濃厚"; }
 
@@ -1693,15 +1693,15 @@ function showComparison(){
       else if (d.diff >= 15) traits.push("香りを華やかに");
       else sameTraits.push("香り");
     } else if (d.axis === "keiju") {
-      if (d.diff <= -15) traits.push("軽快に");
-      else if (d.diff >= 15) traits.push("重め(どっしり)に");
-      else sameTraits.push("味わいの重さ");
+      if (d.diff <= -15) traits.push("より淡麗に");
+      else if (d.diff >= 15) traits.push("より濃厚に");
+      else sameTraits.push("ボディ感");
     }
   });
 
   let summaryComment = "";
   if (traits.length === 0) {
-    summaryComment = "甘辛さ、香り、味わいの重さのすべての要素において、データとほぼ同じようなバランスで感じられたようです。";
+    summaryComment = "甘辛さ、香り、ボディ感のすべての要素において、データとほぼ同じようなバランスで感じられたようです。";
   } else if (traits.length === 3) {
     summaryComment = `データと比較すると、${traits[0]}、${traits[1]}、そして${traits[2]}感じられた傾向があります。`;
   } else {
@@ -1787,14 +1787,14 @@ function showPairing(){
     if (avgA < 45) traits.push("甘みを感じやすい");
     if (avgA > 55) traits.push("辛口ですっきりとした");
     if (avgK > 55) traits.push("華やかな香りの");
-    if (avgW > 55) traits.push("どっしりと重みのある");
-    if (avgW < 45) traits.push("軽快な飲み口の");
+    if (avgW > 55) traits.push("濃厚でしっかりとした");
+    if (avgW < 45) traits.push("淡麗ですっきりとした");
 
     let trendText = "";
     if (traits.length > 0) {
       trendText = `今日試された <strong>${count}杯</strong> の記録を振り返ると、今のところ全体的に「<span class="highlight">${traits.join("、かつ")}</span>」お酒の傾向を多く感じられているようです。`;
     } else {
-      trendText = `今日試された <strong>${count}杯</strong> の記録を振り返ると、甘辛や香り、軽重のバランスがとれた味わいを中心に楽しまれているようです。`;
+      trendText = `今日試された <strong>${count}杯</strong> の記録を振り返ると、甘辛や香り、ボディのバランスがとれた味わいを中心に楽しまれているようです。`;
     }
 
     const trendDiv = document.createElement('div');
@@ -1858,7 +1858,7 @@ function renderHistory() {
       <div class="params">
         <span>甘辛: ${amakaraVal}</span>
         <span>香り: ${kaoriVal}</span>
-        <span>軽重: ${keijuVal}</span>
+        <span>ボディ: ${keijuVal}</span>
         <span style="color:var(--shu);">${typeName}</span>
       </div>
       ${ans.comment ? `<div class="comment">「${escapeHtml(ans.comment)}」</div>` : ''}

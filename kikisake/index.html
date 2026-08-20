@@ -1369,7 +1369,6 @@ function showComparison(){
     </div>
   `;
 
-  // 差分集約用の配列を用意
   let diffs = [];
 
   ["amakara","kaori","keiju"].forEach(axis=>{
@@ -1377,10 +1376,11 @@ function showComparison(){
     const userVal = userAnswers[axis];
     const refVal = s.values[axis];
     
-    // 差分を記録
     diffs.push({
       axis: axis,
       label: meta.label,
+      userVal: userVal,
+      refVal: refVal,
       diff: userVal - refVal,
       absDiff: Math.abs(userVal - refVal)
     });
@@ -1407,34 +1407,37 @@ function showComparison(){
   });
 
   // --- 集約コメントの生成 ---
-  // 最大の差分を持つ軸を見つける
-  diffs.sort((a, b) => b.absDiff - a.absDiff);
-  const maxDiffObj = diffs[0];
-  let summaryComment = "";
+  let traits = [];
+  let sameTraits = [];
 
-  if (maxDiffObj.absDiff < 12) {
-    // どの軸も差が小さい場合
-    summaryComment = "全体的に、データと近い感じ方でした。";
-  } else {
-    // 差が大きい軸を中心にコメントを作成
-    const dir = maxDiffObj.diff > 0 ? "右" : "左"; // グラフの右寄りか左寄りか
-    let tendency = "";
-
-    if (maxDiffObj.axis === "amakara") {
-      tendency = dir === "右" ? "辛口寄り" : "甘口寄り";
-      summaryComment = `甘辛のバランスを中心に、データよりも${tendency}に感じたようです。`;
-    } else if (maxDiffObj.axis === "kaori") {
-      tendency = dir === "右" ? "華やか" : "穏やか";
-      summaryComment = `香りを中心に、データよりも少し${tendency}に感じたようです。`;
-    } else if (maxDiffObj.axis === "keiju") {
-      tendency = dir === "右" ? "重め（どっしり）" : "軽め";
-      summaryComment = `味わいの重さを中心に、データよりも少し${tendency}に感じたようです。`;
+  diffs.forEach(d => {
+    if (d.axis === "amakara") {
+      if (d.diff <= -15) traits.push("甘み寄りに");
+      else if (d.diff >= 15) traits.push("辛口寄りに");
+      else sameTraits.push("甘辛さ");
+    } else if (d.axis === "kaori") {
+      if (d.diff <= -15) traits.push("香りを穏やかに");
+      else if (d.diff >= 15) traits.push("香りを華やかに");
+      else sameTraits.push("香り");
+    } else if (d.axis === "keiju") {
+      if (d.diff <= -15) traits.push("軽快に");
+      else if (d.diff >= 15) traits.push("重め(どっしり)に");
+      else sameTraits.push("味わいの重さ");
     }
+  });
+
+  let summaryComment = "";
+  if (traits.length === 0) {
+    summaryComment = "甘辛さ、香り、味わいの重さのすべての要素において、データとほぼ同じようなバランスで感じられたようです。";
+  } else if (traits.length === 3) {
+    summaryComment = `データと比較すると、${traits[0]}、${traits[1]}、そして${traits[2]}感じられた傾向があります。`;
+  } else {
+    const traitsText = traits.join("、かつ");
+    const sameText = sameTraits.join("や");
+    summaryComment = `${sameText}についてはデータと近いバランスで捉えつつも、データよりも「${traitsText}」感じられたようです。`;
   }
 
-  // 集約コメントをHTMLに追加
   html += `<div class="diff-comment">${summaryComment}</div>`;
-
   html += `<div class="note" style="margin-top: 8px; margin-bottom: 24px;">※蔵元等の情報を元に当方が独自基準で標準化した参考値です</div>`;
 
   if(userAnswers.comment){

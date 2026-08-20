@@ -612,10 +612,15 @@
   }
 
   /* --- OP Screen --- */
+  body.op-active {
+    overflow: hidden;
+    height: 100vh;
+  }
+
   .op-overlay {
     position: absolute;
     top: 0; left: 0;
-    width: 100%; height: 100%;
+    width: 100%; height: 100vh;
     z-index: 100;
     background: #000;
     display: flex;
@@ -678,7 +683,7 @@
   }
 </style>
 </head>
-<body>
+<body class="op-active">
 
 <div class="app">
   <!-- OP動画オーバーレイ -->
@@ -1344,6 +1349,7 @@ function skipOp() {
   if (isOpSkipped) return;
   isOpSkipped = true;
   opOverlay.classList.add('fade-out');
+  document.body.classList.remove('op-active');
   setTimeout(() => {
     opOverlay.style.display = 'none';
   }, 800);

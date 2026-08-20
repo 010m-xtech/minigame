@@ -1273,6 +1273,11 @@ function renderSakeList(){
     const favHtml = isFav ? `<div class="fav-icon" aria-label="お気に入り"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-linejoin="round" stroke-linecap="round"/></svg></div>` : '';
     const drankHtml = drankHistory.includes(s.id) ? `<div class="drank-icon" aria-label="記録済"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>` : '';
 
+    // サブタイトルに「純米吟醸」などが含まれているか判定し、重複する場合はスペック側の表示を省略する
+    const typeCore = s.type.replace('酒', '').replace('(原酒)', '');
+    const showType = !s.subtitle.includes(typeCore);
+    const typeHtml = showType ? `<span>${linkify(s.type)}</span>` : '';
+
     btn.innerHTML = `
       <div class="info">
         <div class="name">
@@ -1281,7 +1286,7 @@ function renderSakeList(){
         </div>
         <div class="meta">
           <span class="term-link" onclick="event.stopPropagation(); showKuraInfo('${s.kura}')">${s.kura}</span>
-          <span>${linkify(s.type)}</span>
+          ${typeHtml}
           <span>${linkify('精米歩合')}:<span style="font-size:120%; font-weight:700;">${s.seimai}%</span></span>
         </div>
       </div>
@@ -1503,6 +1508,11 @@ function showComparison(){
     html += `<div class="diff-comment">あなたの一言:「${escapeHtml(userAnswers.comment)}」</div>`;
   }
 
+  // こちらも同様に、重複する場合は表示を省略する
+  const typeCore = s.type.replace('酒', '').replace('(原酒)', '');
+  const showType = !s.subtitle.includes(typeCore);
+  const typeHtmlDesc = showType ? `<span>特定名称:${linkify(s.type)}</span>` : '';
+
   html += `
     <div class="desc-card">
       <p class="eyebrow">この銘柄について</p>
@@ -1510,7 +1520,7 @@ function showComparison(){
       <p>${linkify(s.description)}</p>
       <div class="spec">
         <span>蔵元:<span class="term-link" onclick="showKuraInfo('${s.kura}')">${s.kura}</span></span>
-        <span>特定名称:${linkify(s.type)}</span>
+        ${typeHtmlDesc}
         <span>${linkify('精米歩合')}:<span style="font-size:120%; font-weight:700;">${s.seimai}%</span></span>
         <span>アルコール分:${s.alcohol}</span>
       </div>

@@ -71,7 +71,12 @@
 
   header {
     position: sticky; top: 0; z-index: 20;
-    background: var(--kinari);
+    background-color: var(--kinari); /* Fallback */
+    background-image: 
+      linear-gradient(rgba(242, 238, 227, 0.32), rgba(242, 238, 227, 0.32)), 
+      url('header.webp');
+    background-size: cover;
+    background-position: center;
     border-bottom: 1px solid var(--line);
     padding: 18px 20px 12px;
   }
@@ -638,7 +643,12 @@
     margin: -20px -20px -40px;
     padding: 30px 20px 60px;
     min-height: calc(100vh - 105px); /* ヘッダーの高さを引いて画面下まで広げる */
-    background: linear-gradient(rgba(242, 238, 227, 0.6), rgba(242, 238, 227, 0.6)), url('back.webp') center/cover no-repeat;
+    background-color: var(--kinari); /* Fallback */
+    background-image: 
+      linear-gradient(rgba(242, 238, 227, 0.42), rgba(242, 238, 227, 0.42)), 
+      url('back.webp');
+    background-size: cover;
+    background-position: center top;
   }
 
   .term-link {

@@ -73,12 +73,18 @@
     position: sticky; top: 0; z-index: 20;
     background-color: var(--kinari); /* Fallback */
     background-image: 
-      linear-gradient(rgba(242, 238, 227, 0.32), rgba(242, 238, 227, 0.32)), 
+      linear-gradient(rgba(242, 238, 227, 0.8), rgba(242, 238, 227, 0.8)), 
       url('header.webp');
     background-size: cover;
     background-position: center;
     border-bottom: 1px solid var(--line);
     padding: 18px 20px 12px;
+    transition: background 0.3s ease, border-color 0.3s ease;
+  }
+
+  body[data-current-screen="4"] header {
+    background: transparent;
+    border-bottom-color: transparent;
   }
 
   .brand {
@@ -640,9 +646,11 @@
 
   /* STEP 4専用の背景と余白調整 */
   .screen[data-screen="4"] {
-    margin: -20px -20px -40px;
-    padding: 30px 20px 60px;
-    min-height: calc(100vh - 105px); /* ヘッダーの高さを引いて画面下まで広げる */
+    /* ヘッダーの裏側（最上部）まで背景を広げるため、上にマイナスマージンを取る */
+    margin: -125px -20px -40px;
+    /* 引き上げた分、中身がヘッダーと被らないように上に余白を追加する */
+    padding: 135px 20px 60px;
+    min-height: 100vh;
     background-color: var(--kinari); /* Fallback */
     background-image: 
       linear-gradient(rgba(242, 238, 227, 0.42), rgba(242, 238, 227, 0.42)), 
@@ -1316,6 +1324,7 @@ function selectSake(id){
 
 /* ============ 画面遷移 ============ */
 function goScreen(n){
+  document.body.setAttribute('data-current-screen', n);
   document.querySelectorAll('.screen').forEach(el=>{
     el.classList.toggle('active', el.dataset.screen == n);
   });

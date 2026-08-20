@@ -1375,17 +1375,23 @@ function skipOp() {
 }
 
 if (opVideo) {
-  // 動画の再生時間(5.5秒)に合わせてタイトルをゆっくりフェードイン
+  // 動画の再生時間に合わせてイベントを発火
   opVideo.addEventListener('timeupdate', () => {
-    if (!isOpSkipped && opVideo.currentTime >= 5.5) {
-      opTitle.classList.add('show');
+    if (!isOpSkipped) {
+      // 再生開始から5.5秒でタイトルをフェードイン
+      if (opVideo.currentTime >= 5.5) {
+        opTitle.classList.add('show');
+      }
+      
+      // 動画の総再生時間が取得できており、終了1.5秒前になったらフェードアウト開始
+      if (opVideo.duration > 0 && opVideo.currentTime >= opVideo.duration - 1.5) {
+        skipOp();
+      }
     }
   });
 
-  // 動画が最後まで再生されたら、3秒間余韻を残してSTEP1へフェードアウト
-  opVideo.addEventListener('ended', () => {
-    setTimeout(skipOp, 3000);
-  });
+  // 万が一timeupdateで捕捉しきれなかった場合（フェールセーフ）
+  opVideo.addEventListener('ended', skipOp);
   
   // 動画が読み込めなかった場合は即座にスキップ
   opVideo.addEventListener('error', skipOp);

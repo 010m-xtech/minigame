@@ -633,6 +633,14 @@
 
   .center-text { text-align: center; }
 
+  /* STEP 4専用の背景と余白調整 */
+  .screen[data-screen="4"] {
+    margin: -20px -20px -40px;
+    padding: 30px 20px 60px;
+    min-height: calc(100vh - 105px); /* ヘッダーの高さを引いて画面下まで広げる */
+    background: linear-gradient(rgba(242, 238, 227, 0.6), rgba(242, 238, 227, 0.6)), url('back.webp') center/cover no-repeat;
+  }
+
   .term-link {
     color: var(--shu);
     border-bottom: 1.5px dotted var(--shu);

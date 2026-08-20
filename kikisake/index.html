@@ -543,9 +543,9 @@
   .marker.ref { margin-top: 16px; }
 
   .diff-comment {
-    font-size: 14.5px; color: var(--sumi); line-height: 1.7;
+    font-size: 15.5px; color: var(--sumi); line-height: 1.75;
     background: #fff; border: 1px solid var(--line);
-    border-radius: 10px; padding: 12px 14px; margin-top: 6px; 
+    border-radius: 10px; padding: 14px 16px; margin-top: 8px; 
   }
 
   .note {
@@ -598,15 +598,15 @@
     box-shadow: 0 4px 14px rgba(34,56,92,0.04);
   }
   .analysis-card h4 {
-    margin: 0 0 10px;
+    margin: 0 0 12px;
     font-family: var(--font-mincho);
-    font-size: 17px;
+    font-size: 19px;
     color: var(--ai);
   }
   .analysis-card p {
     margin: 0;
-    font-size: 15px;
-    line-height: 1.8;
+    font-size: 16px;
+    line-height: 1.75;
     color: var(--sumi);
   }
   .analysis-card .highlight {
@@ -1625,7 +1625,7 @@ function showComparison(){
       <h4>あなたの感じた味わい</h4>
       <p>今回の感覚から見ると、<span class="highlight">${typeDesc}な「${linkify(typeName)}」タイプ</span>に近い一杯に感じられたようです。<br>
       全体として、<span class="highlight">${amakaraText}</span>の印象が残る、あなただけの味わいが言語化されました。</p>
-      <p class="note" style="margin-top: 12px; font-size: 10px;">※4タイプ分類(薫・爽・醇・熟)はSSI(日本酒サービス研究会・酒匠研究会連合会)の提唱する分類手法を参考にしています。</p>
+      <p class="note" style="margin-top: 14px; font-size: 10px;">※4タイプ分類(薫・爽・醇・熟)はSSI(日本酒サービス研究会・酒匠研究会連合会)の提唱する分類手法を参考にしています。</p>
     </div>
   `;
 
@@ -1711,7 +1711,7 @@ function showComparison(){
   }
 
   html += `<div class="diff-comment">${summaryComment}</div>`;
-  html += `<div class="note" style="margin-top: 8px; margin-bottom: 24px;">※蔵元等の情報を元に当方が独自基準で標準化した参考値です</div>`;
+  html += `<div class="note" style="margin-top: 10px; margin-bottom: 24px;">※蔵元等の情報を元に当方が独自基準で標準化した参考値です</div>`;
 
   if(userAnswers.comment){
     html += `<div class="diff-comment">あなたの一言:「${escapeHtml(userAnswers.comment)}」</div>`;

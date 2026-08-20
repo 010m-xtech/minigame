@@ -106,7 +106,7 @@
   }
 
   .brand p {
-    margin: 0; font-size: 11px; color: var(--ai-light); letter-spacing: 0.05em;
+    margin: 0; font-size: 11px; color: var(--sumi); letter-spacing: 0.05em;
   }
 
   .stepper {
@@ -128,10 +128,10 @@
   .step.done .dot-line { background: var(--ai-light); }
 
   .step span {
-    font-size: 10px; color: #8b8172; letter-spacing: 0.03em;
+    font-size: 10px; color: var(--sumi); letter-spacing: 0.03em;
   }
   .step.active span { color: var(--shu); font-weight: 700; }
-  .step.done span { color: var(--ai-light); }
+  .step.done span { color: var(--sumi); }
 
   main {
     flex: 1;
@@ -166,7 +166,7 @@
   }
 
   .lead {
-    font-size: 13px; color: #5c5445; line-height: 1.8; margin: 0 0 20px;
+    font-size: 13px; color: var(--sumi); line-height: 1.8; margin: 0 0 20px;
   }
 
   .filters {
@@ -178,7 +178,7 @@
     display: flex; flex-direction: column; gap: 6px;
   }
   .filter-item label {
-    font-size: 10.5px; color: var(--ai-light); font-weight: 700;
+    font-size: 10.5px; color: var(--sumi); font-weight: 700;
   }
   .filter-item select {
     width: 100%; padding: 8px 10px; border-radius: 8px;
@@ -224,7 +224,9 @@
     font-family: var(--font-mincho);
     color: var(--sumi);
     margin-bottom: 4px;
-    line-height: 1.4;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
   }
 
   .sake-card .brand-name {
@@ -243,7 +245,7 @@
   }
 
   .sake-card .meta {
-    font-size: 11.5px; color: #8b8172;
+    font-size: 11.5px; color: var(--sumi);
     display: flex; flex-wrap: wrap; gap: 6px 10px;
   }
   .sake-card .meta span { white-space: nowrap; }
@@ -273,7 +275,7 @@
     display: flex; align-items: center; justify-content: center;
     padding: 12px 0;
     border: 1px solid var(--line); background: #fff; border-radius: 8px;
-    font-size: 13px; font-weight: 700; color: var(--ai-light);
+    font-size: 13px; font-weight: 700; color: var(--sumi);
     transition: all 0.2s ease;
   }
   .radio-box::before {
@@ -296,7 +298,7 @@
 
   .selected-tag {
     display: inline-block;
-    font-size: 11px; color: var(--ai-light);
+    font-size: 11px; color: var(--sumi);
     border: 1px solid var(--ai-pale); background: var(--ai-pale);
     border-radius: 20px; padding: 4px 12px; margin-bottom: 10px;
   }
@@ -428,7 +430,7 @@
   }
   
   .track .end-label {
-    position: absolute; top: 38px; font-size: 10.5px; color: #8b8172; 
+    position: absolute; top: 38px; font-size: 10.5px; color: var(--sumi); 
   }
   .track .end-label.left { left: 0; }
   .track .end-label.right { right: 0; }
@@ -480,17 +482,17 @@
     padding: 18px;
     margin: 24px 0 8px;
   }
-  .desc-card .eyebrow { color: #C9D4E4; }
+  .desc-card .eyebrow { color: #fff; }
   .desc-card h3 {
     font-family: var(--font-mincho);
     font-size: 16px; margin: 0 0 10px;
   }
   .desc-card p {
-    font-size: 13px; line-height: 1.9; margin: 0 0 12px; color: #EAEEF4;
+    font-size: 13px; line-height: 1.9; margin: 0 0 12px; color: #fff;
   }
   .desc-card .spec {
     display: flex; flex-wrap: wrap; gap: 8px 16px;
-    font-size: 11.5px; color: #B9C6DA;
+    font-size: 11.5px; color: #fff;
     border-top: 1px solid rgba(255,255,255,0.15);
     padding-top: 10px;
   }
@@ -639,7 +641,7 @@
     font-size: 17px; margin: 0 0 10px; color: var(--ai);
   }
   .pairing-card p {
-    font-size: 13px; line-height: 1.8; margin: 0; color: #5c5445;
+    font-size: 13px; line-height: 1.8; margin: 0; color: var(--sumi);
   }
 
   .center-text { text-align: center; }

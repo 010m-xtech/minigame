@@ -1,61 +1,229 @@
-<!-- ... existing code ... -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#000000" id="themeColorMeta">
-<title>利き酒帖</title>
-<!-- ... existing code ... -->
-```
-
-```html:利き酒帖:OneFile.html
-<!-- ... existing code ... -->
-  .op-overlay {
-    position: fixed; 
-    top: 0; left: 0; right: 0; bottom: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 9999; 
-    background: #000;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: opacity 0.8s ease, visibility 0.8s ease;
-  }
-  .op-overlay.fade-out {
-    opacity: 0;
-    visibility: hidden;
-  }
-  .op-video {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* 画面いっぱいに拡大して表示（黒枠をなくす） */
-    object-position: center;
-    z-index: 1;
-  }
-  .op-title {
-<!-- ... existing code ... -->
-```
-
-```html:利き酒帖:OneFile.html
-<!-- ... existing code ... -->
-function skipOp() {
-  if (isOpSkipped) return;
-  isOpSkipped = true;
-  opOverlay.classList.add('fade-out');
-  document.body.classList.remove('op-active');
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <!-- viewport-fit=cover でiPhoneのノッチや画面のフチまで領域を拡張します -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <!-- 初期状態（OP動画再生中）のスマホのステータスバー・URLバー周りを真っ黒にします -->
+  <meta name="theme-color" content="#000000" id="themeColorMeta">
+  <title>利き酒帖</title>
   
-  // オープニング終了時にスマホのバーの色をアプリの背景色に戻す
-  const themeMeta = document.getElementById('themeColorMeta');
-  if (themeMeta) themeMeta.setAttribute('content', '#E9E2CF');
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 和風で上品な明朝体フォントを読み込み -->
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
   
-  setTimeout(() => {
-    opOverlay.style.display = 'none';
-  }, 800);
-}
+  <style>
+    /* アプリ全体の基本設定 */
+    body {
+      font-family: 'Shippori Mincho', serif;
+      background-color: #E9E2CF; /* 通常時の背景色（ベージュ） */
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-if (opVideo) {
-<!-- ... existing code ... -->
-```
+    /* ======== OP動画再生中の特殊設定 ======== */
+    /* OP再生中は背景を黒にし、スクロール（バウンス）を完全に無効化 */
+    body.op-active {
+      background-color: #000000;
+      overflow: hidden; 
+      position: fixed; /* iOS特有のスクロールはみ出し防止 */
+      width: 100%;
+      height: 100%;
+    }
+    
+    /* OP再生中は裏側のアプリ画面を完全に消去（はみ出しの根本原因を排除） */
+    body.op-active .app {
+      display: none;
+    }
 
-この修正により、iPhone等のブラウザ特有の白い枠やバーが極限まで目立たなくなり、動画が画面全体に広がって見えるようになります。ぜひ実機でご確認ください！
+    /* ======== OP動画・オーバーレイのスタイル ======== */
+    /* 画面の物理的な四辺に強制的に張り付かせ、URLバーの裏側まで塗りつぶす */
+    .op-overlay {
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      right: 0; 
+      bottom: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 9999; 
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+
+    /* スキップ時のフェードアウト */
+    .op-overlay.fade-out {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    /* 動画のアスペクト比を維持しつつ、画面いっぱいに拡大して隙間を埋める */
+    .op-video {
+      position: absolute;
+      top: 0; 
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover; 
+      object-position: center;
+      z-index: 1;
+    }
+
+    /* 浮かび上がるタイトルのスタイル */
+    .op-title-container {
+      position: absolute;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 2s ease; /* 2秒かけてゆっくり表示 */
+      pointer-events: none; /* テキストの誤タップ防止 */
+    }
+
+    .op-title-container.show {
+      opacity: 1;
+    }
+
+    .op-title {
+      font-size: 2.5rem;
+      color: #fff;
+      letter-spacing: 0.25em;
+      text-shadow: 0 0 15px rgba(0,0,0,0.9);
+      font-weight: 400;
+    }
+
+    /* スキップ案内の文字 */
+    .skip-text {
+      position: absolute;
+      bottom: 50px;
+      z-index: 3;
+      color: rgba(255,255,255,0.4);
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body class="op-active">
+
+  <!-- OP動画オーバーレイ（ここをタップするとスキップ） -->
+  <div class="op-overlay" id="opOverlay" onclick="skipOp()">
+    <video id="opVideo" class="op-video" src="title.mp4" autoplay muted playsinline></video>
+    
+    <div class="op-title-container" id="opTitle">
+      <div class="op-title">利き酒帖</div>
+    </div>
+    
+    <div class="skip-text">タップでスキップ</div>
+  </div>
+
+  <!-- アプリ本体画面（OP再生中は非表示になります） -->
+  <div class="app pb-20 max-w-md mx-auto relative min-h-screen pt-12 px-4" id="appContent">
+    <!-- ヘッダー -->
+    <header class="text-center mb-8">
+      <h1 class="text-2xl text-gray-800 font-bold tracking-widest">利き酒帖</h1>
+      <p class="text-xs text-gray-500 mt-2">STEP 1: 銘柄を選ぶ</p>
+    </header>
+
+    <!-- 銘柄リスト -->
+    <div class="space-y-4">
+      <!-- カード1（画像の内容を再現） -->
+      <div class="bg-white rounded-xl p-4 shadow-sm relative overflow-hidden flex items-center justify-between cursor-pointer active:scale-[0.98] transition-transform">
+        <div class="flex-1">
+          <h2 class="text-[1.1rem] font-bold text-gray-900 mb-2">作 インプレッション M</h2>
+          <div class="flex items-center text-xs mb-1">
+            <span class="text-gray-500 mr-2">清水清三郎商店(三重県)</span>
+            <span class="text-red-700 border-b border-dotted border-red-700 pb-[1px]">純米吟醸酒(原酒)</span>
+          </div>
+          <div class="text-xs text-red-900/80">
+            <span class="font-bold">精米歩合:</span> 60%
+          </div>
+        </div>
+        <div class="text-red-700 ml-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+          </svg>
+        </div>
+      </div>
+      
+      <!-- カード2 -->
+      <div class="bg-white rounded-xl p-4 shadow-sm relative overflow-hidden flex items-center justify-between cursor-pointer active:scale-[0.98] transition-transform">
+        <div class="flex-1">
+          <h2 class="text-[1.1rem] font-bold text-gray-900 mb-2">新政 No.6 R-type</h2>
+          <div class="flex items-center text-xs mb-1">
+            <span class="text-gray-500 mr-2">新政酒造(秋田県)</span>
+            <span class="text-red-700 border-b border-dotted border-red-700 pb-[1px]">生酛純米</span>
+          </div>
+          <div class="text-xs text-red-900/80">
+            <span class="font-bold">精米歩合:</span> 65%
+          </div>
+        </div>
+        <div class="text-red-700 ml-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const opVideo = document.getElementById('opVideo');
+    const opTitle = document.getElementById('opTitle');
+    const opOverlay = document.getElementById('opOverlay');
+    const themeMeta = document.getElementById('themeColorMeta');
+    let isOpSkipped = false;
+
+    // オープニング終了（スキップ）処理
+    function skipOp() {
+      if (isOpSkipped) return;
+      isOpSkipped = true;
+      
+      // 1. フェードアウトを開始
+      opOverlay.classList.add('fade-out');
+      
+      // 2. スマホ上部バーの色をアプリの背景色（ベージュ）に戻す
+      if (themeMeta) themeMeta.setAttribute('content', '#E9E2CF');
+      
+      // 3. 裏側に隠していたアプリ画面を表示させ、スクロール制限を解除
+      document.body.classList.remove('op-active');
+      
+      // 4. フェードアウトが完了したら要素を完全に消去
+      setTimeout(() => {
+        opOverlay.style.display = 'none';
+      }, 800);
+    }
+
+    if (opVideo) {
+      // 再生時間が5.5秒を超えたらタイトルをフワッと表示
+      opVideo.addEventListener('timeupdate', () => {
+        if (opVideo.currentTime >= 5.5 && !opTitle.classList.contains('show')) {
+          opTitle.classList.add('show');
+        }
+      });
+
+      // 動画が最後まで再生されたら、3秒間余韻を残してから自動スキップ
+      opVideo.addEventListener('ended', () => {
+        setTimeout(() => {
+          skipOp();
+        }, 3000); // 3000ミリ秒 = 3秒
+      });
+      
+      // （安全対策）万が一動画が読み込めなかった場合は10秒後に強制スキップ
+      setTimeout(() => {
+        if (!isOpSkipped && opVideo.readyState === 0) {
+          skipOp();
+        }
+      }, 10000);
+    } else {
+      skipOp();
+    }
+  </script>
+</body>
+</html>

@@ -995,7 +995,7 @@ function sendLogToSheet(actionStr, genderStr, ageStr, sakeIdStr = "", amakaraVal
 const sakeList = [
   {
     id: "ena",
-    name: "恵那山 純米吟醸 ひだほまれ",
+    name: "恵那山　純米吟醸　ひだほまれ",
     kura: "はざま酒造(岐阜県)",
     type: "純米吟醸酒",
     seimai: 50,
@@ -1012,7 +1012,7 @@ const sakeList = [
   },
   {
     id: "ichinokura",
-    name: "一ノ蔵 無鑑査本醸造 甘口",
+    name: "一ノ蔵　無鑑査本醸造　甘口",
     kura: "一ノ蔵(宮城県)",
     type: "本醸造酒",
     seimai: 65,
@@ -1029,7 +1029,7 @@ const sakeList = [
   },
   {
     id: "eikaijin",
-    name: "悦 凱陣 山田錦 ブルーボトル 純米吟醸 無濾過生",
+    name: "悦　凱陣　山田錦　ブルーボトル　純米吟醸　無濾過生",
     kura: "丸尾本店(香川県)",
     type: "純米吟醸酒",
     seimai: 60,
@@ -1046,7 +1046,7 @@ const sakeList = [
   },
   {
     id: "hououbiden",
-    name: "鳳凰美田 純米吟醸酒",
+    name: "鳳凰美田　純米吟醸酒",
     kura: "小林酒造(栃木県)",
     type: "純米吟醸酒",
     seimai: 55,
@@ -1063,7 +1063,7 @@ const sakeList = [
   },
   {
     id: "zaku",
-    name: "作 インプレッション M",
+    name: "作　インプレッション　M",
     kura: "清水清三郎商店(三重県)",
     type: "純米吟醸酒(原酒)",
     seimai: 60,
@@ -1080,7 +1080,7 @@ const sakeList = [
   },
   {
     id: "kamenoumi",
-    name: "亀の海 本醸造",
+    name: "亀の海　本醸造",
     kura: "土屋酒造店(長野県)",
     type: "本醸造酒",
     seimai: 70,
@@ -1368,37 +1368,21 @@ function showComparison(){
     </div>
   `;
 
+  // 差分集約用の配列を用意
+  let diffs = [];
+
   ["amakara","kaori","keiju"].forEach(axis=>{
     const meta = axisMeta[axis];
     const userVal = userAnswers[axis];
     const refVal = s.values[axis];
     
-    let diffText = "";
-    if (axis === "amakara") {
-      if (userVal < refVal - 15) {
-        diffText = "基準値よりも、甘みを豊かに引き出して感じ取られたようです。";
-      } else if (userVal > refVal + 15) {
-        diffText = "基準値よりも、キリッとしたドライな側面を敏感に捉えられたようです。";
-      } else {
-        diffText = "このお酒が持つ標準的な甘辛のバランスを、そのままストレートに受け止められたようです。";
-      }
-    } else if (axis === "kaori") {
-      if (userVal < refVal - 15) {
-        diffText = "香りの華やかさよりも、お米本来の穏やかで落ち着いた風味を強く感じられたようです。";
-      } else if (userVal > refVal + 15) {
-        diffText = "基準値よりも、このお酒に秘められた華やかな香りを豊かにキャッチされたようです。";
-      } else {
-        diffText = "このお酒の香りの特徴を、造り手の意図に近いバランスで感じ取られたようです。";
-      }
-    } else if (axis === "keiju") {
-      if (userVal < refVal - 15) {
-        diffText = "基準値よりも、軽快でするっと飲めるやさしい飲み口の印象が勝ったようです。";
-      } else if (userVal > refVal + 15) {
-        diffText = "基準値よりも、お酒の持つ深いコクやどっしりとした旨みをしっかりと感じられたようです。";
-      } else {
-        diffText = "このお酒の持つボディ感（軽重）を、標準的なバランスで味わわれたようです。";
-      }
-    }
+    // 差分を記録
+    diffs.push({
+      axis: axis,
+      label: meta.label,
+      diff: userVal - refVal,
+      absDiff: Math.abs(userVal - refVal)
+    });
 
     html += `
       <div class="compare-block">
@@ -1413,16 +1397,44 @@ function showComparison(){
             </div>
             <div class="marker ref" style="left:${refVal}%">
               <div class="dot"></div>
-              <span class="tag">基準</span>
+              <span class="tag">データ</span>
             </div>
           </div>
         </div>
-        <div class="diff-comment">${diffText}</div>
       </div>
     `;
   });
 
-  html += `<div class="note" style="margin-top:-10px; margin-bottom: 24px;">※蔵元等の情報を元に当方が独自基準で標準化した参考値です</div>`;
+  // --- 集約コメントの生成 ---
+  // 最大の差分を持つ軸を見つける
+  diffs.sort((a, b) => b.absDiff - a.absDiff);
+  const maxDiffObj = diffs[0];
+  let summaryComment = "";
+
+  if (maxDiffObj.absDiff < 12) {
+    // どの軸も差が小さい場合
+    summaryComment = "全体的に、データと近い感じ方でした。";
+  } else {
+    // 差が大きい軸を中心にコメントを作成
+    const dir = maxDiffObj.diff > 0 ? "右" : "左"; // グラフの右寄りか左寄りか
+    let tendency = "";
+
+    if (maxDiffObj.axis === "amakara") {
+      tendency = dir === "右" ? "辛口寄り" : "甘口寄り";
+      summaryComment = `甘辛のバランスを中心に、データよりも${tendency}に感じたようです。`;
+    } else if (maxDiffObj.axis === "kaori") {
+      tendency = dir === "右" ? "華やか" : "穏やか";
+      summaryComment = `香りを中心に、データよりも少し${tendency}に感じたようです。`;
+    } else if (maxDiffObj.axis === "keiju") {
+      tendency = dir === "右" ? "重め（どっしり）" : "軽め";
+      summaryComment = `味わいの重さを中心に、データよりも少し${tendency}に感じたようです。`;
+    }
+  }
+
+  // 集約コメントをHTMLに追加
+  html += `<div class="diff-comment">${summaryComment}</div>`;
+
+  html += `<div class="note" style="margin-top: 8px; margin-bottom: 24px;">※蔵元等の情報を元に当方が独自基準で標準化した参考値です</div>`;
 
   if(userAnswers.comment){
     html += `<div class="diff-comment">あなたの一言:「${escapeHtml(userAnswers.comment)}」</div>`;

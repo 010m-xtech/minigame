@@ -210,12 +210,25 @@
   .sake-card .info { flex: 1; min-width: 0; }
 
   .sake-card .name {
-    font-family: var(--font-mincho); font-weight: 800;
-    font-size: 15.5px; color: var(--sumi);
+    font-family: var(--font-mincho);
+    color: var(--sumi);
     margin-bottom: 4px;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
+    line-height: 1.4;
+  }
+
+  .sake-card .brand-name {
+    font-weight: 800;
+    font-size: 17px;
+    text-shadow: 0 0 0.5px var(--sumi);
+  }
+  
+  .sake-card .sub-name {
+    font-weight: 500;
+    font-size: 14.5px;
+  }
+
+  .sake-card .sub-name .term-link {
+    font-weight: 700;
   }
 
   .sake-card .meta {
@@ -996,6 +1009,8 @@ function sendLogToSheet(actionStr, genderStr, ageStr, sakeIdStr = "", amakaraVal
 const sakeList = [
   {
     id: "ena",
+    brand: "恵那山",
+    subtitle: "純米吟醸　ひだほまれ",
     name: "恵那山　純米吟醸　ひだほまれ",
     kura: "はざま酒造(岐阜県)",
     type: "純米吟醸酒",
@@ -1013,6 +1028,8 @@ const sakeList = [
   },
   {
     id: "ichinokura",
+    brand: "一ノ蔵",
+    subtitle: "無鑑査本醸造　甘口",
     name: "一ノ蔵　無鑑査本醸造　甘口",
     kura: "一ノ蔵(宮城県)",
     type: "本醸造酒",
@@ -1030,6 +1047,8 @@ const sakeList = [
   },
   {
     id: "eikaijin",
+    brand: "悦　凱陣",
+    subtitle: "山田錦　ブルーボトル　純米吟醸　無濾過生",
     name: "悦　凱陣　山田錦　ブルーボトル　純米吟醸　無濾過生",
     kura: "丸尾本店(香川県)",
     type: "純米吟醸酒",
@@ -1047,6 +1066,8 @@ const sakeList = [
   },
   {
     id: "hououbiden",
+    brand: "鳳凰美田",
+    subtitle: "純米吟醸酒",
     name: "鳳凰美田　純米吟醸酒",
     kura: "小林酒造(栃木県)",
     type: "純米吟醸酒",
@@ -1064,6 +1085,8 @@ const sakeList = [
   },
   {
     id: "zaku",
+    brand: "作",
+    subtitle: "インプレッション　M",
     name: "作　インプレッション　M",
     kura: "清水清三郎商店(三重県)",
     type: "純米吟醸酒(原酒)",
@@ -1081,6 +1104,8 @@ const sakeList = [
   },
   {
     id: "kamenoumi",
+    brand: "亀の海",
+    subtitle: "本醸造",
     name: "亀の海　本醸造",
     kura: "土屋酒造店(長野県)",
     type: "本醸造酒",
@@ -1222,7 +1247,10 @@ function renderSakeList(){
 
     btn.innerHTML = `
       <div class="info">
-        <div class="name">${linkify(s.name)}</div>
+        <div class="name">
+          <span class="brand-name">${s.brand}</span>
+          <span class="sub-name">　${linkify(s.subtitle)}</span>
+        </div>
         <div class="meta">
           <span class="term-link" onclick="event.stopPropagation(); showKuraInfo('${s.kura}')">${s.kura}</span>
           <span>${linkify(s.type)}</span>
@@ -1247,7 +1275,7 @@ function renderSakeList(){
 function selectSake(id){
   currentSakeId = id;
   const s = sakeList.find(x=>x.id===id);
-  document.getElementById('selectedTag').innerHTML = "選んだ一杯: " + linkify(s.name);
+  document.getElementById('selectedTag').innerHTML = `選んだ一杯: <strong style="font-size:115%;">${s.brand}</strong>　${linkify(s.subtitle)}`;
   document.getElementById('s-amakara').value = 50;
   document.getElementById('s-kaori').value = 50;
   document.getElementById('s-keiju').value = 50;
@@ -1447,7 +1475,7 @@ function showComparison(){
   html += `
     <div class="desc-card">
       <p class="eyebrow">この銘柄について</p>
-      <h3>${linkify(s.name)}</h3>
+      <h3><span style="font-weight:800">${s.brand}</span><span style="font-weight:500; font-size: 14.5px;">　${linkify(s.subtitle)}</span></h3>
       <p>${linkify(s.description)}</p>
       <div class="spec">
         <span>蔵元:<span class="term-link" onclick="showKuraInfo('${s.kura}')">${s.kura}</span></span>

@@ -846,12 +846,27 @@
             <span class="radio-box">女性</span>
           </label>
           <label class="radio-btn-wrap">
-            <input type="radio" name="p-gender" value="無回答" checked>
+            <input type="radio" name="p-gender" value="無回答">
             <span class="radio-box">無回答</span>
           </label>
         </div>
       </div>
 
+      <div class="profile-group">
+        <label>年齢</label>
+        <div class="radio-buttons">
+          <label class="radio-btn-wrap">
+            <input type="radio" name="p-age" value="35歳以下">
+            <span class="radio-box">35歳以下</span>
+          </label>
+          <label class="radio-btn-wrap">
+            <input type="radio" name="p-age" value="35歳以上">
+            <span class="radio-box">35歳以上</span>
+          </label>
+        </div>
+      </div>
+
+      <p id="profileError" style="color: var(--shu); font-size: 13px; font-weight: bold; text-align: center; display: none; margin-bottom: 16px;">性別と年齢の両方を選択してください</p>
       <p class="note" style="margin-top: -10px; margin-bottom: 24px; text-align: center;">※サービス改善のための参考にさせていただきます</p>
 
       <div class="btn-row">
@@ -1267,9 +1282,19 @@ function goScreen(n){
 function saveProfileAndNext() {
   const genderEl = document.querySelector('input[name="p-gender"]:checked');
   const ageEl = document.querySelector('input[name="p-age"]:checked');
+  const errorEl = document.getElementById('profileError');
   
-  if (genderEl) userInfo.gender = genderEl.value;
-  if (ageEl) userInfo.age = ageEl.value;
+  // 未選択の項目がある場合はエラーメッセージを表示して処理を止める
+  if (!genderEl || !ageEl) {
+    if (errorEl) errorEl.style.display = 'block';
+    return;
+  }
+  
+  // エラーが解消されたらメッセージを隠す
+  if (errorEl) errorEl.style.display = 'none';
+  
+  userInfo.gender = genderEl.value;
+  userInfo.age = ageEl.value;
   
   localStorage.setItem('kikizake_profile', JSON.stringify(userInfo));
   

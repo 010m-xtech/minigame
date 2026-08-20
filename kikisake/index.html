@@ -244,6 +244,7 @@
   .radio-btn-wrap input {
     display: none;
   }
+  
   .radio-box {
     display: flex; align-items: center; justify-content: center;
     padding: 12px 0;
@@ -401,6 +402,7 @@
     background: var(--line);
     border-radius: 2px;
   }
+  
   .track .end-label {
     position: absolute; top: 38px; font-size: 10.5px; color: #8b8172; 
   }
@@ -426,6 +428,7 @@
     transform: rotate(45deg);
     width: 13px; height: 13px;
   }
+  
   .marker .tag {
     font-size: 10px; font-weight: 700;
     padding: 2px 7px; border-radius: 8px;
@@ -525,6 +528,7 @@
     background: #fff;
     border-color: var(--shu);
   }
+  
   .fav-checkbox-label input {
     display: none;
   }
@@ -616,10 +620,6 @@
 
   .center-text { text-align: center; }
 
-  footer.hint {
-    text-align: center; font-size: 11px; color: var(--sumi); padding: 18px 20px 26px;
-  }
-
   .term-link {
     color: var(--shu);
     border-bottom: 1.5px dotted var(--shu);
@@ -643,6 +643,7 @@
     transition: opacity 0.3s ease;
     padding: 20px;
   }
+  
   .modal-overlay.show {
     opacity: 1; pointer-events: auto;
   }
@@ -668,6 +669,7 @@
     margin: 0; font-family: var(--font-mincho);
     font-size: 18px; color: var(--ai);
   }
+  
   .close-btn {
     background: none; border: none; padding: 4px;
     color: var(--ai-light); cursor: pointer;
@@ -697,6 +699,7 @@
     opacity: 0;
     visibility: hidden;
   }
+  
   .op-video {
     position: absolute;
     top: 0; left: 0;
@@ -849,19 +852,7 @@
         </div>
       </div>
 
-      <div class="profile-group">
-        <label>年齢</label>
-        <div class="radio-buttons">
-          <label class="radio-btn-wrap">
-            <input type="radio" name="p-age" value="35歳以下" checked>
-            <span class="radio-box">35歳以下</span>
-          </label>
-          <label class="radio-btn-wrap">
-            <input type="radio" name="p-age" value="35歳以上">
-            <span class="radio-box">35歳以上</span>
-          </label>
-        </div>
-      </div>
+      <p class="note" style="margin-top: -10px; margin-bottom: 24px; text-align: center;">※サービス改善のための参考にさせていただきます</p>
 
       <div class="btn-row">
         <button class="btn btn-ghost" onclick="goScreen(1)">戻る</button>
@@ -936,8 +927,6 @@
       </div>
     </section>
   </main>
-
-  <footer class="hint">※蔵元等の情報を元に当方が独自基準で標準化した参考値です</footer>
 </div>
 
 <!-- 用語辞典モーダル -->

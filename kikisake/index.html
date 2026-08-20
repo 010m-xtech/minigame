@@ -1282,7 +1282,7 @@ function renderSakeList(){
         <div class="meta">
           <span class="term-link" onclick="event.stopPropagation(); showKuraInfo('${s.kura}')">${s.kura}</span>
           <span>${linkify(s.type)}</span>
-          <span>${linkify('精米歩合')}:${s.seimai}%</span>
+          <span>${linkify('精米歩合')}:<span style="font-size:120%; font-weight:700;">${s.seimai}%</span></span>
         </div>
       </div>
       <div class="icon-group">
@@ -1511,7 +1511,7 @@ function showComparison(){
       <div class="spec">
         <span>蔵元:<span class="term-link" onclick="showKuraInfo('${s.kura}')">${s.kura}</span></span>
         <span>特定名称:${linkify(s.type)}</span>
-        <span>${linkify('精米歩合')}:${s.seimai}%</span>
+        <span>${linkify('精米歩合')}:<span style="font-size:120%; font-weight:700;">${s.seimai}%</span></span>
         <span>アルコール分:${s.alcohol}</span>
       </div>
     </div>

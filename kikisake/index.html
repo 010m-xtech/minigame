@@ -1160,7 +1160,8 @@ function closeGlossary() {
 /* ============ 状態管理 ============ */
 let currentSakeId = null;
 let userAnswers = {};
-let userInfo = { gender: null, age: null }; // 追加: ユーザー情報
+// 修正: localStorageからプロフィール情報を読み込む（記録があればそれを使い、なければ初期値）
+let userInfo = JSON.parse(localStorage.getItem('kikizake_profile')) || { gender: null, age: null };
 let favorites = JSON.parse(localStorage.getItem('kikizake_favorites')) || [];
 let sessionRecords = []; // 来店中の評価記録（ページを閉じるとリセット）
 
@@ -1280,6 +1281,9 @@ function saveProfileAndNext() {
   
   if (genderEl) userInfo.gender = genderEl.value;
   if (ageEl) userInfo.age = ageEl.value;
+  
+  // 追加: 入力されたプロフィール情報を端末(localStorage)に保存する
+  localStorage.setItem('kikizake_profile', JSON.stringify(userInfo));
   
   goScreen(2); // STEP 2 へ
 }

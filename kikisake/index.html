@@ -219,6 +219,9 @@
     font-family: var(--font-mincho); font-weight: 700;
     font-size: 15.5px; color: var(--sumi);
     margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
   }
 
   .sake-card .meta {
@@ -547,20 +550,42 @@
     fill: var(--shu);
   }
 
-  .sake-card .fav-icon {
-    flex: 0 0 auto;
-    width: 24px; height: 24px;
-    color: var(--shu);
+  .sake-card .icon-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
     margin-right: -4px;
+  }
+
+  .sake-card .fav-icon,
+  .sake-card .drank-icon {
+    flex: 0 0 auto;
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  .sake-card .fav-icon {
+    width: 24px; height: 24px;
+    color: var(--shu);
   }
   .sake-card .fav-icon svg {
     width: 18px; height: 18px;
     fill: var(--shu);
     stroke: var(--shu);
     stroke-width: 2;
+  }
+
+  .sake-card .drank-icon {
+    width: 20px; height: 20px;
+    background: var(--ai-pale);
+    border-radius: 50%;
+  }
+  .sake-card .drank-icon svg {
+    width: 12px; height: 12px;
+    stroke: var(--ai);
+    stroke-width: 3;
+    fill: none;
   }
 
   /* --- pairing screen --- */
@@ -1132,6 +1157,9 @@ function renderSakeList(){
   const wrap = document.getElementById('sakeList');
   wrap.innerHTML = "";
   let count = 0;
+  
+  // セッション中の記録済みのIDリストを取得
+  const drankIds = sessionRecords.map(r => r.id);
 
   sakeList.forEach(s=>{
     let match = true;
@@ -1159,6 +1187,7 @@ function renderSakeList(){
     btn.className = "sake-card";
     
     const favHtml = isFav ? `<div class="fav-icon" aria-label="お気に入り"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-linejoin="round" stroke-linecap="round"/></svg></div>` : '';
+    const drankHtml = drankIds.includes(s.id) ? `<div class="drank-icon" aria-label="記録済"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>` : '';
 
     btn.innerHTML = `
       <div class="info">
@@ -1169,7 +1198,10 @@ function renderSakeList(){
           <span>${linkify('精米歩合')}:${s.seimai}%</span>
         </div>
       </div>
-      ${favHtml}
+      <div class="icon-group">
+        ${drankHtml}
+        ${favHtml}
+      </div>
       <svg class="arrow" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
     `;
     btn.onclick = ()=> selectSake(s.id);

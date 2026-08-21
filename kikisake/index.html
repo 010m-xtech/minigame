@@ -138,7 +138,6 @@
     font-size: 11px; color: var(--sumi); letter-spacing: 0.02em;
   }
   .step.active span { color: var(--shu); font-weight: 700; }
-  .step.done span { color: var(--sumi); }
 
   main {
     flex: 1;
@@ -1195,13 +1194,21 @@
 
     <!-- Screen History: 履歴 -->
     <section class="screen" data-screen="history">
-      <p class="eyebrow">MY NOTE</p>
-      <h2 class="title">これまでの記録</h2>
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
+        <div>
+          <p class="eyebrow">MY NOTE</p>
+          <h2 class="title" style="margin: 0;">これまでの記録</h2>
+        </div>
+        <button class="history-btn" onclick="closeHistory()">
+          <svg viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          戻る
+        </button>
+      </div>
       
       <div id="historyList"></div>
 
       <div class="btn-row">
-        <button class="btn btn-ghost" style="width:100%" onclick="goScreen(1)">銘柄選びに戻る</button>
+        <button class="btn btn-ghost" style="width:100%" onclick="closeHistory()">元の画面に戻る</button>
       </div>
     </section>
   </main>
@@ -1378,14 +1385,6 @@ const glossaryData = {
   "土屋酒造店(長野県)": "佐久市にある酒蔵。千曲川の伏流水と地元産の米を用い、「亀の海」などの銘柄を醸しています。信州の自然が育む、きれいな味わいが特徴です。"
 };
 
-function showKuraInfo(kuraName) {
-  const desc = glossaryData[kuraName];
-  if (!desc) return;
-  document.getElementById('glossaryTitle').textContent = kuraName;
-  document.getElementById('glossaryDesc').textContent = desc;
-  document.getElementById('glossaryModal').classList.add('show');
-}
-
 // テキスト内の専門用語を検知してリンク化する関数
 function linkify(text) {
   if (!text) return "";
@@ -1424,6 +1423,7 @@ let favorites = JSON.parse(localStorage.getItem('kikizake_favorites')) || [];
 let drankHistory = JSON.parse(localStorage.getItem('kikizake_drankHistory')) || [];
 let pastRecords = JSON.parse(localStorage.getItem('kikizake_records')) || [];
 let sessionRecords = []; 
+let screenBeforeHistory = 1;
 
 /* ============ 初期描画:銘柄リスト ============ */
 function renderSakeList(){
@@ -1727,7 +1727,7 @@ function showComparison(){
           </h3>
           <p>${linkify(s.description)}</p>
           <div class="spec">
-            <span>蔵元:<span class="term-link" onclick="showKuraInfo('${s.kura}')">${s.kura}</span></span>
+            <span>蔵元:<span class="term-link" onclick="showGlossary('${s.kura}')">${s.kura}</span></span>
             ${typeHtmlDesc}
             <span>${linkify('精米歩合')}:<span style="font-size:115%; font-weight:700;">${s.seimai}%</span></span>
             <span>アルコール分:${s.alcohol}</span>
@@ -1813,8 +1813,16 @@ function showPairing(){
 
 /* ============ 履歴の表示 ============ */
 function showHistory() {
+  const current = document.body.getAttribute('data-current-screen');
+  if (current !== 'history') {
+    screenBeforeHistory = current || 1;
+  }
   renderHistory();
   goScreen('history');
+}
+
+function closeHistory() {
+  goScreen(screenBeforeHistory);
 }
 
 function renderHistory() {

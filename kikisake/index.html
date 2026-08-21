@@ -203,11 +203,11 @@
   .sake-card .name {
     font-family: var(--font-mincho);
     color: var(--sumi);
-    margin-bottom: 6px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: 4px;
+    width: 100%;
   }
 
   .sake-card .brand-name {
@@ -229,10 +229,7 @@
 
   .sake-card .meta {
     font-size: 13px; color: var(--sumi);
-    display: flex; flex-direction: column; gap: 5px;
-  }
-  .sake-card .meta-specs {
-    display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px;
+    margin-top: 6px;
   }
   .sake-card .meta span { white-space: nowrap; }
 
@@ -1165,17 +1162,11 @@ const sakeList = [
     brand: "恵那山",
     brandKana: "えなさん",
     subtitle: "純米吟醸　ひだほまれ",
-    name: "恵那山　純米吟醸　ひだほまれ",
     kura: "はざま酒造(岐阜県)",
     type: "純米吟醸酒",
     seimai: 50,
     alcohol: "16%",
     values: { amakara: 45, kaori: 80, keiju: 35 },
-    notes: {
-      amakara: "日本酒度の公表が確認できなかったため、味わいの説明文をもとに当方独自基準で推定した参考値です",
-      kaori: "蔵元情報をもとに、当方が独自基準で標準化した参考値です",
-      keiju: "蔵元情報をもとに、当方が独自基準で標準化した参考値です"
-    },
     description: "バナナや洋ナシ、マスカットを思わせる華やかな香り。上品なコクときれいな酸でやさしい旨味が心地よく広がり、スムーズにキレていき、余韻も爽やかな印象を残します。<br><br>「恵那山」というブランドは比較的新しく、IWC（インターナショナル・ワイン・チャレンジ）など数々の品評会で評価されています。蔵のある中仙道大井宿の歴史ある風土と、モダンでクリアな酒造りが融合した一本です。",
     source: "情報源:日本酒データベース(Sakenomy)",
     pairing: { name: "白身魚の刺身", description: "繊細な果実香とやさしい酸が、白身魚の淡白な旨みをすっと引き立てます。" }
@@ -1184,18 +1175,12 @@ const sakeList = [
     id: "ichinokura",
     brand: "一ノ蔵",
     brandKana: "いちのくら",
-    subtitle: "無鑑査本醸造　甘口",
-    name: "一ノ蔵　無鑑査本醸造　甘口",
+    subtitle: "無鑑査本醸造",
     kura: "一ノ蔵(宮城県)",
     type: "本醸造酒",
     seimai: 65,
     alcohol: "15%",
     values: { amakara: 37, kaori: 45, keiju: 40 },
-    notes: {
-      amakara: "蔵元公表値(日本酒度 -5〜-3)に基づく数値です",
-      kaori: "蔵元情報をもとに、当方が独自基準で標準化した参考値です",
-      keiju: "蔵元情報をもとに、当方が独自基準で標準化した参考値です"
-    },
     description: "柔らかできれいな甘さと米に由来する旨味が飲む人を和ませ、後味に心地よい余韻が広がります。お米に由来する甘やかで豊かな香りが特徴の、一ノ蔵のロングセラー商品です。<br><br>商品名にある「無鑑査」とは、かつて日本酒に級別制度（特級・一級・二級）があった時代、あえて審査を受けずに「二級酒」として税金を抑え、高品質な酒を安く消費者に届けた一ノ蔵の反骨精神と誠意の証です。",
     source: "情報源:一ノ蔵 公式サイト",
     pairing: { name: "だし巻き卵", description: "やわらかな甘みが、出汁のうまみとだし巻き卵のふんわりした食感によく寄り添います。" }
@@ -1205,17 +1190,11 @@ const sakeList = [
     brand: "悦　凱陣",
     brandKana: "よろこび　がいじん",
     subtitle: "山田錦　ブルーボトル　純米吟醸　無濾過生",
-    name: "悦　凱陣　山田錦　ブルーボトル　純米吟醸　無濾過生",
     kura: "丸尾本店(香川県)",
     type: "純米吟醸酒",
     seimai: 60,
     alcohol: "14〜15%",
     values: { amakara: 87, kaori: 30, keiju: 30 },
-    notes: {
-      amakara: "蔵元公表値(日本酒度 +11)に基づく数値です",
-      kaori: "蔵元情報をもとに、当方が独自基準で標準化した参考値です",
-      keiju: "蔵元情報をもとに、当方が独自基準で標準化した参考値です"
-    },
     description: "穏やかな香りと、抑えたアルコール度数が生み出す涼やかで軽快な飲み口。無濾過原酒ならではの米の旨みがやさしく広がり、ほどよいコクと爽やかな酸、心地よいキレが調和します。<br><br>丸尾本店は、幕末に高杉晋作や桂小五郎ら志士が潜伏したことでも知られる歴史ある蔵です。「凱陣」という勇ましい名もそこに由来するとされ、全国に熱狂的なファン（通称: 凱陣党）を持つことでも有名です。",
     source: "情報源:秋貞商店(酒販店サイト)",
     pairing: { name: "冷やしトマトのお浸し", description: "キレのある酸と軽快な飲み口が、トマトの爽やかな酸味とすっと重なります。" }
@@ -1225,17 +1204,11 @@ const sakeList = [
     brand: "鳳凰美田",
     brandKana: "ほうおうびでん",
     subtitle: "純米吟醸酒",
-    name: "鳳凰美田　純米吟醸酒",
     kura: "小林酒造(栃木県)",
     type: "純米吟醸酒",
     seimai: 55,
     alcohol: "16〜17%",
     values: { amakara: 35, kaori: 78, keiju: 50 },
-    notes: {
-      amakara: "日本酒度の公表が確認できなかったため、味わいの説明文をもとに当方独自基準で推定した参考値です",
-      kaori: "蔵元情報をもとに、当方が独自基準で標準化した参考値です",
-      keiju: "蔵元情報をもとに、当方が独自基準で標準化した参考値です"
-    },
     description: "麹米には山田錦、掛米には五百万石を使用。フルーティーな吟醸香に、口に含むと程よいコクがありスッキリとした後味が続きます。冷酒からぬる燗まで楽しめる食中酒です。<br><br>「鳳凰美田」の名は、蔵に湧く名水「鳳凰水」と、かつてこの地にあった村の名前「美田村」に由来します。マスカット系の華やかな香りを引き出す技術に長けており、日本酒初心者から愛好家まで幅広く支持されています。",
     source: "情報源:日本酒データベース(Sakenomy)",
     pairing: { name: "出汁巻き卵と柚子胡椒", description: "華やかな吟醸香が、出汁の香りと柚子胡椒の清涼感に負けずふわりと寄り添います。" }
@@ -1245,17 +1218,11 @@ const sakeList = [
     brand: "作",
     brandKana: "ざく",
     subtitle: "インプレッション　M",
-    name: "作　インプレッション　M",
     kura: "清水清三郎商店(三重県)",
     type: "純米吟醸酒(原酒)",
     seimai: 60,
     alcohol: "16%",
     values: { amakara: 48, kaori: 58, keiju: 25 },
-    notes: {
-      amakara: "日本酒度の公表が確認できなかったため、味わいの説明文をもとに当方独自基準で推定した参考値です",
-      kaori: "蔵元情報をもとに、当方が独自基準で標準化した参考値です",
-      keiju: "蔵元情報をもとに、当方が独自基準で標準化した参考値です"
-    },
     description: "搾りたてを直接瓶詰めした直汲み原酒。開栓時にはフレッシュで華やかな香りと微発泡が心地よく口中を刺激する、作 恵乃智ベースのインプレッションシリーズです。<br><br>「作（ざく）」という響きからアニメ「機動戦士ガンダム」ファンにも愛されていますが、本来は「飲む人と共に作り上げる酒」という意味が込められています。2016年の伊勢志摩サミットで提供されたことでも一躍有名になりました。",
     source: "情報源:日本酒データベース(Sakenomy)",
     pairing: { name: "生ハムとクリームチーズ", description: "微発泡の軽やかさと爽やかな香りが、クリーミーな塩気とよく合います。" }
@@ -1265,17 +1232,11 @@ const sakeList = [
     brand: "亀の海",
     brandKana: "かめのうみ",
     subtitle: "本醸造",
-    name: "亀の海　本醸造",
     kura: "土屋酒造店(長野県)",
     type: "本醸造酒",
     seimai: 70,
     alcohol: "15%",
     values: { amakara: 62, kaori: 25, keiju: 55 },
-    notes: {
-      amakara: "日本酒度の数値公表が確認できなかったため、蔵元の定性表現(やや辛口)をもとに当方独自基準で推定した参考値です",
-      kaori: "蔵元情報をもとに、当方が独自基準で標準化した参考値です",
-      keiju: "蔵元情報をもとに、当方が独自基準で標準化した参考値です"
-    },
     description: "地元の米、地元の水で仕込む「亀の海」の定番酒。味のバランスを重視し、奇をてらわずに飽きの来ない、じんわりとした米の旨味と余韻のキレを大切にした、やや辛口の晩酌酒です。<br><br>蔵のある長野県佐久市は「日本で最も海から遠い地点」の近くですが、「亀の海」という名には「山奥にあっても、亀のように末長く、海のように広く愛される酒にしたい」という初代蔵元のロマンが込められています。",
     source: "情報源:日本酒データベース(Sakenomy)",
     pairing: { name: "焼き鳥(塩)", description: "じんわりとした米の旨味と切れのよい後味が、塩でシンプルに焼いた鶏の脂に寄り添います。" }
@@ -1283,12 +1244,9 @@ const sakeList = [
 ];
 
 const axisMeta = {
-  amakara: { label: "甘辛", left: "甘口", right: "辛口",
-    dirComment: (u,r)=> u < r ? "データより甘く感じたようです" : "データより辛く感じたようです" },
-  kaori:   { label: "香り", left: "穏やか", right: "華やか",
-    dirComment: (u,r)=> u < r ? "データより穏やかに感じたようです" : "データより華やかに感じたようです" },
-  keiju:   { label: "ボディ", left: "淡麗", right: "濃厚",
-    dirComment: (u,r)=> u < r ? "データより淡麗に感じたようです" : "データより濃厚に感じたようです" }
+  amakara: { label: "甘辛", left: "甘口", right: "辛口" },
+  kaori:   { label: "香り", left: "穏やか", right: "華やか" },
+  keiju:   { label: "ボディ", left: "淡麗", right: "濃厚" }
 };
 
 /* ============ 用語辞典データと処理 ============ */
@@ -1389,24 +1347,23 @@ function renderSakeList(){
     // サブタイトルに「純米吟醸」などが含まれているか判定し、重複する場合はスペック側の表示を省略する
     const typeCore = s.type.replace('酒', '').replace('(原酒)', '');
     const showType = !s.subtitle.includes(typeCore);
-    const typeHtml = showType ? `<span>${linkify(s.type)}</span>` : '';
+    const typeHtml = showType ? `<div class="meta"><span>${linkify(s.type)}</span></div>` : '';
+
+    // 産地（都道府県）のみを抽出（例：「はざま酒造(岐阜県)」→「岐阜県」）
+    const prefMatch = s.kura.match(/\((.+?)\)/);
+    const prefText = prefMatch ? prefMatch[1] : s.kura;
 
     btn.innerHTML = `
       <div class="info">
         <div class="name">
-          <div style="display: flex; flex-direction: column;">
-            <span style="font-size: 11px; color: var(--ai-light); line-height: 1; margin-bottom: 2px;">${s.brandKana}</span>
-            <span class="brand-name">${s.brand}</span>
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%; margin-bottom: 2px;">
+            <span style="font-size: 11px; color: var(--ai-light); line-height: 1;">${s.brandKana}</span>
+            <span style="font-size: 11.5px; color: var(--ai-light); line-height: 1; font-family: var(--font-gothic); font-weight: 700;">${prefText}</span>
           </div>
+          <span class="brand-name">${s.brand}</span>
           <span class="sub-name">${linkify(s.subtitle)}</span>
         </div>
-        <div class="meta">
-          <div><span class="term-link" onclick="event.stopPropagation(); showKuraInfo('${s.kura}')">${s.kura}</span></div>
-          <div class="meta-specs">
-            ${typeHtml}
-            <span>${linkify('精米歩合')}: <strong style="font-size:14.5px;">${s.seimai}%</strong></span>
-          </div>
-        </div>
+        ${typeHtml}
       </div>
       <div class="icon-group">
         ${drankHtml}

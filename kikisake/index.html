@@ -511,8 +511,66 @@
     border-radius: 10px; padding: 14px 16px; margin-top: 8px; 
   }
 
+  .unified-divider {
+    border-top: 1px dashed var(--line);
+    margin: 24px 0 20px;
+  }
+
+  .summary-text {
+    font-size: 15.5px; color: var(--sumi); line-height: 1.75;
+    margin: 16px 0 0;
+  }
+
   .note {
     font-size: 10.5px; color: var(--sumi); margin-top: 8px; line-height: 1.6;
+  }
+
+  .desc-toggle-btn {
+    width: 100%;
+    background: #fff;
+    border: 1px solid var(--line);
+    color: var(--ai);
+    font-family: var(--font-gothic);
+    font-weight: 700;
+    font-size: 14.5px;
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    margin: 24px 0 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 14px rgba(34,56,92,0.04);
+    transition: all 0.2s ease;
+  }
+  .desc-toggle-btn:active {
+    transform: scale(0.98);
+  }
+  .desc-toggle-btn svg {
+    width: 18px; height: 18px;
+    transition: transform 0.3s ease;
+    stroke: currentColor;
+    stroke-width: 2.5;
+  }
+  .desc-toggle-btn.open svg {
+    transform: rotate(180deg);
+  }
+  .desc-content-wrapper {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease;
+  }
+  .desc-content-wrapper.open {
+    grid-template-rows: 1fr;
+  }
+  .desc-content-inner {
+    overflow: hidden;
+  }
+  .desc-content-inner .desc-card {
+    margin: 0 0 8px;
+  }
+  .desc-content-inner .source-line {
+    margin-bottom: 8px;
   }
 
   .desc-card {
@@ -1031,15 +1089,15 @@
           <div class="ruler-track"></div>
           <div class="ticks">
             <div class="tick-mark"><span class="tick-number">0</span></div>
-            <div class="tick-mark"><span class="tick-number">1</span></div>
-            <div class="tick-mark"><span class="tick-number">2</span></div>
-            <div class="tick-mark"><span class="tick-number">3</span></div>
-            <div class="tick-mark"><span class="tick-number">4</span></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
             <div class="tick-mark"><span class="tick-number">5</span></div>
-            <div class="tick-mark"><span class="tick-number">6</span></div>
-            <div class="tick-mark"><span class="tick-number">7</span></div>
-            <div class="tick-mark"><span class="tick-number">8</span></div>
-            <div class="tick-mark"><span class="tick-number">9</span></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
             <div class="tick-mark"><span class="tick-number">10</span></div>
           </div>
           <input type="range" min="0" max="100" value="50" id="s-amakara">
@@ -1052,15 +1110,15 @@
           <div class="ruler-track"></div>
           <div class="ticks">
             <div class="tick-mark"><span class="tick-number">0</span></div>
-            <div class="tick-mark"><span class="tick-number">1</span></div>
-            <div class="tick-mark"><span class="tick-number">2</span></div>
-            <div class="tick-mark"><span class="tick-number">3</span></div>
-            <div class="tick-mark"><span class="tick-number">4</span></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
             <div class="tick-mark"><span class="tick-number">5</span></div>
-            <div class="tick-mark"><span class="tick-number">6</span></div>
-            <div class="tick-mark"><span class="tick-number">7</span></div>
-            <div class="tick-mark"><span class="tick-number">8</span></div>
-            <div class="tick-mark"><span class="tick-number">9</span></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
             <div class="tick-mark"><span class="tick-number">10</span></div>
           </div>
           <input type="range" min="0" max="100" value="50" id="s-kaori">
@@ -1073,15 +1131,15 @@
           <div class="ruler-track"></div>
           <div class="ticks">
             <div class="tick-mark"><span class="tick-number">0</span></div>
-            <div class="tick-mark"><span class="tick-number">1</span></div>
-            <div class="tick-mark"><span class="tick-number">2</span></div>
-            <div class="tick-mark"><span class="tick-number">3</span></div>
-            <div class="tick-mark"><span class="tick-number">4</span></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
             <div class="tick-mark"><span class="tick-number">5</span></div>
-            <div class="tick-mark"><span class="tick-number">6</span></div>
-            <div class="tick-mark"><span class="tick-number">7</span></div>
-            <div class="tick-mark"><span class="tick-number">8</span></div>
-            <div class="tick-mark"><span class="tick-number">9</span></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
             <div class="tick-mark"><span class="tick-number">10</span></div>
           </div>
           <input type="range" min="0" max="100" value="50" id="s-keiju">
@@ -1546,7 +1604,10 @@ function showComparison(){
       <p>今回の感覚から見ると、<span class="highlight">${typeDesc}な「${linkify(typeName)}」タイプ</span>に近い一杯に感じられたようです。<br>
       全体として、<span class="highlight">${amakaraText}</span>の印象が残る、あなただけの味わいが言語化されました。</p>
       <p class="note" style="margin-top: 14px; font-size: 10px;">※4タイプ分類(薫・爽・醇・熟)はSSI(日本酒サービス研究会・酒匠研究会連合会)の提唱する分類手法を参考にしています。</p>
-    </div>
+      
+      <div class="unified-divider"></div>
+      
+      <h4>データとくらべると</h4>
   `;
 
   let diffs = [];
@@ -1572,15 +1633,15 @@ function showComparison(){
           <div class="track">
             <div class="track-ticks">
               <div class="track-tick-mark"><span class="track-tick-number">0</span></div>
-              <div class="track-tick-mark"><span class="track-tick-number">1</span></div>
-              <div class="track-tick-mark"><span class="track-tick-number">2</span></div>
-              <div class="track-tick-mark"><span class="track-tick-number">3</span></div>
-              <div class="track-tick-mark"><span class="track-tick-number">4</span></div>
+              <div class="track-tick-mark"></div>
+              <div class="track-tick-mark"></div>
+              <div class="track-tick-mark"></div>
+              <div class="track-tick-mark"></div>
               <div class="track-tick-mark"><span class="track-tick-number">5</span></div>
-              <div class="track-tick-mark"><span class="track-tick-number">6</span></div>
-              <div class="track-tick-mark"><span class="track-tick-number">7</span></div>
-              <div class="track-tick-mark"><span class="track-tick-number">8</span></div>
-              <div class="track-tick-mark"><span class="track-tick-number">9</span></div>
+              <div class="track-tick-mark"></div>
+              <div class="track-tick-mark"></div>
+              <div class="track-tick-mark"></div>
+              <div class="track-tick-mark"></div>
               <div class="track-tick-mark"><span class="track-tick-number">10</span></div>
             </div>
             <span class="end-label left">${meta.left}</span>
@@ -1630,36 +1691,46 @@ function showComparison(){
     summaryComment = `${sameText}についてはデータと近いバランスで捉えつつも、データよりも「${traitsText}」感じられたようです。`;
   }
 
-  html += `<div class="diff-comment">${summaryComment}</div>`;
-  html += `<div class="note" style="margin-top: 10px; margin-bottom: 24px;">※蔵元等の情報を元に当方が独自基準で標準化した参考値です</div>`;
+  html += `<p class="summary-text">${summaryComment}</p>`;
+  html += `<p class="note" style="font-size: clamp(8px, calc((100vw - 76px) / 27.5), 10.5px); white-space: nowrap; letter-spacing: -0.03em; margin-top: 10px;">※蔵元等の情報を元に当方が独自基準で標準化した参考値です</p>`;
 
   if(userAnswers.comment){
-    html += `<div class="diff-comment">あなたの一言:「${escapeHtml(userAnswers.comment)}」</div>`;
+    html += `<p class="summary-text" style="margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--line);">あなたの一言:「${escapeHtml(userAnswers.comment)}」</p>`;
   }
+
+  html += `</div>`; // analysis-cardの終了タグ
 
   const typeCore = s.type.replace('酒', '').replace('(原酒)', '');
   const showType = !s.subtitle.includes(typeCore);
   const typeHtmlDesc = showType ? `<span>特定名称:${linkify(s.type)}</span>` : '';
 
   html += `
-    <div class="desc-card">
-      <p class="eyebrow">この銘柄について</p>
-      <h3>
-        <div style="display: flex; flex-direction: column; align-items: flex-start; margin-right: 8px;">
-          <span style="font-size: 11px; color: rgba(255,255,255,0.8); line-height: 1; margin-bottom: 2px; font-family: var(--font-gothic); letter-spacing: 0.05em;">${s.brandKana}</span>
-          <span class="brand-name">${s.brand}</span>
+    <button class="desc-toggle-btn" onclick="toggleDesc(this)">
+      <span>銘柄の詳細を見る</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div class="desc-content-wrapper">
+      <div class="desc-content-inner">
+        <div class="desc-card">
+          <p class="eyebrow">この銘柄について</p>
+          <h3>
+            <div style="display: flex; flex-direction: column; align-items: flex-start; margin-right: 8px;">
+              <span style="font-size: 11px; color: rgba(255,255,255,0.8); line-height: 1; margin-bottom: 2px; font-family: var(--font-gothic); letter-spacing: 0.05em;">${s.brandKana}</span>
+              <span class="brand-name">${s.brand}</span>
+            </div>
+            <span class="sub-name" style="margin-top: auto;">${linkify(s.subtitle)}</span>
+          </h3>
+          <p>${linkify(s.description)}</p>
+          <div class="spec">
+            <span>蔵元:<span class="term-link" onclick="showKuraInfo('${s.kura}')">${s.kura}</span></span>
+            ${typeHtmlDesc}
+            <span>${linkify('精米歩合')}:<span style="font-size:115%; font-weight:700;">${s.seimai}%</span></span>
+            <span>アルコール分:${s.alcohol}</span>
+          </div>
         </div>
-        <span class="sub-name" style="margin-top: auto;">${linkify(s.subtitle)}</span>
-      </h3>
-      <p>${linkify(s.description)}</p>
-      <div class="spec">
-        <span>蔵元:<span class="term-link" onclick="showKuraInfo('${s.kura}')">${s.kura}</span></span>
-        ${typeHtmlDesc}
-        <span>${linkify('精米歩合')}:<span style="font-size:115%; font-weight:700;">${s.seimai}%</span></span>
-        <span>アルコール分:${s.alcohol}</span>
+        <div class="source-line">${linkify(s.source)}</div>
       </div>
     </div>
-    <div class="source-line">${linkify(s.source)}</div>
   `;
 
   // --- ↓ スプレッドシートへ利き酒評価データを送信 ↓ ---
@@ -1799,6 +1870,12 @@ function resetAll(){
   
   renderSakeList();
   goScreen(1);
+}
+
+function toggleDesc(btn) {
+  btn.classList.toggle('open');
+  const wrapper = btn.nextElementSibling;
+  wrapper.classList.toggle('open');
 }
 
 function escapeHtml(str){

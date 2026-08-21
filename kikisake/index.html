@@ -883,8 +883,9 @@
     padding: 5px 8px;
     border-radius: 4px;
     position: absolute;
-    bottom: calc(100% + 6px);
-    right: 0;
+    bottom: calc(100% + 2px);
+    left: 100%;
+    transform: translateX(8px);
     z-index: 10;
     box-shadow: 0 2px 8px rgba(189, 70, 48, 0.2);
     opacity: 0;
@@ -899,7 +900,7 @@
     content: '';
     position: absolute;
     top: 100%;
-    right: 10px;
+    left: 8px;
     border-width: 5px 5px 0 5px;
     border-style: solid;
     border-color: var(--shu) transparent transparent transparent;
@@ -955,7 +956,7 @@
     <section class="screen active" data-screen="1">
       <p class="eyebrow">STEP 1</p>
       <h2 class="title">今日、飲むお酒を選んでください</h2>
-      <p class="lead" style="font-size: 16px; margin-bottom: 14px;">飲んで感じたことを記録して、データと見比べてみる。<br>それだけで、日本酒がもっと楽しくなります。</p>
+      <p class="lead" style="font-size: clamp(11px, calc((100vw - 40px) / 24), 16px); margin-bottom: 14px; white-space: nowrap; letter-spacing: -0.01em;">飲んで感じたことを記録して、データと見比べてみる。<br>それだけで、日本酒がもっと楽しくなります。</p>
       <p class="lead" style="font-size: clamp(11px, calc((100vw - 40px) / 27.5), 13px); letter-spacing: -0.02em; white-space: nowrap;">当店で扱う日本酒です。いま飲んでいるお酒をお選びください。</p>
 
       <div id="sakeList"></div>
@@ -1800,8 +1801,10 @@ let hideTimer = null;
 function showTermTooltip() {
   if (localStorage.getItem('kikizake_hint_seen')) return;
 
-  // STEP1画面に表示されている最初の用語リンクを探す
-  const link = document.querySelector('.screen[data-screen="1"] .term-link');
+  // STEP1画面の一番上の銘柄カードにある最初の用語リンクを取得
+  const links = document.querySelectorAll('.screen[data-screen="1"] .sake-card:first-child .term-link');
+  // ターゲットは必ず最初の用語（純米吟醸など）にする
+  const link = links[0];
   if (!link) return;
 
   tooltipEl = document.createElement('span');

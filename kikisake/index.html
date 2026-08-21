@@ -719,6 +719,7 @@
     font-weight: 700;
     transition: opacity 0.2s ease;
     white-space: nowrap;
+    position: relative;
   }
   .term-link:hover { opacity: 0.7; }
   .desc-card .term-link {
@@ -871,6 +872,40 @@
   .history-card .comment {
     font-size: 13.5px; color: var(--sumi); margin-top: 10px; line-height:1.6;
     border-top: 1px dashed var(--line); padding-top: 10px;
+  }
+
+  .term-tooltip {
+    display: block;
+    background: var(--shu);
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 5px 8px;
+    border-radius: 4px;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    right: 0;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(189, 70, 48, 0.2);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .term-tooltip.show {
+    opacity: 1;
+  }
+  .term-tooltip::before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    right: 10px;
+    border-width: 5px 5px 0 5px;
+    border-style: solid;
+    border-color: var(--shu) transparent transparent transparent;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .term-tooltip { transition: none; }
   }
 </style>
 </head>
@@ -1257,23 +1292,14 @@ const glossaryData = {
   "吟醸香": "吟醸造りによって生まれる、バナナやリンゴ、メロンなどの果実を思わせる華やかな香りのこと。",
   "麹米": "日本酒造りの要となる「米麹」を造るために使用されるお米のこと。",
   "掛米": "もろみ（発酵中の液体）を仕込む際に、直接加えられるお米のこと。",
-  "山田錦": "「酒米の王様」とも呼ばれる、日本酒造りに非常に適したお米の品種。ふくらみのある豊かな味わいになりやすいです。",
-  "五百万石": "山田錦と並んで有名な酒米の品種。すっきりとしてキレのある、淡麗な味わいに仕上がりやすいです。",
-  "ひだほまれ": "岐阜県で開発された酒造好適米（酒米）。大粒で心白（お米の中心の白い部分）が大きく、雑味の少ないやわらかくふくよかな味わいのお酒になりやすい特徴があります。",
-  "直汲み": "お酒を搾る際、タンクなどに貯蔵せず、搾り機から出てきたお酒を直接瓶詰めしたもののこと。微炭酸が残っていることも多いです。",
-  "薫酒(くんしゅ)": "香りが高く、味わいが軽快なタイプの日本酒。フルーティーで華やかな香りと、すっきりとした飲み口が特徴です（主に大吟醸酒などに多い傾向があります）。",
-  "爽酒(そうしゅ)": "香りが穏やかで、味わいが軽快なタイプの日本酒。清涼感があり、すっきりと引っ掛かりのないなめらかな飲み口が特徴です（主に本醸造酒や生酒などに多い傾向があります）。",
-  "醇酒(じゅんしゅ)": "香りが穏やかで、味わいが濃厚なタイプの日本酒。お米本来のふくよかな旨みや甘み、コクをしっかりと感じられるのが特徴です（主に純米酒などに多い傾向があります）。",
-  "熟酒(じゅくしゅ)": "香りが高く、味わいが濃厚なタイプの日本酒。ドライフルーツやスパイスのような複雑な熟成香と、とろりとした深い深い旨みが特徴です（主に長期熟成酒などに多い傾向があります）。"
-};
-
-const kuraData = {
-  "はざま酒造(岐阜県)": "中仙道大井宿の古い町並みの中にあり、自然豊かな恵那山系の伏流水を用いて酒造りを行っています。代表銘柄は「恵那山」。",
-  "一ノ蔵(宮城県)": "1973年、浅見商店、勝来酒造、櫻井酒造店、松本酒造店の4蔵が企業合同して誕生。高品質な酒を安定して提供し続ける、宮城を代表する酒蔵です。",
-  "丸尾本店(香川県)": "「悦 凱陣(よろこび がいじん)」を醸す、香川県琴平町の小さな蔵。選び抜かれた酒米と金毘羅宮の伏流水を使い、力強く深い味わいの酒を造り出しています。",
-  "小林酒造(栃木県)": "1872年創業。代表銘柄「鳳凰美田」。マスカットやメロンのような華やかな香りと、ふくよかな味わいが特徴の、全国的に人気の高い酒蔵です。",
-  "清水清三郎商店(三重県)": "鈴鹿市にある唯一の酒蔵。「作（ざく）」や「鈴鹿川」を醸造。伊勢杜氏の伝統を引き継ぎ、国内外のコンペティションで高い評価を得ています。",
-  "土屋酒造店(長野県)": "佐久市にある酒蔵。千曲川の伏流水と地元産の米を用い、「亀の海」などの銘柄を醸しています。信州の自然が育む、きれいな味わいが特徴です。"
+  "山田錦": "「酒米の王様」とも呼ばれる代表的な酒米（酒造好適米）。香りが高く、繊細でバランスの良いきれいな味わいのお酒になりやすいのが特徴です。",
+  "五百万石": "新潟県を中心に栽培される代表的な酒米。すっきりとキレのある、淡麗な味わいのお酒になりやすいのが特徴です。",
+  "ひだほまれ": "岐阜県特産の酒米。粒が大きく、ふくよかな甘みと豊かな旨みを持つ、味わい深いお酒になりやすいのが特徴です。",
+  "酒造好適米": "日本酒を造るために特別に栽培されたお米（酒米）のこと。食用米に比べて粒が大きく、良質なお酒を造るのに適しています。",
+  "酒米": "日本酒を造るために特別に栽培されたお米（酒造好適米）のこと。食用米に比べて粒が大きく、中心にある「心白（しんぱく）」が大きいため、良質なお酒を造るのに適しています。",
+    "小林酒造(栃木県)": "1872年創業。代表銘柄「鳳凰美田」。マスカットやメロンのような華やかな香りと、ふくよかな味わいが特徴の、全国的に人気の高い酒蔵です。",
+    "清水清三郎商店(三重県)": "鈴鹿市にある唯一の酒蔵。「作（ざく）」や「鈴鹿川」を醸造。伊勢杜氏の伝統を引き継ぎ、国内外のコンペティションで高い評価を得ています。",
+    "土屋酒造店(長野県)": "佐久市にある酒蔵。千曲川の伏流水と地元産の米を用い、「亀の海」などの銘柄を醸しています。信州の自然が育む、きれいな味わいが特徴です。"
 };
 
 function showKuraInfo(kuraName) {
@@ -1767,9 +1793,67 @@ function escapeHtml(str){
   return div.innerHTML;
 }
 
+/* ============ 用語ツールチップ (初回のみ) ============ */
+let tooltipEl = null;
+let hideTimer = null;
+
+function showTermTooltip() {
+  if (localStorage.getItem('kikizake_hint_seen')) return;
+
+  // STEP1画面に表示されている最初の用語リンクを探す
+  const link = document.querySelector('.screen[data-screen="1"] .term-link');
+  if (!link) return;
+
+  tooltipEl = document.createElement('span');
+  tooltipEl.className = 'term-tooltip';
+  tooltipEl.textContent = 'タップで解説を表示';
+  
+  // 対象の用語の中に絶対配置で追加することで、周囲の文字を押し出さないようにする
+  link.appendChild(tooltipEl);
+
+  // リフローを強制してから表示
+  tooltipEl.getBoundingClientRect();
+  tooltipEl.classList.add('show');
+  
+  localStorage.setItem('kikizake_hint_seen', 'true');
+
+  // 5秒後に自動消去
+  hideTimer = setTimeout(hideTermTooltip, 5000);
+
+  // 画面タップで消去 (直後に反応しないよう少し遅延して登録)
+  setTimeout(() => {
+    document.addEventListener('click', hideTermTooltip);
+    document.addEventListener('touchstart', hideTermTooltip, {passive: true});
+  }, 100);
+}
+
+function hideTermTooltip() {
+  if (!tooltipEl) return;
+  tooltipEl.classList.remove('show');
+  clearTimeout(hideTimer);
+  document.removeEventListener('click', hideTermTooltip);
+  document.removeEventListener('touchstart', hideTermTooltip);
+  
+  // アニメーションを待って削除
+  setTimeout(() => {
+    if (tooltipEl && tooltipEl.parentNode) {
+      tooltipEl.parentNode.removeChild(tooltipEl);
+      tooltipEl = null;
+    }
+  }, 350);
+}
+
 /* ============ 初期化 ============ */
 renderSakeList();
 goScreen(1);
+
+// OP映像がない、またはスキップされたら少し待ってツールチップを表示
+setTimeout(() => {
+  if (!document.body.classList.contains('op-active')) {
+    showTermTooltip();
+  }
+}, 1500);
+
 // アプリを開いた瞬間に「アクセス」のログを送信
 sendLogToSheet('アクセス', userInfo.gender, userInfo.age);
 
@@ -1790,6 +1874,9 @@ function skipOp() {
   
   document.body.classList.remove('op-active');
   
+  // OPスキップ時にツールチップの判定を行う
+  setTimeout(showTermTooltip, 1000);
+
   setTimeout(() => {
     opOverlay.style.display = 'none';
   }, 800);

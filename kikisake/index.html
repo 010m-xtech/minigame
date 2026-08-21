@@ -279,13 +279,6 @@
     background: #fff;
   }
 
-  .selected-tag {
-    display: inline-block;
-    font-size: 13px; color: var(--sumi);
-    border: 1px solid var(--ai-pale); background: var(--ai-pale);
-    border-radius: 20px; padding: 4px 12px; margin-bottom: 10px;
-  }
-
   .slider-group {
     margin-bottom: 40px; /* メモリ数字のスペースのため余白を広げる */
   }
@@ -927,7 +920,8 @@
     <section class="screen active" data-screen="1">
       <p class="eyebrow">STEP 1</p>
       <h2 class="title">今日、飲むお酒を選んでください</h2>
-      <p class="lead">当店で扱う日本酒です。<br>気になる1本、今飲んでいる1本をお選びください。</p>
+      <p class="lead" style="font-size: 16px; margin-bottom: 14px;">飲んで感じたことを記録して、データと見比べてみる。<br>それだけで、日本酒がもっと楽しくなります。</p>
+      <p class="lead" style="font-size: clamp(11px, calc((100vw - 40px) / 27.5), 13px); letter-spacing: -0.02em; white-space: nowrap;">当店で扱う日本酒です。いま飲んでいるお酒をお選びください。</p>
 
       <div id="sakeList"></div>
     </section>
@@ -971,7 +965,7 @@
       </div>
 
       <p id="profileError" style="color: var(--shu); font-size: 13px; font-weight: bold; text-align: center; display: none; margin-bottom: 16px;">性別と年齢の両方を選択してください</p>
-      <p class="note" style="margin-top: -10px; margin-bottom: 24px; text-align: center;">※サービス改善のための参考にさせていただきます</p>
+      <p class="note" style="font-size: 13px; margin-top: -10px; margin-bottom: 24px; text-align: center;">※サービス改善のための参考にさせていただきます</p>
 
       <div class="btn-row">
         <button class="btn btn-ghost" onclick="goScreen(1)">戻る</button>
@@ -983,7 +977,7 @@
     <section class="screen" data-screen="2">
       <p class="eyebrow">STEP 2</p>
       <h2 class="title">飲んでみて、どう感じましたか</h2>
-      <div class="selected-tag" id="selectedTag"></div>
+      <p class="lead">3つのバーを、感じた方向へ動かしてみてください。</p>
 
       <div class="slider-group">
         <div class="slider-labels"><span>甘口</span><span>辛口</span></div>
@@ -1071,6 +1065,7 @@
     <section class="screen" data-screen="3">
       <p class="eyebrow">STEP 3</p>
       <h2 class="title">あなたの感覚と、蔵元の情報</h2>
+      <p class="lead">あなたの感じ方を記録しました。ここから、データと見比べてみましょう。</p>
       <div id="compareBody"></div>
       <div class="btn-row">
         <button class="btn btn-primary" style="width:100%" onclick="showPairing()">次へ:合う一品を見る</button>
@@ -1383,7 +1378,6 @@ function renderSakeList(){
 function selectSake(id){
   currentSakeId = id;
   const s = sakeList.find(x=>x.id===id);
-  document.getElementById('selectedTag').innerHTML = `選んだ一杯: <ruby><strong style="font-size:110%; margin-right: 4px;">${s.brand}</strong><rt style="font-size:10px; font-weight:normal; color:var(--sumi);">${s.brandKana}</rt></ruby> ${linkify(s.subtitle)}`;
   document.getElementById('s-amakara').value = 50;
   document.getElementById('s-kaori').value = 50;
   document.getElementById('s-keiju').value = 50;

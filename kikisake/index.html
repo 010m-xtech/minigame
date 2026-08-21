@@ -176,33 +176,6 @@
     font-size: 15px; color: var(--sumi); line-height: 1.8; margin: 0 0 20px;
   }
 
-  .filters {
-    display: flex; gap: 10px; margin-bottom: 22px;
-    flex-wrap: wrap;
-  }
-  .filter-item {
-    flex: 1; min-width: 90px;
-    display: flex; flex-direction: column; gap: 6px;
-  }
-  .filter-item label {
-    font-size: 12px; color: var(--sumi); font-weight: 700;
-  }
-  .filter-item select {
-    width: 100%; padding: 8px 10px; border-radius: 8px;
-    border: 1px solid var(--line);
-    background-color: #fff;
-    font-family: inherit; font-size: 16px; 
-    color: var(--sumi); outline: none; cursor: pointer;
-    -webkit-appearance: none;
-    appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234C6A94' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 8px center;
-    background-size: 16px;
-    padding-right: 26px;
-  }
-  .filter-item select:focus-visible { outline: 2px solid var(--shu); }
-
   .no-result {
     text-align: center; font-size: 15px; color: #8b8172; padding: 20px 0 40px;
     line-height: 1.6;
@@ -959,33 +932,6 @@
       <h2 class="title">今日、飲むお酒を選んでください</h2>
       <p class="lead">当店で扱う日本酒です。<br>気になる1本、今飲んでいる1本をお選びください。</p>
 
-      <div class="filters">
-        <div class="filter-item">
-          <label for="f-taste">味わい</label>
-          <select id="f-taste" onchange="renderSakeList()">
-            <option value="all">すべて</option>
-            <option value="sweet">甘口・やわらか</option>
-            <option value="dry">辛口・すっきり</option>
-          </select>
-        </div>
-        <div class="filter-item">
-          <label for="f-aroma">香り</label>
-          <select id="f-aroma" onchange="renderSakeList()">
-            <option value="all">すべて</option>
-            <option value="fruity">華やか・フルーティー</option>
-            <option value="mild">穏やか・お米の香り</option>
-          </select>
-        </div>
-        <div class="filter-item">
-          <label for="f-type">種類</label>
-          <select id="f-type" onchange="renderSakeList()">
-            <option value="all">すべて</option>
-            <option value="junmai">純米吟醸</option>
-            <option value="honjozo">本醸造</option>
-          </select>
-        </div>
-      </div>
-
       <div id="sakeList"></div>
     </section>
 
@@ -1217,6 +1163,7 @@ const sakeList = [
   {
     id: "ena",
     brand: "恵那山",
+    brandKana: "えなさん",
     subtitle: "純米吟醸　ひだほまれ",
     name: "恵那山　純米吟醸　ひだほまれ",
     kura: "はざま酒造(岐阜県)",
@@ -1236,6 +1183,7 @@ const sakeList = [
   {
     id: "ichinokura",
     brand: "一ノ蔵",
+    brandKana: "いちのくら",
     subtitle: "無鑑査本醸造　甘口",
     name: "一ノ蔵　無鑑査本醸造　甘口",
     kura: "一ノ蔵(宮城県)",
@@ -1255,6 +1203,7 @@ const sakeList = [
   {
     id: "eikaijin",
     brand: "悦　凱陣",
+    brandKana: "よろこび　がいじん",
     subtitle: "山田錦　ブルーボトル　純米吟醸　無濾過生",
     name: "悦　凱陣　山田錦　ブルーボトル　純米吟醸　無濾過生",
     kura: "丸尾本店(香川県)",
@@ -1274,6 +1223,7 @@ const sakeList = [
   {
     id: "hououbiden",
     brand: "鳳凰美田",
+    brandKana: "ほうおうびでん",
     subtitle: "純米吟醸酒",
     name: "鳳凰美田　純米吟醸酒",
     kura: "小林酒造(栃木県)",
@@ -1293,6 +1243,7 @@ const sakeList = [
   {
     id: "zaku",
     brand: "作",
+    brandKana: "ざく",
     subtitle: "インプレッション　M",
     name: "作　インプレッション　M",
     kura: "清水清三郎商店(三重県)",
@@ -1312,6 +1263,7 @@ const sakeList = [
   {
     id: "kamenoumi",
     brand: "亀の海",
+    brandKana: "かめのうみ",
     subtitle: "本醸造",
     name: "亀の海　本醸造",
     kura: "土屋酒造店(長野県)",
@@ -1418,30 +1370,13 @@ let drankHistory = JSON.parse(localStorage.getItem('kikizake_drankHistory')) || 
 let pastRecords = JSON.parse(localStorage.getItem('kikizake_records')) || [];
 let sessionRecords = []; 
 
-/* ============ 初期描画:銘柄リスト(絞り込み対応) ============ */
+/* ============ 初期描画:銘柄リスト ============ */
 function renderSakeList(){
-  const t = document.getElementById('f-taste') ? document.getElementById('f-taste').value : 'all';
-  const a = document.getElementById('f-aroma') ? document.getElementById('f-aroma').value : 'all';
-  const ty = document.getElementById('f-type') ? document.getElementById('f-type').value : 'all';
-
   const wrap = document.getElementById('sakeList');
   wrap.innerHTML = "";
   let count = 0;
 
   sakeList.forEach(s=>{
-    let match = true;
-    
-    if (t === 'sweet' && s.values.amakara >= 50) match = false;
-    if (t === 'dry' && s.values.amakara < 50) match = false;
-
-    if (a === 'fruity' && s.values.kaori < 50) match = false;
-    if (a === 'mild' && s.values.kaori >= 50) match = false;
-
-    if (ty === 'junmai' && !s.type.includes('純米吟醸')) match = false;
-    if (ty === 'honjozo' && !s.type.includes('本醸造')) match = false;
-
-    if (!match) return;
-
     const isFav = favorites.includes(s.id);
 
     count++;
@@ -1459,7 +1394,10 @@ function renderSakeList(){
     btn.innerHTML = `
       <div class="info">
         <div class="name">
-          <span class="brand-name">${s.brand}</span>
+          <div style="display: flex; flex-direction: column;">
+            <span style="font-size: 11px; color: var(--ai-light); line-height: 1; margin-bottom: 2px;">${s.brandKana}</span>
+            <span class="brand-name">${s.brand}</span>
+          </div>
           <span class="sub-name">${linkify(s.subtitle)}</span>
         </div>
         <div class="meta">
@@ -1488,7 +1426,7 @@ function renderSakeList(){
 function selectSake(id){
   currentSakeId = id;
   const s = sakeList.find(x=>x.id===id);
-  document.getElementById('selectedTag').innerHTML = `選んだ一杯: <strong style="font-size:110%;">${s.brand}</strong>　${linkify(s.subtitle)}`;
+  document.getElementById('selectedTag').innerHTML = `選んだ一杯: <ruby><strong style="font-size:110%; margin-right: 4px;">${s.brand}</strong><rt style="font-size:10px; font-weight:normal; color:var(--sumi);">${s.brandKana}</rt></ruby> ${linkify(s.subtitle)}`;
   document.getElementById('s-amakara').value = 50;
   document.getElementById('s-kaori').value = 50;
   document.getElementById('s-keiju').value = 50;
@@ -1716,8 +1654,11 @@ function showComparison(){
     <div class="desc-card">
       <p class="eyebrow">この銘柄について</p>
       <h3>
-        <span class="brand-name">${s.brand}</span>
-        <span class="sub-name">${linkify(s.subtitle)}</span>
+        <div style="display: flex; flex-direction: column; align-items: flex-start; margin-right: 8px;">
+          <span style="font-size: 11px; color: rgba(255,255,255,0.8); line-height: 1; margin-bottom: 2px; font-family: var(--font-gothic); letter-spacing: 0.05em;">${s.brandKana}</span>
+          <span class="brand-name">${s.brand}</span>
+        </div>
+        <span class="sub-name" style="margin-top: auto;">${linkify(s.subtitle)}</span>
       </h3>
       <p>${linkify(s.description)}</p>
       <div class="spec">
@@ -1843,8 +1784,11 @@ function renderHistory() {
     el.innerHTML = `
       <div class="date">${dateStr}</div>
       <div class="name">
-        <span class="brand-name">${s.brand}</span>
-        <span class="sub-name">${s.subtitle}</span>
+        <div style="display: flex; flex-direction: column; align-items: flex-start; margin-right: 8px;">
+          <span style="font-size: 10px; color: var(--ai-light); line-height: 1; margin-bottom: 2px;">${s.brandKana}</span>
+          <span class="brand-name">${s.brand}</span>
+        </div>
+        <span class="sub-name" style="margin-top: auto;">${s.subtitle}</span>
       </div>
       <div class="params">
         <span>甘辛: ${amakaraVal}</span>
@@ -1861,10 +1805,6 @@ function renderHistory() {
 function resetAll(){
   currentSakeId = null;
   userAnswers = {};
-  
-  if(document.getElementById('f-taste')) document.getElementById('f-taste').value = 'all';
-  if(document.getElementById('f-aroma')) document.getElementById('f-aroma').value = 'all';
-  if(document.getElementById('f-type')) document.getElementById('f-type').value = 'all';
   
   renderSakeList();
   goScreen(1);

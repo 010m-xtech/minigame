@@ -1350,6 +1350,10 @@ const axisMeta = {
 
 /* ============ 用語辞典データと処理 ============ */
 const glossaryData = {
+  "薫酒": "香りが高く、すっきりとした軽快な味わいが特徴のタイプ。大吟醸酒や吟醸酒などに多く見られ、花や果実のようなフルーティーな香りが楽しめます。",
+  "爽酒": "香りは穏やかで、すっきりと軽快でなめらかな味わいが特徴のタイプ。本醸造酒や生酒などに多く見られ、清涼感のある飲み口が楽しめます。",
+  "醇酒": "香りは穏やかで、ふくよかなお米の旨味やコクがしっかり感じられるタイプ。純米酒や生酛造りのお酒などに多く見られ、奥深い味わいが楽しめます。",
+  "熟酒": "熟成による複雑で豊かな香りと、とろりとした濃厚な味わいが特徴のタイプ。古酒や長期熟成酒などに多く見られ、スパイスやドライフルーツのような個性的な深い味わいが楽しめます。",
   "純米吟醸酒": "精米歩合60%以下の白米、米麹、水のみを原料として「吟醸造り」で造られたお酒。フルーティーな香りとすっきりとした味わいが特徴です。",
   "純米吟醸": "精米歩合60%以下の白米、米麹、水のみを原料として「吟醸造り」で造られたお酒。フルーティーな香りとすっきりとした味わいが特徴です。",
   "本醸造酒": "精米歩合70%以下の白米、米麹、水、そして規定量内の「醸造アルコール」を原料としたお酒。すっきりとした辛口で、香りは控えめなことが多いです。",
@@ -1585,11 +1589,12 @@ function showComparison(){
 
   const ans = userAnswers;
   let typeName = "";
+  let typeKana = "";
   let typeDesc = "";
-  if (ans.kaori >= 50 && ans.keiju < 50) { typeName = "薫酒(くんしゅ)"; typeDesc = "香り高く淡麗"; }
-  else if (ans.kaori < 50 && ans.keiju < 50) { typeName = "爽酒(そうしゅ)"; typeDesc = "香り穏やかで淡麗"; }
-  else if (ans.kaori < 50 && ans.keiju >= 50) { typeName = "醇酒(じゅんしゅ)"; typeDesc = "香り穏やかで濃厚"; }
-  else { typeName = "熟酒(じゅくしゅ)"; typeDesc = "香り高く濃厚"; }
+  if (ans.kaori >= 50 && ans.keiju < 50) { typeName = "薫酒"; typeKana = "くんしゅ"; typeDesc = "香り高く淡麗"; }
+  else if (ans.kaori < 50 && ans.keiju < 50) { typeName = "爽酒"; typeKana = "そうしゅ"; typeDesc = "香り穏やかで淡麗"; }
+  else if (ans.kaori < 50 && ans.keiju >= 50) { typeName = "醇酒"; typeKana = "じゅんしゅ"; typeDesc = "香り穏やかで濃厚"; }
+  else { typeName = "熟酒"; typeKana = "じゅくしゅ"; typeDesc = "香り高く濃厚"; }
 
   let amakaraText = "";
   if (ans.amakara < 35) amakaraText = "しっかりとした甘み";
@@ -1601,7 +1606,7 @@ function showComparison(){
   html += `
     <div class="analysis-card">
       <h4>あなたの感じた味わい</h4>
-      <p>今回の感覚から見ると、<span class="highlight">${typeDesc}な「${linkify(typeName)}」タイプ</span>に近い一杯に感じられたようです。<br>
+      <p>今回の感覚から見ると、<span class="highlight">${typeDesc}な「${linkify(typeName)}(${typeKana})」タイプ</span>に近い一杯に感じられたようです。<br>
       全体として、<span class="highlight">${amakaraText}</span>の印象が残る、あなただけの味わいが言語化されました。</p>
       <p class="note" style="margin-top: 14px; font-size: 10px;">※4タイプ分類(薫・爽・醇・熟)はSSI(日本酒サービス研究会・酒匠研究会連合会)の提唱する分類手法を参考にしています。</p>
       

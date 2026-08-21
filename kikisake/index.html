@@ -1126,7 +1126,7 @@
       </div>
 
       <div class="slider-group">
-        <div class="slider-labels"><span>淡麗</span><span>濃厚</span></div>
+        <div class="slider-labels"><span>軽い</span><span>重い・どっしり</span></div>
         <div class="ruler">
           <div class="ruler-track"></div>
           <div class="ticks">
@@ -1345,7 +1345,7 @@ const sakeList = [
 const axisMeta = {
   amakara: { label: "甘辛", left: "甘口", right: "辛口" },
   kaori:   { label: "香り", left: "穏やか", right: "華やか" },
-  keiju:   { label: "ボディ", left: "淡麗", right: "濃厚" }
+  keiju:   { label: "ボディ", left: "軽い", right: "重い・どっしり" }
 };
 
 /* ============ 用語辞典データと処理 ============ */
@@ -1591,10 +1591,10 @@ function showComparison(){
   let typeName = "";
   let typeKana = "";
   let typeDesc = "";
-  if (ans.kaori >= 50 && ans.keiju < 50) { typeName = "薫酒"; typeKana = "くんしゅ"; typeDesc = "香り高く淡麗"; }
-  else if (ans.kaori < 50 && ans.keiju < 50) { typeName = "爽酒"; typeKana = "そうしゅ"; typeDesc = "香り穏やかで淡麗"; }
-  else if (ans.kaori < 50 && ans.keiju >= 50) { typeName = "醇酒"; typeKana = "じゅんしゅ"; typeDesc = "香り穏やかで濃厚"; }
-  else { typeName = "熟酒"; typeKana = "じゅくしゅ"; typeDesc = "香り高く濃厚"; }
+  if (ans.kaori >= 50 && ans.keiju < 50) { typeName = "薫酒"; typeKana = "くんしゅ"; typeDesc = "香り高く軽い"; }
+  else if (ans.kaori < 50 && ans.keiju < 50) { typeName = "爽酒"; typeKana = "そうしゅ"; typeDesc = "香り穏やかで軽い"; }
+  else if (ans.kaori < 50 && ans.keiju >= 50) { typeName = "醇酒"; typeKana = "じゅんしゅ"; typeDesc = "香り穏やかで重い・どっしりとした"; }
+  else { typeName = "熟酒"; typeKana = "じゅくしゅ"; typeDesc = "香り高く重い・どっしりとした"; }
 
   let amakaraText = "";
   if (ans.amakara < 35) amakaraText = "しっかりとした甘み";
@@ -1679,8 +1679,8 @@ function showComparison(){
       else if (d.diff >= 15) traits.push("香りを華やかに");
       else sameTraits.push("香り");
     } else if (d.axis === "keiju") {
-      if (d.diff <= -15) traits.push("より淡麗に");
-      else if (d.diff >= 15) traits.push("より濃厚に");
+      if (d.diff <= -15) traits.push("より軽く");
+      else if (d.diff >= 15) traits.push("より重く・どっしりと");
       else sameTraits.push("ボディ感");
     }
   });
@@ -1786,8 +1786,8 @@ function showPairing(){
     if (avgA < 45) traits.push("甘みを感じやすい");
     if (avgA > 55) traits.push("辛口ですっきりとした");
     if (avgK > 55) traits.push("華やかな香りの");
-    if (avgW > 55) traits.push("濃厚でしっかりとした");
-    if (avgW < 45) traits.push("淡麗ですっきりとした");
+    if (avgW > 55) traits.push("重く・どっしりとした");
+    if (avgW < 45) traits.push("軽くすっきりとした");
 
     let trendText = "";
     if (traits.length > 0) {

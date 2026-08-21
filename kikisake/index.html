@@ -841,6 +841,16 @@
     color: #fff;
     letter-spacing: 0.08em;
     pointer-events: none;
+    animation: floatUpDown 2s ease-in-out infinite;
+  }
+
+  @keyframes floatUpDown {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    .op-skip-hint { animation: none; }
   }
 
   .history-btn {

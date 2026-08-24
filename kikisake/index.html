@@ -540,12 +540,6 @@
   .marker.user { margin-top: -32px; }
   .marker.ref { margin-top: 16px; }
 
-  .diff-comment {
-    font-size: 15.5px; color: var(--sumi); line-height: 1.75;
-    background: #fff; border: 1px solid var(--line);
-    border-radius: 10px; padding: 14px 16px; margin-top: 8px; 
-  }
-
   .unified-divider {
     border-top: 1px dashed var(--line);
     margin: 24px 0 20px;
@@ -1481,7 +1475,6 @@ function closeGlossary() {
 /* ============ 状態管理 ============ */
 let currentSakeId = null;
 let userAnswers = {};
-let userInfo = JSON.parse(localStorage.getItem('kikizake_profile')) || { gender: null, age: null };
 let favorites = JSON.parse(localStorage.getItem('kikizake_favorites')) || [];
 let drankHistory = JSON.parse(localStorage.getItem('kikizake_drankHistory')) || [];
 let pastRecords = JSON.parse(localStorage.getItem('kikizake_records')) || [];

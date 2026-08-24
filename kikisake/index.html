@@ -274,9 +274,18 @@
 
   .survey-group {
     margin-bottom: 16px;
+    transition: all 0.3s ease;
   }
   .survey-group > label {
     display: block; font-size: 13.5px; font-weight: 700; color: var(--ai); margin-bottom: 10px; line-height: 1.4;
+    transition: color 0.3s ease;
+  }
+  .survey-group.error-highlight > label {
+    color: var(--shu);
+  }
+  .survey-group.error-highlight .radio-box {
+    border-color: var(--shu);
+    background-color: var(--shu-pale);
   }
   .radio-buttons-col {
     display: flex; flex-direction: column; gap: 8px;
@@ -936,8 +945,18 @@
     50% { transform: translateY(-6px); }
   }
   
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-4px); }
+    40%, 80% { transform: translateX(4px); }
+  }
+  .shake-animation {
+    animation: shake 0.4s ease;
+  }
+  
   @media (prefers-reduced-motion: reduce) {
     .op-skip-hint { animation: none; }
+    .shake-animation { animation: none; }
   }
 
   .history-btn {
@@ -1180,58 +1199,61 @@
 
     <!-- Screen Survey: アンケート -->
     <section class="screen" data-screen="survey">
-      <h2 class="title" style="text-align: center; font-size: 18px; margin-bottom: 24px;">最後にお聞かせください</h2>
+      <h2 class="title" style="text-align: center; font-size: 18px; margin-bottom: 8px;">最後にお聞かせください</h2>
+      <p style="text-align: center; font-size: 12.5px; color: var(--shu); font-weight: 700; margin-top: 0; margin-bottom: 24px;">
+        ※ご回答は、お一人様1回きりとなります。
+      </p>
       
       <div id="surveyForm">
-        <div class="survey-group">
+        <div class="survey-group" id="group-age">
           <label>年齢</label>
           <div class="radio-buttons">
             <label class="radio-btn-wrap">
-              <input type="radio" name="sv-age" value="34歳以下">
+              <input type="radio" name="sv-age" value="34歳以下" onchange="clearSurveyError('group-age')">
               <span class="radio-box">34歳以下</span>
             </label>
             <label class="radio-btn-wrap">
-              <input type="radio" name="sv-age" value="35歳以上">
+              <input type="radio" name="sv-age" value="35歳以上" onchange="clearSurveyError('group-age')">
               <span class="radio-box">35歳以上</span>
             </label>
           </div>
         </div>
 
-        <div class="survey-group">
+        <div class="survey-group" id="group-gender">
           <label>性別</label>
           <div class="radio-buttons">
             <label class="radio-btn-wrap">
-              <input type="radio" name="sv-gender" value="男性">
+              <input type="radio" name="sv-gender" value="男性" onchange="clearSurveyError('group-gender')">
               <span class="radio-box">男性</span>
             </label>
             <label class="radio-btn-wrap">
-              <input type="radio" name="sv-gender" value="女性">
+              <input type="radio" name="sv-gender" value="女性" onchange="clearSurveyError('group-gender')">
               <span class="radio-box">女性</span>
             </label>
             <label class="radio-btn-wrap">
-              <input type="radio" name="sv-gender" value="無回答">
+              <input type="radio" name="sv-gender" value="無回答" onchange="clearSurveyError('group-gender')">
               <span class="radio-box" style="font-size: 13px;">無回答</span>
             </label>
           </div>
         </div>
 
-        <div class="survey-group" style="margin-bottom: 20px;">
+        <div class="survey-group" id="group-kpi" style="margin-bottom: 20px;">
           <label style="font-size: 15.5px;">いつもよりお酒の味わいを感じ取って、美味しく楽しめましたか？</label>
           <div class="radio-buttons-col">
             <label class="radio-btn-wrap">
-              <input type="radio" name="sv-kpi" value="いつもより楽しめた">
+              <input type="radio" name="sv-kpi" value="いつもより楽しめた" onchange="clearSurveyError('group-kpi')">
               <span class="radio-box">いつもより楽しめた</span>
             </label>
             <label class="radio-btn-wrap">
-              <input type="radio" name="sv-kpi" value="やや楽しめた">
+              <input type="radio" name="sv-kpi" value="やや楽しめた" onchange="clearSurveyError('group-kpi')">
               <span class="radio-box">やや楽しめた</span>
             </label>
             <label class="radio-btn-wrap">
-              <input type="radio" name="sv-kpi" value="あまり変わらない">
+              <input type="radio" name="sv-kpi" value="あまり変わらない" onchange="clearSurveyError('group-kpi')">
               <span class="radio-box">あまり変わらない</span>
             </label>
             <label class="radio-btn-wrap">
-              <input type="radio" name="sv-kpi" value="わからない">
+              <input type="radio" name="sv-kpi" value="わからない" onchange="clearSurveyError('group-kpi')">
               <span class="radio-box">わからない</span>
             </label>
           </div>
@@ -1242,7 +1264,7 @@
         <p class="note" style="font-size: 13px; text-align: center; margin-top: 16px; margin-bottom: 24px;">※サービス改善のために参考にさせていただきます。</p>
 
         <div class="btn-row" style="margin-top: 0;">
-          <button class="btn btn-primary" style="width:100%; padding: 14px;" onclick="submitSurvey()">別のお酒を選ぶ</button>
+          <button class="btn btn-primary" style="width:100%; padding: 14px;" onclick="submitSurvey()">終了して別のお酒を選ぶ</button>
         </div>
       </div>
       
@@ -1850,7 +1872,7 @@ function showPairing(){
   const btnNext = document.getElementById('btnNextFromStep4');
   if (btnNext) {
     if (isSurveyDone) {
-      btnNext.textContent = "別のお酒を選ぶ";
+      btnNext.textContent = "終了して別のお酒を選ぶ";
       btnNext.onclick = resetAll;
     } else {
       btnNext.textContent = "次へ：最後にお聞かせください";
@@ -1928,14 +1950,39 @@ function resetAll(){
   goScreen(1);
 }
 
+function clearSurveyError(groupId) {
+  // 選択された項目のエラーハイライトを消す
+  document.getElementById(groupId).classList.remove('error-highlight');
+  
+  // すべて選択済みか確認し、揃っていれば全体のエラー文を消す
+  const ageEl = document.querySelector('input[name="sv-age"]:checked');
+  const genderEl = document.querySelector('input[name="sv-gender"]:checked');
+  const kpiEl = document.querySelector('input[name="sv-kpi"]:checked');
+  if (ageEl && genderEl && kpiEl) {
+    document.getElementById('surveyError').style.display = 'none';
+  }
+}
+
 function submitSurvey() {
   const ageEl = document.querySelector('input[name="sv-age"]:checked');
   const genderEl = document.querySelector('input[name="sv-gender"]:checked');
   const kpiEl = document.querySelector('input[name="sv-kpi"]:checked');
   const errorEl = document.getElementById('surveyError');
 
-  if (!ageEl || !genderEl || !kpiEl) {
+  let hasError = false;
+
+  // 未回答の項目を赤くハイライトする
+  if (!ageEl) { document.getElementById('group-age').classList.add('error-highlight'); hasError = true; }
+  if (!genderEl) { document.getElementById('group-gender').classList.add('error-highlight'); hasError = true; }
+  if (!kpiEl) { document.getElementById('group-kpi').classList.add('error-highlight'); hasError = true; }
+
+  if (hasError) {
     errorEl.style.display = 'block';
+    
+    // 注意書きをブルッと震わせて視線を誘導する
+    errorEl.classList.remove('shake-animation');
+    void errorEl.offsetWidth; // リフローを強制
+    errorEl.classList.add('shake-animation');
     return;
   }
   errorEl.style.display = 'none';

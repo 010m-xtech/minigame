@@ -86,7 +86,8 @@
     background: transparent;
     border-bottom-color: transparent;
   }
-  body[data-current-screen="history"] #stepper {
+  body[data-current-screen="history"] #stepper,
+  body[data-current-screen="survey"] #stepper {
     display: none;
   }
 
@@ -236,12 +237,6 @@
     flex: 0 0 auto; width: 18px; height: 18px; color: var(--shu);
   }
 
-  .profile-group {
-    margin-bottom: 24px;
-  }
-  .profile-group > label {
-    display: block; font-size: 14.5px; font-weight: 700; color: var(--ai); margin-bottom: 10px;
-  }
   .radio-buttons {
     display: flex; gap: 8px; flex-wrap: wrap;
   }
@@ -252,7 +247,6 @@
   .radio-btn-wrap input {
     display: none;
   }
-  
   .radio-box {
     display: flex; align-items: center; justify-content: center;
     padding: 12px 0;
@@ -278,8 +272,50 @@
     background: #fff;
   }
 
+  .survey-group {
+    margin-bottom: 16px;
+  }
+  .survey-group > label {
+    display: block; font-size: 13.5px; font-weight: 700; color: var(--ai); margin-bottom: 10px; line-height: 1.4;
+  }
+  .radio-buttons-col {
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .radio-buttons-col .radio-box {
+    justify-content: flex-start; padding: 12px 16px; font-size: 14px; text-align: left;
+  }
+
   .slider-group {
     margin-bottom: 40px; /* メモリ数字のスペースのため余白を広げる */
+  }
+
+  .slider-guide-bubble {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 12px;
+    background: var(--ai);
+    color: #fff;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 12px;
+    white-space: nowrap;
+    pointer-events: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    z-index: 10;
+    transition: background-color 0.2s ease;
+  }
+  .slider-guide-bubble::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 4px 4px 0 4px;
+    border-style: solid;
+    border-color: var(--ai) transparent transparent transparent;
   }
 
   .slider-labels {
@@ -1029,53 +1065,6 @@
       <div id="sakeList"></div>
     </section>
 
-    <!-- Profile Screen: あなたのことを教えてください -->
-    <section class="screen" data-screen="profile">
-      <p class="eyebrow">PROFILE</p>
-      <h2 class="title">あなたのことを教えてください</h2>
-      <p class="lead">(初回のみ)</p>
-
-      <div class="profile-group">
-        <label>性別</label>
-        <div class="radio-buttons">
-          <label class="radio-btn-wrap">
-            <input type="radio" name="p-gender" value="男性">
-            <span class="radio-box">男性</span>
-          </label>
-          <label class="radio-btn-wrap">
-            <input type="radio" name="p-gender" value="女性">
-            <span class="radio-box">女性</span>
-          </label>
-          <label class="radio-btn-wrap">
-            <input type="radio" name="p-gender" value="無回答">
-            <span class="radio-box">無回答</span>
-          </label>
-        </div>
-      </div>
-
-      <div class="profile-group">
-        <label>年齢</label>
-        <div class="radio-buttons">
-          <label class="radio-btn-wrap">
-            <input type="radio" name="p-age" value="34歳以下">
-            <span class="radio-box">34歳以下</span>
-          </label>
-          <label class="radio-btn-wrap">
-            <input type="radio" name="p-age" value="35歳以上">
-            <span class="radio-box">35歳以上</span>
-          </label>
-        </div>
-      </div>
-
-      <p id="profileError" style="color: var(--shu); font-size: 13px; font-weight: bold; text-align: center; display: none; margin-bottom: 16px;">性別と年齢の両方を選択してください</p>
-      <p class="note" style="font-size: 13px; margin-top: -10px; margin-bottom: 24px; text-align: center;">※サービス改善のための参考にさせていただきます</p>
-
-      <div class="btn-row">
-        <button class="btn btn-ghost" onclick="goScreen(1)">戻る</button>
-        <button class="btn btn-primary" onclick="saveProfileAndNext()">次へ進む</button>
-      </div>
-    </section>
-
     <!-- Screen 2: 質問 -->
     <section class="screen" data-screen="2">
       <p class="eyebrow">STEP 2</p>
@@ -1085,6 +1074,7 @@
       <div class="slider-group">
         <div class="slider-labels"><span>甘口</span><span>辛口</span></div>
         <div class="ruler">
+          <div class="slider-guide-bubble" id="b-amakara">バランスの良い甘辛さ</div>
           <div class="ruler-track"></div>
           <div class="ticks">
             <div class="tick-mark"><span class="tick-number">0</span></div>
@@ -1099,13 +1089,14 @@
             <div class="tick-mark"></div>
             <div class="tick-mark"><span class="tick-number">10</span></div>
           </div>
-          <input type="range" min="0" max="100" value="50" id="s-amakara">
+          <input type="range" min="0" max="100" value="50" id="s-amakara" oninput="updateSliderGuide('amakara')">
         </div>
       </div>
 
       <div class="slider-group">
         <div class="slider-labels"><span>穏やか</span><span>華やか</span></div>
         <div class="ruler">
+          <div class="slider-guide-bubble" id="b-kaori">自然な香り</div>
           <div class="ruler-track"></div>
           <div class="ticks">
             <div class="tick-mark"><span class="tick-number">0</span></div>
@@ -1120,13 +1111,14 @@
             <div class="tick-mark"></div>
             <div class="tick-mark"><span class="tick-number">10</span></div>
           </div>
-          <input type="range" min="0" max="100" value="50" id="s-kaori">
+          <input type="range" min="0" max="100" value="50" id="s-kaori" oninput="updateSliderGuide('kaori')">
         </div>
       </div>
 
       <div class="slider-group">
         <div class="slider-labels"><span>軽い</span><span>重い・どっしり</span></div>
         <div class="ruler">
+          <div class="slider-guide-bubble" id="b-keiju">ほどよいボディ感</div>
           <div class="ruler-track"></div>
           <div class="ticks">
             <div class="tick-mark"><span class="tick-number">0</span></div>
@@ -1141,7 +1133,7 @@
             <div class="tick-mark"></div>
             <div class="tick-mark"><span class="tick-number">10</span></div>
           </div>
-          <input type="range" min="0" max="100" value="50" id="s-keiju">
+          <input type="range" min="0" max="100" value="50" id="s-keiju" oninput="updateSliderGuide('keiju')">
         </div>
       </div>
 
@@ -1188,7 +1180,80 @@
       <p class="lead center-text">この一杯には、当店のこんな一品はいかがでしょうか。</p>
       <div class="pairing-card" id="pairingCard"></div>
       <div class="btn-row">
-        <button class="btn btn-ghost" style="width:100%" onclick="resetAll()">最初から選び直す</button>
+        <button id="btnNextFromStep4" class="btn btn-primary" style="width:100%" onclick="goScreen('survey')">次へ：最後にお聞かせください</button>
+      </div>
+    </section>
+
+    <!-- Screen Survey: アンケート -->
+    <section class="screen" data-screen="survey">
+      <h2 class="title" style="text-align: center; font-size: 18px; margin-bottom: 24px;">最後にお聞かせください</h2>
+      
+      <div id="surveyForm">
+        <div class="survey-group">
+          <label>年齢</label>
+          <div class="radio-buttons">
+            <label class="radio-btn-wrap">
+              <input type="radio" name="sv-age" value="34歳以下">
+              <span class="radio-box">34歳以下</span>
+            </label>
+            <label class="radio-btn-wrap">
+              <input type="radio" name="sv-age" value="35歳以上">
+              <span class="radio-box">35歳以上</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="survey-group">
+          <label>性別</label>
+          <div class="radio-buttons">
+            <label class="radio-btn-wrap">
+              <input type="radio" name="sv-gender" value="男性">
+              <span class="radio-box">男性</span>
+            </label>
+            <label class="radio-btn-wrap">
+              <input type="radio" name="sv-gender" value="女性">
+              <span class="radio-box">女性</span>
+            </label>
+            <label class="radio-btn-wrap">
+              <input type="radio" name="sv-gender" value="無回答">
+              <span class="radio-box" style="font-size: 13px;">無回答</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="survey-group" style="margin-bottom: 20px;">
+          <label>今日お酒を飲んだとき、いつもより『香り・甘辛・重さ』などの味わいを意識して楽しめましたか？</label>
+          <div class="radio-buttons-col">
+            <label class="radio-btn-wrap">
+              <input type="radio" name="sv-kpi" value="いつもより意識して楽しめた">
+              <span class="radio-box">いつもより意識して楽しめた</span>
+            </label>
+            <label class="radio-btn-wrap">
+              <input type="radio" name="sv-kpi" value="やや意識して楽しめた">
+              <span class="radio-box">やや意識して楽しめた</span>
+            </label>
+            <label class="radio-btn-wrap">
+              <input type="radio" name="sv-kpi" value="あまり変わらない">
+              <span class="radio-box">あまり変わらない</span>
+            </label>
+            <label class="radio-btn-wrap">
+              <input type="radio" name="sv-kpi" value="わからない">
+              <span class="radio-box">わからない</span>
+            </label>
+          </div>
+        </div>
+
+        <p id="surveyError" style="color: var(--shu); font-size: 13px; font-weight: bold; text-align: center; display: none; margin-bottom: 12px;">すべての項目にご回答ください</p>
+
+        <div class="btn-row" style="margin-top: 0;">
+          <button class="btn btn-primary" style="width:100%; padding: 14px;" onclick="submitSurvey()">別のお酒を選ぶ</button>
+        </div>
+      </div>
+      
+      <div id="surveyThanks" style="display: none; text-align: center; padding: 60px 0;">
+        <svg viewBox="0 0 24 24" width="48" height="48" style="margin-bottom: 16px;"><path d="M20 6L9 17l-5-5" stroke="var(--shu)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <h3 style="font-family: var(--font-mincho); color: var(--ai); margin-bottom: 12px;">ご協力ありがとうございました</h3>
+        <p style="font-size: 14px; color: var(--sumi);">お酒選択画面へ戻ります...</p>
       </div>
     </section>
 
@@ -1357,24 +1422,24 @@ const axisMeta = {
 
 /* ============ 用語辞典データと処理 ============ */
 const glossaryData = {
-  "薫酒": "香りが高く、すっきりとした軽快な味わいが特徴のタイプ。大吟醸酒や吟醸酒などに多く見られ、花や果実のようなフルーティーな香りが楽しめます。",
-  "爽酒": "香りは穏やかで、すっきりと軽快でなめらかな味わいが特徴のタイプ。本醸造酒や生酒などに多く見られ、清涼感のある飲み口が楽しめます。",
-  "醇酒": "香りは穏やかで、ふくよかなお米の旨味やコクがしっかり感じられるタイプ。純米酒や生酛造りのお酒などに多く見られ、奥深い味わいが楽しめます。",
-  "熟酒": "熟成による複雑で豊かな香りと、とろりとした濃厚な味わいが特徴のタイプ。古酒や長期熟成酒などに多く見られ、スパイスやドライフルーツのような個性的な深い味わいが楽しめます。",
-  "純米吟醸酒": "精米歩合60%以下の白米、米麹、水のみを原料として「吟醸造り」で造られたお酒。フルーティーな香りとすっきりとした味わいが特徴です。",
-  "純米吟醸": "精米歩合60%以下の白米、米麹、水のみを原料として「吟醸造り」で造られたお酒。フルーティーな香りとすっきりとした味わいが特徴です。",
-  "本醸造酒": "精米歩合70%以下の白米、米麹、水、そして規定量内の「醸造アルコール」を原料としたお酒。すっきりとした辛口で、香りは控えめなことが多いです。",
-  "本醸造": "精米歩合70%以下の白米、米麹、水、そして規定量内の「醸造アルコール」を原料としたお酒。すっきりとした辛口で、香りは控えめなことが多いです。",
-  "精米歩合": "玄米を削って残った白米の割合。数値が低い（たくさん削っている）ほど雑味が少なく、クリアで華やかな味わいになりやすいです。",
-  "無濾過生": "搾った後に「濾過（色の調整や雑味取り）」と「火入れ（加熱殺菌）」を一切行っていないお酒。フレッシュで力強い本来の風味が楽しめます。",
-  "原酒": "搾った後にアルコール度数を調整するための水（割り水）を加えていないお酒。度数が高く、濃醇でしっかりとした味わいが特徴です。",
-  "日本酒度": "お酒の比重（水に対する重さ）を表す数値。＋（プラス）が大きいほど辛口、－（マイナス）が大きいほど甘口と感じやすい目安になります。",
-  "吟醸香": "吟醸造りによって生まれる、バナナやリンゴ、メロンなどの果実を思わせる華やかな香りのこと。",
+  "薫酒": "香りが高く、すっきりとした軽快な味わいが特徴のタイプ。大吟醸酒や吟醸酒などに多く見られ、花や果実のようなフルーティーな香りが楽しめます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>飲む前にグラスに鼻を近づけて香りを楽しんだあと、口に含んだときに鼻に抜ける果実感を意識してみてください。",
+  "爽酒": "香りは穏やかで、すっきりと軽快でなめらかな味わいが特徴のタイプ。本醸造酒や生酒などに多く見られ、清涼感のある飲み口が楽しめます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>口に含んだ時のスッキリ感と、喉を通った後の余韻の短さ（キレの良さ）に注目してみてください。",
+  "醇酒": "香りは穏やかで、ふくよかなお米の旨味やコクがしっかり感じられるタイプ。純米酒や生酛造りのお酒などに多く見られ、奥深い味わいが楽しめます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>口に含んだ瞬間のお米由来のふくよかな甘みと、舌全体に広がるどっしりとしたコク（ボディ感）を探してみてください。",
+  "熟酒": "熟成による複雑で豊かな香りと、とろりとした濃厚な味わいが特徴のタイプ。古酒や長期熟成酒などに多く見られ、スパイスやドライフルーツのような個性的な深い味わいが楽しめます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>グラスの中でゆっくりと温度が上がるにつれて変化する、カラメルのような甘い香りと、とろりとした舌触りを楽しんでみてください。",
+  "純米吟醸酒": "精米歩合60%以下の白米、米麹、水のみを原料として「吟醸造り」で造られたお酒。フルーティーな香りとすっきりとした味わいが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米の雑味がなく、後味がすっと消えていく『キレのきれいさ』と、口に含んだ瞬間の華やかな香りに注目してみてください。",
+  "純米吟醸": "精米歩合60%以下の白米、米麹、水のみを原料として「吟醸造り」で造られたお酒。フルーティーな香りとすっきりとした味わいが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米の雑味がなく、後味がすっと消えていく『キレのきれいさ』と、口に含んだ瞬間の華やかな香りに注目してみてください。",
+  "本醸造酒": "精米歩合70%以下の白米、米麹、水、そして規定量内の「醸造アルコール」を原料としたお酒。すっきりとした辛口で、香りは控えめなことが多いです。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>香りが穏やかな分、料理の味を邪魔しません。食事と一緒に口に入れた時の、スッと洗い流してくれるような爽快感を意識してみてください。",
+  "本醸造": "精米歩合70%以下の白米、米麹、水、そして規定量内の「醸造アルコール」を原料としたお酒。すっきりとした辛口で、香りは控えめなことが多いです。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>香りが穏やかな分、料理の味を邪魔しません。食事と一緒に口に入れた時の、スッと洗い流してくれるような爽快感を意識してみてください。",
+  "精米歩合": "玄米を削って残った白米の割合。数値が低い（たくさん削っている）ほど雑味が少なく、クリアで華やかな味わいになりやすいです。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>精米歩合の数字が低いほど、スッキリとして華やかな傾向になります。数字と実際の味わいの関係を意識してみてください。",
+  "無濾過生": "搾った後に「濾過（色の調整や雑味取り）」と「火入れ（加熱殺菌）」を一切行っていないお酒。フレッシュで力強い本来の風味が楽しめます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>加熱処理されていないため、お酒本来のフレッシュな微炭酸（ピリッとした刺激）や、ジューシーな旨味を探してみてください。",
+  "原酒": "搾った後にアルコール度数を調整するための水（割り水）を加えていないお酒。度数が高く、濃醇でしっかりとした味わいが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>アルコール度数が高めな分、ガツンとくる力強さがあります。一口ずつゆっくり舐めるように味わうと、濃醇な旨味がよくわかります。",
+  "日本酒度": "お酒の比重（水に対する重さ）を表す数値。＋（プラス）が大きいほど辛口、－（マイナス）が大きいほど甘口と感じやすい目安になります。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>数値上の甘辛と、実際に自分が感じる甘辛（酸度なども影響します）のズレを楽しんでみてください。",
+  "吟醸香": "吟醸造りによって生まれる、バナナやリンゴ、メロンなどの果実を思わせる華やかな香りのこと。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>どんな果実の香りに近いか、自分なりに想像しながら香りをかいでみてください。",
   "麹米": "日本酒造りの要となる「米麹」を造るために使用されるお米のこと。",
   "掛米": "もろみ（発酵中の液体）を仕込む際に、直接加えられるお米のこと。",
-  "山田錦": "「酒米の王様」とも呼ばれる代表的な酒米（酒造好適米）。香りが高く、繊細でバランスの良いきれいな味わいのお酒になりやすいのが特徴です。",
-  "五百万石": "新潟県を中心に栽培される代表的な酒米。すっきりとキレのある、淡麗な味わいのお酒になりやすいのが特徴です。",
-  "ひだほまれ": "岐阜県特産の酒米。粒が大きく、ふくよかな甘みと豊かな旨みを持つ、味わい深いお酒になりやすいのが特徴です。",
+  "山田錦": "「酒米の王様」とも呼ばれる代表的な酒米（酒造好適米）。香りが高く、繊細でバランスの良いきれいな味わいのお酒になりやすいのが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>特有の華やかな香りと、きめ細やかで上品な旨みの広がりを感じてみてください。",
+  "五百万石": "新潟県を中心に栽培される代表的な酒米。すっきりとキレのある、淡麗な味わいのお酒になりやすいのが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>飲み込んだ後の、スッと消えていくようなキレの良さ（淡麗さ）に注目してみてください。",
+  "ひだほまれ": "岐阜県特産の酒米。粒が大きく、ふくよかな甘みと豊かな旨みを持つ、味わい深いお酒になりやすいのが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米のふくよかな甘みと、しっかりとした旨みのコクを舌全体で感じてみてください。",
   "酒造好適米": "日本酒を造るために特別に栽培されたお米（酒米）のこと。食用米に比べて粒が大きく、良質なお酒を造るのに適しています。",
   "酒米": "日本酒を造るために特別に栽培されたお米（酒造好適米）のこと。食用米に比べて粒が大きく、中心にある「心白（しんぱく）」が大きいため、良質なお酒を造るのに適しています。",
   "はざま酒造(岐阜県)": "中仙道大井宿の歴史ある風土の中で酒造りを行う蔵元。モダンでクリアな味わいが特徴の「恵那山」などを醸造しています。",
@@ -1407,7 +1472,7 @@ function showGlossary(term) {
   const desc = glossaryData[term];
   if (!desc) return;
   document.getElementById('glossaryTitle').textContent = term;
-  document.getElementById('glossaryDesc').textContent = desc;
+  document.getElementById('glossaryDesc').innerHTML = desc;
   document.getElementById('glossaryModal').classList.add('show');
 }
 
@@ -1483,6 +1548,11 @@ function selectSake(id){
   document.getElementById('s-amakara').value = 50;
   document.getElementById('s-kaori').value = 50;
   document.getElementById('s-keiju').value = 50;
+  
+  updateSliderGuide('amakara');
+  updateSliderGuide('kaori');
+  updateSliderGuide('keiju');
+
   document.getElementById('s-comment').value = "";
   
   const favCheck = document.getElementById('s-favorite');
@@ -1493,11 +1563,7 @@ function selectSake(id){
     favLabel.classList.toggle('checked', isFav);
   }
   
-  if (!userInfo.gender || !userInfo.age) {
-    goScreen('profile');
-  } else {
-    goScreen(2);
-  }
+  goScreen(2);
 }
 
 /* ============ 画面遷移 ============ */
@@ -1507,7 +1573,7 @@ function goScreen(n){
     el.classList.toggle('active', el.dataset.screen == n);
   });
   
-  let stepTarget = (n === 'profile') ? 1 : parseInt(n);
+  let stepTarget = parseInt(n);
 
   document.querySelectorAll('.step').forEach(el=>{
     const step = parseInt(el.dataset.step);
@@ -1515,32 +1581,6 @@ function goScreen(n){
     el.classList.toggle('done', step < stepTarget);
   });
   window.scrollTo({top:0, behavior:'smooth'});
-}
-
-/* ============ プロフィール保存 ============ */
-function saveProfileAndNext() {
-  const genderEl = document.querySelector('input[name="p-gender"]:checked');
-  const ageEl = document.querySelector('input[name="p-age"]:checked');
-  const errorEl = document.getElementById('profileError');
-  
-  // 未選択の項目がある場合はエラーメッセージを表示して処理を止める
-  if (!genderEl || !ageEl) {
-    if (errorEl) errorEl.style.display = 'block';
-    return;
-  }
-  
-  // エラーが解消されたらメッセージを隠す
-  if (errorEl) errorEl.style.display = 'none';
-  
-  userInfo.gender = genderEl.value;
-  userInfo.age = ageEl.value;
-  
-  localStorage.setItem('kikizake_profile', JSON.stringify(userInfo));
-  
-  // スプレッドシートへ「プロフィール登録」のログを送信
-  sendLogToSheet('プロフィール登録', userInfo.gender, userInfo.age);
-  
-  goScreen(2); // STEP 2 へ
 }
 
 /* ============ 比較結果生成 ============ */
@@ -1588,30 +1628,37 @@ function showComparison(){
   let html = "";
 
   const ans = userAnswers;
-  let typeName = "";
-  let typeKana = "";
-  let typeDesc = "";
-  if (ans.kaori >= 50 && ans.keiju < 50) { typeName = "薫酒"; typeKana = "くんしゅ"; typeDesc = "香り高く軽い"; }
-  else if (ans.kaori < 50 && ans.keiju < 50) { typeName = "爽酒"; typeKana = "そうしゅ"; typeDesc = "香り穏やかで軽い"; }
-  else if (ans.kaori < 50 && ans.keiju >= 50) { typeName = "醇酒"; typeKana = "じゅんしゅ"; typeDesc = "香り穏やかで重い・どっしりとした"; }
-  else { typeName = "熟酒"; typeKana = "じゅくしゅ"; typeDesc = "香り高く重い・どっしりとした"; }
+  
+  let aText = "";
+  if (ans.amakara <= 20) aText = "しっかりとした甘み";
+  else if (ans.amakara <= 40) aText = "やさしい甘み";
+  else if (ans.amakara < 60) aText = "バランスのよい甘辛さ";
+  else if (ans.amakara < 80) aText = "すっきりとした辛口";
+  else aText = "キレのある辛口";
 
-  let amakaraText = "";
-  if (ans.amakara < 35) amakaraText = "しっかりとした甘み";
-  else if (ans.amakara < 50) amakaraText = "やさしい甘み";
-  else if (ans.amakara === 50) amakaraText = "バランスの良い甘辛さ";
-  else if (ans.amakara < 65) amakaraText = "すっきりとした辛口";
-  else amakaraText = "キレのある辛口";
+  let kText = "";
+  if (ans.kaori <= 20) kText = "とても穏やかで落ち着いた香り";
+  else if (ans.kaori <= 40) kText = "穏やか・控えめな香り";
+  else if (ans.kaori < 60) kText = "自然で調和のとれた香り";
+  else if (ans.kaori < 80) kText = "華やかでフルーティーな香り";
+  else kText = "極めて華やかな香り";
+
+  let wText = "";
+  if (ans.keiju <= 20) wText = "とても軽くすっきりとした飲み口";
+  else if (ans.keiju <= 40) wText = "軽快な飲み口";
+  else if (ans.keiju < 60) wText = "ほどよいボディ感";
+  else if (ans.keiju < 80) wText = "しっかりとしたコク";
+  else wText = "どっしりとした重厚感";
 
   html += `
+    <div class="analysis-card" style="background: linear-gradient(135deg, var(--ai) 0%, #172740 100%); color: #fff; text-align: center; padding: 24px 20px; border: none;">
+      <div style="font-size: 12px; color: var(--shu-pale); letter-spacing: 0.1em; margin-bottom: 12px; font-weight: 700;">今日のあなたの一杯</div>
+      <div style="font-family: var(--font-mincho); font-size: 20px; font-weight: 700; line-height: 1.6; color: #fff;">
+        「${kText}と<br><span style="color: var(--shu-pale);">${aText}</span>、<br>そして${wText}」
+      </div>
+    </div>
+    
     <div class="analysis-card">
-      <h4>あなたの感じた味わい</h4>
-      <p>今回の感覚から見ると、<span class="highlight">${typeDesc}な「${linkify(typeName)}(${typeKana})」タイプ</span>に近い一杯に感じられたようです。<br>
-      全体として、<span class="highlight">${amakaraText}</span>の印象が残る、あなただけの味わいが言語化されました。</p>
-      <p class="note" style="margin-top: 14px; font-size: 10px;">※4タイプ分類(薫・爽・醇・熟)はSSI(日本酒サービス研究会・酒匠研究会連合会)の提唱する分類手法を参考にしています。</p>
-      
-      <div class="unified-divider"></div>
-      
       <h4>データとくらべると</h4>
   `;
 
@@ -1741,8 +1788,8 @@ function showComparison(){
   // --- ↓ スプレッドシートへ利き酒評価データを送信 ↓ ---
   sendLogToSheet(
     '評価記録', 
-    userInfo.gender, 
-    userInfo.age, 
+    '未入力', 
+    '未入力', 
     currentSakeId, 
     userAnswers.amakara, 
     userAnswers.kaori, 
@@ -1806,6 +1853,18 @@ function showPairing(){
       </div>
     `;
     card.parentNode.insertBefore(trendDiv, card.nextSibling);
+  }
+
+  const isSurveyDone = localStorage.getItem('kikizake_survey_done');
+  const btnNext = document.getElementById('btnNextFromStep4');
+  if (btnNext) {
+    if (isSurveyDone) {
+      btnNext.textContent = "別のお酒を選ぶ";
+      btnNext.onclick = resetAll;
+    } else {
+      btnNext.textContent = "次へ：最後にお聞かせください";
+      btnNext.onclick = function() { goScreen('survey'); };
+    }
   }
 
   goScreen(4);
@@ -1885,6 +1944,34 @@ function resetAll(){
   goScreen(1);
 }
 
+function submitSurvey() {
+  const ageEl = document.querySelector('input[name="sv-age"]:checked');
+  const genderEl = document.querySelector('input[name="sv-gender"]:checked');
+  const kpiEl = document.querySelector('input[name="sv-kpi"]:checked');
+  const errorEl = document.getElementById('surveyError');
+
+  if (!ageEl || !genderEl || !kpiEl) {
+    errorEl.style.display = 'block';
+    return;
+  }
+  errorEl.style.display = 'none';
+
+  sendLogToSheet('アンケート回答', genderEl.value, ageEl.value, currentSakeId, '', '', '', kpiEl.value);
+
+  localStorage.setItem('kikizake_survey_done', 'true');
+
+  document.getElementById('surveyForm').style.display = 'none';
+  document.getElementById('surveyThanks').style.display = 'block';
+
+  setTimeout(() => {
+    // フォームリセット
+    document.querySelectorAll('input[name="sv-age"], input[name="sv-gender"], input[name="sv-kpi"]').forEach(el => el.checked = false);
+    document.getElementById('surveyForm').style.display = 'block';
+    document.getElementById('surveyThanks').style.display = 'none';
+    resetAll();
+  }, 2500);
+}
+
 function toggleDesc(btn) {
   btn.classList.toggle('open');
   const wrapper = btn.nextElementSibling;
@@ -1949,6 +2036,42 @@ function hideTermTooltip() {
   }, 350);
 }
 
+/* ============ スライダーガイド ============ */
+function updateSliderGuide(axis) {
+  const slider = document.getElementById(`s-${axis}`);
+  const bubble = document.getElementById(`b-${axis}`);
+  if (!slider || !bubble) return;
+
+  const val = parseInt(slider.value);
+  let label = "";
+
+  if (axis === 'amakara') {
+    if (val <= 20) label = "しっかりとした甘み";
+    else if (val <= 40) label = "やさしい甘み";
+    else if (val < 60) label = "バランスの良い甘辛さ";
+    else if (val < 80) label = "すっきりとした辛口";
+    else label = "キレのある辛口";
+  } else if (axis === 'kaori') {
+    if (val <= 20) label = "とても穏やか";
+    else if (val <= 40) label = "穏やか・控えめ";
+    else if (val < 60) label = "自然な香り";
+    else if (val < 80) label = "華やか・フルーティー";
+    else label = "極めて華やか";
+  } else if (axis === 'keiju') {
+    if (val <= 20) label = "とても軽くすっきり";
+    else if (val <= 40) label = "軽い・軽快";
+    else if (val < 60) label = "ほどよいボディ感";
+    else if (val < 80) label = "重い・コクがある";
+    else label = "どっしり・重厚";
+  }
+  bubble.textContent = label;
+
+  // ツマミ（サム）の位置に合わせて吹き出しを正確に追従させる計算
+  const percent = val / 100;
+  const offset = 13 - (26 * percent);
+  bubble.style.left = `calc(${val}% + ${offset}px)`;
+}
+
 /* ============ 初期化 ============ */
 renderSakeList();
 goScreen(1);
@@ -1961,7 +2084,7 @@ setTimeout(() => {
 }, 1500);
 
 // アプリを開いた瞬間に「アクセス」のログを送信
-sendLogToSheet('アクセス', userInfo.gender, userInfo.age);
+sendLogToSheet('アクセス', '未入力', '未入力');
 
 /* ============ OP動画制御 ============ */
 const opOverlay = document.getElementById('opOverlay');

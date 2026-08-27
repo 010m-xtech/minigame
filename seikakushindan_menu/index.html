@@ -36,14 +36,15 @@
     .card {
       background: var(--card-bg);
       border-radius: var(--radius);
-      padding: 28px 20px;
+      padding: 24px 20px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.05);
       border: 1px solid var(--border);
       text-align: center;
     }
 
     h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; }
-    p.desc { font-size: 0.9rem; color: var(--text-sub); margin-bottom: 24px; }
+    h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; }
+    p.desc { font-size: 0.9rem; color: var(--text-sub); margin-bottom: 20px; }
 
     /* ボタン共通 */
     .btn {
@@ -62,6 +63,7 @@
       text-decoration: none;
     }
     .btn:hover { background: var(--primary-hover); }
+    .btn:disabled { background: #ced4da; cursor: not-allowed; }
     .btn-secondary {
       background: #f1f3f5;
       color: var(--text-main);
@@ -106,7 +108,7 @@
       background: #eff6ff;
     }
 
-    /* 結果画面 */
+    /* 個人結果画面 */
     .result-badge {
       display: inline-block;
       font-size: 0.8rem;
@@ -118,7 +120,7 @@
       margin-bottom: 12px;
     }
     .menu-title {
-      font-size: 1.8rem;
+      font-size: 1.7rem;
       font-weight: 800;
       margin-bottom: 4px;
     }
@@ -129,7 +131,7 @@
     }
     .menu-image-wrapper {
       width: 100%;
-      max-width: 240px;
+      max-width: 220px;
       margin: 0 auto 16px;
       border-radius: 12px;
       overflow: hidden;
@@ -142,6 +144,69 @@
       height: 100%;
       object-fit: cover;
       display: block;
+    }
+
+    /* グループ人数入力画面 */
+    .count-list {
+      max-height: 280px;
+      overflow-y: auto;
+      text-align: left;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+    }
+    .count-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #f1f3f5;
+    }
+    .count-item:last-child { border-bottom: none; }
+    .count-name { font-size: 0.95rem; font-weight: 600; }
+    .count-controls { display: flex; align-items: center; gap: 8px; }
+    .btn-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: #f8f9fa;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .total-count {
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-bottom: 16px;
+      color: var(--primary);
+    }
+
+    /* 診断・相性共通結果デザイン */
+    .score-box {
+      background: #eff6ff;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+    .score-val {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+    .info-block {
+      text-align: left;
+      background: #f8f9fa;
+      padding: 12px 14px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    .info-block h3 {
+      font-size: 0.95rem;
+      color: var(--primary);
+      margin-bottom: 4px;
     }
 
     .divider {
@@ -188,8 +253,74 @@
     <p class="desc" style="margin-bottom: 12px; font-weight: 600; color: var(--text-main);">
       ＼ テーブルのみんなでまとめよう ／
     </p>
-    <button class="btn" onclick="goToGroup()">今日のグループ診断を作成</button>
+    <button class="btn" onclick="goToGroupInput()">今日のグループ診断を作成</button>
     <button class="btn btn-secondary" onclick="resetQuiz()">もう一度診断する</button>
+  </div>
+
+  <!-- 4. 人数入力画面 -->
+  <div id="screen-group-input" class="card hidden">
+    <h2>テーブルのメンバー構成</h2>
+    <p class="desc">「ポテトの人〜？」「はーい！」<br>みんなのタイプを入力してください</p>
+    
+    <div id="count-list" class="count-list"></div>
+    <div class="total-count">合計: <span id="total-val">0</span> 名</div>
+
+    <button id="btn-exec-group" class="btn" onclick="execGroupDiagnosis()" disabled>診断を実行する</button>
+    <button class="btn btn-secondary" onclick="backToResult()">自分の結果に戻る</button>
+  </div>
+
+  <!-- 5-A. 2人専用：相性診断結果画面 -->
+  <div id="screen-pair-result" class="card hidden">
+    <span class="result-badge">2人専用スペシャル相性診断</span>
+    <h2 id="pair-names" style="margin-top:8px;">-- ✕ --</h2>
+    
+    <div class="score-box">
+      <div style="font-size:0.85rem; color:var(--text-sub);">2人の相性度</div>
+      <div id="pair-score" class="score-val">--%</div>
+      <div id="pair-title" style="font-weight:bold; font-size:1rem; margin-top:4px;">--</div>
+    </div>
+
+    <div class="info-block">
+      <h3>💬 2人の関係性分析</h3>
+      <p id="pair-desc">--</p>
+    </div>
+
+    <div class="info-block">
+      <h3>💡 今日を楽しむワンポイント</h3>
+      <p id="pair-advice">--</p>
+    </div>
+
+    <div class="divider"></div>
+    <button class="btn btn-secondary" onclick="resetQuiz()">最初に戻る</button>
+  </div>
+
+  <!-- 5-B. 3人以上：グループ診断結果画面 -->
+  <div id="screen-group-result" class="card hidden">
+    <span class="result-badge">グループ診断結果</span>
+    <h2 id="group-course" style="margin-top:8px; font-size:1.3rem;">--</h2>
+    
+    <div class="score-box">
+      <div style="font-size:0.85rem; color:var(--text-sub);">宴会のチームワーク度</div>
+      <div id="group-score" class="score-val">--点</div>
+    </div>
+
+    <div class="info-block">
+      <h3>👑 宴会の仕切り役（リーダー）</h3>
+      <p id="group-leader">--</p>
+    </div>
+
+    <div class="info-block">
+      <h3>🎭 ムードメーカー（キーパーソン）</h3>
+      <p id="group-mood">--</p>
+    </div>
+
+    <div class="info-block">
+      <h3>💡 このグループの取扱説明書</h3>
+      <p id="group-instruction">--</p>
+    </div>
+
+    <div class="divider"></div>
+    <button class="btn btn-secondary" onclick="resetQuiz()">最初に戻る</button>
   </div>
 </div>
 
@@ -198,8 +329,9 @@
   let results = {};
   let currentQ = 0;
   let scores = {};
+  let groupCounts = {};
 
-  // 画面読み込み時に JSON データを取得する
+  // 画面読み込み時に JSON データを取得
   window.addEventListener('DOMContentLoaded', async () => {
     try {
       const response = await fetch('data.json');
@@ -208,9 +340,10 @@
       questions = data.questions;
       results = data.results;
 
-      // スコア保持用オブジェクトの初期化 ("01"〜"12")
+      // オブジェクト初期化 ("01"〜"12")
       Object.keys(results).forEach(key => {
         scores[key] = 0;
+        groupCounts[key] = 0;
       });
 
     } catch (error) {
@@ -223,7 +356,6 @@
       alert("データを読み込み中です。少々お待ちください。");
       return;
     }
-    // スコアリセット
     Object.keys(scores).forEach(key => scores[key] = 0);
     currentQ = 0;
 
@@ -264,38 +396,146 @@
     }
   }
 
-  // 同点判定ロジック（最高スコアの中からランダム選出）
   function getFinalResult(scores) {
     const maxScore = Math.max(...Object.values(scores));
     const topTypes = Object.keys(scores).filter(key => scores[key] === maxScore);
     const randomIndex = Math.floor(Math.random() * topTypes.length);
-    return topTypes[randomIndex]; // "01"〜"12"のいずれかを返す
+    return topTypes[randomIndex];
   }
+
+  let myResultType = "";
 
   function showResult() {
     document.getElementById('screen-quiz').classList.add('hidden');
     document.getElementById('screen-result').classList.remove('hidden');
 
-    const finalType = getFinalResult(scores);
-    const res = results[finalType];
+    myResultType = getFinalResult(scores);
+    const res = results[myResultType];
 
     document.getElementById('result-type').innerText = res.title;
     document.getElementById('result-catch').innerText = res.catch;
     document.getElementById('result-desc').innerText = res.desc;
     
-    // 画像パスの自動設定（images/01.webp〜images/12.webp）
     const imgElement = document.getElementById('result-img');
-    imgElement.src = `images/${finalType}.webp`;
+    imgElement.src = `images/${myResultType}.webp`;
     imgElement.alt = res.title;
+  }
+
+  // --- グループ人数入力機能 ---
+  function goToGroupInput() {
+    document.getElementById('screen-result').classList.add('hidden');
+    document.getElementById('screen-group-input').classList.remove('hidden');
+
+    // 人数カウント初期化（自分のタイプは1名にセット）
+    Object.keys(groupCounts).forEach(key => groupCounts[key] = 0);
+    if(myResultType) groupCounts[myResultType] = 1;
+
+    renderCountList();
+  }
+
+  function backToResult() {
+    document.getElementById('screen-group-input').classList.add('hidden');
+    document.getElementById('screen-result').classList.remove('hidden');
+  }
+
+  function renderCountList() {
+    const listContainer = document.getElementById('count-list');
+    listContainer.innerHTML = '';
+
+    let total = 0;
+
+    Object.keys(results).forEach(key => {
+      const count = groupCounts[key];
+      total += count;
+
+      const item = document.createElement('div');
+      item.className = 'count-item';
+      item.innerHTML = `
+        <span class="count-name">${results[key].title}</span>
+        <div class="count-controls">
+          <button class="btn-circle" onclick="changeCount('${key}', -1)">-</button>
+          <span style="font-weight:bold; width:16px; text-align:center;">${count}</span>
+          <button class="btn-circle" onclick="changeCount('${key}', 1)">+</button>
+        </div>
+      `;
+      listContainer.appendChild(item);
+    });
+
+    document.getElementById('total-val').innerText = total;
+    // 2名以上で実行可能
+    document.getElementById('btn-exec-group').disabled = total < 2;
+  }
+
+  function changeCount(key, delta) {
+    if (groupCounts[key] + delta >= 0) {
+      groupCounts[key] += delta;
+      renderCountList();
+    }
+  }
+
+  // --- グループ・ペア診断実行（分岐ロジック） ---
+  function execGroupDiagnosis() {
+    let activeMembers = [];
+    Object.keys(groupCounts).forEach(key => {
+      for(let i=0; i < groupCounts[key]; i++) {
+        activeMembers.push(key);
+      }
+    });
+
+    document.getElementById('screen-group-input').classList.add('hidden');
+
+    if (activeMembers.length === 2) {
+      // ★ 2人の場合は「相性診断モード」へ
+      showPairResult(activeMembers[0], activeMembers[1]);
+    } else {
+      // ★ 3人以上の場合は「グループ診断モード」へ
+      showGroupResult(activeMembers);
+    }
+  }
+
+  // --- 5-A. 2人相性診断の描画 ---
+  function showPairResult(type1, type2) {
+    document.getElementById('screen-pair-result').classList.remove('hidden');
+
+    const m1 = results[type1];
+    const m2 = results[type2];
+
+    document.getElementById('pair-names').innerText = `${m1.title} ✕ ${m2.title}`;
+
+    if (type1 === type2) {
+      document.getElementById('pair-score').innerText = "95%";
+      document.getElementById('pair-title').innerText = "【類は友を呼ぶ！波長ピッタリコンビ】";
+      document.getElementById('pair-desc').innerText = "似た者同士でお互いの気持ちやこだわりが言わなくても伝わる安心感バツグンのペアです！";
+      document.getElementById('pair-advice').innerText = "意気投合しすぎて脱線しやすいので、たまには周りの意見も聞くとGOOD！";
+    } else {
+      document.getElementById('pair-score').innerText = "98%";
+      document.getElementById('pair-title').innerText = "【お互いを高め合う奇跡の黄金コンビ】";
+      document.getElementById('pair-desc').innerText = `しっかりものの「${m1.title}」と、個性が光る「${m2.title}」。無いものを補い合える最高の関係性です！`;
+      document.getElementById('pair-advice').innerText = "お互いのスタイルを尊重し合うと、居酒屋での時間が何倍も楽しくなります！";
+    }
+  }
+
+  // --- 5-B. 3人以上グループ診断の描画 ---
+  function showGroupResult(members) {
+    document.getElementById('screen-group-result').classList.remove('hidden');
+
+    document.getElementById('group-course').innerText = "「奇跡のバランス！黄金パーティーコース」";
+    document.getElementById('group-score').innerText = "98点";
+
+    // リーダーっぽいタイプ(01, 08など)を探す
+    const leaderKey = members.find(m => m === "01" || m === "08") || members[0];
+    const moodKey = members.find(m => m === "05" || m === "09") || members[1] || members[0];
+
+    document.getElementById('group-leader').innerText = `${results[leaderKey].title} （${results[leaderKey].catch}）`;
+    document.getElementById('group-mood').innerText = `${results[moodKey].title} （${results[moodKey].catch}）`;
+    document.getElementById('group-instruction').innerText = "個性が程よくばらけていて超ポジティブなチーム！ムードメーカーの勢いに乗ると最高の宴会になります。";
   }
 
   function resetQuiz() {
     document.getElementById('screen-result').classList.add('hidden');
+    document.getElementById('screen-pair-result').classList.add('hidden');
+    document.getElementById('screen-group-result').classList.add('hidden');
     document.getElementById('screen-top').classList.remove('hidden');
-  }
-
-  function goToGroup() {
-    alert("グループ診断機能へ接続します！");
   }
 </script>
 

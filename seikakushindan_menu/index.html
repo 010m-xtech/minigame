@@ -6,137 +6,153 @@
   <title>居酒屋メニュー性格診断</title>
   <style>
     :root {
-      --bg-color: #f8f9fa;
+      --bg-color: #f4f4f5;
       --card-bg: #ffffff;
-      --text-main: #212529;
-      --text-sub: #6c757d;
-      --primary: #3b82f6;
-      --primary-hover: #2563eb;
-      --border: #e9ecef;
-      --radius: 12px;
+      --text-main: #18181b;
+      --text-sub: #71717a;
+      --accent: #27272a;       /* メインのダークグレー */
+      --accent-hover: #09090b; /* ホバー時の黒に近いグレー */
+      --border: #e4e4e7;
+      --card-border: #d4d4d8;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       background-color: var(--bg-color);
       color: var(--text-main);
       display: flex;
       justify-content: center;
       min-height: 100vh;
-      padding: 16px;
+      padding: 20px 16px;
+      letter-spacing: 0.03em;
     }
 
     .container {
       width: 100%;
-      max-width: 420px;
+      max-width: 400px;
       margin: auto;
     }
 
+    /* カードデザイン：シャープな四角と繊細な枠線 */
     .card {
       background: var(--card-bg);
-      border-radius: var(--radius);
-      padding: 24px 20px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-      border: 1px solid var(--border);
+      border-radius: 2px; /* あえて丸みをほぼ無くしてシャープに */
+      padding: 32px 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+      border: 1px solid var(--card-border);
       text-align: center;
     }
 
-    h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; }
-    h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; }
-    p.desc { font-size: 0.9rem; color: var(--text-sub); margin-bottom: 20px; }
+    /* アニメーション：ふわっと浮き上がる高級感のある演出 */
+    .fade-in {
+      animation: fadeInSlide 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes fadeInSlide {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-    /* ボタン共通 */
+    h1 { font-size: 1.35rem; font-weight: 700; margin-bottom: 10px; color: #09090b; }
+    h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 12px; }
+    p.desc { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 24px; line-height: 1.6; }
+
+    /* シャープでモダンなボタン */
     .btn {
       display: block;
       width: 100%;
-      padding: 14px;
-      border-radius: 8px;
-      border: none;
-      background: var(--primary);
+      padding: 15px;
+      border-radius: 2px; /* 完全な四角に近いシャープさ */
+      border: 1px solid var(--accent);
+      background: var(--accent);
       color: #fff;
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.25s ease;
       margin-bottom: 12px;
       text-decoration: none;
     }
-    .btn:hover { background: var(--primary-hover); }
-    .btn:disabled { background: #ced4da; cursor: not-allowed; }
+    .btn:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .btn:disabled { background: #e4e4e7; border-color: #e4e4e7; color: #a1a1aa; cursor: not-allowed; }
+    
     .btn-secondary {
-      background: #f1f3f5;
+      background: transparent;
       color: var(--text-main);
+      border: 1px solid var(--border);
     }
-    .btn-secondary:hover { background: #e9ecef; }
+    .btn-secondary:hover { background: #f4f4f5; border-color: #a1a1aa; }
 
     /* 質問画面 */
     #question-text {
       text-align: left;
-      font-size: 1.1rem;
-      margin-bottom: 20px;
-      line-height: 1.5;
+      font-size: 1.05rem;
+      margin-bottom: 24px;
+      line-height: 1.6;
+      font-weight: 600;
     }
     .progress-bar {
-      height: 4px;
+      height: 2px;
       background: var(--border);
-      border-radius: 2px;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
       overflow: hidden;
     }
     .progress-fill {
       height: 100%;
-      background: var(--primary);
+      background: var(--accent);
       width: 0%;
-      transition: width 0.3s;
+      transition: width 0.3s ease;
     }
     .option-btn {
       display: block;
       width: 100%;
       padding: 14px 16px;
-      margin-bottom: 10px;
-      background: #f8f9fa;
+      margin-bottom: 12px;
+      background: #fafafa;
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 2px;
       text-align: left;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
+      color: var(--text-main);
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
     }
     .option-btn:hover {
-      border-color: var(--primary);
-      background: #eff6ff;
+      border-color: var(--accent);
+      background: #ffffff;
+      transform: translateX(2px); /* ホバー時に少し右にずれる洗練された演出 */
     }
 
-    /* 個人結果画面 */
+    /* 結果画面バッジ */
     .result-badge {
       display: inline-block;
-      font-size: 0.8rem;
-      color: var(--primary);
-      background: #eff6ff;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-weight: 600;
-      margin-bottom: 12px;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      color: var(--text-sub);
+      border-bottom: 1px solid var(--text-sub);
+      padding-bottom: 2px;
+      margin-bottom: 16px;
+      text-transform: uppercase;
     }
     .menu-title {
-      font-size: 1.7rem;
+      font-size: 1.6rem;
       font-weight: 800;
       margin-bottom: 4px;
+      letter-spacing: 0.05em;
     }
     .menu-catch {
-      font-size: 0.95rem;
+      font-size: 0.85rem;
       color: var(--text-sub);
-      margin-bottom: 16px;
+      margin-bottom: 20px;
     }
     .menu-image-wrapper {
       width: 100%;
       max-width: 220px;
-      margin: 0 auto 16px;
-      border-radius: 12px;
+      margin: 0 auto 20px;
+      border-radius: 2px;
       overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      background-color: #f1f3f5;
+      border: 1px solid var(--border);
+      background-color: #f4f4f5;
       aspect-ratio: 1 / 1;
     }
     .menu-image-wrapper img {
@@ -146,91 +162,94 @@
       display: block;
     }
 
-    /* グループ人数入力画面 */
+    /* 人数入力画面 */
     .count-list {
       max-height: 280px;
       overflow-y: auto;
       text-align: left;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
       border: 1px solid var(--border);
-      border-radius: 8px;
       padding: 8px 12px;
+      background: #fafafa;
     }
     .count-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 0;
-      border-bottom: 1px solid #f1f3f5;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
     }
     .count-item:last-child { border-bottom: none; }
-    .count-name { font-size: 0.95rem; font-weight: 600; }
-    .count-controls { display: flex; align-items: center; gap: 8px; }
+    .count-name { font-size: 0.9rem; font-weight: 600; }
+    .count-controls { display: flex; align-items: center; gap: 10px; }
     .btn-circle {
       width: 28px;
       height: 28px;
-      border-radius: 50%;
+      border-radius: 2px; /* 四角形 */
       border: 1px solid var(--border);
-      background: #f8f9fa;
+      background: #fff;
       font-weight: bold;
       cursor: pointer;
+      transition: all 0.2s;
     }
+    .btn-circle:hover { border-color: var(--accent); background: var(--accent); color: #fff; }
     .total-count {
-      font-size: 1.1rem;
-      font-weight: bold;
-      margin-bottom: 16px;
-      color: var(--primary);
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: var(--text-main);
     }
 
-    /* 診断・相性共通結果デザイン */
+    /* スコア表示エリア（シックなグレー背景） */
     .score-box {
-      background: #eff6ff;
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 16px;
+      background: #f4f4f5;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 16px;
+      margin-bottom: 20px;
     }
     .score-val {
-      font-size: 2rem;
+      font-size: 2.2rem;
       font-weight: 800;
-      color: var(--primary);
+      color: var(--text-main);
+      font-family: "Helvetica Neue", Arial, sans-serif;
     }
+    
     .info-block {
       text-align: left;
-      background: #f8f9fa;
-      padding: 12px 14px;
-      border-radius: 8px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      padding: 14px 16px;
+      border-radius: 2px;
       margin-bottom: 12px;
-      font-size: 0.9rem;
-      line-height: 1.5;
+      font-size: 0.88rem;
+      line-height: 1.6;
     }
     .info-block h3 {
-      font-size: 0.95rem;
-      color: var(--primary);
-      margin-bottom: 4px;
+      font-size: 0.85rem;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+      letter-spacing: 0.05em;
     }
 
     .divider {
       height: 1px;
       background: var(--border);
-      margin: 20px 0;
+      margin: 24px 0;
     }
-    .hidden { display: none; }
-    .error-msg {
-      color: #e63946;
-      font-size: 0.85rem;
-      margin-top: 10px;
-    }
+    .hidden { display: none !important; }
+    .error-msg { color: #e11d48; font-size: 0.85rem; margin-top: 10px; }
   </style>
 </head>
 <body>
 
 <div class="container">
   <!-- 1. トップ画面 -->
-  <div id="screen-top" class="card">
+  <div id="screen-top" class="card fade-in">
     <h1>居酒屋メニュー性格診断</h1>
-    <p class="desc">全5問・約1分で完了！<br>あなたを居酒屋のメニューに例えると？</p>
+    <p class="desc">全5問・約1分<br>あなたを居酒屋のメニューに例えると？</p>
     <button id="btn-start" class="btn" onclick="startDiagnosis()" disabled>データを読み込み中...</button>
-    <p id="loading-error" class="error-msg hidden">データの読み込みに失敗しました。ページを再読み込みしてください。</p>
+    <p id="loading-error" class="error-msg hidden">データの読み込みに失敗しました。再読み込みしてください。</p>
   </div>
 
   <!-- 2. 質問画面 -->
@@ -244,7 +263,7 @@
 
   <!-- 3. 個人の結果画面 -->
   <div id="screen-result" class="card hidden">
-    <span class="result-badge">診断結果</span>
+    <span class="result-badge">DIAGNOSIS RESULT</span>
     <div id="result-type" class="menu-title">--</div>
     <div id="result-catch" class="menu-catch">--</div>
     
@@ -252,7 +271,7 @@
       <img id="result-img" src="" alt="メニュー画像">
     </div>
 
-    <p id="result-desc" style="font-size: 0.9rem; line-height: 1.6; text-align: left; margin-bottom: 20px; color: #495057;"></p>
+    <p id="result-desc" style="font-size: 0.88rem; line-height: 1.7; text-align: left; margin-bottom: 24px; color: #3f3f46;"></p>
 
     <div class="divider"></div>
 
@@ -275,15 +294,15 @@
     <button class="btn btn-secondary" onclick="backToResult()">自分の結果に戻る</button>
   </div>
 
-  <!-- 5-A. 2人専用：相性診断結果画面 -->
+  <!-- 5-A. 2人用相性診断結果画面 -->
   <div id="screen-pair-result" class="card hidden">
-    <span class="result-badge">2人用相性診断</span>
+    <span class="result-badge">PAIR DIAGNOSIS</span>
     <h2 id="pair-names" style="margin-top:8px;">-- ✕ --</h2>
     
     <div class="score-box">
-      <div style="font-size:0.85rem; color:var(--text-sub);">2人の相性度</div>
-      <div id="pair-score" class="score-val">--%</div>
-      <div id="pair-title" style="font-weight:bold; font-size:1rem; margin-top:4px;">--</div>
+      <div style="font-size:0.75rem; color:var(--text-sub); letter-spacing:0.05em;">2人の相性度</div>
+      <div id="pair-score" class="score-val">0%</div>
+      <div id="pair-title" style="font-weight:bold; font-size:0.95rem; margin-top:4px;">--</div>
     </div>
 
     <div class="info-block">
@@ -300,14 +319,14 @@
     <button class="btn btn-secondary" onclick="resetQuiz()">最初に戻る</button>
   </div>
 
-  <!-- 5-B. 3人以上：グループ診断結果画面 -->
+  <!-- 5-B. 3人以上グループ診断結果画面 -->
   <div id="screen-group-result" class="card hidden">
-    <span class="result-badge">グループ診断結果</span>
-    <h2 id="group-course" style="margin-top:8px; font-size:1.3rem;">--</h2>
+    <span class="result-badge">GROUP DIAGNOSIS</span>
+    <h2 id="group-course" style="margin-top:8px; font-size:1.25rem;">--</h2>
     
     <div class="score-box">
-      <div style="font-size:0.85rem; color:var(--text-sub);">宴会のチームワーク度</div>
-      <div id="group-score" class="score-val">--点</div>
+      <div style="font-size:0.75rem; color:var(--text-sub); letter-spacing:0.05em;">宴会のチームワーク度</div>
+      <div id="group-score" class="score-val">0点</div>
     </div>
 
     <div class="info-block">
@@ -337,20 +356,9 @@
 </div>
 
 <script>
-  // メニューの表示順（カスタマイズ用）
+  // メニュー表示順
   const menuDisplayOrder = [
-    "01", // 生ビール＆枝豆
-    "09", // メガハイボール
-    "10", // 若鶏の唐揚げ
-    "05", // 山盛りフライドポテト
-    "12", // 激辛麻婆豆腐
-    "03", // こだわり出汁巻き玉子
-    "08", // 刺身の盛り合わせ
-    "02", // 本日のオススメ
-    "07", // アボカド海老マヨ
-    "04", // たこわさび
-    "06", // エイヒレの炙り
-    "11"  // 梅きゅうり
+    "01", "09", "10", "05", "12", "03", "08", "02", "07", "04", "06", "11"
   ];
 
   let questions = [];
@@ -381,20 +389,43 @@
       startBtn.innerText = "診断をはじめる";
 
     } catch (error) {
-      console.error("JSONの読み込みに失敗しました:", error);
+      console.error("JSON読み込み失敗:", error);
       startBtn.classList.add('hidden');
       errorMsg.classList.remove('hidden');
     }
   });
 
+  // 画面切り替え共通関数（フェードインアニメーション適用）
+  function switchScreen(hideId, showId) {
+    document.getElementById(hideId).classList.add('hidden');
+    const showEl = document.getElementById(showId);
+    showEl.classList.remove('hidden');
+    showEl.classList.remove('fade-in');
+    void showEl.offsetWidth; // リフロー発生でアニメーションリセット
+    showEl.classList.add('fade-in');
+  }
+
+  // 数字がカタカタカウントアップする「演出アニメーション」
+  function animateValue(id, start, end, duration, suffix = "") {
+    const obj = document.getElementById(id);
+    let startTimestamp = null;
+    const step = (timestamp) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      const value = Math.floor(progress * (end - start) + start);
+      obj.innerText = value + suffix;
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      }
+    };
+    window.requestAnimationFrame(step);
+  }
+
   function startDiagnosis() {
     if (questions.length === 0) return;
-    
     Object.keys(scores).forEach(key => scores[key] = 0);
     currentQ = 0;
-
-    document.getElementById('screen-top').classList.add('hidden');
-    document.getElementById('screen-quiz').classList.remove('hidden');
+    switchScreen('screen-top', 'screen-quiz');
     showQuestion();
   }
 
@@ -418,9 +449,7 @@
   }
 
   function selectOption(type) {
-    if (scores[type] !== undefined) {
-      scores[type]++;
-    }
+    if (scores[type] !== undefined) scores[type]++;
     currentQ++;
 
     if (currentQ < questions.length) {
@@ -433,14 +462,10 @@
   function getFinalResult(scores) {
     const maxScore = Math.max(...Object.values(scores));
     const topTypes = Object.keys(scores).filter(key => scores[key] === maxScore);
-    const randomIndex = Math.floor(Math.random() * topTypes.length);
-    return topTypes[randomIndex];
+    return topTypes[Math.floor(Math.random() * topTypes.length)];
   }
 
   function showResult() {
-    document.getElementById('screen-quiz').classList.add('hidden');
-    document.getElementById('screen-result').classList.remove('hidden');
-
     myResultType = getFinalResult(scores);
     const res = results[myResultType];
 
@@ -451,32 +476,29 @@
     const imgElement = document.getElementById('result-img');
     imgElement.src = `images/${myResultType}.webp`;
     imgElement.alt = res.title;
+
+    switchScreen('screen-quiz', 'screen-result');
   }
 
   function goToGroupInput() {
-    document.getElementById('screen-result').classList.add('hidden');
-    document.getElementById('screen-group-input').classList.remove('hidden');
-
     Object.keys(groupCounts).forEach(key => groupCounts[key] = 0);
     if(myResultType) groupCounts[myResultType] = 1;
 
     renderCountList();
+    switchScreen('screen-result', 'screen-group-input');
   }
 
   function backToResult() {
-    document.getElementById('screen-group-input').classList.add('hidden');
-    document.getElementById('screen-result').classList.remove('hidden');
+    switchScreen('screen-group-input', 'screen-result');
   }
 
   function renderCountList() {
     const listContainer = document.getElementById('count-list');
     listContainer.innerHTML = '';
-
     let total = 0;
 
     menuDisplayOrder.forEach(key => {
       if (!results[key]) return;
-
       const count = groupCounts[key];
       total += count;
 
@@ -507,12 +529,8 @@
   function execGroupDiagnosis() {
     let activeMembers = [];
     Object.keys(groupCounts).forEach(key => {
-      for(let i=0; i < groupCounts[key]; i++) {
-        activeMembers.push(key);
-      }
+      for(let i=0; i < groupCounts[key]; i++) activeMembers.push(key);
     });
-
-    document.getElementById('screen-group-input').classList.add('hidden');
 
     if (activeMembers.length === 2) {
       showPairResult(activeMembers[0], activeMembers[1]);
@@ -521,54 +539,55 @@
     }
   }
 
+  // 2人用診断
   function showPairResult(type1, type2) {
-    document.getElementById('screen-pair-result').classList.remove('hidden');
-
     const m1 = results[type1];
     const m2 = results[type2];
 
     document.getElementById('pair-names').innerText = `${m1.title} ✕ ${m2.title}`;
 
+    let targetScore = 98;
     if (type1 === type2) {
-      document.getElementById('pair-score').innerText = "95%";
+      targetScore = 95;
       document.getElementById('pair-title').innerText = "【類は友を呼ぶ！波長ピッタリコンビ】";
       document.getElementById('pair-desc').innerText = "似た者同士でお互いの気持ちやこだわりが言わなくても伝わる安心感バツグンのペアです！";
       document.getElementById('pair-advice').innerText = "意気投合しすぎて脱線しやすいので、たまには周りの意見も聞くとGOOD！";
     } else {
-      document.getElementById('pair-score').innerText = "98%";
       document.getElementById('pair-title').innerText = "【お互いを高め合う奇跡の黄金コンビ】";
       document.getElementById('pair-desc').innerText = `しっかりものの「${m1.title}」と、個性が光る「${m2.title}」。無いものを補い合える最高の関係性です！`;
       document.getElementById('pair-advice').innerText = "お互いのスタイルを尊重し合うと、居酒屋での時間が何倍も楽しくなります！";
     }
+
+    switchScreen('screen-group-input', 'screen-pair-result');
+    // 数字が0%からカウントアップするアニメーション演出 (1秒間)
+    animateValue('pair-score', 0, targetScore, 1000, "%");
   }
 
+  // 3人以上グループ診断
   function showGroupResult(members) {
-    document.getElementById('screen-group-result').classList.remove('hidden');
-
     const countHeavy = members.filter(m => ["02", "05", "09", "10", "12"].includes(m)).length;
     const countStable = members.filter(m => ["01", "03", "08"].includes(m)).length;
     const countChill = members.filter(m => ["04", "06", "07", "11"].includes(m)).length;
 
     let courseName = "奇跡のバランス！<br>黄金パーティーコース";
-    let score = "98点";
+    let targetScore = 98;
     let instruction = "個性が程よくばらけていて超ポジティブなチーム！ボケ・ツッコミ・仕切りの全ポジションが揃った居酒屋のアベンジャーズです。";
 
     if (countHeavy >= Math.ceil(members.length / 2)) {
       courseName = "熱気と勢いで押し切る！<br>ハイテンション爆盛りコース";
-      score = "100点";
+      targetScore = 100;
       instruction = "熱量と勢いは100点満点ですが、脱線スピードも最速です！全員が喋りたがりなので『で、何の話だっけ？』が合言葉になります。";
     } else if (countStable >= Math.ceil(members.length / 2)) {
       courseName = "老舗の安心感！<br>王道こだわり宴会コース";
-      score = "95点";
+      targetScore = 95;
       instruction = "全員が気配り上手すぎて『最後の1個』が誰にも食べられず残る傾向があります。グラスが空く前に注文が通る完璧なチームワーク！";
     } else if (countChill >= Math.ceil(members.length / 2)) {
-      courseName = "じっくり語り明かす！<br>大人ののnびりマニアックコース";
-      score = "92点";
+      courseName = "じっくり語り明かす！<br>大人ののんびりマニアックコース";
+      targetScore = 92;
       instruction = "1つの話題を30分じっくり語り明かせるディープな空間です。静かそうに見えて各自の脳内では大爆笑が起きています。";
     }
 
     document.getElementById('group-course').innerHTML = courseName;
-    document.getElementById('group-score').innerText = score;
     document.getElementById('group-instruction').innerText = instruction;
 
     const leaderKey = members.find(m => ["01", "08", "03"].includes(m)) || members[0];
@@ -596,13 +615,16 @@
       document.getElementById('group-best-pair-names').innerText = `${res1.title} ✕ ${res2.title}`;
       document.getElementById('group-best-pair-desc').innerText = `お互いの強みを引き出し合える最高のペア！この2人が組むと宴会のテンションがさらに上がります。`;
     }
+
+    switchScreen('screen-group-input', 'screen-group-result');
+    // 数字が0点からカウントアップするアニメーション演出 (1秒間)
+    animateValue('group-score', 0, targetScore, 1000, "点");
   }
 
   function resetQuiz() {
-    document.getElementById('screen-result').classList.add('hidden');
+    switchScreen('screen-result', 'screen-top');
     document.getElementById('screen-pair-result').classList.add('hidden');
     document.getElementById('screen-group-result').classList.add('hidden');
-    document.getElementById('screen-top').classList.remove('hidden');
   }
 </script>
 

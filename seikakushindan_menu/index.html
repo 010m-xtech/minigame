@@ -114,13 +114,30 @@
     .menu-title {
       font-size: 1.8rem;
       font-weight: 800;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
     }
     .menu-catch {
       font-size: 0.95rem;
       color: var(--text-sub);
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
+    .menu-image-wrapper {
+      width: 100%;
+      max-width: 240px;
+      margin: 0 auto 16px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      background-color: #f1f3f5;
+      aspect-ratio: 1 / 1;
+    }
+    .menu-image-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
     .divider {
       height: 1px;
       background: var(--border);
@@ -151,16 +168,17 @@
   <!-- 3. 個人の結果画面 -->
   <div id="screen-result" class="card hidden">
     <span class="result-badge">診断結果</span>
-    <div id="result-type" class="menu-title">出汁巻き玉子</div>
-    <div id="result-catch" class="menu-catch">～妥協を許さない職人肌～</div>
+    <div id="result-type" class="menu-title">--</div>
+    <div id="result-catch" class="menu-catch">--</div>
     
-    <p id="result-desc" style="font-size: 0.9rem; line-height: 1.6; text-align: left; margin-bottom: 20px; color: #495057;">
-      一見落ち着いて見えますが、内面は仕事が丁寧で一切の手抜きを許さないタイプ。確かな仕事で周りからの信頼は抜群です。
-    </p>
+    <div class="menu-image-wrapper">
+      <img id="result-img" src="" alt="メニュー画像">
+    </div>
+
+    <p id="result-desc" style="font-size: 0.9rem; line-height: 1.6; text-align: left; margin-bottom: 20px; color: #495057;"></p>
 
     <div class="divider"></div>
 
-    <!-- ここからグループ診断への導線 -->
     <p class="desc" style="margin-bottom: 12px; font-weight: 600; color: var(--text-main);">
       ＼ テーブルのみんなでまとめよう ／
     </p>
@@ -184,14 +202,13 @@
       questions = data.questions;
       results = data.results;
 
-      // スコア保持用オブジェクトの初期化
+      // スコア保持用オブジェクトの初期化 ("01"〜"12")
       Object.keys(results).forEach(key => {
         scores[key] = 0;
       });
 
     } catch (error) {
       console.error("JSONの読み込みに失敗しました:", error);
-      alert("データの読み込みに失敗しました。ページを再読み込みしてください。");
     }
   });
 
@@ -200,6 +217,10 @@
       alert("データを読み込み中です。少々お待ちください。");
       return;
     }
+    // スコアリセット
+    Object.keys(scores).forEach(key => scores[key] = 0);
+    currentQ = 0;
+
     document.getElementById('screen-top').classList.add('hidden');
     document.getElementById('screen-quiz').classList.remove('hidden');
     showQuestion();
@@ -209,7 +230,6 @@
     const q = questions[currentQ];
     document.getElementById('question-text').innerText = q.q;
     
-    // 進捗バーの更新
     const progress = (currentQ / questions.length) * 100;
     document.getElementById('progress').style.width = `${progress}%`;
 
@@ -238,42 +258,39 @@
     }
   }
 
+  // 同点判定ロジック（最高スコアの中からランダム選出）
+  function getFinalResult(scores) {
+    const maxScore = Math.max(...Object.values(scores));
+    const topTypes = Object.keys(scores).filter(key => scores[key] === maxScore);
+    const randomIndex = Math.floor(Math.random() * topTypes.length);
+    return topTypes[randomIndex]; // "01"〜"12"のいずれかを返す
+  }
+
   function showResult() {
     document.getElementById('screen-quiz').classList.add('hidden');
     document.getElementById('screen-result').classList.remove('hidden');
 
-    // 最高スコアのタイプを判定
-    const finalType = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+    const finalType = getFinalResult(scores);
     const res = results[finalType];
 
     document.getElementById('result-type').innerText = res.title;
     document.getElementById('result-catch').innerText = res.catch;
     document.getElementById('result-desc').innerText = res.desc;
+    
+    // 画像パスの自動設定（images/01.webp〜images/12.webp）
+    const imgElement = document.getElementById('result-img');
+    imgElement.src = `images/${finalType}.webp`;
+    imgElement.alt = res.title;
   }
 
   function resetQuiz() {
-    currentQ = 0;
-    Object.keys(scores).forEach(key => scores[key] = 0);
     document.getElementById('screen-result').classList.add('hidden');
     document.getElementById('screen-top').classList.remove('hidden');
   }
 
   function goToGroup() {
-    alert("グループ診断画面へ遷移する処理をここに実装します");
+    alert("グループ診断機能へ接続します！");
   }
-
-  function getFinalResult(scores) {
-    // 1. 最高スコア（数値）を取得
-    const maxScore = Math.max(...Object.values(scores));
-
-    // 2. 最高スコアと同じ値を持つタイプ（キー）をすべて抽出
-    const topTypes = Object.keys(scores).filter(key => scores[key] === maxScore);
-
-    // 3. 同点の中からランダムで1つ選んで返す
-    const randomIndex = Math.floor(Math.random() * topTypes.length);
-    return topTypes[randomIndex];
-  }
-
 </script>
 
 </body>

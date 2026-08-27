@@ -281,7 +281,7 @@
     </div>
 
     <div class="info-block">
-      <h3>💬 2人の関係性分析</h3>
+      <h3>💬 2人のリアルな関係性分析</h3>
       <p id="pair-desc">--</p>
     </div>
 
@@ -312,6 +312,13 @@
     <div class="info-block">
       <h3>🎭 ムードメーカー（キーパーソン）</h3>
       <p id="group-mood">--</p>
+    </div>
+
+    <!-- 復活！ベスト相性コンビ表示ブロック -->
+    <div class="info-block" style="background:#eff6ff; border:1px solid #bfdbfe;">
+      <h3 style="color:#1d4ed8;">🔮 本日のベスト相性コンビ！</h3>
+      <div id="group-best-pair-names" style="font-weight:bold; font-size:1.05rem; margin-bottom:4px; color:#1e40af;">--</div>
+      <p id="group-best-pair-desc">--</p>
     </div>
 
     <div class="info-block">
@@ -462,7 +469,6 @@
     });
 
     document.getElementById('total-val').innerText = total;
-    // 2名以上で実行可能
     document.getElementById('btn-exec-group').disabled = total < 2;
   }
 
@@ -473,7 +479,7 @@
     }
   }
 
-  // --- グループ・ペア診断実行（分岐ロジック） ---
+  // --- グループ・ペア診断実行 ---
   function execGroupDiagnosis() {
     let activeMembers = [];
     Object.keys(groupCounts).forEach(key => {
@@ -485,15 +491,15 @@
     document.getElementById('screen-group-input').classList.add('hidden');
 
     if (activeMembers.length === 2) {
-      // ★ 2人の場合は「相性診断モード」へ
+      // 2人の場合は「相性診断モード」へ
       showPairResult(activeMembers[0], activeMembers[1]);
     } else {
-      // ★ 3人以上の場合は「グループ診断モード」へ
+      // 3人以上の場合は「グループ診断モード」へ
       showGroupResult(activeMembers);
     }
   }
 
-  // --- 5-A. 2人相性診断の描画 ---
+  // --- 5-A. 2人相性診断 ---
   function showPairResult(type1, type2) {
     document.getElementById('screen-pair-result').classList.remove('hidden');
 
@@ -515,19 +521,46 @@
     }
   }
 
-  // --- 5-B. 3人以上グループ診断の描画 ---
+  // --- 5-B. 3人以上グループ診断 ---
   function showGroupResult(members) {
     document.getElementById('screen-group-result').classList.remove('hidden');
 
     document.getElementById('group-course').innerText = "「奇跡のバランス！黄金パーティーコース」";
     document.getElementById('group-score').innerText = "98点";
 
-    // リーダーっぽいタイプ(01, 08など)を探す
+    // リーダー・ムードメーカー選出
     const leaderKey = members.find(m => m === "01" || m === "08") || members[0];
-    const moodKey = members.find(m => m === "05" || m === "09") || members[1] || members[0];
+    const moodKey = members.find(m => m === "05" || m === "09" || m === "02") || members[1] || members[0];
 
     document.getElementById('group-leader').innerText = `${results[leaderKey].title} （${results[leaderKey].catch}）`;
     document.getElementById('group-mood').innerText = `${results[moodKey].title} （${results[moodKey].catch}）`;
+
+    // ★ ベスト相性コンビの選出ロジック
+    let p1 = members[0];
+    let p2 = members[1];
+
+    // 同タイプが2人以上いれば優先的にコンビにする（「〇〇Wコンビ」ネタ）
+    const duplicateKey = members.find((item, index) => members.indexOf(item) !== index);
+    if (duplicateKey) {
+      p1 = duplicateKey;
+      p2 = duplicateKey;
+    } else if (members.length >= 2) {
+      // 異なるタイプで1人目と2人目をペアにする
+      p1 = members[0];
+      p2 = members[1];
+    }
+
+    const res1 = results[p1];
+    const res2 = results[p2];
+
+    if (p1 === p2) {
+      document.getElementById('group-best-pair-names').innerText = `${res1.title} ✕ ${res2.title}`;
+      document.getElementById('group-best-pair-desc').innerText = `同じタイプ同士の無敵コンビ！言葉がなくても通じ合える最高の波長を持っています。`;
+    } else {
+      document.getElementById('group-best-pair-names').innerText = `${res1.title} ✕ ${res2.title}`;
+      document.getElementById('group-best-pair-desc').innerText = `お互いの強みを引き出し合える最高のペア！この2人が組むと宴会のテンションがさらに上がります。`;
+    }
+
     document.getElementById('group-instruction').innerText = "個性が程よくばらけていて超ポジティブなチーム！ムードメーカーの勢いに乗ると最高の宴会になります。";
   }
 

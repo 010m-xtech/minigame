@@ -260,7 +260,7 @@
   <!-- 4. 人数入力画面 -->
   <div id="screen-group-input" class="card hidden">
     <h2>テーブルのメンバー構成</h2>
-    <p class="desc">「ポテトの人〜？」「はーい！」<br>みんなのタイプを入力してください</p>
+    <p class="desc">「ポテトの人〜？」「はーい！」<br>メニューの人数を入力してください</p>
     
     <div id="count-list" class="count-list"></div>
     <div class="total-count">合計: <span id="total-val">0</span> 名</div>
@@ -271,7 +271,7 @@
 
   <!-- 5-A. 2人専用：相性診断結果画面 -->
   <div id="screen-pair-result" class="card hidden">
-    <span class="result-badge">2人専用スペシャル相性診断</span>
+    <span class="result-badge">2人用相性診断</span>
     <h2 id="pair-names" style="margin-top:8px;">-- ✕ --</h2>
     
     <div class="score-box">
@@ -314,7 +314,6 @@
       <p id="group-mood">--</p>
     </div>
 
-    <!-- デザインを統一したベスト相性コンビ表示ブロック -->
     <div class="info-block">
       <h3>🔮 本日のベスト相性コンビ！</h3>
       <div id="group-best-pair-names" style="font-weight:bold; margin-bottom:2px;">--</div>
@@ -332,6 +331,22 @@
 </div>
 
 <script>
+  // ★ 人数入力画面での表示順序（お好みで数字を入れ替えできます）
+  const menuDisplayOrder = [
+    "01", // 生ビール＆枝豆
+    "09", // メガハイボール
+    "10", // 若鶏の唐揚げ
+    "05", // 山盛りフライドポテト
+    "12", // 激辛麻婆豆腐
+    "03", // こだわり出汁巻き玉子
+    "08", // 刺身の盛り合わせ
+    "02", // 本日のオススメ
+    "07", // アボカド海老マヨ
+    "04", // たこわさび
+    "06", // エイヒレの炙り
+    "11"  // 梅きゅうり
+  ];
+
   let questions = [];
   let results = {};
   let currentQ = 0;
@@ -441,13 +456,16 @@
     document.getElementById('screen-result').classList.remove('hidden');
   }
 
+  // 人数入力リストを描画（menuDisplayOrder の順番でループ）
   function renderCountList() {
     const listContainer = document.getElementById('count-list');
     listContainer.innerHTML = '';
 
     let total = 0;
 
-    Object.keys(results).forEach(key => {
+    menuDisplayOrder.forEach(key => {
+      if (!results[key]) return;
+
       const count = groupCounts[key];
       total += count;
 
@@ -520,7 +538,7 @@
     const countStable = members.filter(m => ["01", "03", "08"].includes(m)).length;
     const countChill = members.filter(m => ["04", "06", "07", "11"].includes(m)).length;
 
-    // 「！」の後に <br> を入れて改行対応
+    // ★ 改行入りのコース名（「」を外したシンプルな文面）
     let courseName = "奇跡のバランス！<br>黄金パーティーコース";
     let score = "98点";
     let instruction = "個性が程よくばらけていて超ポジティブなチーム！ボケ・ツッコミ・仕切りの全ポジションが揃った居酒屋のアベンジャーズです。";
@@ -539,8 +557,8 @@
       instruction = "1つの話題を30分じっくり語り明かせるディープな空間です。静かそうに見えて各自の脳内では大爆笑が起きています。";
     }
 
-    // <br> を反映させるため innerHTML に変更
-    document.getElementById('group-course').innerHTML = `「${courseName}」`;
+    // ★ 「」なしで画面にセット
+    document.getElementById('group-course').innerHTML = courseName;
     document.getElementById('group-score').innerText = score;
     document.getElementById('group-instruction').innerText = instruction;
 

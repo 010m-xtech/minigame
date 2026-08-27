@@ -4,28 +4,37 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>居酒屋メニュー性格診断</title>
+  <!-- Google Fonts: 上品で美しい明朝体「しっぽり明朝」を読み込み -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700;800&display=swap" rel="stylesheet">
+
   <style>
     :root {
       --bg-color: #f4f4f5;
       --card-bg: #ffffff;
       --text-main: #18181b;
       --text-sub: #71717a;
-      --accent: #27272a;       /* メインのダークグレー */
-      --accent-hover: #09090b; /* ホバー時の黒に近いグレー */
+      --accent: #27272a;       /* ダークグレー */
+      --accent-hover: #09090b; /* ほぼ黒 */
       --border: #e4e4e7;
       --card-border: #d4d4d8;
+      
+      /* フォント定義 */
+      --font-mincho: 'Shippori Mincho', "Yu Mincho", "游明朝", "MS PMincho", serif;
+      --font-gothic: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-family: var(--font-gothic);
       background-color: var(--bg-color);
       color: var(--text-main);
       display: flex;
       justify-content: center;
       min-height: 100vh;
       padding: 20px 16px;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.04em;
     }
 
     .container {
@@ -34,17 +43,17 @@
       margin: auto;
     }
 
-    /* カードデザイン：シャープな四角と繊細な枠線 */
+    /* カードデザイン */
     .card {
       background: var(--card-bg);
-      border-radius: 2px; /* あえて丸みをほぼ無くしてシャープに */
-      padding: 32px 24px;
+      border-radius: 2px;
+      padding: 36px 24px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.04);
       border: 1px solid var(--card-border);
       text-align: center;
     }
 
-    /* アニメーション：ふわっと浮き上がる高級感のある演出 */
+    /* ふわっと浮かび上がるアニメーション */
     .fade-in {
       animation: fadeInSlide 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
@@ -53,21 +62,41 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    h1 { font-size: 1.35rem; font-weight: 700; margin-bottom: 10px; color: #09090b; }
-    h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 12px; }
-    p.desc { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 24px; line-height: 1.6; }
+    /* 見出し類はすべて雰囲気のある明朝体に */
+    h1 {
+      font-family: var(--font-mincho);
+      font-size: 1.45rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #09090b;
+      line-height: 1.4;
+    }
+    h2 {
+      font-family: var(--font-mincho);
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+      line-height: 1.4;
+    }
+    p.desc {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
 
-    /* シャープでモダンなボタン */
+    /* シャープな四角ボタン */
     .btn {
       display: block;
       width: 100%;
       padding: 15px;
-      border-radius: 2px; /* 完全な四角に近いシャープさ */
+      border-radius: 2px;
       border: 1px solid var(--accent);
       background: var(--accent);
       color: #fff;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 600;
+      letter-spacing: 0.08em;
       cursor: pointer;
       transition: all 0.25s ease;
       margin-bottom: 12px;
@@ -86,10 +115,11 @@
     /* 質問画面 */
     #question-text {
       text-align: left;
-      font-size: 1.05rem;
+      font-family: var(--font-mincho);
+      font-size: 1.1rem;
       margin-bottom: 24px;
       line-height: 1.6;
-      font-weight: 600;
+      font-weight: 700;
     }
     .progress-bar {
       height: 2px;
@@ -112,7 +142,7 @@
       border: 1px solid var(--border);
       border-radius: 2px;
       text-align: left;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       color: var(--text-main);
       cursor: pointer;
       transition: all 0.2s ease;
@@ -120,14 +150,14 @@
     .option-btn:hover {
       border-color: var(--accent);
       background: #ffffff;
-      transform: translateX(2px); /* ホバー時に少し右にずれる洗練された演出 */
+      transform: translateX(2px);
     }
 
-    /* 結果画面バッジ */
+    /* 結果画面バッジ・テキスト */
     .result-badge {
       display: inline-block;
       font-size: 0.75rem;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.15em;
       color: var(--text-sub);
       border-bottom: 1px solid var(--text-sub);
       padding-bottom: 2px;
@@ -135,13 +165,15 @@
       text-transform: uppercase;
     }
     .menu-title {
-      font-size: 1.6rem;
+      font-family: var(--font-mincho);
+      font-size: 1.75rem;
       font-weight: 800;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
       letter-spacing: 0.05em;
     }
     .menu-catch {
-      font-size: 0.85rem;
+      font-family: var(--font-mincho);
+      font-size: 0.88rem;
       color: var(--text-sub);
       margin-bottom: 20px;
     }
@@ -180,12 +212,12 @@
       border-bottom: 1px solid var(--border);
     }
     .count-item:last-child { border-bottom: none; }
-    .count-name { font-size: 0.9rem; font-weight: 600; }
+    .count-name { font-size: 0.88rem; font-weight: 600; }
     .count-controls { display: flex; align-items: center; gap: 10px; }
     .btn-circle {
       width: 28px;
       height: 28px;
-      border-radius: 2px; /* 四角形 */
+      border-radius: 2px;
       border: 1px solid var(--border);
       background: #fff;
       font-weight: bold;
@@ -200,7 +232,7 @@
       color: var(--text-main);
     }
 
-    /* スコア表示エリア（シックなグレー背景） */
+    /* スコア表示エリア */
     .score-box {
       background: #f4f4f5;
       border: 1px solid var(--border);
@@ -209,10 +241,10 @@
       margin-bottom: 20px;
     }
     .score-val {
-      font-size: 2.2rem;
+      font-size: 2.3rem;
       font-weight: 800;
       color: var(--text-main);
-      font-family: "Helvetica Neue", Arial, sans-serif;
+      font-family: var(--font-mincho);
     }
     
     .info-block {
@@ -226,7 +258,8 @@
       line-height: 1.6;
     }
     .info-block h3 {
-      font-size: 0.85rem;
+      font-family: var(--font-mincho);
+      font-size: 0.88rem;
       color: var(--text-sub);
       margin-bottom: 6px;
       letter-spacing: 0.05em;
@@ -246,7 +279,7 @@
 <div class="container">
   <!-- 1. トップ画面 -->
   <div id="screen-top" class="card fade-in">
-    <h1>居酒屋メニュー性格診断</h1>
+    <h1>居酒屋メニュー<br>性格診断</h1>
     <p class="desc">全5問・約1分<br>あなたを居酒屋のメニューに例えると？</p>
     <button id="btn-start" class="btn" onclick="startDiagnosis()" disabled>データを読み込み中...</button>
     <p id="loading-error" class="error-msg hidden">データの読み込みに失敗しました。再読み込みしてください。</p>
@@ -302,7 +335,7 @@
     <div class="score-box">
       <div style="font-size:0.75rem; color:var(--text-sub); letter-spacing:0.05em;">2人の相性度</div>
       <div id="pair-score" class="score-val">0%</div>
-      <div id="pair-title" style="font-weight:bold; font-size:0.95rem; margin-top:4px;">--</div>
+      <div id="pair-title" style="font-weight:bold; font-size:0.92rem; margin-top:4px;">--</div>
     </div>
 
     <div class="info-block">
@@ -395,17 +428,15 @@
     }
   });
 
-  // 画面切り替え共通関数（フェードインアニメーション適用）
   function switchScreen(hideId, showId) {
     document.getElementById(hideId).classList.add('hidden');
     const showEl = document.getElementById(showId);
     showEl.classList.remove('hidden');
     showEl.classList.remove('fade-in');
-    void showEl.offsetWidth; // リフロー発生でアニメーションリセット
+    void showEl.offsetWidth;
     showEl.classList.add('fade-in');
   }
 
-  // 数字がカタカタカウントアップする「演出アニメーション」
   function animateValue(id, start, end, duration, suffix = "") {
     const obj = document.getElementById(id);
     let startTimestamp = null;
@@ -539,7 +570,6 @@
     }
   }
 
-  // 2人用診断
   function showPairResult(type1, type2) {
     const m1 = results[type1];
     const m2 = results[type2];
@@ -559,11 +589,9 @@
     }
 
     switchScreen('screen-group-input', 'screen-pair-result');
-    // 数字が0%からカウントアップするアニメーション演出 (1秒間)
     animateValue('pair-score', 0, targetScore, 1000, "%");
   }
 
-  // 3人以上グループ診断
   function showGroupResult(members) {
     const countHeavy = members.filter(m => ["02", "05", "09", "10", "12"].includes(m)).length;
     const countStable = members.filter(m => ["01", "03", "08"].includes(m)).length;
@@ -617,7 +645,6 @@
     }
 
     switchScreen('screen-group-input', 'screen-group-result');
-    // 数字が0点からカウントアップするアニメーション演出 (1秒間)
     animateValue('group-score', 0, targetScore, 1000, "点");
   }
 

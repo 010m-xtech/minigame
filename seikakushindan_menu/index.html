@@ -314,9 +314,10 @@
       <p id="group-mood">--</p>
     </div>
 
-    <div class="info-block" style="background:#eff6ff; border:1px solid #bfdbfe;">
-      <h3 style="color:#1d4ed8;">🔮 本日のベスト相性コンビ！</h3>
-      <div id="group-best-pair-names" style="font-weight:bold; font-size:1.05rem; margin-bottom:4px; color:#1e40af;">--</div>
+    <!-- デザインを統一したベスト相性コンビ表示ブロック -->
+    <div class="info-block">
+      <h3>🔮 本日のベスト相性コンビ！</h3>
+      <div id="group-best-pair-names" style="font-weight:bold; margin-bottom:2px;">--</div>
       <p id="group-best-pair-desc">--</p>
     </div>
 
@@ -512,23 +513,18 @@
     }
   }
 
-  // --- 5-B. 動的コース名＆取扱説明書対応のグループ診断 ---
   function showGroupResult(members) {
     document.getElementById('screen-group-result').classList.remove('hidden');
 
-    // タイプ別のカウント
-    // ガッツリ・盛り上げ系: 02(本日のオススメ), 05(ポテト), 09(ハイボール), 10(唐揚げ), 12(麻婆)
     const countHeavy = members.filter(m => ["02", "05", "09", "10", "12"].includes(m)).length;
-    // 安定・しっかり系: 01(ビール枝豆), 03(出汁巻き), 08(刺身)
     const countStable = members.filter(m => ["01", "03", "08"].includes(m)).length;
-    // マイペース・知性派系: 04(たこわさ), 06(エイヒレ), 07(アボカド), 11(梅きゅう)
     const countChill = members.filter(m => ["04", "06", "07", "11"].includes(m)).length;
 
+    // 「！」の後に <br> を入れて改行対応
     let courseName = "奇跡のバランス！<br>黄金パーティーコース";
     let score = "98点";
     let instruction = "個性が程よくばらけていて超ポジティブなチーム！ボケ・ツッコミ・仕切りの全ポジションが揃った居酒屋のアベンジャーズです。";
 
-    // 構成に応じた動的判定ロジック
     if (countHeavy >= Math.ceil(members.length / 2)) {
       courseName = "熱気と勢いで押し切る！<br>ハイテンション爆盛りコース";
       score = "100点";
@@ -543,18 +539,17 @@
       instruction = "1つの話題を30分じっくり語り明かせるディープな空間です。静かそうに見えて各自の脳内では大爆笑が起きています。";
     }
 
+    // <br> を反映させるため innerHTML に変更
     document.getElementById('group-course').innerHTML = `「${courseName}」`;
     document.getElementById('group-score').innerText = score;
     document.getElementById('group-instruction').innerText = instruction;
 
-    // リーダー・ムードメーカー選出
     const leaderKey = members.find(m => ["01", "08", "03"].includes(m)) || members[0];
     const moodKey = members.find(m => ["05", "09", "10", "02", "12"].includes(m)) || members[1] || members[0];
 
     document.getElementById('group-leader').innerText = `${results[leaderKey].title} （${results[leaderKey].catch}）`;
     document.getElementById('group-mood').innerText = `${results[moodKey].title} （${results[moodKey].catch}）`;
 
-    // ベスト相性コンビ選出
     let p1 = members[0];
     let p2 = members[1];
 

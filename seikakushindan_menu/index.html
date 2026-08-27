@@ -215,6 +215,11 @@
       margin: 20px 0;
     }
     .hidden { display: none; }
+    .error-msg {
+      color: #e63946;
+      font-size: 0.85rem;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -224,7 +229,8 @@
   <div id="screen-top" class="card">
     <h1>居酒屋メニュー性格診断</h1>
     <p class="desc">全5問・約1分で完了！<br>あなたを居酒屋のメニューに例えると？</p>
-    <button class="btn" onclick="startDiagnosis()">診断をはじめる</button>
+    <button id="btn-start" class="btn" onclick="startDiagnosis()" disabled>データを読み込み中...</button>
+    <p id="loading-error" class="error-msg hidden">データの読み込みに失敗しました。ページを再読み込みしてください。</p>
   </div>
 
   <!-- 2. 質問画面 -->
@@ -331,7 +337,7 @@
 </div>
 
 <script>
-  // ★ 人数入力画面での表示順序（お好みで数字を入れ替えできます）
+  // メニューの表示順（カスタマイズ用）
   const menuDisplayOrder = [
     "01", // 生ビール＆枝豆
     "09", // メガハイボール
@@ -352,30 +358,38 @@
   let currentQ = 0;
   let scores = {};
   let groupCounts = {};
+  let myResultType = "";
 
   window.addEventListener('DOMContentLoaded', async () => {
+    const startBtn = document.getElementById('btn-start');
+    const errorMsg = document.getElementById('loading-error');
+
     try {
       const response = await fetch('data.json');
+      if (!response.ok) throw new Error('Network response was not ok');
       const data = await response.json();
       
-      questions = data.questions;
-      results = data.results;
+      questions = data.questions || [];
+      results = data.results || {};
 
       Object.keys(results).forEach(key => {
         scores[key] = 0;
         groupCounts[key] = 0;
       });
 
+      startBtn.disabled = false;
+      startBtn.innerText = "診断をはじめる";
+
     } catch (error) {
       console.error("JSONの読み込みに失敗しました:", error);
+      startBtn.classList.add('hidden');
+      errorMsg.classList.remove('hidden');
     }
   });
 
   function startDiagnosis() {
-    if (questions.length === 0) {
-      alert("データを読み込み中です。少々お待ちください。");
-      return;
-    }
+    if (questions.length === 0) return;
+    
     Object.keys(scores).forEach(key => scores[key] = 0);
     currentQ = 0;
 
@@ -423,8 +437,6 @@
     return topTypes[randomIndex];
   }
 
-  let myResultType = "";
-
   function showResult() {
     document.getElementById('screen-quiz').classList.add('hidden');
     document.getElementById('screen-result').classList.remove('hidden');
@@ -456,7 +468,6 @@
     document.getElementById('screen-result').classList.remove('hidden');
   }
 
-  // 人数入力リストを描画（menuDisplayOrder の順番でループ）
   function renderCountList() {
     const listContainer = document.getElementById('count-list');
     listContainer.innerHTML = '';
@@ -474,9 +485,9 @@
       item.innerHTML = `
         <span class="count-name">${results[key].title}</span>
         <div class="count-controls">
-          <button class="btn-circle" onclick="changeCount('${key}', -1)">-</button>
+          <button class="btn-circle" onclick="changeCount('${key}', -1)" aria-label="減らす">-</button>
           <span style="font-weight:bold; width:16px; text-align:center;">${count}</span>
-          <button class="btn-circle" onclick="changeCount('${key}', 1)">+</button>
+          <button class="btn-circle" onclick="changeCount('${key}', 1)" aria-label="増やす">+</button>
         </div>
       `;
       listContainer.appendChild(item);
@@ -538,7 +549,6 @@
     const countStable = members.filter(m => ["01", "03", "08"].includes(m)).length;
     const countChill = members.filter(m => ["04", "06", "07", "11"].includes(m)).length;
 
-    // ★ 改行入りのコース名（「」を外したシンプルな文面）
     let courseName = "奇跡のバランス！<br>黄金パーティーコース";
     let score = "98点";
     let instruction = "個性が程よくばらけていて超ポジティブなチーム！ボケ・ツッコミ・仕切りの全ポジションが揃った居酒屋のアベンジャーズです。";
@@ -552,12 +562,11 @@
       score = "95点";
       instruction = "全員が気配り上手すぎて『最後の1個』が誰にも食べられず残る傾向があります。グラスが空く前に注文が通る完璧なチームワーク！";
     } else if (countChill >= Math.ceil(members.length / 2)) {
-      courseName = "じっくり語り明かす！<br>大人ののんびりマニアックコース";
+      courseName = "じっくり語り明かす！<br>大人ののnびりマニアックコース";
       score = "92点";
       instruction = "1つの話題を30分じっくり語り明かせるディープな空間です。静かそうに見えて各自の脳内では大爆笑が起きています。";
     }
 
-    // ★ 「」なしで画面にセット
     document.getElementById('group-course').innerHTML = courseName;
     document.getElementById('group-score').innerText = score;
     document.getElementById('group-instruction').innerText = instruction;
@@ -569,15 +578,12 @@
     document.getElementById('group-mood').innerText = `${results[moodKey].title} （${results[moodKey].catch}）`;
 
     let p1 = members[0];
-    let p2 = members[1];
+    let p2 = members[1] || members[0];
 
     const duplicateKey = members.find((item, index) => members.indexOf(item) !== index);
     if (duplicateKey) {
       p1 = duplicateKey;
       p2 = duplicateKey;
-    } else if (members.length >= 2) {
-      p1 = members[0];
-      p2 = members[1];
     }
 
     const res1 = results[p1];

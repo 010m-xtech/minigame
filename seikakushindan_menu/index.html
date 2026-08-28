@@ -33,7 +33,7 @@
 
     .container {
       width: 100%;
-      max-width: 400px;
+      max-width: 420px;
       margin: auto;
     }
 
@@ -41,7 +41,7 @@
     .card {
       background: var(--card-bg);
       border-radius: 2px;
-      padding: 32px 24px;
+      padding: 28px 20px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.04);
       border: 1px solid var(--card-border);
       text-align: center;
@@ -56,7 +56,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* トップ画面（画像重ね合わせ）の調整エリア */
+    /* トップ画面（画像重ね合わせ） */
     .top-image-container {
       position: relative;
       width: 100%;
@@ -73,13 +73,12 @@
       display: block;
     }
 
-    /* ★★★ 診断スタートボタンの位置調整エリア ★★★ */
     .top-btn-overlay {
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
-      bottom: 100px;                  /* ← 上下にずらしたい時はこの数字を変更 */
-      width: 80%;                    /* ← ボタン幅を変えたい時はこの数字を変更 */
+      bottom: 100px;
+      width: 80%;
       max-width: 200px;
       margin-bottom: 0;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
@@ -195,33 +194,62 @@
       display: block;
     }
 
-    /* 人数入力画面 */
-    .count-list {
-      max-height: 280px;
+    /* ★ 人数入力画面（2列×6行レイアウト） */
+    .count-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr); /* 2列並び */
+      gap: 10px;
+      max-height: 380px;
       overflow-y: auto;
       text-align: left;
-      margin-bottom: 20px;
-      border: 1px solid var(--border);
-      padding: 8px 12px;
-      background: #fafafa;
+      margin-bottom: 16px;
+      padding: 4px;
     }
-    .count-item {
+    .count-card {
+      background: #fafafa;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 8px;
       display: flex;
+      flex-direction: column;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--border);
     }
-    .count-item:last-child { border-bottom: none; }
-    .count-name { font-size: 0.9rem; font-weight: 600; }
-    .count-controls { display: flex; align-items: center; gap: 10px; }
+    .count-card-img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 2px;
+      margin-bottom: 6px;
+      border: 1px solid var(--border);
+    }
+    .count-card-name {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-align: center;
+      line-height: 1.2;
+      height: 2.4em; /* 2行分の高さを確保 */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 6px;
+      color: var(--text-main);
+    }
+    .count-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+    }
     .btn-circle {
-      width: 28px;
-      height: 28px;
+      width: 26px;
+      height: 26px;
       border-radius: 2px;
       border: 1px solid var(--border);
       background: #fff;
       font-weight: bold;
+      font-size: 0.85rem;
       cursor: pointer;
       transition: all 0.2s;
     }
@@ -229,7 +257,7 @@
     .total-count {
       font-size: 1rem;
       font-weight: 700;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       color: var(--text-main);
     }
 
@@ -264,6 +292,28 @@
       letter-spacing: 0.05em;
     }
 
+    /* ★ 注文誘導ブロック（お店向けプロモーションエリア） */
+    .order-promo-box {
+      background: #18181b;
+      color: #ffffff;
+      padding: 16px;
+      border-radius: 2px;
+      margin-top: 20px;
+      text-align: center;
+    }
+    .order-promo-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #f4f4f5;
+      margin-bottom: 4px;
+      letter-spacing: 0.05em;
+    }
+    .order-promo-text {
+      font-size: 0.8rem;
+      color: #a1a1aa;
+      line-height: 1.5;
+    }
+
     .divider {
       height: 1px;
       background: var(--border);
@@ -276,7 +326,7 @@
 <body>
 
 <div class="container">
-  <!-- 1. トップ画面（画像の上にボタンを重ねる構造） -->
+  <!-- 1. トップ画面 -->
   <div id="screen-top" class="card fade-in" style="padding: 0; background: transparent; border: none; box-shadow: none;">
     <div class="top-image-container">
       <img src="images/top.webp" alt="居酒屋メニュー性格診断" class="top-bg-img">
@@ -304,7 +354,13 @@
       <img id="result-img" src="" alt="メニュー画像">
     </div>
 
-    <p id="result-desc" style="font-size: 0.88rem; line-height: 1.7; text-align: left; margin-bottom: 24px; color: #3f3f46;"></p>
+    <p id="result-desc" style="font-size: 0.88rem; line-height: 1.7; text-align: left; margin-bottom: 16px; color: #3f3f46;"></p>
+
+    <!-- 注文誘導エリア -->
+    <div class="order-promo-box">
+      <div class="order-promo-title">🍺 本日の運命のメニュー！</div>
+      <div class="order-promo-text">あなたの分身「<span id="promo-menu-name">--</span>」を、ぜひ今すぐテーブルへ注文して呼び呼びましょう！</div>
+    </div>
 
     <div class="divider"></div>
 
@@ -315,12 +371,12 @@
     <button class="btn btn-secondary" onclick="resetQuiz()">もう一度診断する</button>
   </div>
 
-  <!-- 4. 人数入力画面 -->
+  <!-- 4. 人数入力画面（2列×6行グリッド） -->
   <div id="screen-group-input" class="card hidden">
     <h2>テーブルのメンバー構成</h2>
-    <p class="desc">メニューの人数を入力してください</p>
+    <p class="desc" style="margin-bottom:12px;">メニューの人数を入力してください</p>
     
-    <div id="count-list" class="count-list"></div>
+    <div id="count-list" class="count-grid"></div>
     <div class="total-count">合計: <span id="total-val">0</span> 名</div>
 
     <button id="btn-exec-group" class="btn" onclick="execGroupDiagnosis()" disabled>診断を実行する</button>
@@ -346,6 +402,12 @@
     <div class="info-block">
       <h3>◆ 今日を楽しむワンポイント</h3>
       <p id="pair-advice">--</p>
+    </div>
+
+    <!-- 注文誘導エリア -->
+    <div class="order-promo-box">
+      <div class="order-promo-title">✨ 相性抜群の2人へのおすすめ</div>
+      <div class="order-promo-text">今夜はこの2つのメニューを両方頼んで、テーブルの上でも最高の相性を味わいましょう！</div>
     </div>
 
     <div class="divider"></div>
@@ -381,6 +443,12 @@
     <div class="info-block">
       <h3>◆ このグループの取扱説明書</h3>
       <p id="group-instruction">--</p>
+    </div>
+
+    <!-- 注文誘導エリア -->
+    <div class="order-promo-box">
+      <div class="order-promo-title">🎉 今夜の宴会を最高にする秘訣</div>
+      <div class="order-promo-text">リーダーとムードメーカーのメニューを追加注文すると、今夜の宴会チームワークがさらに加速します！</div>
     </div>
 
     <div class="divider"></div>
@@ -503,6 +571,7 @@
     document.getElementById('result-type').innerText = res.title;
     document.getElementById('result-catch').innerText = res.catch;
     document.getElementById('result-desc').innerText = res.desc;
+    document.getElementById('promo-menu-name').innerText = res.title; // 注文誘導プロモ欄
     
     const imgElement = document.getElementById('result-img');
     imgElement.src = `images/${myResultType}.webp`;
@@ -523,6 +592,7 @@
     switchScreen('screen-group-input', 'screen-result');
   }
 
+  // ★ 2列6行の画像付きカード描画関数
   function renderCountList() {
     const listContainer = document.getElementById('count-list');
     listContainer.innerHTML = '';
@@ -533,17 +603,18 @@
       const count = groupCounts[key];
       total += count;
 
-      const item = document.createElement('div');
-      item.className = 'count-item';
-      item.innerHTML = `
-        <span class="count-name">${results[key].title}</span>
+      const card = document.createElement('div');
+      card.className = 'count-card';
+      card.innerHTML = `
+        <img src="images/${key}.webp" alt="${results[key].title}" class="count-card-img">
+        <div class="count-card-name">${results[key].title}</div>
         <div class="count-controls">
           <button class="btn-circle" onclick="changeCount('${key}', -1)" aria-label="減らす">-</button>
-          <span style="font-weight:bold; width:16px; text-align:center;">${count}</span>
+          <span style="font-weight:bold; width:16px; text-align:center; font-size:0.85rem;">${count}</span>
           <button class="btn-circle" onclick="changeCount('${key}', 1)" aria-label="増やす">+</button>
         </div>
       `;
-      listContainer.appendChild(item);
+      listContainer.appendChild(card);
     });
 
     document.getElementById('total-val').innerText = total;

@@ -1366,7 +1366,7 @@ const sakeList = [
     brandKana: "せんきん",
     subtitle: "MODERN 壱式火入れ江戸返り第二巻",
     kura: "せんきん(栃木県)",
-    type: "純米酒(非公開)",
+    type: "非公開",
     seimai: 90,
     alcohol: "14%",
     values: { amakara: 35, kaori: 70, keiju: 60 },
@@ -1550,20 +1550,9 @@ const axisMeta = {
   keiju:   { label: "ボディ", left: "軽い", right: "重い・どっしり" }
 };
 
-/* ============ 過去の銘柄データ（履歴表示用） ============ */
-const archivedSakeList = [
-  { id: "ena", brand: "恵那山", brandKana: "えなさん", subtitle: "純米吟醸 ひだほまれ" },
-  { id: "ichinokura", brand: "一ノ蔵", brandKana: "いちのくら", subtitle: "無鑑査本醸造" },
-  { id: "eikaijin", brand: "悦　凱陣", brandKana: "よろこび　がいじん", subtitle: "山田錦 ブルーボトル 純米吟醸 無濾過生" },
-  { id: "hououbiden", brand: "鳳凰美田", brandKana: "ほうおうびでん", subtitle: "純米吟醸酒" },
-  { id: "zaku", brand: "作", brandKana: "ざく", subtitle: "インプレッション M" },
-  { id: "kamenoumi", brand: "亀の海", brandKana: "かめのうみ", subtitle: "本醸造" }
-];
-
 /* ============ 用語辞典データと処理 ============ */
 const glossaryData = {
-  "純米大吟醸酒": "精米歩合50%以下の白米、米麹、水のみを原料として「吟醸造り」で造られた最高峰のお酒。極めて華やかな香りと、雑味のない透明感のある味わいが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米の芯のピュアな旨みと、フルーツのような華やかな香りの余韻をじっくりと楽しんでみてください。",
-  "純米大吟醸": "精米歩合50%以下の白米、米麹、水のみを原料として「吟醸造り」で造られた最高峰のお酒。極めて華やかな香りと、雑味のない透明感のある味わいが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米の芯のピュアな旨みと、フルーツのような華やかな香りの余韻をじっくりと楽しんでみてください。",
+  "非公開": "特定名称や詳細なスペック（日本酒度や酸度など）をあえて公開していない状態。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡蔵元の想い】</span><br>「スペックという先入観を持たずに、味わいそのものを純粋に感じてほしい」という強いこだわりによるものです。数字や肩書きにとらわれず、一口の直感を楽しんでみてください。",
   "純米吟醸酒": "精米歩合60%以下の白米、米麹、水のみを原料として「吟醸造り」で造られたお酒。フルーティーな香りとすっきりとした味わいが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米の雑味がなく、後味がすっと消えていく『キレのきれいさ』と、口に含んだ瞬間の華やかな香りに注目してみてください。",
   "純米吟醸": "精米歩合60%以下の白米、米麹、水のみを原料として「吟醸造り」で造られたお酒。フルーティーな香りとすっきりとした味わいが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米の雑味がなく、後味がすっと消えていく『キレのきれいさ』と、口に含んだ瞬間の華やかな香りに注目してみてください。",
   "吟醸酒": "精米歩合60%以下の白米、米麹、水、および少量の醸造アルコールを用いて造られたお酒。アルコールを添加することで、より香りが引き立ち、軽快でキレのある味わいになります。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>純米酒に比べてスッキリとした軽快な口当たりと、ふわっと広がる香りのバランスを楽しんでみてください。",
@@ -1918,6 +1907,8 @@ function showComparison(){
   const typeCore = s.type.replace('酒', '').replace('(原酒)', '');
   const showType = !s.subtitle.includes(typeCore);
   const typeHtmlDesc = showType ? `<span>特定名称:${linkify(s.type)}</span>` : '';
+  
+  const hikoukaiNote = s.type.includes("非公開") ? `<div style="font-size: 11.5px; color: rgba(255,255,255,0.8); margin-top: 12px; padding-top: 12px; border-top: 1px dashed rgba(255,255,255,0.3); line-height: 1.6;">※特定名称を「非公開」としているのは、「スペックという先入観を持たずに、一口の直感で味わいそのものを純粋に感じてほしい」という蔵元のこだわりのためです。</div>` : '';
 
   html += `
     <button class="desc-toggle-btn" onclick="toggleDesc(this)">
@@ -1942,6 +1933,7 @@ function showComparison(){
             <span>${linkify('精米歩合')}:<span style="font-size:115%; font-weight:700;">${s.seimai}%</span></span>
             <span>アルコール分:${s.alcohol}</span>
           </div>
+          ${hikoukaiNote}
         </div>
         <div class="source-line">${linkify(s.source)}</div>
       </div>

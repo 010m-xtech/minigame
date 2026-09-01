@@ -43,7 +43,6 @@
     justify-content: center;
     padding: 0;
   }
-
   body.op-active {
     background-color: #000;
     overflow: hidden;
@@ -99,7 +98,6 @@
   .brand {
     display: flex; align-items: center; gap: 10px;
   }
-
   .seal {
     width: 34px; height: 34px; flex: 0 0 auto;
   }
@@ -145,7 +143,6 @@
     padding: 20px 20px 40px;
     position: relative;
   }
-
   .screen {
     display: none;
     animation: fadeUp 0.45s ease both;
@@ -199,7 +196,6 @@
   .sake-card:focus-visible { outline: 2px solid var(--shu); outline-offset: 2px; }
 
   .sake-card .info { flex: 1; min-width: 0; }
-
   .sake-card .name {
     font-family: var(--font-mincho);
     color: var(--sumi);
@@ -332,7 +328,6 @@
     font-size: 14px; font-weight: 700; color: var(--ai);
     margin-bottom: 10px;
   }
-
   .ruler {
     position: relative;
     height: 34px;
@@ -410,7 +405,6 @@
   input[type=range]:focus-visible::-webkit-slider-thumb {
     outline: 2px solid var(--ai); outline-offset: 2px;
   }
-
   .free-text {
     margin-top: 6px;
   }
@@ -457,7 +451,6 @@
     background: transparent; color: var(--ai-light);
     border: 1px solid var(--line);
   }
-
   .compare-block {
     margin-bottom: 26px;
     padding-bottom: 22px;
@@ -672,7 +665,6 @@
     color: var(--shu);
     font-weight: 700;
   }
-
   .fav-checkbox-wrap {
     margin-top: 24px;
     display: flex;
@@ -822,7 +814,6 @@
     color: #fff;
     border-bottom-color: rgba(255,255,255,0.6);
   }
-
   .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(34, 56, 92, 0.5);
@@ -1031,12 +1022,7 @@
 <div id="opOverlay" class="op-overlay" onclick="skipOp()">
   <video id="opVideo" class="op-video" src="title2.mp4" autoplay muted playsinline></video>
   <div id="opTitle" class="op-title">
-    <svg class="op-seal" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="20" cy="20" r="18" stroke="#BD4630" stroke-width="2.5"/>
-      <text x="20" y="26" text-anchor="middle" font-size="15" fill="#BD4630" font-family="'Shippori Mincho', serif" font-weight="700">酒</text>
-    </svg>
-    <h1>利き酒帖</h1>
-    <p>KIKIZAKE NOTE</p>
+    <img src="namihira.png" alt="タイトルロゴ" style="max-width: 80%; width: 280px; height: auto; filter: drop-shadow(0 2px 10px rgba(0,0,0,0.8));">
   </div>
   <div class="op-skip-hint">タップでスキップ</div>
 </div>
@@ -1549,7 +1535,6 @@ const axisMeta = {
   kaori:   { label: "香り", left: "穏やか", right: "華やか" },
   keiju:   { label: "ボディ", left: "軽い", right: "重い・どっしり" }
 };
-
 /* ============ 用語辞典データと処理 ============ */
 const glossaryData = {
   // --- 特定名称 ---
@@ -1616,7 +1601,6 @@ const glossaryData = {
   "清水清三郎商店(三重県)": "鈴鹿市にある唯一の酒蔵。「作（ざく）」や「鈴鹿川」を醸造。伊勢杜氏の伝統を引き継ぎ、国内外のコンペティションで高い評価を得ています。",
   "土屋酒造店(長野県)": "佐久市にある酒蔵。千曲川の伏流水と地元産の米を用い、「亀の海」などの銘柄を醸しています。信州の自然が育む、きれいな味わいが特徴です。"
 };
-
 // テキスト内の専門用語を検知してリンク化する関数
 function linkify(text) {
   if (!text) return "";
@@ -1655,7 +1639,6 @@ let drankHistory = JSON.parse(localStorage.getItem('kikizake_drankHistory')) || 
 let pastRecords = JSON.parse(localStorage.getItem('kikizake_records')) || [];
 let sessionRecords = []; 
 let screenBeforeHistory = 1;
-
 /* ============ 初期描画:銘柄リスト ============ */
 function renderSakeList(){
   const wrap = document.getElementById('sakeList');
@@ -1707,7 +1690,6 @@ function renderSakeList(){
     wrap.innerHTML = '<div class="no-result">条件に合うお酒が見つかりませんでした。<br>別の条件をお試しください。</div>';
   }
 }
-
 function selectSake(id){
   currentSakeId = id;
   const s = sakeList.find(x=>x.id===id);
@@ -1748,7 +1730,6 @@ function goScreen(n){
   });
   window.scrollTo({top:0, behavior:'smooth'});
 }
-
 /* ============ 比較結果生成 ============ */
 function showComparison(){
   userAnswers = {
@@ -1881,7 +1862,6 @@ function showComparison(){
       </div>
     `;
   });
-
   // --- 集約コメントの生成 ---
   let traits = [];
   let sameTraits = [];
@@ -1974,7 +1954,6 @@ function showComparison(){
   body.innerHTML = html;
   goScreen(3);
 }
-
 /* ============ おすすめ料理 ============ */
 function showPairing(){
   const s = sakeList.find(x=>x.id===currentSakeId);
@@ -2042,7 +2021,6 @@ function showPairing(){
 
   goScreen(4);
 }
-
 /* ============ 履歴の表示 ============ */
 function showHistory() {
   const current = document.body.getAttribute('data-current-screen');
@@ -2180,7 +2158,6 @@ function escapeHtml(str){
   div.textContent = str;
   return div.innerHTML;
 }
-
 /* ============ 用語ツールチップ (初回のみ) ============ */
 let tooltipEl = null;
 let hideTimer = null;
@@ -2268,7 +2245,6 @@ function updateSliderGuide(axis) {
   const offset = 13 - (26 * percent);
   bubble.style.left = `calc(${val}% + ${offset}px)`;
 }
-
 /* ============ 初期化 ============ */
 renderSakeList();
 goScreen(1);

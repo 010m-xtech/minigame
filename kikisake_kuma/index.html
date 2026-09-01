@@ -117,6 +117,38 @@
     margin: 0; font-size: 12px; color: var(--sumi); letter-spacing: 0.05em;
   }
 
+  /* 足跡コンテナのスタイル */
+  .footprints {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px; /* 歩幅の間隔 */
+    flex: 1; /* ロゴと履歴ボタンの間の余白を埋める */
+    margin: 0 12px;
+  }
+
+  /* 足跡画像のスタイル */
+  .footprint {
+    width: 24px;
+    height: auto;
+    opacity: 0.45; /* 少し控えめに馴染ませる */
+  }
+
+  /* 左へ向かって歩く足跡の配置（互い違いにする） */
+  /* 左向きにまっすぐ歩いているように角度を揃える */
+  .footprint:nth-child(1) {
+    transform: translateY(-6px) scaleY(-1) rotate(-90deg);
+  }
+  .footprint:nth-child(2) {
+    transform: translateY(6px) rotate(-90deg);
+  }
+  .footprint:nth-child(3) {
+    transform: translateY(-6px) scaleY(-1) rotate(-90deg);
+  }
+  .footprint:nth-child(4) {
+    transform: translateY(6px) rotate(-90deg);
+  }
+
   .stepper {
     display: flex; gap: 6px;
   }
@@ -1059,6 +1091,15 @@
           <p>KIKIZAKE NOTE</p>
         </div>
       </div>
+      
+      <!-- 追加: 足跡の画像群 -->
+      <div class="footprints">
+        <img src="ashi.png" alt="足跡" class="footprint">
+        <img src="ashi.png" alt="足跡" class="footprint">
+        <img src="ashi.png" alt="足跡" class="footprint">
+        <img src="ashi.png" alt="足跡" class="footprint">
+      </div>
+
       <button class="history-btn" onclick="showHistory()">
         <svg viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
         履歴
@@ -2075,7 +2116,7 @@ function renderHistory() {
   
   sorted.forEach(record => {
     // 1. 現在のリスト 2. 過去のリスト の順で探し、なければ記録自体に保存された名前を使う
-    const s = sakeList.find(x => x.id === record.sakeId) || archivedSakeList.find(x => x.id === record.sakeId);
+    const s = sakeList.find(x => x.id === record.sakeId) || (typeof archivedSakeList !== 'undefined' ? archivedSakeList.find(x => x.id === record.sakeId) : undefined);
     
     const brandKana = s ? s.brandKana : (record.brandKana || "");
     const brand = s ? s.brand : (record.brand || "不明な銘柄");

@@ -1,0 +1,2333 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#000000" id="themeColorMeta">
+<title>利き酒帖</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --kinari: #F2EEE3;
+    --kinari-deep: #E9E2CF;
+    --ai: #22385C;
+    --ai-light: #4C6A94;
+    --ai-pale: #DCE3EC;
+    --shu: #BD4630;
+    --shu-pale: #F1DCD5;
+    --sumi: #2A2620;
+    --line: #D6CCB4;
+    --font-mincho: 'Shippori Mincho', serif;
+    --font-gothic: 'Zen Kaku Gothic New', sans-serif;
+    --radius: 14px;
+  }
+
+  * { 
+    box-sizing: border-box; 
+    -webkit-tap-highlight-color: transparent; 
+  }
+
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--kinari-deep);
+    color: var(--sumi);
+    font-family: var(--font-gothic);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 0;
+  }
+
+  body.op-active {
+    background-color: #000;
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+  }
+  body.op-active .app {
+    display: none;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 460px;
+    min-height: 100vh;
+    background-color: var(--kinari);
+    background-image:
+      radial-gradient(circle at 10% 8%, rgba(34,56,92,0.035) 0, transparent 45%),
+      radial-gradient(circle at 90% 92%, rgba(189,70,48,0.035) 0, transparent 45%);
+    position: relative;
+    box-shadow: 0 0 40px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    position: sticky; top: 0; z-index: 20;
+    background-color: var(--kinari); /* Fallback */
+    background-image: 
+      linear-gradient(rgba(242, 238, 227, 0.8), rgba(242, 238, 227, 0.8)), 
+      url('header.webp');
+    background-size: cover;
+    background-position: center;
+    border-bottom: 1px solid var(--line);
+    padding: 18px 20px 12px;
+    transition: background 0.3s ease, border-color 0.3s ease;
+  }
+
+  body[data-current-screen="4"] header {
+    background: transparent;
+    border-bottom-color: transparent;
+  }
+  body[data-current-screen="history"] #stepper,
+  body[data-current-screen="survey"] #stepper {
+    display: none;
+  }
+
+  .brand-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .seal {
+    width: 34px; height: 34px; flex: 0 0 auto;
+  }
+
+  .brand h1 {
+    font-family: var(--font-mincho);
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: 0.08em;
+    margin: 0;
+    color: var(--ai);
+  }
+
+  .brand p {
+    margin: 0; font-size: 12px; color: var(--sumi); letter-spacing: 0.05em;
+  }
+
+  .stepper {
+    display: flex; gap: 6px;
+  }
+
+  .step {
+    flex: 1; text-align: center;
+  }
+
+  .step .dot-line {
+    height: 3px; border-radius: 2px;
+    background: var(--line);
+    margin-bottom: 6px;
+    transition: background 0.3s ease;
+  }
+
+  .step.active .dot-line { background: var(--shu); }
+  .step.done .dot-line { background: var(--ai-light); }
+
+  .step span {
+    font-size: 11px; color: var(--sumi); letter-spacing: 0.02em;
+  }
+  .step.active span { color: var(--shu); font-weight: 700; }
+
+  main {
+    flex: 1;
+    padding: 20px 20px 40px;
+    position: relative;
+  }
+
+  .screen {
+    display: none;
+    animation: fadeUp 0.45s ease both;
+  }
+  .screen.active { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .screen { animation: none; }
+  }
+
+  .eyebrow {
+    font-size: 12.5px; letter-spacing: 0.12em; color: var(--shu);
+    font-weight: 700; margin: 0 0 6px;
+  }
+
+  h2.title {
+    font-family: var(--font-mincho);
+    font-size: 22px; line-height: 1.5;
+    margin: 0 0 18px;
+    color: var(--ai);
+  }
+
+  .lead {
+    font-size: 15px; color: var(--sumi); line-height: 1.8; margin: 0 0 20px;
+  }
+
+  .no-result {
+    text-align: center; font-size: 15px; color: #8b8172; padding: 20px 0 40px;
+    line-height: 1.6;
+  }
+
+  .sake-card {
+    width: 100%;
+    display: flex; align-items: center; gap: 14px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--ai);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .sake-card:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(34,56,92,0.1); }
+  .sake-card:focus-visible { outline: 2px solid var(--shu); outline-offset: 2px; }
+
+  .sake-card .info { flex: 1; min-width: 0; }
+
+  .sake-card .name {
+    font-family: var(--font-mincho);
+    color: var(--sumi);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    width: 100%;
+  }
+
+  .sake-card .brand-name {
+    font-weight: 800;
+    font-size: 19px;
+    text-shadow: 0 0 0.5px var(--sumi);
+    line-height: 1.3;
+  }
+  
+  .sake-card .sub-name {
+    font-weight: 500;
+    font-size: 15.5px;
+    line-height: 1.4;
+  }
+
+  .sake-card .sub-name .term-link {
+    font-weight: 700;
+  }
+
+  .sake-card .meta {
+    font-size: 13px; color: var(--sumi);
+    margin-top: 6px;
+  }
+  .sake-card .meta span { white-space: nowrap; }
+
+  .sake-card .arrow {
+    flex: 0 0 auto; width: 18px; height: 18px; color: var(--shu);
+  }
+
+  .radio-buttons {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .radio-btn-wrap {
+    flex: 1; min-width: 90px; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .radio-btn-wrap input {
+    display: none;
+  }
+  .radio-box {
+    display: flex; align-items: center; justify-content: center;
+    padding: 12px 0;
+    border: 1px solid var(--line); background: #fff; border-radius: 8px;
+    font-size: 15px; font-weight: 700; color: var(--sumi);
+    transition: all 0.2s ease;
+  }
+  .radio-box::before {
+    content: '';
+    display: inline-block;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    margin-right: 6px;
+    transition: all 0.2s ease;
+  }
+  .radio-btn-wrap input:checked + .radio-box {
+    background: var(--ai-pale); border-color: var(--ai); color: var(--ai);
+  }
+  .radio-btn-wrap input:checked + .radio-box::before {
+    border-width: 4px;
+    border-color: var(--ai);
+    background: #fff;
+  }
+
+  .survey-group {
+    margin-bottom: 16px;
+    transition: all 0.3s ease;
+  }
+  .survey-group > label {
+    display: block; font-size: 13.5px; font-weight: 700; color: var(--ai); margin-bottom: 10px; line-height: 1.4;
+    transition: color 0.3s ease;
+  }
+  .survey-group.error-highlight > label {
+    color: var(--shu);
+  }
+  .survey-group.error-highlight .radio-box {
+    border-color: var(--shu);
+    background-color: var(--shu-pale);
+  }
+  .radio-buttons-col {
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .radio-buttons-col .radio-box {
+    justify-content: flex-start; padding: 12px 16px; font-size: 14px; text-align: left;
+  }
+
+  .slider-group {
+    margin-bottom: 40px; /* メモリ数字のスペースのため余白を広げる */
+  }
+
+  .slider-guide-bubble {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 12px;
+    background: var(--ai);
+    color: #fff;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 12px;
+    white-space: nowrap;
+    pointer-events: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    z-index: 10;
+    transition: background-color 0.2s ease;
+  }
+  .slider-guide-bubble::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 4px 4px 0 4px;
+    border-style: solid;
+    border-color: var(--ai) transparent transparent transparent;
+  }
+
+  .slider-labels {
+    display: flex; justify-content: space-between;
+    font-size: 14px; font-weight: 700; color: var(--ai);
+    margin-bottom: 10px;
+  }
+
+  .ruler {
+    position: relative;
+    height: 34px;
+    display: flex; align-items: center;
+  }
+  
+  .ruler-track {
+    position: absolute;
+    left: 0; right: 0;
+    top: 50%; transform: translateY(-50%);
+    height: 6px;
+    border-radius: 4px;
+    background: linear-gradient(to right, var(--ai-pale), var(--kinari-deep));
+    z-index: 0;
+  }
+  
+  .ticks {
+    position: absolute;
+    /* サムの半分の幅(13px)分だけ内側に寄せて、スライダーの可動域と合わせる */
+    left: 13px; right: 13px; 
+    top: 50%; transform: translateY(-50%);
+    display: flex; justify-content: space-between;
+    z-index: 1;
+    pointer-events: none;
+  }
+  
+  .tick-mark {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    width: 2px; height: 10px;
+    background: var(--line);
+    border-radius: 1px;
+  }
+
+  .tick-number {
+    position: absolute;
+    top: 14px;
+    font-size: 10px;
+    color: var(--sumi);
+    transform: translateX(-50%);
+    left: 50%;
+  }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 34px;
+    background: transparent;
+    outline: none;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+    margin: 0;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--shu);
+    border: 3px solid #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    cursor: pointer;
+  }
+  input[type=range]::-moz-range-thumb {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--shu);
+    border: 3px solid #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    cursor: pointer;
+    border-width: 3px;
+  }
+  input[type=range]:focus-visible::-webkit-slider-thumb {
+    outline: 2px solid var(--ai); outline-offset: 2px;
+  }
+
+  .free-text {
+    margin-top: 6px;
+  }
+  .free-text label {
+    display: block; font-size: 14.5px; font-weight: 700; color: var(--ai); margin-bottom: 8px;
+  }
+  .free-text input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: #fff;
+    font-family: inherit;
+    font-size: 16px; 
+    color: var(--sumi);
+  }
+  .free-text input:focus-visible { outline: 2px solid var(--shu); }
+
+  .btn-row {
+    display: flex; gap: 10px; margin-top: 28px;
+  }
+
+  button.btn {
+    font-family: var(--font-gothic);
+    font-weight: 700;
+    font-size: 15px;
+    padding: 13px 18px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    transition: opacity 0.15s ease, transform 0.1s ease;
+  }
+  button.btn:active { transform: scale(0.98); }
+  button.btn:focus-visible { outline: 2px solid var(--ai); outline-offset: 2px; }
+
+  .btn-primary {
+    flex: 1;
+    background: var(--shu); color: #fff;
+  }
+  .btn-primary:hover { opacity: 0.92; }
+
+  .btn-ghost {
+    background: transparent; color: var(--ai-light);
+    border: 1px solid var(--line);
+  }
+
+  .compare-block {
+    margin-bottom: 26px;
+    padding-bottom: 22px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .compare-block:last-of-type { border-bottom: none; }
+
+  .compare-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 14px;
+  }
+  .compare-head .axis-name {
+    font-family: var(--font-mincho);
+    font-size: 16px; font-weight: 700; color: var(--ai);
+  }
+
+  .track-wrap {
+    position: relative;
+    padding: 32px 13px 46px; /* 左右に13px(マーカー半径分)の余白を設ける */
+  }
+  .track {
+    position: relative;
+    height: 4px;
+    background: var(--line);
+    border-radius: 2px;
+  }
+
+  .track-ticks {
+    position: absolute;
+    left: 0; right: 0;
+    top: 50%; transform: translateY(-50%);
+    display: flex; justify-content: space-between;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .track-tick-mark {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    width: 2px; height: 8px;
+    background: rgba(214, 204, 180, 0.6); /* --line色を少し薄く */
+    border-radius: 1px;
+  }
+
+  .track-tick-number {
+    position: absolute;
+    top: 12px;
+    font-size: 9px;
+    color: var(--sumi);
+    transform: translateX(-50%);
+    left: 50%;
+    opacity: 0.7;
+  }
+  
+  .track .end-label {
+    position: absolute; top: 38px; font-size: 12px; color: var(--sumi); 
+  }
+  .track .end-label.left { left: 0; }
+  .track .end-label.right { right: 0; }
+
+  .marker {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex; flex-direction: column; align-items: center;
+    gap: 4px;
+  }
+  .marker .dot {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  }
+  .marker.user .dot { background: var(--ai); }
+  .marker.ref .dot {
+    background: var(--shu);
+    border-radius: 3px;
+    transform: rotate(45deg);
+    height: 13px;
+  }
+  
+  .marker .tag {
+    font-size: 11px; font-weight: 700;
+    padding: 2px 7px; border-radius: 8px;
+    white-space: nowrap;
+  }
+  .marker.user .tag { background: var(--ai-pale); color: var(--ai); }
+  .marker.ref .tag { background: var(--shu-pale); color: var(--shu); }
+  .marker.user { margin-top: -32px; }
+  .marker.ref { margin-top: 16px; }
+
+  .unified-divider {
+    border-top: 1px dashed var(--line);
+    margin: 24px 0 20px;
+  }
+
+  .summary-text {
+    font-size: 15.5px; color: var(--sumi); line-height: 1.75;
+    margin: 16px 0 0;
+  }
+
+  .note {
+    font-size: 10.5px; color: var(--sumi); margin-top: 8px; line-height: 1.6;
+  }
+
+  .desc-toggle-btn {
+    width: 100%;
+    background: #fff;
+    border: 1px solid var(--line);
+    color: var(--ai);
+    font-family: var(--font-gothic);
+    font-weight: 700;
+    font-size: 14.5px;
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    margin: 24px 0 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 14px rgba(34,56,92,0.04);
+    transition: all 0.2s ease;
+  }
+  .desc-toggle-btn:active {
+    transform: scale(0.98);
+  }
+  .desc-toggle-btn svg {
+    width: 18px; height: 18px;
+    transition: transform 0.3s ease;
+    stroke: currentColor;
+    stroke-width: 2.5;
+  }
+  .desc-toggle-btn.open svg {
+    transform: rotate(180deg);
+  }
+  .desc-content-wrapper {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease;
+  }
+  .desc-content-wrapper.open {
+    grid-template-rows: 1fr;
+  }
+  .desc-content-inner {
+    overflow: hidden;
+  }
+  .desc-content-inner .desc-card {
+    margin: 0 0 8px;
+  }
+  .desc-content-inner .source-line {
+    margin-bottom: 8px;
+  }
+
+  .desc-card {
+    background: var(--ai);
+    color: #fff;
+    border-radius: var(--radius);
+    padding: 18px;
+    margin: 24px 0 8px;
+  }
+  .desc-card .eyebrow { color: #fff; }
+  .desc-card h3 {
+    font-family: var(--font-mincho);
+    margin: 0 0 10px;
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 2px 8px;
+  }
+  
+  .desc-card h3 .brand-name {
+    font-size: 19px; font-weight: 800;
+  }
+  .desc-card h3 .sub-name {
+    font-size: 15.5px; font-weight: 500;
+  }
+  .desc-card p {
+    font-size: 15px; line-height: 1.9; margin: 0 0 12px; color: #fff;
+  }
+  .desc-card .spec {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px;
+    font-size: 13px; color: #fff;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    padding-top: 10px;
+  }
+
+  .source-line {
+    font-size: 11.5px; color: var(--sumi); text-align: right; margin-top: 6px;
+  }
+
+  .analysis-card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 14px rgba(34,56,92,0.04);
+  }
+  .analysis-card h4 {
+    margin: 0 0 12px;
+    font-family: var(--font-mincho);
+    font-size: 19px;
+    color: var(--ai);
+  }
+  .analysis-card p {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.75;
+    color: var(--sumi);
+  }
+  .analysis-card .highlight {
+    color: var(--shu);
+    font-weight: 700;
+  }
+
+  .fav-checkbox-wrap {
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .fav-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--shu);
+    cursor: pointer;
+    background: var(--shu-pale);
+    padding: 10px 16px;
+    border-radius: 30px;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+    user-select: none;
+  }
+  .fav-checkbox-label:hover {
+    background: #f8e5df;
+  }
+  .fav-checkbox-label.checked {
+    background: #fff;
+    border-color: var(--shu);
+  }
+  
+  .fav-checkbox-label input {
+    display: none;
+  }
+  .fav-checkbox-label svg {
+    width: 22px; height: 22px;
+    fill: none;
+    stroke: var(--shu);
+    stroke-width: 2;
+    transition: fill 0.2s ease;
+  }
+  .fav-checkbox-label input:checked + svg {
+    fill: var(--shu);
+  }
+
+  .sake-card .icon-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-right: -4px;
+  }
+
+  .sake-card .fav-icon,
+  .sake-card .drank-icon {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sake-card .fav-icon {
+    width: 24px; height: 24px;
+    color: var(--shu);
+  }
+  .sake-card .fav-icon svg {
+    width: 18px; height: 18px;
+    fill: var(--shu);
+    stroke: var(--shu);
+    stroke-width: 2;
+  }
+
+  .sake-card .drank-icon {
+    width: 20px; height: 20px;
+    background: var(--ai-pale);
+    border-radius: 50%;
+  }
+  .sake-card .drank-icon svg {
+    width: 12px; height: 12px;
+    stroke: var(--ai);
+    stroke-width: 3;
+    fill: none;
+  }
+
+  .stamp-wrap {
+    display: flex; justify-content: center; margin: 10px 0 24px;
+  }
+  .stamp {
+    width: 96px; height: 96px;
+    animation: stampIn 0.6s cubic-bezier(.2,1.4,.4,1) both;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .stamp { animation: none; }
+  }
+  @keyframes stampIn {
+    0% { opacity: 0; transform: scale(2.2) rotate(-18deg); }
+    70% { opacity: 1; }
+    100% { opacity: 1; transform: scale(1) rotate(-8deg); }
+  }
+
+  .pairing-card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .pairing-card .band {
+    background: var(--shu-pale);
+    color: var(--shu);
+    font-size: 12.5px; font-weight: 700; letter-spacing: 0.05em;
+    padding: 8px 16px;
+  }
+  .pairing-card .body { padding: 16px; }
+  .pairing-card h3 {
+    font-family: var(--font-mincho);
+    font-size: 19px; margin: 0 0 10px; color: var(--ai);
+  }
+  .pairing-card p {
+    font-size: 15px; line-height: 1.8; margin: 0; color: var(--sumi);
+  }
+
+  .center-text { text-align: center; }
+
+  /* STEP 4専用の背景と余白調整 */
+  .screen[data-screen="4"] {
+    /* ヘッダーの裏側（最上部）まで背景を広げるため、上にマイナスマージンを取る */
+    margin: -125px -20px -40px;
+    /* 引き上げた分、中身がヘッダーと被らないように上に余白を追加する */
+    padding: 135px 20px 60px;
+    min-height: 100vh;
+    background-color: var(--kinari); /* Fallback */
+    background-image: 
+      linear-gradient(rgba(242, 238, 227, 0.52), rgba(242, 238, 227, 0.52)), 
+      url('back.webp');
+    background-size: cover;
+    background-position: center top;
+  }
+
+  .term-link {
+    color: var(--shu);
+    border-bottom: 1.5px dotted var(--shu);
+    cursor: pointer;
+    font-weight: 700;
+    transition: opacity 0.2s ease;
+    white-space: nowrap;
+    position: relative;
+  }
+  .term-link:hover { opacity: 0.7; }
+  .desc-card .term-link {
+    color: #fff;
+    border-bottom-color: rgba(255,255,255,0.6);
+  }
+
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(34, 56, 92, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease;
+    padding: 20px;
+  }
+  
+  .modal-overlay.show {
+    opacity: 1; pointer-events: auto;
+  }
+  .modal-content {
+    background: #fff;
+    width: 100%; max-width: 360px;
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    transform: translateY(20px) scale(0.95);
+    transition: transform 0.3s cubic-bezier(0.2, 1.4, 0.4, 1);
+  }
+  .modal-overlay.show .modal-content {
+    transform: translateY(0) scale(1);
+  }
+  .modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed var(--line);
+  }
+  
+  .modal-header h3 {
+    margin: 0; font-family: var(--font-mincho);
+    font-size: 20px; color: var(--ai);
+  }
+  
+  .close-btn {
+    background: none; border: none; padding: 4px;
+    color: var(--ai-light); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s ease;
+  }
+  .close-btn:hover { background: var(--ai-pale); }
+  .modal-content p {
+    margin: 0; font-size: 15px; line-height: 1.8; color: var(--sumi);
+  }
+
+  .op-overlay {
+    position: fixed;
+    top: 0; left: 0; bottom: 0; right: 0;
+    width: 100vw; height: 100vh;
+    z-index: 9999;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+    overflow: hidden;
+  }
+  .op-overlay.fade-out {
+    opacity: 0;
+    visibility: hidden;
+  }
+  
+  .op-video {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    z-index: 1;
+  }
+  .op-title {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 80%; /* ロゴのサイズ調整用 */
+    max-width: 300px; /* 最大幅 */
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 1.5s ease, transform 1.5s ease;
+  }
+  .op-logo {
+    width: 100%;
+    height: auto;
+    /* brightness(0)で真っ黒にし、invert(1)で反転させて真っ白にする。その後ドロップシャドウを適用 */
+    filter: brightness(0) invert(1) drop-shadow(0 2px 10px rgba(0,0,0,0.8)); 
+  }
+  .op-title.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .op-seal {
+    width: 52px; height: 52px;
+    margin-bottom: 14px;
+  }
+  .op-title h1 {
+    font-family: var(--font-mincho);
+    font-size: 36px;
+    color: #fff;
+    letter-spacing: 0.1em;
+    margin: 0 0 6px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+  }
+  .op-title p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 0.15em;
+    margin: 0;
+    text-shadow: 0 1px 5px rgba(0,0,0,0.8);
+  }
+  .op-skip-hint {
+    position: absolute;
+    bottom: 30px;
+    z-index: 2;
+    font-size: 13px;
+    color: #fff;
+    letter-spacing: 0.08em;
+    pointer-events: none;
+    animation: floatUpDown 2s ease-in-out infinite;
+  }
+
+  @keyframes floatUpDown {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-4px); }
+    40%, 80% { transform: translateX(4px); }
+  }
+  .shake-animation {
+    animation: shake 0.4s ease;
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    .op-skip-hint { animation: none; }
+    .shake-animation { animation: none; }
+  }
+
+  .history-btn {
+    background: #fff; border: 1px solid var(--line);
+    color: var(--ai); font-size: 11.5px; font-weight: 700;
+    padding: 6px 12px; border-radius: 20px;
+    display: flex; align-items: center; gap: 4px;
+    cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+  }
+  .history-btn:active { transform: scale(0.95); }
+  .history-btn svg {
+    width: 14px; height: 14px; stroke: currentColor; stroke-width: 2; fill: none;
+  }
+
+  .history-card {
+    background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 10px rgba(34,56,92,0.03);
+  }
+  .history-card .date { font-size: 11.5px; color: var(--ai-light); margin-bottom: 6px; }
+  .history-card .name { font-family: var(--font-mincho); margin-bottom: 12px; display:flex; align-items:baseline; flex-wrap:wrap; gap:4px 8px;}
+  .history-card .brand-name { font-size: 17px; font-weight: 800; color: var(--ai); }
+  .history-card .sub-name { font-size: 14.5px; font-weight: 500; color: var(--sumi); }
+  
+  .history-card .params {
+    display: flex; justify-content: space-between; font-size: 12px; color: var(--sumi); font-weight:700;
+    background: var(--kinari-deep); padding: 10px 14px; border-radius: 8px; margin-bottom: 8px;
+  }
+  .history-card .comment {
+    font-size: 13.5px; color: var(--sumi); margin-top: 10px; line-height:1.6;
+    border-top: 1px dashed var(--line); padding-top: 10px;
+  }
+
+  .term-tooltip {
+    display: block;
+    background: var(--shu);
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 5px 8px;
+    border-radius: 4px;
+    position: absolute;
+    bottom: calc(100% + 2px);
+    left: 100%;
+    transform: translateX(8px);
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(189, 70, 48, 0.2);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .term-tooltip.show {
+    opacity: 1;
+  }
+  .term-tooltip::before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 8px;
+    border-width: 5px 5px 0 5px;
+    border-style: solid;
+    border-color: var(--shu) transparent transparent transparent;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .term-tooltip { transition: none; }
+  }
+</style>
+</head>
+<body class="op-active">
+
+<div id="opOverlay" class="op-overlay" onclick="skipOp()">
+  <video id="opVideo" class="op-video" src="title2.mp4" autoplay muted playsinline></video>
+  <div id="opTitle" class="op-title">
+    <img src="wagakuma.png" alt="利き酒帖" class="op-logo">
+  </div>
+  <div class="op-skip-hint">タップでスキップ</div>
+</div>
+
+<div class="app">
+  <header>
+    <div class="brand-row">
+      <div class="brand">
+        <svg class="seal" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="20" r="18" stroke="#BD4630" stroke-width="2.5"/>
+          <text x="20" y="26" text-anchor="middle" font-size="15" fill="#BD4630" font-family="'Shippori Mincho', serif" font-weight="700">酒</text>
+        </svg>
+        <div>
+          <h1>利き酒帖</h1>
+          <p>KIKIZAKE NOTE</p>
+        </div>
+      </div>
+      <button class="history-btn" onclick="showHistory()">
+        <svg viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        履歴
+      </button>
+    </div>
+    <div class="stepper" id="stepper">
+      <div class="step" data-step="1"><div class="dot-line"></div><span>選ぶ</span></div>
+      <div class="step" data-step="2"><div class="dot-line"></div><span>感じる</span></div>
+      <div class="step" data-step="3"><div class="dot-line"></div><span>蔵べる</span></div>
+      <div class="step" data-step="4"><div class="dot-line"></div><span>楽しむ</span></div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Screen 1: 銘柄選択 -->
+    <section class="screen active" data-screen="1">
+      <p class="eyebrow">STEP 1</p>
+      <h2 class="title">今日、飲むお酒を選んでください</h2>
+      <p class="lead" style="font-size: clamp(11px, calc((100vw - 40px) / 24), 16px); margin-bottom: 14px; white-space: nowrap; letter-spacing: -0.01em;">飲んで感じたことを記録して、データと見比べてみる。<br>それだけで、日本酒がもっと楽しくなります。</p>
+      <p class="lead" style="font-size: clamp(11px, calc((100vw - 40px) / 27.5), 13px); letter-spacing: -0.02em; white-space: nowrap;">当店で扱う日本酒です。いま飲んでいるお酒をお選びください。</p>
+
+      <div id="sakeList"></div>
+    </section>
+
+    <!-- Screen 2: 質問 -->
+    <section class="screen" data-screen="2">
+      <p class="eyebrow">STEP 2</p>
+      <h2 class="title">飲んでみて、どう感じましたか</h2>
+      <p class="lead" style="font-size: clamp(11px, calc((100vw - 40px) / 21.5), 16px); font-weight: 700; white-space: nowrap; letter-spacing: -0.03em;">3つのバーを、感じた方向へ動かしてみてください。</p>
+
+      <div class="slider-group">
+        <div class="slider-labels"><span>甘口</span><span>辛口</span></div>
+        <div class="ruler">
+          <div class="slider-guide-bubble" id="b-amakara">バランスの良い甘辛さ</div>
+          <div class="ruler-track"></div>
+          <div class="ticks">
+            <div class="tick-mark"><span class="tick-number">0</span></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"><span class="tick-number">5</span></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"><span class="tick-number">10</span></div>
+          </div>
+          <input type="range" min="0" max="100" value="50" id="s-amakara" oninput="updateSliderGuide('amakara')">
+        </div>
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-labels"><span>穏やか</span><span>華やか</span></div>
+        <div class="ruler">
+          <div class="slider-guide-bubble" id="b-kaori">自然な香り</div>
+          <div class="ruler-track"></div>
+          <div class="ticks">
+            <div class="tick-mark"><span class="tick-number">0</span></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"><span class="tick-number">5</span></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"><span class="tick-number">10</span></div>
+          </div>
+          <input type="range" min="0" max="100" value="50" id="s-kaori" oninput="updateSliderGuide('kaori')">
+        </div>
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-labels"><span>軽い</span><span>重い・どっしり</span></div>
+        <div class="ruler">
+          <div class="slider-guide-bubble" id="b-keiju">ほどよいボディ感</div>
+          <div class="ruler-track"></div>
+          <div class="ticks">
+            <div class="tick-mark"><span class="tick-number">0</span></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"><span class="tick-number">5</span></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"></div>
+            <div class="tick-mark"><span class="tick-number">10</span></div>
+          </div>
+          <input type="range" min="0" max="100" value="50" id="s-keiju" oninput="updateSliderGuide('keiju')">
+        </div>
+      </div>
+
+      <div class="free-text">
+        <label for="s-comment">一言でいうと?</label>
+        <input type="text" id="s-comment" placeholder="例:思ったよりすっきり、食事に合いそう">
+      </div>
+
+      <div class="fav-checkbox-wrap">
+        <label class="fav-checkbox-label" id="favLabel">
+          <input type="checkbox" id="s-favorite" onchange="document.getElementById('favLabel').classList.toggle('checked', this.checked)">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-linejoin="round" stroke-linecap="round"/></svg>
+          <span>美味しかった！お気に入りに登録</span>
+        </label>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goScreen(1)">戻る</button>
+        <button class="btn btn-primary" onclick="showComparison()">感じたままに、記録する</button>
+      </div>
+    </section>
+
+    <!-- Screen 3: 比較結果 -->
+    <section class="screen" data-screen="3">
+      <p class="eyebrow">STEP 3</p>
+      <h2 class="title">あなたの感覚と、蔵元の情報</h2>
+      <p class="lead" style="font-size: clamp(11px, calc((100vw - 40px) / 20), 15px); white-space: nowrap; letter-spacing: -0.02em; line-height: 1.8;">あなたの感じ方を記録しました。<br>ここから、データと見比べてみましょう。</p>
+      <div id="compareBody"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" style="width:100%" onclick="showPairing()">次へ:合う一品を見る</button>
+      </div>
+    </section>
+
+    <!-- Screen 4: おすすめ料理 -->
+    <section class="screen" data-screen="4">
+      <p class="eyebrow">STEP 4</p>
+      <div class="stamp-wrap">
+        <svg class="stamp" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="44" fill="none" stroke="#BD4630" stroke-width="4"/>
+          <text x="50" y="46" text-anchor="middle" font-size="15" fill="#BD4630" font-family="'Shippori Mincho', serif" font-weight="700">本日</text>
+          <text x="50" y="66" text-anchor="middle" font-size="15" fill="#BD4630" font-family="'Shippori Mincho', serif" font-weight="700">一献</text>
+        </svg>
+      </div>
+      <p class="lead center-text">この一杯には、当店のこんな一品はいかがでしょうか。</p>
+      <div class="pairing-card" id="pairingCard"></div>
+      <div class="btn-row">
+        <button id="btnNextFromStep4" class="btn btn-primary" style="width:100%" onclick="goScreen('survey')">次へ：最後にお聞かせください</button>
+      </div>
+    </section>
+
+    <!-- Screen Survey: アンケート -->
+    <section class="screen" data-screen="survey">
+      <h2 class="title" style="text-align: center; font-size: 18px; margin-bottom: 6px;">最後にお聞かせください</h2>
+      <p style="text-align: center; font-size: 12px; color: var(--shu); font-weight: 500; margin-top: 0; margin-bottom: 20px;">
+        ※ご回答は、お一人様1回きりとなります。
+      </p>
+      
+      <div id="surveyForm">
+        <div class="survey-group" id="group-age">
+          <label>年齢</label>
+          <div class="radio-buttons">
+            <label class="radio-btn-wrap">
+              <input type="radio" name="sv-age" value="34歳以下" onchange="clearSurveyError('group-age')">
+              <span class="radio-box">34歳以下</span>
+            </label>
+            <label class="radio-btn-wrap">
+              <input type="radio" name="sv-age" value="35歳以上" onchange="clearSurveyError('group-age')">
+              <span class="radio-box">35歳以上</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="survey-group" id="group-gender">
+          <label>性別</label>
+          <div class="radio-buttons">
+            <label class="radio-btn-wrap">
+              <input type="radio" name="sv-gender" value="男性" onchange="clearSurveyError('group-gender')">
+              <span class="radio-box">男性</span>
+            </label>
+            <label class="radio-btn-wrap">
+              <input type="radio" name="sv-gender" value="女性" onchange="clearSurveyError('group-gender')">
+              <span class="radio-box">女性</span>
+            </label>
+            <label class="radio-btn-wrap">
+              <input type="radio" name="sv-gender" value="無回答" onchange="clearSurveyError('group-gender')">
+              <span class="radio-box" style="font-size: 13px;">無回答</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="survey-group" id="group-kpi" style="margin-bottom: 20px;">
+          <label style="font-size: 14.5px; line-height: 1.5;">味わいのポイント（甘辛・香り・ボディ）を意識して飲んでみて、いかがでしたか？</label>
+          <div class="radio-buttons-col">
+            <label class="radio-btn-wrap">
+              <input type="radio" name="sv-kpi" value="意識したことで、より深く味わいを楽しめた" onchange="clearSurveyError('group-kpi')">
+              <span class="radio-box">意識したことで、より深く味わいを楽しめた</span>
+            </label>
+            <label class="radio-btn-wrap">
+              <input type="radio" name="sv-kpi" value="意識できたが、美味しさ自体は普段とあまり変わらない" onchange="clearSurveyError('group-kpi')">
+              <span class="radio-box">意識できたが、美味しさは普段とあまり変わらない</span>
+            </label>
+            <label class="radio-btn-wrap">
+              <input type="radio" name="sv-kpi" value="あまり違いやポイントがピンとこなかった" onchange="clearSurveyError('group-kpi')">
+              <span class="radio-box">あまり違いやポイントがピンとこなかった</span>
+            </label>
+            <label class="radio-btn-wrap">
+              <input type="radio" name="sv-kpi" value="よくわからない" onchange="clearSurveyError('group-kpi')">
+              <span class="radio-box">よくわからない</span>
+            </label>
+          </div>
+        </div>
+
+        <p id="surveyError" style="color: var(--shu); font-size: 13px; font-weight: bold; text-align: center; display: none; margin-bottom: 12px;">すべての項目にご回答ください</p>
+
+        <p class="note" style="font-size: 13px; text-align: center; margin-top: 16px; margin-bottom: 24px;">※サービス改善のために参考にさせていただきます。</p>
+
+        <div class="btn-row" style="margin-top: 0;">
+          <button class="btn btn-primary" style="width:100%; padding: 14px;" onclick="submitSurvey()">終了して別のお酒を選ぶ</button>
+        </div>
+      </div>
+      
+      <div id="surveyThanks" style="display: none; text-align: center; padding: 60px 0;">
+        <svg viewBox="0 0 24 24" width="48" height="48" style="margin-bottom: 16px;"><path d="M20 6L9 17l-5-5" stroke="var(--shu)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <h3 style="font-family: var(--font-mincho); color: var(--ai); margin-bottom: 12px;">ご協力ありがとうございました</h3>
+        <p style="font-size: 14px; color: var(--sumi);">お酒選択画面へ戻ります...</p>
+      </div>
+    </section>
+
+    <!-- Screen History: 履歴 -->
+    <section class="screen" data-screen="history">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
+        <div>
+          <p class="eyebrow">MY NOTE</p>
+          <h2 class="title" style="margin: 0;">これまでの記録</h2>
+        </div>
+        <button class="history-btn" onclick="closeHistory()">
+          <svg viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          戻る
+        </button>
+      </div>
+      
+      <div id="historyList"></div>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost" style="width:100%" onclick="closeHistory()">元の画面に戻る</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- 用語辞典モーダル -->
+<div class="modal-overlay" id="glossaryModal" onclick="closeGlossary()">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3 id="glossaryTitle">用語</h3>
+      <button class="close-btn" onclick="closeGlossary()" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" width="24" height="24"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <p id="glossaryDesc">説明文がここに入ります。</p>
+  </div>
+</div>
+
+<script>
+/* ============ ログ送信設定 ============ */
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzhljuQpb394MVcn5GFhzUwIqyFYpaM-WKl8zUO7AK18Do_nRICPxHkR71dk0TU7cbaGw/exec';
+
+// 端末IDの確認・生成（一度決まったらブラウザに記憶させます）
+let deviceId = localStorage.getItem('kikizake_device_id');
+if (!deviceId) {
+  deviceId = 'dev_' + Math.random().toString(36).substr(2, 9);
+  localStorage.setItem('kikizake_device_id', deviceId);
+}
+
+// スプレッドシートへ送信する関数（利き酒データも送れるように拡張）
+function sendLogToSheet(actionStr, genderStr, ageStr, sakeIdStr = "", amakaraVal = "", kaoriVal = "", keijuVal = "", commentStr = "") {
+  const payload = {
+    deviceId: deviceId,
+    gender: genderStr || '未入力',
+    age: ageStr || '未入力',
+    action: actionStr,
+    sakeId: sakeIdStr,
+    amakara: amakaraVal,
+    kaori: kaoriVal,
+    keiju: keijuVal,
+    comment: commentStr
+  };
+
+  fetch(GAS_URL, {
+    method: 'POST',
+    // Google側のセキュリティ（CORS）ではじかれないようテキスト形式で送ります
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(payload)
+  }).catch(err => console.log('送信エラー:', err));
+}
+/* ==================================== */
+
+/* ============ データ(マスターデータベース想定) ============ */
+const sakeList = [
+  {
+    id: "harushika",
+    brand: "春鹿",
+    brandKana: "はるしか",
+    subtitle: "超辛口 純米酒",
+    kura: "今西清兵衛商店(奈良県)",
+    type: "純米酒",
+    seimai: 60,
+    alcohol: "15%",
+    values: { amakara: 85, kaori: 30, keiju: 40 },
+    description: "穏やかな香りと、まろやかな口当たり。凛としたキレ味の良さが特徴で、冷やしてすっきり、燗でふくらみが出る超辛口の定番酒。<br><br>「日本酒発祥の地」とされる奈良ですが、実は春鹿を醸す今西家は元々、世界遺産・春日大社の神官を務めていた家系。「神様にお供えする神聖なお酒」というルーツを持つ、日本酒の歴史そのものと言える由緒正しき蔵元です。",
+    source: "情報源:今西清兵衛商店 公式サイト",
+    pairing: { name: "白身魚の薄造り", description: "お酒の鋭いキレと米の旨味が、白身魚の淡白な甘みを引き立てます。" }
+  },
+  {
+    id: "senkin",
+    brand: "仙禽",
+    brandKana: "せんきん",
+    subtitle: "MODERN 壱式火入れ江戸返り第二巻",
+    kura: "せんきん(栃木県)",
+    type: "非公開",
+    seimai: 90,
+    alcohol: "14%",
+    values: { amakara: 35, kaori: 70, keiju: 60 },
+    description: "古代米を使用し、昔ながらの製法をモダンにアレンジ。精米歩合90%という低精白ならではの複雑な旨味と、仙禽らしいクリアでエレガントな酸味が同居する個性的な味わい。<br><br>蔵を率いるのはなんと元ソムリエの兄弟。「お米を削るほど良いお酒になる」という現代の常識の真逆を行き、あえて90%しか削らない古代の製法「江戸返り」に挑戦。ワインのように、仕込み水と同じ水脈で育った米しか使わない「ドメーヌ化」を日本でいち早く実現した異端児です。",
+    source: "情報源:日本酒データベース(Sakenomy)",
+    pairing: { name: "鶏肉の香草焼き", description: "ジューシーな旨味と酸味が、香草の風味と鶏の脂にマッチします。" }
+  },
+  {
+    id: "bakuren",
+    brand: "くどき上手 ばくれん",
+    brandKana: "くどきじょうず ばくれん",
+    subtitle: "吟醸超辛口",
+    kura: "亀の井酒造(山形県)",
+    type: "吟醸酒",
+    seimai: 55,
+    alcohol: "18.5%",
+    values: { amakara: 95, kaori: 55, keiju: 50 },
+    description: "日本酒度+20という極めて高い辛口でありながら、ほのかにフルーティーな吟醸香を持ち、口に含むとまろやか。喉越しは鮮烈にキレる、痛快な超辛口。<br><br>「ばくれん」とは「親の言うことを聞かない、すれっからしの女」という強烈な意味。ラベルの印象的な浮世絵は、実は蔵元社長が無類の浮世絵コレクターだからこそ描けたもの。「くどき上手」という名も、色恋ではなく「武将が敵を説き伏せる（口説く）ように、人の心を解きほぐす酒」という意味が込められています。",
+    source: "情報源:酒販店特約店情報",
+    pairing: { name: "豚の角煮", description: "鮮烈なキレと高いアルコールが、豚の脂と甘辛いタレをスッと洗い流します。" }
+  },
+  {
+    id: "michizakari",
+    brand: "三千盛",
+    brandKana: "みちざかり",
+    subtitle: "純米大吟醸 から口",
+    kura: "三千盛(岐阜県)",
+    type: "純米大吟醸酒",
+    seimai: 45,
+    alcohol: "15%",
+    values: { amakara: 85, kaori: 60, keiju: 30 },
+    description: "辛口一筋の三千盛を代表する純米大吟醸。梨のような澄んだ吟醸香と、雑味のないクリアな旨み。どこまでもシャープで潔いキレ味が食事の味を引き立てます。<br><br>昭和の日本酒が「甘くてとろみがあるのが高級」ともてはやされた時代。三千盛は周囲から「水みたいだ」と批判されながらも、料理を引き立てる「辛口」を頑なに造り続けました。その信念が後の大辛口ブームを生み出した、まさに「辛口日本酒のパイオニア」です。",
+    source: "情報源:三千盛 公式サイト",
+    pairing: { name: "鮎の塩焼き", description: "シャープな飲み口と澄んだ香りが、鮎の繊細な風味と塩気を引き立てます。" }
+  },
+  {
+    id: "taka",
+    brand: "貴",
+    brandKana: "たか",
+    subtitle: "濃醇辛口純米",
+    kura: "永山本家酒造場(山口県)",
+    type: "純米酒",
+    seimai: 80,
+    alcohol: "15%",
+    values: { amakara: 75, kaori: 30, keiju: 80 },
+    description: "精米歩合80%で米の旨味を最大限に引き出した純米酒。濃醇でありながら、しっかりとした酸と辛さが全体を引き締め、後口はスパッとキレる男前な味わい。燗酒にも最適です。<br><br>蔵元の永山氏は、フランスのワイナリーで修行した経歴の持ち主。そこで「酒の味は土地が決める」と痛感し、現在は自らトラクターを運転して酒米を育てています。日本酒に「テロワール（風土）」という概念を持ち込み、ワインに負けない「骨太な酸」を追求する情熱の蔵です。",
+    source: "情報源:永山本家酒造場 公式サイト",
+    pairing: { name: "牛すじの煮込み", description: "どっしりとしたコクと酸味が、濃い味付けの煮込み料理をしっかり受け止めます。" }
+  },
+  {
+    id: "kusudama",
+    brand: "久寿玉",
+    brandKana: "くすだま",
+    subtitle: "超辛口 特別本醸造",
+    kura: "平瀬酒造店(岐阜県)",
+    type: "特別本醸造酒",
+    seimai: 60,
+    alcohol: "15%",
+    values: { amakara: 85, kaori: 20, keiju: 40 },
+    description: "飛騨高山で醸される、日本酒度+15を誇る超辛口。本醸造ならではのキリッとした喉越しと、料理の邪魔をしない控えめな香りが特徴で、飛騨の郷土料理と相性抜群。<br><br>創業はなんと1623年（江戸時代初期）。飛騨高山に現存する「最古」の酒蔵です。「久寿玉（くすだま）」というめでたい名前は、祝い事のくす玉ではなく、古代中国で魔除けや延命長寿を願って身につけた「薬玉（百薬の長）」に由来しており、長く地元で愛され続ける歴史の証です。",
+    source: "情報源:平瀬酒造店 公式サイト",
+    pairing: { name: "漬物ステーキ", description: "キリッとした超辛口が、熱々で香ばしい飛騨の郷土料理にピタリと合います。" }
+  },
+  {
+    id: "dewazakura",
+    brand: "出羽桜",
+    brandKana: "でわざくら",
+    subtitle: "桜花吟醸酒",
+    kura: "出羽桜酒造(山形県)",
+    type: "吟醸酒",
+    seimai: 50,
+    alcohol: "15%",
+    values: { amakara: 40, kaori: 85, keiju: 45 },
+    description: "「吟醸酒」という言葉を世に広めたパイオニア的存在。洋梨やメロンのような華やかでフルーティーな香りと、フレッシュでふくよかな味わいが多くの人を魅了し続ける名酒。<br><br>今でこそ当たり前の「フルーティーな香りの日本酒（吟醸酒）」ですが、実はかつては品評会用の特別なものでした。それを1980年に初めて一般向けに市販化し、全国に「吟醸酒ブーム」を巻き起こしたのがこの「桜花吟醸酒」。さらに英国王室御用達のワイン商が初めて扱った日本酒でもあります。",
+    source: "情報源:出羽桜酒造 公式サイト",
+    pairing: { name: "トマトとモッツァレラのカプレーゼ", description: "華やかな果実香が、トマトの酸味やチーズのまろやかさと美しく調和します。" }
+  },
+  {
+    id: "kikuhime",
+    brand: "菊姫",
+    brandKana: "きくひめ",
+    subtitle: "呑切原酒山廃純米",
+    kura: "菊姫(石川県)",
+    type: "純米酒",
+    seimai: 70,
+    alcohol: "19%",
+    values: { amakara: 60, kaori: 30, keiju: 95 },
+    description: "山廃仕込み特有の骨太な酸味と、原酒ならではの力強いコク。タンクから直接汲み出したような荒々しさと豊かな風味が広がる、非常に濃厚でパンチのある一本。<br><br>「淡麗辛口」がブームだった時代も、頑なに「ガツンと濃い酒（濃醇旨口）」を造り続けた硬派な蔵。最高級の酒米「兵庫県吉川町産・山田錦」への執着は凄まじく、村ごと契約栽培を結ぶほど。「呑切（のみきり）」とは、貯蔵タンクの栓を開けて酒の仕上がりをチェックする夏の重要な儀式のことです。",
+    source: "情報源:菊姫 公式サイト",
+    pairing: { name: "サバの味噌煮", description: "山廃の力強い酸と重厚なコクが、味噌の濃い風味に負けずに寄り添います。" }
+  },
+  {
+    id: "saira",
+    brand: "彩來",
+    brandKana: "さら",
+    subtitle: "宵の風 純吟生酒",
+    kura: "北西酒造(埼玉県)",
+    type: "純米吟醸酒",
+    seimai: 50,
+    alcohol: "15%",
+    values: { amakara: 45, kaori: 75, keiju: 40 },
+    description: "夏から秋にかけての夜風のような爽やかさをイメージした生酒。マスカットを思わせるみずみずしい香りと、フレッシュでクリアな甘みが口いっぱいに広がり、綺麗な酸でフィニッシュします。<br><br>老舗蔵の若き5代目が、20代〜30代の若い蔵人たちだけでゼロから立ち上げた次世代ブランド。長年の勘に頼るのではなく、データ分析と最新の温度管理システムを駆使し、「埼玉（彩の国）から新しい未来（來）へ」という決意を込めて、マスカットのような未体験の香りを生み出しました。",
+    source: "情報源:日本酒データベース(Sakenomy)",
+    pairing: { name: "イカのカルパッチョ", description: "みずみずしい香りと綺麗な酸が、イカの甘みやオリーブオイルと好相性です。" }
+  },
+  {
+    id: "gorin",
+    brand: "五凛",
+    brandKana: "ごりん",
+    subtitle: "純米酒",
+    kura: "車多酒造(石川県)",
+    type: "純米酒",
+    seimai: 60,
+    alcohol: "15%",
+    values: { amakara: 55, kaori: 40, keiju: 60 },
+    description: "なめらかな口当たりとふくらみのある旨味が特徴の食中酒。「天狗舞」を醸す車多酒造が、親しみやすい旨さを追求して立ち上げたブランドです。<br><br>重厚でガツンとくる超有名銘柄「天狗舞」を造る蔵元が、「天狗舞とは真逆の、いつまでも飲み飽きない優しい酒を造りたい」と立ち上げた、いわば“裏の顔”。名前には「お客様・飲食店・酒屋・蔵元・杜氏」の5者が、凛とした関係で酒を楽しめるようにという粋な願いが込められています。",
+    source: "情報源:車多酒造 公式サイト",
+    pairing: { name: "おでん", description: "なめらかな口当たりとふくよかな旨味が、お出汁の染みた具材と優しく調和します。" }
+  },
+  {
+    id: "nanbubijin",
+    brand: "南部美人",
+    brandKana: "なんぶびじん",
+    subtitle: "特別純米酒",
+    kura: "南部美人(岩手県)",
+    type: "特別純米酒",
+    seimai: 55,
+    alcohol: "15%",
+    values: { amakara: 48, kaori: 65, keiju: 55 },
+    description: "岩手県産の酒造好適米「ぎんおとめ」を主に使用。ふわっと広がる上品な吟醸香と、お米本来の柔らかな旨味が綺麗に調和した究極のスタンダード。<br><br>実は「世界で初めてヴィーガン（完全菜食主義）認証を取得した日本酒」という驚きの称号を持っています。酒造りの「濾過」の工程で動物性の成分を一切使わないことを証明し、中東の航空会社のファーストクラスで提供されるなど、伝統の味をそのままに世界標準を切り開いています。",
+    source: "情報源:南部美人 公式サイト",
+    pairing: { name: "鶏の唐揚げ", description: "上品な果実香と適度な旨味が、唐揚げのジューシーな脂をさっぱりと包み込みます。" }
+  },
+  {
+    id: "eikofuji",
+    brand: "栄光冨士",
+    brandKana: "えいこうふじ",
+    subtitle: "SURVIVAL 純米大吟醸無濾過生原酒",
+    kura: "冨士酒造(山形県)",
+    type: "純米大吟醸酒",
+    seimai: 50,
+    alcohol: "16%",
+    values: { amakara: 35, kaori: 90, keiju: 65 },
+    description: "過酷な時代を生き抜く「サバイバル」の名を冠した限定酒。パイナップルやメロンのような圧倒的なフルーティー香と、無濾過生原酒ならではの弾けるようなジューシーな甘み、そしてキレの良い酸が特徴。<br><br>加藤清正の家臣を祖に持つ、1778年創業の超・由緒正しき老舗蔵。にもかかわらず、「SURVIVAL（サバイバル）」など、筆文字の常識を覆すド派手な横文字ラベルの限定酒を次々と世に放つ傾奇者（かぶきもの）です。過酷な現代を生き抜く人へのエールとして造られた熱い一本です。",
+    source: "情報源:酒販店特約店情報",
+    pairing: { name: "生ハムとクリームチーズ", description: "華やかな香りと濃厚な甘みが、生ハムの塩気やチーズのコクと素晴らしいマリアージュを生みます。" }
+  },
+  {
+    id: "ishizuchi",
+    brand: "石鎚",
+    brandKana: "いしづち",
+    subtitle: "極み辛口本醸造",
+    kura: "石鎚酒造(愛媛県)",
+    type: "本醸造酒",
+    seimai: 60,
+    alcohol: "16%",
+    values: { amakara: 80, kaori: 30, keiju: 50 },
+    description: "愛媛の銘酒・石鎚の辛口定番。ただ辛いだけではなく、食中酒としてお米のふくよかな旨みを感じさせつつ、後味をスッと断ち切る鋭いキレを持つ。冷酒からお燗まで万能な一本。<br><br>家族中心で営む小さな蔵ですが、その実力は凄まじく、全日本空輸(ANA)の国際線ファーストクラスやビジネスクラスの機内食で長年提供され続けています。最新の機械ではなく、昔ながらの「木槽（きぶね）」と呼ばれる木製の道具を使い、現在も手作業で優しくお酒を搾り出しています。",
+    source: "情報源:石鎚酒造 公式サイト",
+    pairing: { name: "鯛の塩焼き", description: "辛口の鋭いキレが鯛の繊細な旨味を引き出し、口の中をさっぱりと整えます。" }
+  },
+  {
+    id: "hyakujuro",
+    brand: "百十郎",
+    brandKana: "ひゃくじゅうろう",
+    subtitle: "純米大吟醸 黒面",
+    kura: "林本店(岐阜県)",
+    type: "純米大吟醸酒",
+    seimai: 50,
+    alcohol: "15%",
+    values: { amakara: 45, kaori: 75, keiju: 40 },
+    description: "華やかでフルーティーな香り。ほのかな甘みと爽やかな酸味のバランスが心地よい、洗練された純米大吟醸。エレガントなエッジをきかせた美しい余韻が広がります。<br><br>ラベルの強烈な「隈取（歌舞伎のメイク）」は、地元に1200本もの桜を自費で寄付した伝説の歌舞伎役者・市川百十郎へのリスペクト。力強い見た目とは裏腹に、蔵を率いるのは女性社長。無添加の乳酸菌発酵を取り入れるなど、最先端のバイオ技術を用いてクリアな味を生み出しています。",
+    source: "情報源:日本酒データベース(Sakenomy)",
+    pairing: { name: "炙り鯖寿司", description: "華やかな香りと爽やかな酸味が、脂の乗った鯖と酢飯に心地よく寄り添います。" }
+  }
+];
+
+const axisMeta = {
+  amakara: { label: "甘辛", left: "甘口", right: "辛口" },
+  kaori:   { label: "香り", left: "穏やか", right: "華やか" },
+  keiju:   { label: "ボディ", left: "軽い", right: "重い・どっしり" }
+};
+
+/* ============ 用語辞典データと処理 ============ */
+const glossaryData = {
+  // --- 特定名称 ---
+  "純米大吟醸酒": "精米歩合50%以下の白米、米麹、水のみを原料として「吟醸造り」で丁寧に造られた最高峰のお酒。雑味が極めて少なく、華やかでフルーティーな香りが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米を半分以上削ることで生まれる、極めてクリアで雑味のない透明感と、エレガントに広がる香りをじっくりと堪能してみてください。",
+  "純米大吟醸": "精米歩合50%以下の白米、米麹、水のみを原料として「吟醸造り」で丁寧に造られた最高峰のお酒。雑味が極めて少なく、華やかでフルーティーな香りが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米を半分以上削ることで生まれる、極めてクリアで雑味のない透明感と、エレガントに広がる香りをじっくりと堪能してみてください。",
+  "大吟醸酒": "精米歩合50%以下の白米に少量の醸造アルコールを加えて造られたお酒。純米大吟醸よりもさらに香りが引き立ち、スッキリとしたキレの良さが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>華やかな香りとともに、アルコール添加によるシャープな喉越しとキレを意識してみてください。",
+  "大吟醸": "精米歩合50%以下の白米に少量の醸造アルコールを加えて造られたお酒。純米大吟醸よりもさらに香りが引き立ち、スッキリとしたキレの良さが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>華やかな香りとともに、アルコール添加によるシャープな喉越しとキレを意識してみてください。",
+  "純米吟醸酒": "精米歩合60%以下の白米、米麹、水のみを原料として「吟醸造り」で造られたお酒。フルーティーな香りとすっきりとした味わいが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米の雑味がなく、後味がすっと消えていく『キレのきれいさ』と、口に含んだ瞬間の華やかな香りに注目してみてください。",
+  "純米吟醸": "精米歩合60%以下の白米、米麹、水のみを原料として「吟醸造り」で造られたお酒。フルーティーな香りとすっきりとした味わいが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米の雑味がなく、後味がすっと消えていく『キレのきれいさ』と、口に含んだ瞬間の華やかな香りに注目してみてください。",
+  "純吟": "「純米吟醸」の略称。精米歩合60%以下の白米、米麹、水のみを原料として造られ、フルーティーな香りとすっきりした味わいが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米の雑味がなく、後味がすっと消えていく『キレのきれいさ』と、口に含んだ瞬間の華やかな香りに注目してみてください。",
+  "吟醸酒": "精米歩合60%以下の白米、米麹、水、および少量の醸造アルコールを用いて造られたお酒。アルコールを添加することで、より香りが引き立ち、軽快でキレのある味わいになります。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>純米酒に比べてスッキリとした軽快な口当たりと、ふわっと広がる香りのバランスを楽しんでみてください。",
+  "吟醸": "精米歩合60%以下の白米、米麹、水、および少量の醸造アルコールを用いて造られたお酒。アルコールを添加することで、より香りが引き立ち、軽快でキレのある味わいになります。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>純米酒に比べてスッキリとした軽快な口当たりと、ふわっと広がる香りのバランスを楽しんでみてください。",
+  "特別純米酒": "精米歩合60%以下、または特別な製造方法で造られた純米酒。純米酒のしっかりとした旨味と、すっきりとした飲みやすさを兼ね備えています。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>通常の純米酒よりもクリアな飲み口の中に広がる、お米本来のふくよかな旨みに注目してみてください。",
+  "特別純米": "精米歩合60%以下、または特別な製造方法で造られた純米酒。純米酒のしっかりとした旨味と、すっきりとした飲みやすさを兼ね備えています。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>通常の純米酒よりもクリアな飲み口の中に広がる、お米本来のふくよかな旨みに注目してみてください。",
+  "純米酒": "白米、米麹、水のみを原料として造られたお酒。お米本来のふくよかな旨味やコクをダイレクトに感じられ、お燗にしても美味しくいただけます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米ならではの甘みや旨み、そしてしっかりとしたボディ感を舌全体で感じてみてください。",
+  "純米": "白米、米麹、水のみを原料として造られたお酒。お米本来のふくよかな旨味やコクをダイレクトに感じられ、お燗にしても美味しくいただけます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米ならではの甘みや旨み、そしてしっかりとしたボディ感を舌全体で感じてみてください。",
+  "特別本醸造酒": "精米歩合60%以下の白米に、規定量内の醸造アルコールを加えて造られたお酒。通常の本醸造よりも雑味が少なく、スッキリとした辛口とキレの良さが際立ちます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>料理の味を引き立てる控えめな香りと、喉越しのシャープな爽快感を楽しんでみてください。",
+  "特別本醸造": "精米歩合60%以下の白米に、規定量内の醸造アルコールを加えて造られたお酒。通常の本醸造よりも雑味が少なく、スッキリとした辛口とキレの良さが際立ちます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>料理の味を引き立てる控えめな香りと、喉越しのシャープな爽快感を楽しんでみてください。",
+  "本醸造酒": "精米歩合70%以下の白米、米麹、水、そして規定量内の「醸造アルコール」を原料としたお酒。すっきりとした辛口で、香りは控えめなことが多いです。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>香りが穏やかな分、料理の味を邪魔しません。食事と一緒に口に入れた時の、スッと洗い流してくれるような爽快感を意識してみてください。",
+  "本醸造": "精米歩合70%以下の白米、米麹、水、そして規定量内の「醸造アルコール」を原料としたお酒。すっきりとした辛口で、香りは控えめなことが多いです。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>香りが穏やかな分、料理の味を邪魔しません。食事と一緒に口に入れた時の、スッと洗い流してくれるような爽快感を意識してみてください。",
+  
+  // --- 製法など ---
+  "山廃": "「山卸廃止酛（やまおろしはいしもと）」の略。空気中の乳酸菌を取り込んで発酵させる伝統的な製法で、ヨーグルトのような酸味と、奥深くパンチのある旨味が生まれます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>乳酸菌由来のしっかりとした酸味と、複雑で力強いコクのある風味を感じてみてください。",
+  "無濾過生原酒": "搾った後に「濾過」「火入れ」「加水」を一切行っていないお酒。お酒本来のフレッシュな炭酸ガス、豊かな香り、どっしりとしたコクをそのまま味わえます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>搾りたてならではのピリッとした微炭酸や、濃密でジューシーな旨味を探してみてください。",
+  "無濾過生": "搾った後に「濾過（色の調整や雑味取り）」と「火入れ（加熱殺菌）」を一切行っていないお酒。フレッシュで力強い本来の風味が楽しめます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>加熱処理されていないため、お酒本来のフレッシュな微炭酸（ピリッとした刺激）や、ジューシーな旨味を探してみてください。",
+  "生酒": "搾った後に「火入れ（加熱殺菌）」を一切行っていないお酒。フレッシュでみずみずしい香りや、フルーティーな味わいが楽しめます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>火入れをしていないからこそ残る、爽やかでみずみずしい口当たりに注目してみてください。",
+  "原酒": "搾った後にアルコール度数を調整するための水（割り水）を加えていないお酒。度数が高く、濃醇でしっかりとした味わいが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>アルコール度数が高めな分、ガツンとくる力強さがあります。一口ずつゆっくり舐めるように味わうと、濃醇な旨味がよくわかります。",
+  "非公開": "特定名称や詳細なスペック（日本酒度や酸度など）をあえて公開していない状態。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡蔵元の想い】</span><br>「スペックという先入観を持たずに、味わいそのものを純粋に感じてほしい」という強いこだわりによるものです。数字や肩書きにとらわれず、一口の直感を楽しんでみてください。",
+  
+  // --- スペック・専門用語 ---
+  "精米歩合": "玄米を削って残った白米の割合。数値が低い（たくさん削っている）ほど雑味が少なく、クリアで華やかな味わいになりやすいです。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>精米歩合の数字が低いほど、スッキリとして華やかな傾向になります。数字と実際の味わいの関係を意識してみてください。",
+  "日本酒度": "お酒の比重（水に対する重さ）を表す数値。＋（プラス）が大きいほど辛口、－（マイナス）が大きいほど甘口と感じやすい目安になります。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>数値上の甘辛と、実際に自分が感じる甘辛（酸度なども影響します）のズレを楽しんでみてください。",
+  "吟醸香": "吟醸造りによって生まれる、バナナやリンゴ、メロンなどの果実を思わせる華やかな香りのこと。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>どんな果実の香りに近いか、自分なりに想像しながら香りをかいでみてください。",
+  "麹米": "日本酒造りの要となる「米麹」を造るために使用されるお米のこと。",
+  "掛米": "もろみ（発酵中の液体）を仕込む際に、直接加えられるお米のこと。",
+  "酒造好適米": "日本酒を造るために特別に栽培されたお米（酒米）のこと。食用米に比べて粒が大きく、良質なお酒を造るのに適しています。",
+  "酒米": "日本酒を造るために特別に栽培されたお米（酒造好適米）のこと。食用米に比べて粒が大きく、中心にある「心白（しんぱく）」が大きいため、良質なお酒を造るのに適しています。",
+  
+  // --- 酒米 ---
+  "山田錦": "「酒米の王様」とも呼ばれる代表的な酒米（酒造好適米）。香りが高く、繊細でバランスの良いきれいな味わいのお酒になりやすいのが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>特有の華やかな香りと、きめ細やかで上品な旨みの広がりを感じてみてください。",
+  "五百万石": "新潟県を中心に栽培される代表的な酒米。すっきりとキレのある、淡麗な味わいのお酒になりやすいのが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>飲み込んだ後の、スッと消えていくようなキレの良さ（淡麗さ）に注目してみてください。",
+  "ひだほまれ": "岐阜県特産の酒米。粒が大きく、ふくよかな甘みと豊かな旨みを持つ、味わい深いお酒になりやすいのが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米のふくよかな甘みと、しっかりとした旨みのコクを舌全体で感じてみてください。",
+  "ぎんおとめ": "岩手県特産の酒米（酒造好適米）。寒さに強く、やわらかく綺麗な甘みと旨みを持つ、澄んだ味わいのお酒になりやすいのが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>雑味のない、お米のピュアでやさしい甘みを探してみてください。",
+
+  // --- 蔵元 ---
+  "今西清兵衛商店(奈良県)": "日本酒発祥の地とされる奈良で「春鹿」を醸す蔵元。神聖なお酒というルーツを持ち、キレの良い超辛口を中心に国内外で高く評価されています。",
+  "せんきん(栃木県)": "元ソムリエの兄弟が率いる蔵。古き良き伝統技術（江戸返りなど）とモダンな感性を融合させた「仙禽」を醸し、エレガントな酸味の表現に定評があります。",
+  "亀の井酒造(山形県)": "全量吟醸酒を造る山形の銘醸蔵。「くどき上手」や「ばくれん」など、香り高く華やかでありながらキレのある酒質が人気。社長が無類の浮世絵コレクターです。",
+  "三千盛(岐阜県)": "「甘口」が主流だった時代から一貫して「辛口」を貫き通してきた岐阜のパイオニア。シャープでキレのある味わいは食中酒の極みです。",
+  "永山本家酒造場(山口県)": "自社田での米作りなどテロワールを重視する山口県の蔵元。「貴」ブランドは、骨太な酸と旨味が特徴の純米酒として知られます。",
+  "平瀬酒造店(岐阜県)": "創業1623年、飛騨高山で最も古い歴史を持つ蔵元。飛騨の厳しい寒さと豊かな自然が育む、キリッとした淡麗辛口の味わいが特徴です。",
+  "出羽桜酒造(山形県)": "「桜花吟醸酒」の発売によって、フルーティーな「吟醸酒」の魅力を全国に知らしめた立役者として知られる山形を代表する蔵元です。",
+  "菊姫(石川県)": "「濃醇旨口」を信条とし、最高級の山田錦を惜しみなく使用する石川の蔵元。山廃仕込みによる重厚な味わいは熱狂的なファンを持ちます。",
+  "北西酒造(埼玉県)": "埼玉で「彩來（さら）」などを醸す蔵。若い蔵人たちが最新のデータ分析と温度管理システムを駆使し、モダンでみずみずしいブランドを生み出しています。",
+  "車多酒造(石川県)": "重厚な「天狗舞」で知られる蔵元が、真逆のコンセプトで立ち上げたのが親しみやすい食中酒ブランド「五凛」。なめらかな喉越しと旨味を追求しています。",
+  "南部美人(岩手県)": "岩手の豊かな自然の恵みを受け、綺麗で美しい酒を醸す蔵。世界で初めてヴィーガン認証を取得し、世界基準を切り開いています。",
+  "冨士酒造(山形県)": "1778年創業の老舗ながら、フルーティーでジューシーな無濾過生原酒シリーズ「栄光冨士」など、ド派手で革新的な酒造りを行う山形の蔵元。",
+  "石鎚酒造(愛媛県)": "西日本最高峰の石鎚山の伏流水を用い、「食中に活きる酒造り」を掲げる愛媛の蔵。現在も手作業による「木槽」搾りにこだわっています。",
+  "林本店(岐阜県)": "歌舞伎役者にちなんだ「百十郎」を醸す岐阜の蔵元。女性社長のもと、無添加の乳酸菌発酵を活用するなど、伝統と革新を融合させたクリアな酒質が特徴です。",
+  "はざま酒造(岐阜県)": "中仙道大井宿の歴史ある風土の中で酒造りを行う蔵元。モダンでクリアな味わいが特徴の「恵那山」などを醸造しています。",
+  "一ノ蔵(宮城県)": "「無鑑査本醸造」をはじめ、手づくりの仕込みによる高品質な日本酒を良心的な価格で提供し続ける、宮城県を代表する蔵元の一つです。",
+  "丸尾本店(香川県)": "幕末に高杉晋作や桂小五郎ら志士が潜伏したことでも知られる歴史ある蔵元。全国に熱狂的なファンを持つ「悦 凱陣」などを醸造しています。",
+  "小林酒造(栃木県)": "1872年創業。代表銘柄「鳳凰美田」。マスカットやメロンのような華やかな香りと、ふくよかな味わいが特徴の、全国的に人気の高い酒蔵です。",
+  "清水清三郎商店(三重県)": "鈴鹿市にある唯一の酒蔵。「作（ざく）」や「鈴鹿川」を醸造。伊勢杜氏の伝統を引き継ぎ、国内外のコンペティションで高い評価を得ています。",
+  "土屋酒造店(長野県)": "佐久市にある酒蔵。千曲川の伏流水と地元産の米を用い、「亀の海」などの銘柄を醸しています。信州の自然が育む、きれいな味わいが特徴です。"
+};
+
+// テキスト内の専門用語を検知してリンク化する関数
+function linkify(text) {
+  if (!text) return "";
+  let res = text;
+  const terms = Object.keys(glossaryData).sort((a, b) => b.length - a.length);
+
+  terms.forEach((term, index) => {
+     const placeholder = `__TERM_${index}__`;
+     res = res.split(term).join(placeholder);
+  });
+
+  terms.forEach((term, index) => {
+     const placeholder = `__TERM_${index}__`;
+     res = res.split(placeholder).join(`<span class="term-link" onclick="event.stopPropagation(); showGlossary('${term}')">${term}</span>`);
+  });
+  return res;
+}
+
+function showGlossary(term) {
+  const desc = glossaryData[term];
+  if (!desc) return;
+  document.getElementById('glossaryTitle').textContent = term;
+  document.getElementById('glossaryDesc').innerHTML = desc;
+  document.getElementById('glossaryModal').classList.add('show');
+}
+
+function closeGlossary() {
+  document.getElementById('glossaryModal').classList.remove('show');
+}
+
+/* ============ 状態管理 ============ */
+let currentSakeId = null;
+let userAnswers = {};
+let favorites = JSON.parse(localStorage.getItem('kikizake_favorites')) || [];
+let drankHistory = JSON.parse(localStorage.getItem('kikizake_drankHistory')) || [];
+let pastRecords = JSON.parse(localStorage.getItem('kikizake_records')) || [];
+let sessionRecords = []; 
+let screenBeforeHistory = 1;
+
+/* ============ 初期描画:銘柄リスト ============ */
+function renderSakeList(){
+  const wrap = document.getElementById('sakeList');
+  wrap.innerHTML = "";
+  let count = 0;
+
+  sakeList.forEach(s=>{
+    const isFav = favorites.includes(s.id);
+
+    count++;
+    const btn = document.createElement('button');
+    btn.className = "sake-card";
+    
+    const favHtml = isFav ? `<div class="fav-icon" aria-label="お気に入り"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-linejoin="round" stroke-linecap="round"/></svg></div>` : '';
+    const drankHtml = drankHistory.includes(s.id) ? `<div class="drank-icon" aria-label="記録済"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>` : '';
+
+    // サブタイトルに「純米吟醸」などが含まれているか判定し、重複する場合はスペック側の表示を省略する
+    const typeCore = s.type.replace('酒', '').replace('(原酒)', '');
+    const showType = !s.subtitle.includes(typeCore);
+    const typeHtml = showType ? `<div class="meta"><span>${linkify(s.type)}</span></div>` : '';
+
+    // 産地（都道府県）のみを抽出（例：「はざま酒造(岐阜県)」→「岐阜県」）
+    const prefMatch = s.kura.match(/\((.+?)\)/);
+    const prefText = prefMatch ? prefMatch[1] : s.kura;
+
+    btn.innerHTML = `
+      <div class="info">
+        <div class="name">
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%; margin-bottom: 2px;">
+            <span style="font-size: 11px; color: var(--sumi); line-height: 1;">${s.brandKana}</span>
+            <span style="font-size: 11.5px; color: var(--sumi); line-height: 1; font-family: var(--font-gothic); font-weight: 700;">${prefText}</span>
+          </div>
+          <span class="brand-name">${s.brand}</span>
+          <span class="sub-name">${linkify(s.subtitle)}</span>
+        </div>
+        ${typeHtml}
+      </div>
+      <div class="icon-group">
+        ${drankHtml}
+        ${favHtml}
+      </div>
+      <svg class="arrow" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    `;
+    btn.onclick = ()=> selectSake(s.id);
+    wrap.appendChild(btn);
+  });
+
+  if (count === 0) {
+    wrap.innerHTML = '<div class="no-result">条件に合うお酒が見つかりませんでした。<br>別の条件をお試しください。</div>';
+  }
+}
+
+function selectSake(id){
+  currentSakeId = id;
+  const s = sakeList.find(x=>x.id===id);
+  document.getElementById('s-amakara').value = 50;
+  document.getElementById('s-kaori').value = 50;
+  document.getElementById('s-keiju').value = 50;
+  
+  updateSliderGuide('amakara');
+  updateSliderGuide('kaori');
+  updateSliderGuide('keiju');
+
+  document.getElementById('s-comment').value = "";
+  
+  const favCheck = document.getElementById('s-favorite');
+  const favLabel = document.getElementById('favLabel');
+  if (favCheck && favLabel) {
+    const isFav = favorites.includes(id);
+    favCheck.checked = isFav;
+    favLabel.classList.toggle('checked', isFav);
+  }
+  
+  goScreen(2);
+}
+
+/* ============ 画面遷移 ============ */
+function goScreen(n){
+  document.body.setAttribute('data-current-screen', n);
+  document.querySelectorAll('.screen').forEach(el=>{
+    el.classList.toggle('active', el.dataset.screen == n);
+  });
+  
+  let stepTarget = parseInt(n);
+
+  document.querySelectorAll('.step').forEach(el=>{
+    const step = parseInt(el.dataset.step);
+    el.classList.toggle('active', step === stepTarget);
+    el.classList.toggle('done', step < stepTarget);
+  });
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ============ 比較結果生成 ============ */
+function showComparison(){
+  userAnswers = {
+    amakara: parseInt(document.getElementById('s-amakara').value),
+    kaori: parseInt(document.getElementById('s-kaori').value),
+    keiju: parseInt(document.getElementById('s-keiju').value),
+    comment: document.getElementById('s-comment').value
+  };
+  
+  const favCheck = document.getElementById('s-favorite');
+  if (favCheck) {
+    if (favCheck.checked && !favorites.includes(currentSakeId)) {
+      favorites.push(currentSakeId);
+    } else if (!favCheck.checked) {
+      favorites = favorites.filter(id => id !== currentSakeId);
+    }
+    localStorage.setItem('kikizake_favorites', JSON.stringify(favorites));
+  }
+  
+  if (!drankHistory.includes(currentSakeId)) {
+    drankHistory.push(currentSakeId);
+    localStorage.setItem('kikizake_drankHistory', JSON.stringify(drankHistory));
+  }
+
+  const lastRecord = sessionRecords[sessionRecords.length - 1];
+  if (!lastRecord || lastRecord.id !== currentSakeId) {
+    sessionRecords.push({ id: currentSakeId, answers: {...userAnswers} });
+  } else {
+    lastRecord.answers = {...userAnswers};
+  }
+
+  const s = sakeList.find(x=>x.id===currentSakeId);
+
+  // 履歴へ保存
+  const newPastRecord = {
+    sakeId: currentSakeId,
+    brand: s ? s.brand : "",
+    brandKana: s ? s.brandKana : "",
+    subtitle: s ? s.subtitle : "",
+    date: new Date().toISOString(),
+    answers: {...userAnswers}
+  };
+  pastRecords.push(newPastRecord);
+  localStorage.setItem('kikizake_records', JSON.stringify(pastRecords));
+
+  const body = document.getElementById('compareBody');
+  let html = "";
+
+  const ans = userAnswers;
+  
+  let aText = "";
+  if (ans.amakara <= 20) aText = "しっかりとした甘み";
+  else if (ans.amakara <= 40) aText = "やさしい甘み";
+  else if (ans.amakara < 60) aText = "バランスのよい甘辛さ";
+  else if (ans.amakara < 80) aText = "すっきりとした辛口";
+  else aText = "キレのある辛口";
+
+  let kText = "";
+  if (ans.kaori <= 20) kText = "とても穏やかで落ち着いた香り";
+  else if (ans.kaori <= 40) kText = "穏やか・控えめな香り";
+  else if (ans.kaori < 60) kText = "自然で調和のとれた香り";
+  else if (ans.kaori < 80) kText = "華やかでフルーティーな香り";
+  else kText = "極めて華やかな香り";
+
+  let wText = "";
+  if (ans.keiju <= 20) wText = "とても軽くすっきりとした飲み口";
+  else if (ans.keiju <= 40) wText = "軽快な飲み口";
+  else if (ans.keiju < 60) wText = "ほどよいボディ感";
+  else if (ans.keiju < 80) wText = "しっかりとしたコク";
+  else wText = "どっしりとした重厚感";
+
+  html += `
+    <div class="analysis-card" style="background: linear-gradient(135deg, var(--ai) 0%, #172740 100%); color: #fff; text-align: center; padding: 24px 20px; border: none;">
+      <div style="font-size: 12px; color: var(--shu-pale); letter-spacing: 0.1em; margin-bottom: 12px; font-weight: 700;">今日のあなたの一杯</div>
+      <div style="font-family: var(--font-mincho); font-size: 20px; font-weight: 700; line-height: 1.6; color: #fff;">
+        「${kText}と<br><span style="color: var(--shu-pale);">${aText}</span>、<br>そして${wText}」
+      </div>
+    </div>
+    
+    <div class="analysis-card">
+      <h4>データとくらべると</h4>
+  `;
+
+  let diffs = [];
+
+  ["amakara","kaori","keiju"].forEach(axis=>{
+    const meta = axisMeta[axis];
+    const userVal = userAnswers[axis];
+    const refVal = s.values[axis];
+    
+    diffs.push({
+      axis: axis,
+      label: meta.label,
+      userVal: userVal,
+      refVal: refVal,
+      diff: userVal - refVal,
+      absDiff: Math.abs(userVal - refVal)
+    });
+
+    html += `
+      <div class="compare-block">
+        <div class="compare-head"><span class="axis-name">${meta.label}</span></div>
+        <div class="track-wrap">
+          <div class="track">
+            <div class="track-ticks">
+              <div class="track-tick-mark"><span class="track-tick-number">0</span></div>
+              <div class="track-tick-mark"></div>
+              <div class="track-tick-mark"></div>
+              <div class="track-tick-mark"></div>
+              <div class="track-tick-mark"></div>
+              <div class="track-tick-mark"><span class="track-tick-number">5</span></div>
+              <div class="track-tick-mark"></div>
+              <div class="track-tick-mark"></div>
+              <div class="track-tick-mark"></div>
+              <div class="track-tick-mark"></div>
+              <div class="track-tick-mark"><span class="track-tick-number">10</span></div>
+            </div>
+            <span class="end-label left">${meta.left}</span>
+            <span class="end-label right">${meta.right}</span>
+            <div class="marker user" style="left:${userVal}%">
+              <span class="tag">あなた</span>
+              <div class="dot"></div>
+            </div>
+            <div class="marker ref" style="left:${refVal}%">
+              <div class="dot"></div>
+              <span class="tag">データ</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  // --- 集約コメントの生成 ---
+  let traits = [];
+  let sameTraits = [];
+
+  diffs.forEach(d => {
+    if (d.axis === "amakara") {
+      if (d.diff <= -15) traits.push("甘み寄りに");
+      else if (d.diff >= 15) traits.push("辛口寄りに");
+      else sameTraits.push("甘辛さ");
+    } else if (d.axis === "kaori") {
+      if (d.diff <= -15) traits.push("香りを穏やかに");
+      else if (d.diff >= 15) traits.push("香りを華やかに");
+      else sameTraits.push("香り");
+    } else if (d.axis === "keiju") {
+      if (d.diff <= -15) traits.push("より軽く");
+      else if (d.diff >= 15) traits.push("より重く・どっしりと");
+      else sameTraits.push("ボディ感");
+    }
+  });
+
+  let summaryComment = "";
+  if (traits.length === 0) {
+    summaryComment = "甘辛さ、香り、ボディ感のすべての要素において、データとほぼ同じようなバランスで感じられたようです。";
+  } else if (traits.length === 3) {
+    summaryComment = `データと比較すると、${traits[0]}、${traits[1]}、そして${traits[2]}感じられた傾向があります。`;
+  } else {
+    const traitsText = traits.join("、かつ");
+    const sameText = sameTraits.join("や");
+    summaryComment = `${sameText}についてはデータと近いバランスで捉えつつも、データよりも「${traitsText}」感じられたようです。`;
+  }
+
+  html += `<p class="summary-text">${summaryComment}</p>`;
+  html += `<p class="note" style="font-size: clamp(8px, calc((100vw - 76px) / 27.5), 10.5px); white-space: nowrap; letter-spacing: -0.03em; margin-top: 10px;">※蔵元等の情報を元に当方が独自基準で標準化した参考値です</p>`;
+
+  if(userAnswers.comment){
+    html += `<p class="summary-text" style="margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--line);">あなたの一言:「${escapeHtml(userAnswers.comment)}」</p>`;
+  }
+
+  html += `</div>`; // analysis-cardの終了タグ
+
+  const typeCore = s.type.replace('酒', '').replace('(原酒)', '');
+  const showType = !s.subtitle.includes(typeCore);
+  const typeHtmlDesc = showType ? `<span>特定名称:${linkify(s.type)}</span>` : '';
+  
+  const hikoukaiNote = s.type.includes("非公開") ? `<div style="font-size: 11.5px; color: rgba(255,255,255,0.8); margin-top: 12px; padding-top: 12px; border-top: 1px dashed rgba(255,255,255,0.3); line-height: 1.6;">※特定名称を「非公開」としているのは、「スペックという先入観を持たずに、一口の直感で味わいそのものを純粋に感じてほしい」という蔵元のこだわりのためです。</div>` : '';
+
+  html += `
+    <button class="desc-toggle-btn" onclick="toggleDesc(this)">
+      <span>銘柄の詳細を見る</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div class="desc-content-wrapper">
+      <div class="desc-content-inner">
+        <div class="desc-card">
+          <p class="eyebrow">この銘柄について</p>
+          <h3>
+            <div style="display: flex; flex-direction: column; align-items: flex-start; margin-right: 8px;">
+              <span style="font-size: 11px; color: rgba(255,255,255,0.8); line-height: 1; margin-bottom: 2px; font-family: var(--font-gothic); letter-spacing: 0.05em;">${s.brandKana}</span>
+              <span class="brand-name">${s.brand}</span>
+            </div>
+            <span class="sub-name" style="margin-top: auto;">${linkify(s.subtitle)}</span>
+          </h3>
+          <p>${linkify(s.description)}</p>
+          <div class="spec">
+            <span>蔵元:<span class="term-link" onclick="showGlossary('${s.kura}')">${s.kura}</span></span>
+            ${typeHtmlDesc}
+            <span>${linkify('精米歩合')}:<span style="font-size:115%; font-weight:700;">${s.seimai}%</span></span>
+            <span>アルコール分:${s.alcohol}</span>
+          </div>
+          ${hikoukaiNote}
+        </div>
+        <div class="source-line">${linkify(s.source)}</div>
+      </div>
+    </div>
+  `;
+
+  // --- ↓ スプレッドシートへ利き酒評価データを送信 ↓ ---
+  sendLogToSheet(
+    '評価記録', 
+    '未入力', 
+    '未入力', 
+    currentSakeId, 
+    userAnswers.amakara, 
+    userAnswers.kaori, 
+    userAnswers.keiju, 
+    userAnswers.comment
+  );
+  // --- ↑ ここまで追加 ↑ ---
+
+  body.innerHTML = html;
+  goScreen(3);
+}
+
+/* ============ おすすめ料理 ============ */
+function showPairing(){
+  const s = sakeList.find(x=>x.id===currentSakeId);
+  const card = document.getElementById('pairingCard');
+  card.innerHTML = `
+    <div class="band">この一杯に合う、当店の一品</div>
+    <div class="body">
+      <h3>${s.pairing.name}</h3>
+      <p>${linkify(s.pairing.description)}</p>
+    </div>
+  `;
+
+  const trendWrap = document.getElementById('trendWrap');
+  if (trendWrap) trendWrap.remove(); 
+
+  if (sessionRecords.length >= 2) {
+    let sumA = 0, sumK = 0, sumW = 0;
+    sessionRecords.forEach(r => {
+      sumA += r.answers.amakara;
+      sumK += r.answers.kaori;
+      sumW += r.answers.keiju;
+    });
+    const count = sessionRecords.length;
+    const avgA = sumA / count;
+    const avgK = sumK / count;
+    const avgW = sumW / count;
+
+    let traits = [];
+    if (avgA < 45) traits.push("甘みを感じやすい");
+    if (avgA > 55) traits.push("辛口ですっきりとした");
+    if (avgK > 55) traits.push("華やかな香りの");
+    if (avgW > 55) traits.push("重く・どっしりとした");
+    if (avgW < 45) traits.push("軽くすっきりとした");
+
+    let trendText = "";
+    if (traits.length > 0) {
+      trendText = `今日試された <strong>${count}杯</strong> の記録を振り返ると、今のところ全体的に「<span class="highlight">${traits.join("、かつ")}</span>」お酒の傾向を多く感じられているようです。`;
+    } else {
+      trendText = `今日試された <strong>${count}杯</strong> の記録を振り返ると、甘辛や香り、ボディのバランスがとれた味わいを中心に楽しまれているようです。`;
+    }
+
+    const trendDiv = document.createElement('div');
+    trendDiv.id = 'trendWrap';
+    trendDiv.innerHTML = `
+      <div class="analysis-card" style="margin-top: 24px; margin-bottom: 0;">
+        <h4>本日これまでの一杯</h4>
+        <p>${trendText}</p>
+        <p class="note" style="margin-top:8px;">※今回のあなたの感じ方に基づく傾向です。ご自身の好みを知るひとつのきっかけとしてお楽しみください。</p>
+      </div>
+    `;
+    card.parentNode.insertBefore(trendDiv, card.nextSibling);
+  }
+
+  const isSurveyDone = localStorage.getItem('kikizake_survey_done');
+  const btnNext = document.getElementById('btnNextFromStep4');
+  if (btnNext) {
+    if (isSurveyDone) {
+      btnNext.textContent = "終了して別のお酒を選ぶ";
+      btnNext.onclick = resetAll;
+    } else {
+      btnNext.textContent = "次へ：最後にお聞かせください";
+      btnNext.onclick = function() { goScreen('survey'); };
+    }
+  }
+
+  goScreen(4);
+}
+
+/* ============ 履歴の表示 ============ */
+function showHistory() {
+  const current = document.body.getAttribute('data-current-screen');
+  if (current !== 'history') {
+    screenBeforeHistory = current || 1;
+  }
+  renderHistory();
+  goScreen('history');
+}
+
+function closeHistory() {
+  goScreen(screenBeforeHistory);
+}
+
+function renderHistory() {
+  const wrap = document.getElementById('historyList');
+  wrap.innerHTML = "";
+  
+  if (pastRecords.length === 0) {
+    wrap.innerHTML = '<div class="no-result">まだ記録がありません。<br>飲んだお酒を記録してみましょう。</div>';
+    return;
+  }
+  
+  const sorted = [...pastRecords].reverse();
+  
+  sorted.forEach(record => {
+    // 1. 現在のリスト 2. 過去のリスト の順で探し、なければ記録自体に保存された名前を使う
+    const s = sakeList.find(x => x.id === record.sakeId) || archivedSakeList.find(x => x.id === record.sakeId);
+    
+    const brandKana = s ? s.brandKana : (record.brandKana || "");
+    const brand = s ? s.brand : (record.brand || "不明な銘柄");
+    const subtitle = s ? s.subtitle : (record.subtitle || "");
+
+    if (!brand) return;
+    
+    const d = new Date(record.date);
+    const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    
+    const ans = record.answers;
+    const amakaraVal = Math.round(ans.amakara / 10);
+    const kaoriVal = Math.round(ans.kaori / 10);
+    const keijuVal = Math.round(ans.keiju / 10);
+
+    const el = document.createElement('div');
+    el.className = "history-card";
+    el.innerHTML = `
+      <div class="date">${dateStr}</div>
+      <div class="name">
+        <div style="display: flex; flex-direction: column; align-items: flex-start; margin-right: 8px;">
+          <span style="font-size: 10px; color: var(--ai-light); line-height: 1; margin-bottom: 2px;">${brandKana}</span>
+          <span class="brand-name">${brand}</span>
+        </div>
+        <span class="sub-name" style="margin-top: auto;">${subtitle}</span>
+      </div>
+      <div class="params">
+        <span>甘辛: ${amakaraVal}</span>
+        <span>香り: ${kaoriVal}</span>
+        <span>ボディ: ${keijuVal}</span>
+      </div>
+      ${ans.comment ? `<div class="comment">「${escapeHtml(ans.comment)}」</div>` : ''}
+    `;
+    wrap.appendChild(el);
+  });
+}
+
+function resetAll(){
+  currentSakeId = null;
+  userAnswers = {};
+  
+  renderSakeList();
+  goScreen(1);
+}
+
+function clearSurveyError(groupId) {
+  // 選択された項目のエラーハイライトを消す
+  document.getElementById(groupId).classList.remove('error-highlight');
+  
+  // すべて選択済みか確認し、揃っていれば全体のエラー文を消す
+  const ageEl = document.querySelector('input[name="sv-age"]:checked');
+  const genderEl = document.querySelector('input[name="sv-gender"]:checked');
+  const kpiEl = document.querySelector('input[name="sv-kpi"]:checked');
+  if (ageEl && genderEl && kpiEl) {
+    document.getElementById('surveyError').style.display = 'none';
+  }
+}
+
+function submitSurvey() {
+  const ageEl = document.querySelector('input[name="sv-age"]:checked');
+  const genderEl = document.querySelector('input[name="sv-gender"]:checked');
+  const kpiEl = document.querySelector('input[name="sv-kpi"]:checked');
+  const errorEl = document.getElementById('surveyError');
+
+  let hasError = false;
+
+  // 未回答の項目を赤くハイライトする
+  if (!ageEl) { document.getElementById('group-age').classList.add('error-highlight'); hasError = true; }
+  if (!genderEl) { document.getElementById('group-gender').classList.add('error-highlight'); hasError = true; }
+  if (!kpiEl) { document.getElementById('group-kpi').classList.add('error-highlight'); hasError = true; }
+
+  if (hasError) {
+    errorEl.style.display = 'block';
+    
+    // 注意書きをブルッと震わせて視線を誘導する
+    errorEl.classList.remove('shake-animation');
+    void errorEl.offsetWidth; // リフローを強制
+    errorEl.classList.add('shake-animation');
+    return;
+  }
+  errorEl.style.display = 'none';
+
+  sendLogToSheet('アンケート回答', genderEl.value, ageEl.value, currentSakeId, '', '', '', kpiEl.value);
+
+  localStorage.setItem('kikizake_survey_done', 'true');
+
+  document.getElementById('surveyForm').style.display = 'none';
+  document.getElementById('surveyThanks').style.display = 'block';
+
+  setTimeout(() => {
+    // フォームリセット
+    document.querySelectorAll('input[name="sv-age"], input[name="sv-gender"], input[name="sv-kpi"]').forEach(el => el.checked = false);
+    document.getElementById('surveyForm').style.display = 'block';
+    document.getElementById('surveyThanks').style.display = 'none';
+    resetAll();
+  }, 2500);
+}
+
+function toggleDesc(btn) {
+  btn.classList.toggle('open');
+  const wrapper = btn.nextElementSibling;
+  wrapper.classList.toggle('open');
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+/* ============ 用語ツールチップ (初回のみ) ============ */
+let tooltipEl = null;
+let hideTimer = null;
+
+function showTermTooltip() {
+  if (localStorage.getItem('kikizake_hint_seen')) return;
+
+  // STEP1画面の一番上の銘柄カードにある最初の用語リンクを取得
+  const links = document.querySelectorAll('.screen[data-screen="1"] .sake-card:first-child .term-link');
+  // ターゲットは必ず最初の用語（純米吟醸など）にする
+  const link = links[0];
+  if (!link) return;
+
+  tooltipEl = document.createElement('span');
+  tooltipEl.className = 'term-tooltip';
+  tooltipEl.textContent = 'タップで解説を表示';
+  
+  // 対象の用語の中に絶対配置で追加することで、周囲の文字を押し出さないようにする
+  link.appendChild(tooltipEl);
+
+  // リフローを強制してから表示
+  tooltipEl.getBoundingClientRect();
+  tooltipEl.classList.add('show');
+  
+  localStorage.setItem('kikizake_hint_seen', 'true');
+
+  // 5秒後に自動消去
+  hideTimer = setTimeout(hideTermTooltip, 5000);
+
+  // 画面タップで消去 (直後に反応しないよう少し遅延して登録)
+  setTimeout(() => {
+    document.addEventListener('click', hideTermTooltip);
+    document.addEventListener('touchstart', hideTermTooltip, {passive: true});
+  }, 100);
+}
+
+function hideTermTooltip() {
+  if (!tooltipEl) return;
+  tooltipEl.classList.remove('show');
+  clearTimeout(hideTimer);
+  document.removeEventListener('click', hideTermTooltip);
+  document.removeEventListener('touchstart', hideTermTooltip);
+  
+  // アニメーションを待って削除
+  setTimeout(() => {
+    if (tooltipEl && tooltipEl.parentNode) {
+      tooltipEl.parentNode.removeChild(tooltipEl);
+      tooltipEl = null;
+    }
+  }, 350);
+}
+
+/* ============ スライダーガイド ============ */
+function updateSliderGuide(axis) {
+  const slider = document.getElementById(`s-${axis}`);
+  const bubble = document.getElementById(`b-${axis}`);
+  if (!slider || !bubble) return;
+
+  const val = parseInt(slider.value);
+  let label = "";
+
+  if (axis === 'amakara') {
+    if (val <= 20) label = "しっかりとした甘み";
+    else if (val <= 40) label = "やさしい甘み";
+    else if (val < 60) label = "バランスの良い甘辛さ";
+    else if (val < 80) label = "すっきりとした辛口";
+    else label = "キレのある辛口";
+  } else if (axis === 'kaori') {
+    if (val <= 20) label = "とても穏やか";
+    else if (val <= 40) label = "穏やか・控えめ";
+    else if (val < 60) label = "自然な香り";
+    else if (val < 80) label = "華やか・フルーティー";
+    else label = "極めて華やか";
+  } else if (axis === 'keiju') {
+    if (val <= 20) label = "とても軽くすっきり";
+    else if (val <= 40) label = "軽い・軽快";
+    else if (val < 60) label = "ほどよいボディ感";
+    else if (val < 80) label = "重い・コクがある";
+    else label = "どっしり・重厚";
+  }
+  bubble.textContent = label;
+
+  // ツマミ（サム）の位置に合わせて吹き出しを正確に追従させる計算
+  const percent = val / 100;
+  const offset = 13 - (26 * percent);
+  bubble.style.left = `calc(${val}% + ${offset}px)`;
+}
+
+/* ============ 初期化 ============ */
+renderSakeList();
+goScreen(1);
+
+// OP映像がない、またはスキップされたら少し待ってツールチップを表示
+setTimeout(() => {
+  if (!document.body.classList.contains('op-active')) {
+    showTermTooltip();
+  }
+}, 1500);
+
+// アプリを開いた瞬間に「アクセス」のログを送信
+sendLogToSheet('アクセス', '未入力', '未入力');
+
+/* ============ OP動画制御 ============ */
+const opOverlay = document.getElementById('opOverlay');
+const opVideo = document.getElementById('opVideo');
+const opTitle = document.getElementById('opTitle');
+let isOpSkipped = false;
+
+function skipOp() {
+  if (isOpSkipped) return;
+  isOpSkipped = true;
+  
+  opOverlay.classList.add('fade-out');
+  
+  const themeMeta = document.getElementById('themeColorMeta');
+  if (themeMeta) themeMeta.setAttribute('content', '#E9E2CF');
+  
+  document.body.classList.remove('op-active');
+  
+  // OPスキップ時にツールチップの判定を行う
+  setTimeout(showTermTooltip, 1000);
+
+  setTimeout(() => {
+    opOverlay.style.display = 'none';
+  }, 800);
+}
+
+if (opVideo) {
+  opVideo.addEventListener('timeupdate', () => {
+    if (!isOpSkipped) {
+      if (opVideo.currentTime >= 5.5) {
+        opTitle.classList.add('show');
+      }
+      if (opVideo.duration > 0 && opVideo.currentTime >= opVideo.duration - 1.5) {
+        skipOp();
+      }
+    }
+  });
+
+  opVideo.addEventListener('ended', skipOp);
+  opVideo.addEventListener('error', skipOp);
+}
+</script>
+</body>
+</html>

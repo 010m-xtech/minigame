@@ -2071,8 +2071,8 @@ function renderHistory() {
   const sorted = [...pastRecords].reverse();
   
   sorted.forEach(record => {
-    // 1. 現在のリスト 2. 過去のリスト の順で探し、なければ記録自体に保存された名前を使う
-    const s = sakeList.find(x => x.id === record.sakeId) || archivedSakeList.find(x => x.id === record.sakeId);
+    // リストから探し、なければ記録自体に保存された名前を使う
+    const s = sakeList.find(x => x.id === record.sakeId);
     
     const brandKana = s ? s.brandKana : (record.brandKana || "");
     const brand = s ? s.brand : (record.brand || "不明な銘柄");

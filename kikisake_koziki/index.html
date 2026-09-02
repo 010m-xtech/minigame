@@ -263,6 +263,7 @@
     margin-right: 6px;
     transition: all 0.2s ease;
   }
+  
   .radio-btn-wrap input:checked + .radio-box {
     background: var(--ai-pale); border-color: var(--ai); color: var(--ai);
   }
@@ -584,6 +585,7 @@
   .desc-toggle-btn:active {
     transform: scale(0.98);
   }
+  
   .desc-toggle-btn svg {
     width: 18px; height: 18px;
     transition: transform 0.3s ease;
@@ -849,6 +851,7 @@
   .modal-overlay.show .modal-content {
     transform: translateY(0) scale(1);
   }
+  
   .modal-header {
     display: flex; justify-content: space-between; align-items: center;
     margin-bottom: 16px;
@@ -924,6 +927,7 @@
     width: 52px; height: 52px;
     margin-bottom: 14px;
   }
+  
   .op-title h1 {
     font-family: var(--font-mincho);
     font-size: 36px;
@@ -1034,6 +1038,30 @@
   @media (prefers-reduced-motion: reduce) {
     .term-tooltip { transition: none; }
   }
+
+  .brand-text-wrap { display: flex; flex-direction: column; align-items: center; }
+  .brand-title { margin-bottom: 2px; letter-spacing: 0.05em; margin-right: -0.05em; }
+  .brand-sub { letter-spacing: 0.32em; margin-right: -0.32em; }
+  .lead-step1-1 { font-size: clamp(11px, calc((100vw - 40px) / 24), 16px); margin-bottom: 14px; white-space: nowrap; letter-spacing: -0.01em; }
+  .lead-step1-2 { font-size: clamp(11px, calc((100vw - 40px) / 27.5), 13px); letter-spacing: -0.02em; white-space: nowrap; }
+  .lead-step2 { font-size: clamp(11px, calc((100vw - 40px) / 21.5), 16px); font-weight: 700; white-space: nowrap; letter-spacing: -0.03em; }
+  .lead-step3 { font-size: clamp(11px, calc((100vw - 40px) / 20), 15px); white-space: nowrap; letter-spacing: -0.02em; line-height: 1.8; }
+  .title-survey { text-align: center; font-size: 18px; margin-bottom: 6px; }
+  .note-survey-top { text-align: center; font-size: 12px; color: var(--shu); font-weight: 500; margin-top: 0; margin-bottom: 20px; }
+  .note-survey-bottom { font-size: 13px; text-align: center; margin-top: 16px; margin-bottom: 24px; }
+  .error-survey { color: var(--shu); font-size: 13px; font-weight: bold; text-align: center; display: none; margin-bottom: 12px; }
+  .survey-thanks-wrap { display: none; text-align: center; padding: 60px 0; }
+  .survey-thanks-icon { margin-bottom: 16px; }
+  .survey-thanks-title { font-family: var(--font-mincho); color: var(--ai); margin-bottom: 12px; }
+  .survey-thanks-text { font-size: 14px; color: var(--sumi); }
+  .history-header-wrap { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; }
+  .w-full { width: 100%; }
+  .p-14 { padding: 14px; }
+  .mt-0 { margin-top: 0; }
+  .mb-0 { margin-bottom: 0; }
+  .mb-20 { margin-bottom: 20px; }
+  .radio-box-sm { font-size: 13px; }
+  .label-kpi { font-size: 14.5px; line-height: 1.5; }
 </style>
 </head>
 <body class="op-active">
@@ -1041,6 +1069,7 @@
 <div id="opOverlay" class="op-overlay" onclick="skipOp()">
   <video id="opVideo" class="op-video" src="title2.mp4" autoplay muted playsinline></video>
   <div id="opTitle" class="op-title">
+    <!-- Note: Image src may not load depending on environment -->
     <img src="koziki_shiro.png" alt="利き酒帖" class="op-logo">
   </div>
   <div class="op-skip-hint">タップでスキップ</div>
@@ -1051,9 +1080,9 @@
     <div class="brand-row">
       <div class="brand">
         <img src="koziki_logo.png" alt="居酒屋 乞食 ロゴ" class="seal">
-        <div style="display: flex; flex-direction: column; align-items: center;">
-          <h1 style="margin-bottom: 2px; letter-spacing: 0.05em; margin-right: -0.05em;">居酒屋　乞食</h1>
-          <p style="letter-spacing: 0.32em; margin-right: -0.32em;">IZAKAYA KOZIKI</p>
+        <div class="brand-text-wrap">
+          <h1 class="brand-title">居酒屋　乞食</h1>
+          <p class="brand-sub">IZAKAYA KOZIKI</p>
         </div>
       </div>
       <button class="history-btn" onclick="showHistory()">
@@ -1070,21 +1099,19 @@
   </header>
 
   <main>
-    <!-- Screen 1: 銘柄選択 -->
     <section class="screen active" data-screen="1">
       <p class="eyebrow">STEP 1</p>
       <h2 class="title">今日、飲むお酒を選んでください</h2>
-      <p class="lead" style="font-size: clamp(11px, calc((100vw - 40px) / 24), 16px); margin-bottom: 14px; white-space: nowrap; letter-spacing: -0.01em;">飲んで感じたことを記録して、データと見比べてみる。<br>それだけで、日本酒がもっと楽しくなります。</p>
-      <p class="lead" style="font-size: clamp(11px, calc((100vw - 40px) / 27.5), 13px); letter-spacing: -0.02em; white-space: nowrap;">当店で扱う日本酒です。いま飲んでいるお酒をお選びください。</p>
+      <p class="lead lead-step1-1">飲んで感じたことを記録して、データと見比べてみる。<br>それだけで、日本酒がもっと楽しくなります。</p>
+      <p class="lead lead-step1-2">当店で扱う日本酒です。いま飲んでいるお酒をお選びください。</p>
 
       <div id="sakeList"></div>
     </section>
 
-    <!-- Screen 2: 質問 -->
     <section class="screen" data-screen="2">
       <p class="eyebrow">STEP 2</p>
       <h2 class="title">飲んでみて、どう感じましたか</h2>
-      <p class="lead" style="font-size: clamp(11px, calc((100vw - 40px) / 21.5), 16px); font-weight: 700; white-space: nowrap; letter-spacing: -0.03em;">3つのバーを、感じた方向へ動かしてみてください。</p>
+      <p class="lead lead-step2">3つのバーを、感じた方向へ動かしてみてください。</p>
 
       <div class="slider-group">
         <div class="slider-labels"><span>甘口</span><span>辛口</span></div>
@@ -1171,18 +1198,16 @@
       </div>
     </section>
 
-    <!-- Screen 3: 比較結果 -->
     <section class="screen" data-screen="3">
       <p class="eyebrow">STEP 3</p>
       <h2 class="title">あなたの感覚と、蔵元の情報</h2>
-      <p class="lead" style="font-size: clamp(11px, calc((100vw - 40px) / 20), 15px); white-space: nowrap; letter-spacing: -0.02em; line-height: 1.8;">あなたの感じ方を記録しました。<br>ここから、データと見比べてみましょう。</p>
+      <p class="lead lead-step3">あなたの感じ方を記録しました。<br>ここから、データと見比べてみましょう。</p>
       <div id="compareBody"></div>
       <div class="btn-row">
-        <button class="btn btn-primary" style="width:100%" onclick="showPairing()">次へ:合う一品を見る</button>
+        <button class="btn btn-primary w-full" onclick="showPairing()">次へ:合う一品を見る</button>
       </div>
     </section>
 
-    <!-- Screen 4: おすすめ料理 -->
     <section class="screen" data-screen="4">
       <p class="eyebrow">STEP 4</p>
       <div class="stamp-wrap">
@@ -1195,14 +1220,13 @@
       <p class="lead center-text">この一杯には、当店のこんな一品はいかがでしょうか。</p>
       <div class="pairing-card" id="pairingCard"></div>
       <div class="btn-row">
-        <button id="btnNextFromStep4" class="btn btn-primary" style="width:100%" onclick="goScreen('survey')">次へ：最後にお聞かせください</button>
+        <button id="btnNextFromStep4" class="btn btn-primary w-full" onclick="goScreen('survey')">次へ：最後にお聞かせください</button>
       </div>
     </section>
 
-    <!-- Screen Survey: アンケート -->
     <section class="screen" data-screen="survey">
-      <h2 class="title" style="text-align: center; font-size: 18px; margin-bottom: 6px;">最後にお聞かせください</h2>
-      <p style="text-align: center; font-size: 12px; color: var(--shu); font-weight: 500; margin-top: 0; margin-bottom: 20px;">
+      <h2 class="title title-survey">最後にお聞かせください</h2>
+      <p class="note-survey-top">
         ※ご回答は、お一人様1回きりとなります。
       </p>
       
@@ -1234,13 +1258,13 @@
             </label>
             <label class="radio-btn-wrap">
               <input type="radio" name="sv-gender" value="無回答" onchange="clearSurveyError('group-gender')">
-              <span class="radio-box" style="font-size: 13px;">無回答</span>
+              <span class="radio-box radio-box-sm">無回答</span>
             </label>
           </div>
         </div>
 
-        <div class="survey-group" id="group-kpi" style="margin-bottom: 20px;">
-          <label style="font-size: 14.5px; line-height: 1.5;">味わいのポイント（甘辛・香り・ボディ）を意識して飲んでみて、いかがでしたか？</label>
+        <div class="survey-group mb-20" id="group-kpi">
+          <label class="label-kpi">味わいのポイント（甘辛・香り・ボディ）を意識して飲んでみて、いかがでしたか？</label>
           <div class="radio-buttons-col">
             <label class="radio-btn-wrap">
               <input type="radio" name="sv-kpi" value="意識したことで、より深く味わいを楽しめた" onchange="clearSurveyError('group-kpi')">
@@ -1261,28 +1285,27 @@
           </div>
         </div>
 
-        <p id="surveyError" style="color: var(--shu); font-size: 13px; font-weight: bold; text-align: center; display: none; margin-bottom: 12px;">すべての項目にご回答ください</p>
+        <p id="surveyError" class="error-survey">すべての項目にご回答ください</p>
 
-        <p class="note" style="font-size: 13px; text-align: center; margin-top: 16px; margin-bottom: 24px;">※サービス改善のために参考にさせていただきます。</p>
+        <p class="note note-survey-bottom">※サービス改善のために参考にさせていただきます。</p>
 
-        <div class="btn-row" style="margin-top: 0;">
-          <button class="btn btn-primary" style="width:100%; padding: 14px;" onclick="submitSurvey()">終了して別のお酒を選ぶ</button>
+        <div class="btn-row mt-0">
+          <button class="btn btn-primary w-full p-14" onclick="submitSurvey()">終了して別のお酒を選ぶ</button>
         </div>
       </div>
       
-      <div id="surveyThanks" style="display: none; text-align: center; padding: 60px 0;">
-        <svg viewBox="0 0 24 24" width="48" height="48" style="margin-bottom: 16px;"><path d="M20 6L9 17l-5-5" stroke="var(--shu)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <h3 style="font-family: var(--font-mincho); color: var(--ai); margin-bottom: 12px;">ご協力ありがとうございました</h3>
-        <p style="font-size: 14px; color: var(--sumi);">お酒選択画面へ戻ります...</p>
+      <div id="surveyThanks" class="survey-thanks-wrap">
+        <svg class="survey-thanks-icon" viewBox="0 0 24 24" width="48" height="48"><path d="M20 6L9 17l-5-5" stroke="var(--shu)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <h3 class="survey-thanks-title">ご協力ありがとうございました</h3>
+        <p class="survey-thanks-text">お酒選択画面へ戻ります...</p>
       </div>
     </section>
 
-    <!-- Screen History: 履歴 -->
     <section class="screen" data-screen="history">
-      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
+      <div class="history-header-wrap">
         <div>
           <p class="eyebrow">MY NOTE</p>
-          <h2 class="title" style="margin: 0;">これまでの記録</h2>
+          <h2 class="title mb-0">これまでの記録</h2>
         </div>
         <button class="history-btn" onclick="closeHistory()">
           <svg viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1293,13 +1316,12 @@
       <div id="historyList"></div>
 
       <div class="btn-row">
-        <button class="btn btn-ghost" style="width:100%" onclick="closeHistory()">元の画面に戻る</button>
+        <button class="btn btn-ghost w-full" onclick="closeHistory()">元の画面に戻る</button>
       </div>
     </section>
   </main>
 </div>
 
-<!-- 用語辞典モーダル -->
 <div class="modal-overlay" id="glossaryModal" onclick="closeGlossary()">
   <div class="modal-content" onclick="event.stopPropagation()">
     <div class="modal-header">
@@ -1313,17 +1335,14 @@
 </div>
 
 <script>
-/* ============ ログ送信設定 ============ */
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbzhljuQpb394MVcn5GFhzUwIqyFYpaM-WKl8zUO7AK18Do_nRICPxHkR71dk0TU7cbaGw/exec';
 
-// 端末IDの確認・生成（一度決まったらブラウザに記憶させます）
 let deviceId = localStorage.getItem('kikizake_device_id');
 if (!deviceId) {
   deviceId = 'dev_' + Math.random().toString(36).substr(2, 9);
   localStorage.setItem('kikizake_device_id', deviceId);
 }
 
-// スプレッドシートへ送信する関数（利き酒データも送れるように拡張）
 function sendLogToSheet(actionStr, genderStr, ageStr, sakeIdStr = "", amakaraVal = "", kaoriVal = "", keijuVal = "", commentStr = "") {
   const payload = {
     deviceId: deviceId,
@@ -1339,14 +1358,11 @@ function sendLogToSheet(actionStr, genderStr, ageStr, sakeIdStr = "", amakaraVal
 
   fetch(GAS_URL, {
     method: 'POST',
-    // Google側のセキュリティ（CORS）ではじかれないようテキスト形式で送ります
     headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify(payload)
   }).catch(err => console.log('送信エラー:', err));
 }
-/* ==================================== */
 
-/* ============ データ(マスターデータベース想定) ============ */
 const sakeList = [
   {
     id: "harushika",
@@ -1552,36 +1568,40 @@ const axisMeta = {
   keiju:   { label: "ボディ", left: "軽い", right: "重い・どっしり" }
 };
 
-/* ============ 用語辞典データと処理 ============ */
+const descJunmaiDaiginjo = "精米歩合50%以下の白米、米麹、水のみを原料として「吟醸造り」で丁寧に造られた最高峰のお酒。雑味が極めて少なく、華やかでフルーティーな香りが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米を半分以上削ることで生まれる、極めてクリアで雑味のない透明感と、エレガントに広がる香りをじっくりと堪能してみてください。";
+const descDaiginjo = "精米歩合50%以下の白米に少量の醸造アルコールを加えて造られたお酒。純米大吟醸よりもさらに香りが引き立ち、スッキリとしたキレの良さが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>華やかな香りとともに、アルコール添加によるシャープな喉越しとキレを意識してみてください。";
+const descJunmaiGinjo = "精米歩合60%以下の白米、米麹、水のみを原料として「吟醸造り」で造られたお酒。フルーティーな香りとすっきりとした味わいが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米の雑味がなく、後味がすっと消えていく『キレのきれいさ』と、口に含んだ瞬間の華やかな香りに注目してみてください。";
+const descGinjo = "精米歩合60%以下の白米、米麹、水、および少量の醸造アルコールを用いて造られたお酒。アルコールを添加することで、より香りが引き立ち、軽快でキレのある味わいになります。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>純米酒に比べてスッキリとした軽快な口当たりと、ふわっと広がる香りのバランスを楽しんでみてください。";
+const descTokubetsuJunmai = "精米歩合60%以下、または特別な製造方法で造られた純米酒。純米酒のしっかりとした旨味と、すっきりとした飲みやすさを兼ね備えています。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>通常の純米酒よりもクリアな飲み口の中に広がる、お米本来のふくよかな旨みに注目してみてください。";
+const descJunmai = "白米、米麹、水のみを原料として造られたお酒。お米本来のふくよかな旨味やコクをダイレクトに感じられ、お燗にしても美味しくいただけます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米ならではの甘みや旨み、そしてしっかりとしたボディ感を舌全体で感じてみてください。";
+const descTokubetsuHonjozo = "精米歩合60%以下の白米に、規定量内の醸造アルコールを加えて造られたお酒。通常の本醸造よりも雑味が少なく、スッキリとした辛口とキレの良さが際立ちます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>料理の味を引き立てる控えめな香りと、喉越しのシャープな爽快感を楽しんでみてください。";
+const descHonjozo = "精米歩合70%以下の白米、米麹、水、そして規定量内の「醸造アルコール」を原料としたお酒。すっきりとした辛口で、香りは控えめなことが多いです。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>香りが穏やかな分、料理の味を邪魔しません。食事と一緒に口に入れた時の、スッと洗い流してくれるような爽快感を意識してみてください。";
+const descMurokaNama = "搾った後に「濾過（色の調整や雑味取り）」と「火入れ（加熱殺菌）」を一切行っていないお酒。フレッシュで力強い本来の風味が楽しめます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>加熱処理されていないため、お酒本来のフレッシュな微炭酸（ピリッとした刺激）や、ジューシーな旨味を探してみてください。";
+
 const glossaryData = {
-  // --- 特定名称 ---
-  "純米大吟醸酒": "精米歩合50%以下の白米、米麹、水のみを原料として「吟醸造り」で丁寧に造られた最高峰のお酒。雑味が極めて少なく、華やかでフルーティーな香りが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米を半分以上削ることで生まれる、極めてクリアで雑味のない透明感と、エレガントに広がる香りをじっくりと堪能してみてください。",
-  "純米大吟醸": "精米歩合50%以下の白米、米麹、水のみを原料として「吟醸造り」で丁寧に造られた最高峰のお酒。雑味が極めて少なく、華やかでフルーティーな香りが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米を半分以上削ることで生まれる、極めてクリアで雑味のない透明感と、エレガントに広がる香りをじっくりと堪能してみてください。",
-  "大吟醸酒": "精米歩合50%以下の白米に少量の醸造アルコールを加えて造られたお酒。純米大吟醸よりもさらに香りが引き立ち、スッキリとしたキレの良さが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>華やかな香りとともに、アルコール添加によるシャープな喉越しとキレを意識してみてください。",
-  "大吟醸": "精米歩合50%以下の白米に少量の醸造アルコールを加えて造られたお酒。純米大吟醸よりもさらに香りが引き立ち、スッキリとしたキレの良さが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>華やかな香りとともに、アルコール添加によるシャープな喉越しとキレを意識してみてください。",
-  "純米吟醸酒": "精米歩合60%以下の白米、米麹、水のみを原料として「吟醸造り」で造られたお酒。フルーティーな香りとすっきりとした味わいが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米の雑味がなく、後味がすっと消えていく『キレのきれいさ』と、口に含んだ瞬間の華やかな香りに注目してみてください。",
-  "純米吟醸": "精米歩合60%以下の白米、米麹、水のみを原料として「吟醸造り」で造られたお酒。フルーティーな香りとすっきりとした味わいが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米の雑味がなく、後味がすっと消えていく『キレのきれいさ』と、口に含んだ瞬間の華やかな香りに注目してみてください。",
-  "純吟": "「純米吟醸」の略称。精米歩合60%以下の白米、米麹、水のみを原料として造られ、フルーティーな香りとすっきりした味わいが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米の雑味がなく、後味がすっと消えていく『キレのきれいさ』と、口に含んだ瞬間の華やかな香りに注目してみてください。",
-  "吟醸酒": "精米歩合60%以下の白米、米麹、水、および少量の醸造アルコールを用いて造られたお酒。アルコールを添加することで、より香りが引き立ち、軽快でキレのある味わいになります。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>純米酒に比べてスッキリとした軽快な口当たりと、ふわっと広がる香りのバランスを楽しんでみてください。",
-  "吟醸": "精米歩合60%以下の白米、米麹、水、および少量の醸造アルコールを用いて造られたお酒。アルコールを添加することで、より香りが引き立ち、軽快でキレのある味わいになります。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>純米酒に比べてスッキリとした軽快な口当たりと、ふわっと広がる香りのバランスを楽しんでみてください。",
-  "特別純米酒": "精米歩合60%以下、または特別な製造方法で造られた純米酒。純米酒のしっかりとした旨味と、すっきりとした飲みやすさを兼ね備えています。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>通常の純米酒よりもクリアな飲み口の中に広がる、お米本来のふくよかな旨みに注目してみてください。",
-  "特別純米": "精米歩合60%以下、または特別な製造方法で造られた純米酒。純米酒のしっかりとした旨味と、すっきりとした飲みやすさを兼ね備えています。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>通常の純米酒よりもクリアな飲み口の中に広がる、お米本来のふくよかな旨みに注目してみてください。",
-  "純米酒": "白米、米麹、水のみを原料として造られたお酒。お米本来のふくよかな旨味やコクをダイレクトに感じられ、お燗にしても美味しくいただけます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米ならではの甘みや旨み、そしてしっかりとしたボディ感を舌全体で感じてみてください。",
-  "純米": "白米、米麹、水のみを原料として造られたお酒。お米本来のふくよかな旨味やコクをダイレクトに感じられ、お燗にしても美味しくいただけます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米ならではの甘みや旨み、そしてしっかりとしたボディ感を舌全体で感じてみてください。",
-  "特別本醸造酒": "精米歩合60%以下の白米に、規定量内の醸造アルコールを加えて造られたお酒。通常の本醸造よりも雑味が少なく、スッキリとした辛口とキレの良さが際立ちます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>料理の味を引き立てる控えめな香りと、喉越しのシャープな爽快感を楽しんでみてください。",
-  "特別本醸造": "精米歩合60%以下の白米に、規定量内の醸造アルコールを加えて造られたお酒。通常の本醸造よりも雑味が少なく、スッキリとした辛口とキレの良さが際立ちます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>料理の味を引き立てる控えめな香りと、喉越しのシャープな爽快感を楽しんでみてください。",
-  "本醸造酒": "精米歩合70%以下の白米、米麹、水、そして規定量内の「醸造アルコール」を原料としたお酒。すっきりとした辛口で、香りは控えめなことが多いです。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>香りが穏やかな分、料理の味を邪魔しません。食事と一緒に口に入れた時の、スッと洗い流してくれるような爽快感を意識してみてください。",
-  "本醸造": "精米歩合70%以下の白米、米麹、水、そして規定量内の「醸造アルコール」を原料としたお酒。すっきりとした辛口で、香りは控えめなことが多いです。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>香りが穏やかな分、料理の味を邪魔しません。食事と一緒に口に入れた時の、スッと洗い流してくれるような爽快感を意識してみてください。",
-  
-  // --- 製法など ---
+  "純米大吟醸酒": descJunmaiDaiginjo,
+  "純米大吟醸": descJunmaiDaiginjo,
+  "大吟醸酒": descDaiginjo,
+  "大吟醸": descDaiginjo,
+  "純米吟醸酒": descJunmaiGinjo,
+  "純米吟醸": descJunmaiGinjo,
+  "純吟": descJunmaiGinjo,
+  "吟醸酒": descGinjo,
+  "吟醸": descGinjo,
+  "特別純米酒": descTokubetsuJunmai,
+  "特別純米": descTokubetsuJunmai,
+  "純米酒": descJunmai,
+  "純米": descJunmai,
+  "特別本醸造酒": descTokubetsuHonjozo,
+  "特別本醸造": descTokubetsuHonjozo,
+  "本醸造酒": descHonjozo,
+  "本醸造": descHonjozo,
   "山廃": "「山卸廃止酛（やまおろしはいしもと）」の略。空気中の乳酸菌を取り込んで発酵させる伝統的な製法で、ヨーグルトのような酸味と、奥深くパンチのある旨味が生まれます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>乳酸菌由来のしっかりとした酸味と、複雑で力強いコクのある風味を感じてみてください。",
   "無濾過生原酒": "搾った後に「濾過」「火入れ」「加水」を一切行っていないお酒。お酒本来のフレッシュな炭酸ガス、豊かな香り、どっしりとしたコクをそのまま味わえます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>搾りたてならではのピリッとした微炭酸や、濃密でジューシーな旨味を探してみてください。",
-  "無濾過生": "搾った後に「濾過（色の調整や雑味取り）」と「火入れ（加熱殺菌）」を一切行っていないお酒。フレッシュで力強い本来の風味が楽しめます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>加熱処理されていないため、お酒本来のフレッシュな微炭酸（ピリッとした刺激）や、ジューシーな旨味を探してみてください。",
+  "無濾過生": descMurokaNama,
   "生酒": "搾った後に「火入れ（加熱殺菌）」を一切行っていないお酒。フレッシュでみずみずしい香りや、フルーティーな味わいが楽しめます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>火入れをしていないからこそ残る、爽やかでみずみずしい口当たりに注目してみてください。",
   "原酒": "搾った後にアルコール度数を調整するための水（割り水）を加えていないお酒。度数が高く、濃醇でしっかりとした味わいが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>アルコール度数が高めな分、ガツンとくる力強さがあります。一口ずつゆっくり舐めるように味わうと、濃醇な旨味がよくわかります。",
   "非公開": "特定名称や詳細なスペック（日本酒度や酸度など）をあえて公開していない状態。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡蔵元の想い】</span><br>「スペックという先入観を持たずに、味わいそのものを純粋に感じてほしい」という強いこだわりによるものです。数字や肩書きにとらわれず、一口の直感を楽しんでみてください。",
-  
-  // --- スペック・専門用語 ---
   "精米歩合": "玄米を削って残った白米の割合。数値が低い（たくさん削っている）ほど雑味が少なく、クリアで華やかな味わいになりやすいです。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>精米歩合の数字が低いほど、スッキリとして華やかな傾向になります。数字と実際の味わいの関係を意識してみてください。",
   "日本酒度": "お酒の比重（水に対する重さ）を表す数値。＋（プラス）が大きいほど辛口、－（マイナス）が大きいほど甘口と感じやすい目安になります。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>数値上の甘辛と、実際に自分が感じる甘辛（酸度なども影響します）のズレを楽しんでみてください。",
   "吟醸香": "吟醸造りによって生まれる、バナナやリンゴ、メロンなどの果実を思わせる華やかな香りのこと。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>どんな果実の香りに近いか、自分なりに想像しながら香りをかいでみてください。",
@@ -1589,14 +1609,10 @@ const glossaryData = {
   "掛米": "もろみ（発酵中の液体）を仕込む際に、直接加えられるお米のこと。",
   "酒造好適米": "日本酒を造るために特別に栽培されたお米（酒米）のこと。食用米に比べて粒が大きく、良質なお酒を造るのに適しています。",
   "酒米": "日本酒を造るために特別に栽培されたお米（酒造好適米）のこと。食用米に比べて粒が大きく、中心にある「心白（しんぱく）」が大きいため、良質なお酒を造るのに適しています。",
-  
-  // --- 酒米 ---
   "山田錦": "「酒米の王様」とも呼ばれる代表的な酒米（酒造好適米）。香りが高く、繊細でバランスの良いきれいな味わいのお酒になりやすいのが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>特有の華やかな香りと、きめ細やかで上品な旨みの広がりを感じてみてください。",
   "五百万石": "新潟県を中心に栽培される代表的な酒米。すっきりとキレのある、淡麗な味わいのお酒になりやすいのが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>飲み込んだ後の、スッと消えていくようなキレの良さ（淡麗さ）に注目してみてください。",
   "ひだほまれ": "岐阜県特産の酒米。粒が大きく、ふくよかな甘みと豊かな旨みを持つ、味わい深いお酒になりやすいのが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米のふくよかな甘みと、しっかりとした旨みのコクを舌全体で感じてみてください。",
   "ぎんおとめ": "岩手県特産の酒米（酒造好適米）。寒さに強く、やわらかく綺麗な甘みと旨みを持つ、澄んだ味わいのお酒になりやすいのが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>雑味のない、お米のピュアでやさしい甘みを探してみてください。",
-
-  // --- 蔵元 ---
   "今西清兵衛商店(奈良県)": "日本酒発祥の地とされる奈良で「春鹿」を醸す蔵元。神聖なお酒というルーツを持ち、キレの良い超辛口を中心に国内外で高く評価されています。",
   "せんきん(栃木県)": "元ソムリエの兄弟が率いる蔵。古き良き伝統技術（江戸返りなど）とモダンな感性を融合させた「仙禽」を醸し、エレガントな酸味の表現に定評があります。",
   "亀の井酒造(山形県)": "全量吟醸酒を造る山形の銘醸蔵。「くどき上手」や「ばくれん」など、香り高く華やかでありながらキレのある酒質が人気。社長が無類の浮世絵コレクターです。",
@@ -1619,7 +1635,6 @@ const glossaryData = {
   "土屋酒造店(長野県)": "佐久市にある酒蔵。千曲川の伏流水と地元産の米を用い、「亀の海」などの銘柄を醸しています。信州の自然が育む、きれいな味わいが特徴です。"
 };
 
-// テキスト内の専門用語を検知してリンク化する関数
 function linkify(text) {
   if (!text) return "";
   let res = text;

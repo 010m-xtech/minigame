@@ -99,7 +99,7 @@
     display: flex; align-items: center; gap: 10px;
   }
   .seal {
-    width: 54px; height: 54px; flex: 0 0 auto;
+    width: 64px; height: 64px; flex: 0 0 auto;
   }
 
   .brand h1 {
@@ -405,6 +405,7 @@
   input[type=range]:focus-visible::-webkit-slider-thumb {
     outline: 2px solid var(--ai); outline-offset: 2px;
   }
+
   .free-text {
     margin-top: 6px;
   }
@@ -451,6 +452,7 @@
     background: transparent; color: var(--ai-light);
     border: 1px solid var(--line);
   }
+
   .compare-block {
     margin-bottom: 26px;
     padding-bottom: 22px;
@@ -809,6 +811,7 @@
     color: #fff;
     border-bottom-color: rgba(255,255,255,0.6);
   }
+
   .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(34, 56, 92, 0.5);
@@ -1013,7 +1016,7 @@
 <div id="opOverlay" class="op-overlay" onclick="skipOp()">
   <video id="opVideo" class="op-video" src="title2.mp4" autoplay muted playsinline></video>
   <div id="opTitle" class="op-title">
-    <img src="namihira2.png" alt="タイトルロゴ" style="max-width: 80%; width: 280px; height: auto; filter: invert(1); mix-blend-mode: screen;">
+    <img src="namihira2.png" alt="タイトルロゴ" onerror="this.onerror=null; this.src='https://placehold.co/280x100/000/fff?text=NAMIHIRA';" style="max-width: 80%; width: 280px; height: auto; filter: invert(1); mix-blend-mode: screen;">
   </div>
   <div class="op-skip-hint">タップでスキップ</div>
 </div>
@@ -1027,12 +1030,12 @@
             <span>な</span><span>み</span><span>ひ</span><span>ら</span>
           </h1>
           <p style="display: flex; justify-content: space-between; letter-spacing: 0; font-size: 11px;">
-            <span>N</span><span>A</span><span>M</span><span>I</span><span>H</span><span>I</span><span>R</span><span>A</span>
-          </p>
-        </div>
-        <img src="namihira_logo2.png" alt="なみひらロゴ" class="seal" style="object-fit: contain;">
+          <span>N</span><span>A</span><span>M</span><span>I</span><span>H</span><span>I</span><span>R</span><span>A</span>
+        </p>
       </div>
-      <button class="history-btn" onclick="showHistory()">
+      <img src="namihira_logo2.png" alt="なみひらロゴ" class="seal" onerror="this.onerror=null; this.src='https://placehold.co/64x64/eee/999?text=Logo';" style="object-fit: contain;">
+    </div>
+    <button class="history-btn" onclick="showHistory()">
         <svg viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
         履歴
       </button>
@@ -1318,7 +1321,7 @@ function sendLogToSheet(actionStr, genderStr, ageStr, sakeIdStr = "", amakaraVal
     // Google側のセキュリティ（CORS）ではじかれないようテキスト形式で送ります
     headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify(payload)
-  });
+  }).catch(e => console.warn("Log sending failed: ", e));
 }
 /* ==================================== */
 
@@ -1527,6 +1530,7 @@ const axisMeta = {
   kaori:   { label: "香り", left: "穏やか", right: "華やか" },
   keiju:   { label: "ボディ", left: "軽い", right: "重い・どっしり" }
 };
+
 /* ============ 用語辞典データと処理 ============ */
 const glossaryData = {
   // --- 特定名称 ---
@@ -1553,7 +1557,7 @@ const glossaryData = {
   "無濾過生原酒": "搾った後に「濾過」「火入れ」「加水」を一切行っていないお酒。お酒本来のフレッシュな炭酸ガス、豊かな香り、どっしりとしたコクをそのまま味わえます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>搾りたてならではのピリッとした微炭酸や、濃密でジューシーな旨味を探してみてください。",
   "無濾過生": "搾った後に「濾過（色の調整や雑味取り）」と「火入れ（加熱殺菌）」を一切行っていないお酒。フレッシュで力強い本来の風味が楽しめます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>加熱処理されていないため、お酒本来のフレッシュな微炭酸（ピリッとした刺激）や、ジューシーな旨味を探してみてください。",
   "生酒": "搾った後に「火入れ（加熱殺菌）」を一切行っていないお酒。フレッシュでみずみずしい香りや、フルーティーな味わいが楽しめます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>火入れをしていないからこそ残る、爽やかでみずみずしい口当たりに注目してみてください。",
-  "原酒": "搾った後にアルコール度数を調整するための水（割り水）を加えていないお酒。度数が高く、濃醇でしっかりとした味わいが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>アルコール度数が高めな分、ガツンとくる力強さがあります。一口ずつゆっくり舐めるように味わうと、濃醇な旨味がよくわかります。",
+  "原酒": "搾った後にアルコール度数調整のための水（割り水）を加えていないお酒。度数が高く、濃醇でしっかりとした味わいが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>アルコール度数が高めな分、ガツンとくる力強さがあります。一口ずつゆっくり舐めるように味わうと、濃醇な旨味がよくわかります。",
   "非公開": "特定名称や詳細なスペック（日本酒度や酸度など）をあえて公開していない状態。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡蔵元の想い】</span><br>「スペックという先入観を持たずに、味わいそのものを純粋に感じてほしい」という強いこだわりによるものです。数字や肩書きにとらわれず、一口の直感を楽しんでみてください。",
   
   // --- スペック・専門用語 ---
@@ -1565,12 +1569,6 @@ const glossaryData = {
   "酒造好適米": "日本酒を造るために特別に栽培されたお米（酒米）のこと。食用米に比べて粒が大きく、良質なお酒を造るのに適しています。",
   "酒米": "日本酒を造るために特別に栽培されたお米（酒造好適米）のこと。食用米に比べて粒が大きく、中心にある「心白（しんぱく）」が大きいため、良質なお酒を造るのに適しています。",
   
-  // --- 酒米 ---
-  "山田錦": "「酒米の王様」とも呼ばれる代表的な酒米（酒造好適米）。香りが高く、繊細でバランスの良いきれいな味わいのお酒になりやすいのが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>特有の華やかな香りと、きめ細やかで上品な旨みの広がりを感じてみてください。",
-  "五百万石": "新潟県を中心に栽培される代表的な酒米。すっきりとキレのある、淡麗な味わいのお酒になりやすいのが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>飲み込んだ後の、スッと消えていくようなキレの良さ（淡麗さ）に注目してみてください。",
-  "ひだほまれ": "岐阜県特産の酒米。粒が大きく、ふくよかな甘みと豊かな旨みを持つ、味わい深いお酒になりやすいのが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米のふくよかな甘みと、しっかりとした旨みのコクを舌全体で感じてみてください。",
-  "ぎんおとめ": "岩手県特産の酒米（酒造好適米）。寒さに強く、やわらかく綺麗な甘みと旨みを持つ、澄んだ味わいのお酒になりやすいのが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>雑味のない、お米のピュアでやさしい甘みを探してみてください。",
-
   // --- 蔵元 ---
   "今西清兵衛商店(奈良県)": "日本酒発祥の地とされる奈良で「春鹿」を醸す蔵元。神聖なお酒というルーツを持ち、キレの良い超辛口を中心に国内外で高く評価されています。",
   "せんきん(栃木県)": "元ソムリエの兄弟が率いる蔵。古き良き伝統技術（江戸返りなど）とモダンな感性を融合させた「仙禽」を醸し、エレガントな酸味の表現に定評があります。",
@@ -1593,6 +1591,7 @@ const glossaryData = {
   "清水清三郎商店(三重県)": "鈴鹿市にある唯一の酒蔵。「作（ざく）」や「鈴鹿川」を醸造。伊勢杜氏の伝統を引き継ぎ、国内外のコンペティションで高い評価を得ています。",
   "土屋酒造店(長野県)": "佐久市にある酒蔵。千曲川の伏流水と地元産の米を用い、「亀の海」などの銘柄を醸しています。信州の自然が育む、きれいな味わいが特徴です。"
 };
+
 // テキスト内の専門用語を検知してリンク化する関数
 function linkify(text) {
   if (!text) return "";
@@ -1631,6 +1630,7 @@ let drankHistory = JSON.parse(localStorage.getItem('kikizake_drankHistory')) || 
 let pastRecords = JSON.parse(localStorage.getItem('kikizake_records')) || [];
 let sessionRecords = []; 
 let screenBeforeHistory = 1;
+
 /* ============ 初期描画:銘柄リスト ============ */
 function renderSakeList(){
   const wrap = document.getElementById('sakeList');
@@ -1722,6 +1722,7 @@ function goScreen(n){
   });
   window.scrollTo({top:0, behavior:'smooth'});
 }
+
 /* ============ 比較結果生成 ============ */
 function showComparison(){
   userAnswers = {
@@ -1854,6 +1855,7 @@ function showComparison(){
       </div>
     `;
   });
+
   // --- 集約コメントの生成 ---
   let traits = [];
   let sameTraits = [];
@@ -1946,6 +1948,7 @@ function showComparison(){
   body.innerHTML = html;
   goScreen(3);
 }
+
 /* ============ おすすめ料理 ============ */
 function showPairing(){
   const s = sakeList.find(x=>x.id===currentSakeId);
@@ -2013,6 +2016,7 @@ function showPairing(){
 
   goScreen(4);
 }
+
 /* ============ 履歴の表示 ============ */
 function showHistory() {
   const current = document.body.getAttribute('data-current-screen');
@@ -2150,6 +2154,7 @@ function escapeHtml(str){
   div.textContent = str;
   return div.innerHTML;
 }
+
 /* ============ 用語ツールチップ (初回のみ) ============ */
 let tooltipEl = null;
 let hideTimer = null;
@@ -2237,6 +2242,7 @@ function updateSliderGuide(axis) {
   const offset = 13 - (26 * percent);
   bubble.style.left = `calc(${val}% + ${offset}px)`;
 }
+
 /* ============ 初期化 ============ */
 renderSakeList();
 goScreen(1);
@@ -2289,7 +2295,11 @@ if (opVideo) {
   });
 
   opVideo.addEventListener('ended', skipOp);
+  // 動画が見つからない場合(404)などのエラー時もスキップさせる
   opVideo.addEventListener('error', skipOp);
+} else {
+  // video要素が存在しない場合の安全策
+  skipOp();
 }
 </script>
 </body>

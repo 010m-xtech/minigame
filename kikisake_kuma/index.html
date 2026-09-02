@@ -104,21 +104,27 @@
 
   .seal {
     width: clamp(28px, 8vw, 34px); height: clamp(28px, 8vw, 34px); flex: 0 0 auto;
+    object-fit: contain;
+  }
+  
+  .brand-text {
+    display: flex; flex-direction: column; align-items: stretch;
   }
 
   .brand h1 {
     font-family: var(--font-mincho);
     font-weight: 700;
     font-size: clamp(18px, 5.5vw, 22px);
-    letter-spacing: 0.08em;
     margin: 0;
     color: var(--ai);
-    white-space: nowrap; /* 改行を防ぐ */
+    display: flex;
+    justify-content: space-between;
   }
 
   .brand p {
-    margin: 0; font-size: clamp(10px, 3vw, 12px); color: var(--sumi); letter-spacing: 0.05em;
+    margin: 0; font-size: clamp(10px, 3vw, 12px); color: var(--sumi); letter-spacing: 0.15em;
     white-space: nowrap; /* 改行を防ぐ */
+    margin-right: -0.15em; /* 最後のletter-spacing分を相殺して幅をきっちり揃える */
   }
 
   /* 足跡コンテナのスタイル */
@@ -1089,13 +1095,10 @@
   <header>
     <div class="brand-row">
       <div class="brand">
-        <svg class="seal" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="20" cy="20" r="18" stroke="#BD4630" stroke-width="2.5"/>
-          <text x="20" y="26" text-anchor="middle" font-size="15" fill="#BD4630" font-family="'Shippori Mincho', serif" font-weight="700">酒</text>
-        </svg>
-        <div>
-          <h1>利き酒帖</h1>
-          <p>KIKIZAKE NOTE</p>
+        <img src="ashi.png" alt="ロゴ" class="seal" style="transform: rotate(-90deg);">
+        <div class="brand-text">
+          <h1><span>吾</span><span>熊</span></h1>
+          <p>WAGAKUMA</p>
         </div>
       </div>
       

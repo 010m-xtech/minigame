@@ -43,6 +43,7 @@
     justify-content: center;
     padding: 0;
   }
+
   body.op-active {
     background-color: #000;
     overflow: hidden;
@@ -73,7 +74,7 @@
     background-color: var(--kinari); /* Fallback */
     background-image: 
       linear-gradient(rgba(242, 238, 227, 0.8), rgba(242, 238, 227, 0.8)), 
-      url('header.webp');
+      url('wagakuma_header.webp');
     background-size: cover;
     background-position: center;
     border-bottom: 1px solid var(--line);
@@ -93,26 +94,66 @@
   .brand-row {
     display: flex; justify-content: space-between; align-items: center;
     margin-bottom: 14px;
+    flex-wrap: nowrap; /* 縦並びを確実に防ぐ */
   }
 
   .brand {
-    display: flex; align-items: center; gap: 10px;
+    display: flex; align-items: center; gap: clamp(6px, 2vw, 10px);
+    flex: 0 0 auto;
   }
+
   .seal {
-    width: 64px; height: 64px; flex: 0 0 auto;
+    width: clamp(28px, 8vw, 34px); height: clamp(28px, 8vw, 34px); flex: 0 0 auto;
+    object-fit: contain;
+  }
+  
+  .brand-text {
+    display: flex; flex-direction: column; align-items: stretch;
   }
 
   .brand h1 {
     font-family: var(--font-mincho);
     font-weight: 700;
-    font-size: 22px;
-    letter-spacing: 0.08em;
+    font-size: clamp(18px, 5.5vw, 22px);
     margin: 0;
     color: var(--ai);
+    display: flex;
+    justify-content: space-between;
   }
 
   .brand p {
-    margin: 0; font-size: 12px; color: var(--sumi); letter-spacing: 0.05em;
+    margin: 0; font-size: clamp(10px, 3vw, 12px); color: var(--sumi); letter-spacing: 0.15em;
+    white-space: nowrap;
+    margin-right: -0.15em;
+  }
+
+  .footprints {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(4px, 2vw, 12px);
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0 clamp(4px, 2vw, 12px);
+  }
+
+  .footprint {
+    width: clamp(14px, 4vw, 24px);
+    height: auto;
+    opacity: 0.45;
+  }
+
+  .footprint:nth-child(1) {
+    transform: translateY(-6px) scaleY(-1) rotate(-90deg);
+  }
+  .footprint:nth-child(2) {
+    transform: translateY(6px) rotate(-90deg);
+  }
+  .footprint:nth-child(3) {
+    transform: translateY(-6px) scaleY(-1) rotate(-90deg);
+  }
+  .footprint:nth-child(4) {
+    transform: translateY(6px) rotate(-90deg);
   }
 
   .stepper {
@@ -143,6 +184,7 @@
     padding: 20px 20px 40px;
     position: relative;
   }
+
   .screen {
     display: none;
     animation: fadeUp 0.45s ease both;
@@ -196,6 +238,7 @@
   .sake-card:focus-visible { outline: 2px solid var(--shu); outline-offset: 2px; }
 
   .sake-card .info { flex: 1; min-width: 0; }
+
   .sake-card .name {
     font-family: var(--font-mincho);
     color: var(--sumi);
@@ -328,6 +371,7 @@
     font-size: 14px; font-weight: 700; color: var(--ai);
     margin-bottom: 10px;
   }
+
   .ruler {
     position: relative;
     height: 34px;
@@ -471,7 +515,7 @@
 
   .track-wrap {
     position: relative;
-    padding: 32px 13px 46px; /* 左右に13px(マーカー半径分)の余白を設ける */
+    padding: 32px 13px 46px;
   }
   .track {
     position: relative;
@@ -494,7 +538,7 @@
     display: flex;
     justify-content: center;
     width: 2px; height: 8px;
-    background: rgba(214, 204, 180, 0.6); /* --line色を少し薄く */
+    background: rgba(214, 204, 180, 0.6);
     border-radius: 1px;
   }
 
@@ -662,6 +706,7 @@
     color: var(--shu);
     font-weight: 700;
   }
+
   .fav-checkbox-wrap {
     margin-top: 24px;
     display: flex;
@@ -782,17 +827,14 @@
 
   .center-text { text-align: center; }
 
-  /* STEP 4専用の背景と余白調整 */
   .screen[data-screen="4"] {
-    /* ヘッダーの裏側（最上部）まで背景を広げるため、上にマイナスマージンを取る */
     margin: -125px -20px -40px;
-    /* 引き上げた分、中身がヘッダーと被らないように上に余白を追加する */
     padding: 135px 20px 60px;
     min-height: 100vh;
-    background-color: var(--kinari); /* Fallback */
+    background-color: var(--kinari);
     background-image: 
       linear-gradient(rgba(242, 238, 227, 0.52), rgba(242, 238, 227, 0.52)), 
-      url('back.webp');
+      url('wagakuma_back.webp');
     background-size: cover;
     background-position: center top;
   }
@@ -890,14 +932,42 @@
   .op-title {
     position: relative;
     z-index: 2;
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 80%;
+    max-width: 300px;
     opacity: 0;
     transform: translateY(10px);
     transition: opacity 1.5s ease, transform 1.5s ease;
   }
+  .op-logo {
+    width: 100%;
+    height: auto;
+    filter: brightness(0) invert(1) drop-shadow(0 2px 10px rgba(0,0,0,0.8)); 
+  }
   .op-title.show {
     opacity: 1;
     transform: translateY(0);
+  }
+  .op-seal {
+    width: 52px; height: 52px;
+    margin-bottom: 14px;
+  }
+  .op-title h1 {
+    font-family: var(--font-mincho);
+    font-size: 36px;
+    color: #fff;
+    letter-spacing: 0.1em;
+    margin: 0 0 6px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+  }
+  .op-title p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 0.15em;
+    margin: 0;
+    text-shadow: 0 1px 5px rgba(0,0,0,0.8);
   }
   .op-skip-hint {
     position: absolute;
@@ -930,12 +1000,17 @@
   }
 
   .history-btn {
-    background: #fff; border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(214, 204, 180, 0.8);
     color: var(--ai); font-size: 11.5px; font-weight: 700;
     padding: 6px 12px; border-radius: 20px;
     display: flex; align-items: center; gap: 4px;
     cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     transition: all 0.2s ease;
+    flex: 0 0 auto; /* 縮ませない */
+    white-space: nowrap; /* 文字の改行を防ぐ */
   }
   .history-btn:active { transform: scale(0.95); }
   .history-btn svg {
@@ -1001,7 +1076,7 @@
 <div id="opOverlay" class="op-overlay" onclick="skipOp()">
   <video id="opVideo" class="op-video" src="title2.mp4" autoplay muted playsinline></video>
   <div id="opTitle" class="op-title">
-    <img src="namihira2.png" alt="タイトルロゴ" onerror="this.onerror=null; this.src='https://placehold.co/280x100/000/fff?text=NAMIHIRA';" style="max-width: 80%; width: 280px; height: auto; filter: invert(1); mix-blend-mode: screen;">
+    <img src="wagakuma.png" alt="利き酒帖" class="op-logo">
   </div>
   <div class="op-skip-hint">タップでスキップ</div>
 </div>
@@ -1010,17 +1085,22 @@
   <header>
     <div class="brand-row">
       <div class="brand">
-        <div style="width: 104px; display: flex; flex-direction: column; gap: 1px;">
-          <h1 style="display: flex; justify-content: space-between; letter-spacing: 0;">
-            <span>な</span><span>み</span><span>ひ</span><span>ら</span>
-          </h1>
-          <p style="display: flex; justify-content: space-between; letter-spacing: 0; font-size: 11px;">
-          <span>N</span><span>A</span><span>M</span><span>I</span><span>H</span><span>I</span><span>R</span><span>A</span>
-        </p>
+        <img src="ashi.png" alt="ロゴ" class="seal">
+        <div class="brand-text">
+          <h1><span>吾</span><span>熊</span></h1>
+          <p>WAGAKUMA</p>
+        </div>
       </div>
-      <img src="namihira_logo2.png" alt="なみひらロゴ" class="seal" onerror="this.onerror=null; this.src='https://placehold.co/64x64/eee/999?text=Logo';" style="object-fit: contain;">
-    </div>
-    <button class="history-btn" onclick="showHistory()">
+      
+      <!-- 追加: 足跡の画像群 -->
+      <div class="footprints">
+        <img src="ashi.png" alt="足跡" class="footprint">
+        <img src="ashi.png" alt="足跡" class="footprint">
+        <img src="ashi.png" alt="足跡" class="footprint">
+        <img src="ashi.png" alt="足跡" class="footprint">
+      </div>
+
+      <button class="history-btn" onclick="showHistory()">
         <svg viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
         履歴
       </button>
@@ -1277,17 +1357,14 @@
 </div>
 
 <script>
-/* ============ ログ送信設定 ============ */
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbzhljuQpb394MVcn5GFhzUwIqyFYpaM-WKl8zUO7AK18Do_nRICPxHkR71dk0TU7cbaGw/exec';
 
-// 端末IDの確認・生成（一度決まったらブラウザに記憶させます）
 let deviceId = localStorage.getItem('kikizake_device_id');
 if (!deviceId) {
   deviceId = 'dev_' + Math.random().toString(36).substr(2, 9);
   localStorage.setItem('kikizake_device_id', deviceId);
 }
 
-// スプレッドシートへ送信する関数（利き酒データも送れるように拡張）
 function sendLogToSheet(actionStr, genderStr, ageStr, sakeIdStr = "", amakaraVal = "", kaoriVal = "", keijuVal = "", commentStr = "") {
   const payload = {
     deviceId: deviceId,
@@ -1303,14 +1380,11 @@ function sendLogToSheet(actionStr, genderStr, ageStr, sakeIdStr = "", amakaraVal
 
   fetch(GAS_URL, {
     method: 'POST',
-    // Google側のセキュリティ（CORS）ではじかれないようテキスト形式で送ります
     headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify(payload)
-  }).catch(e => console.warn("Log sending failed: ", e));
+  }).catch(err => console.log('送信エラー:', err));
 }
-/* ==================================== */
 
-/* ============ データ(マスターデータベース想定) ============ */
 const sakeList = [
   {
     id: "harushika",
@@ -1515,6 +1589,7 @@ const axisMeta = {
   kaori:   { label: "香り", left: "穏やか", right: "華やか" },
   keiju:   { label: "ボディ", left: "軽い", right: "重い・どっしり" }
 };
+
 /* ============ 用語辞典データと処理 ============ */
 const descJunmaiDaiginjo = "精米歩合50%以下の白米、米麹、水のみを原料として「吟醸造り」で丁寧に造られた最高峰のお酒。雑味が極めて少なく、華やかでフルーティーな香りが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米を半分以上削ることで生まれる、極めてクリアで雑味のない透明感と、エレガントに広がる香りをじっくりと堪能してみてください。";
 const descDaiginjo = "精米歩合50%以下の白米に少量の醸造アルコールを加えて造られたお酒。純米大吟醸よりもさらに香りが引き立ち、スッキリとしたキレの良さが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>華やかな香りとともに、アルコール添加によるシャープな喉越しとキレを意識してみてください。";
@@ -1533,7 +1608,7 @@ const glossaryData = {
   "大吟醸": descDaiginjo,
   "純米吟醸酒": descJunmaiGinjo,
   "純米吟醸": descJunmaiGinjo,
-  "純吟": "「純米吟醸」の略称。精米歩合60%以下の白米、米麹、水のみを原料として造られ、フルーティーな香りとすっきりした味わいが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米の雑味がなく、後味がすっと消えていく『キレのきれいさ』と、口に含んだ瞬間の華やかな香りに注目してみてください。",
+  "純吟": descJunmaiGinjo,
   "吟醸酒": descGinjo,
   "吟醸": descGinjo,
   "特別純米酒": descTokubetsuJunmai,
@@ -1550,7 +1625,7 @@ const glossaryData = {
   "無濾過生原酒": "搾った後に「濾過」「火入れ」「加水」を一切行っていないお酒。お酒本来のフレッシュな炭酸ガス、豊かな香り、どっしりとしたコクをそのまま味わえます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>搾りたてならではのピリッとした微炭酸や、濃密でジューシーな旨味を探してみてください。",
   "無濾過生": "搾った後に「濾過（色の調整や雑味取り）」と「火入れ（加熱殺菌）」を一切行っていないお酒。フレッシュで力強い本来の風味が楽しめます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>加熱処理されていないため、お酒本来のフレッシュな微炭酸（ピリッとした刺激）や、ジューシーな旨味を探してみてください。",
   "生酒": "搾った後に「火入れ（加熱殺菌）」を一切行っていないお酒。フレッシュでみずみずしい香りや、フルーティーな味わいが楽しめます。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>火入れをしていないからこそ残る、爽やかでみずみずしい口当たりに注目してみてください。",
-  "原酒": "搾った後にアルコール度数調整のための水（割り水）を加えていないお酒。度数が高く、濃醇でしっかりとした味わいが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>アルコール度数が高めな分、ガツンとくる力強さがあります。一口ずつゆっくり舐めるように味わうと、濃醇な旨味がよくわかります。",
+  "原酒": "搾った後にアルコール度数を調整するための水（割り水）を加えていないお酒。度数が高く、濃醇でしっかりとした味わいが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>アルコール度数が高めな分、ガツンとくる力強さがあります。一口ずつゆっくり舐めるように味わうと、濃醇な旨味がよくわかります。",
   "非公開": "特定名称や詳細なスペック（日本酒度や酸度など）をあえて公開していない状態。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡蔵元の想い】</span><br>「スペックという先入観を持たずに、味わいそのものを純粋に感じてほしい」という強いこだわりによるものです。数字や肩書きにとらわれず、一口の直感を楽しんでみてください。",
   
   // --- スペック・専門用語 ---
@@ -1562,6 +1637,12 @@ const glossaryData = {
   "酒造好適米": "日本酒を造るために特別に栽培されたお米（酒米）のこと。食用米に比べて粒が大きく、良質なお酒を造るのに適しています。",
   "酒米": "日本酒を造るために特別に栽培されたお米（酒造好適米）のこと。食用米に比べて粒が大きく、中心にある「心白（しんぱく）」が大きいため、良質なお酒を造るのに適しています。",
   
+  // --- 酒米 ---
+  "山田錦": "「酒米の王様」とも呼ばれる代表的な酒米（酒造好適米）。香りが高く、繊細でバランスの良いきれいな味わいのお酒になりやすいのが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>特有の華やかな香りと、きめ細やかで上品な旨みの広がりを感じてみてください。",
+  "五百万石": "新潟県を中心に栽培される代表的な酒米。すっきりとキレのある、淡麗な味わいのお酒になりやすいのが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>飲み込んだ後の、スッと消えていくようなキレの良さ（淡麗さ）に注目してみてください。",
+  "ひだほまれ": "岐阜県特産の酒米。粒が大きく、ふくよかな甘みと豊かな旨みを持つ、味わい深いお酒になりやすいのが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>お米のふくよかな甘みと、しっかりとした旨みのコクを舌全体で感じてみてください。",
+  "ぎんおとめ": "岩手県特産の酒米（酒造好適米）。寒さに強く、やわらかく綺麗な甘みと旨みを持つ、澄んだ味わいのお酒になりやすいのが特徴です。<br><br><span style='color: var(--shu); font-weight: 700;'>【💡味わうときの着眼点】</span><br>雑味のない、お米のピュアでやさしい甘みを探してみてください。",
+
   // --- 蔵元 ---
   "今西清兵衛商店(奈良県)": "日本酒発祥の地とされる奈良で「春鹿」を醸す蔵元。神聖なお酒というルーツを持ち、キレの良い超辛口を中心に国内外で高く評価されています。",
   "せんきん(栃木県)": "元ソムリエの兄弟が率いる蔵。古き良き伝統技術（江戸返りなど）とモダンな感性を融合させた「仙禽」を醸し、エレガントな酸味の表現に定評があります。",
@@ -1624,16 +1705,13 @@ let pastRecords = JSON.parse(localStorage.getItem('kikizake_records')) || [];
 let sessionRecords = []; 
 let screenBeforeHistory = 1;
 
-/* ============ 初期描画:銘柄リスト ============ */
 function renderSakeList(){
   const wrap = document.getElementById('sakeList');
   wrap.innerHTML = "";
-  let count = 0;
 
   sakeList.forEach(s=>{
     const isFav = favorites.includes(s.id);
 
-    count++;
     const btn = document.createElement('button');
     btn.className = "sake-card";
     
@@ -1670,11 +1748,8 @@ function renderSakeList(){
     btn.onclick = ()=> selectSake(s.id);
     wrap.appendChild(btn);
   });
-
-  if (count === 0) {
-    wrap.innerHTML = '<div class="no-result">条件に合うお酒が見つかりませんでした。<br>別の条件をお試しください。</div>';
-  }
 }
+
 function selectSake(id){
   currentSakeId = id;
   const s = sakeList.find(x=>x.id===id);
@@ -2036,7 +2111,6 @@ function renderHistory() {
   const sorted = [...pastRecords].reverse();
   
   sorted.forEach(record => {
-    // リストから探し、なければ記録自体に保存された名前を使う
     const s = sakeList.find(x => x.id === record.sakeId);
     
     const brandKana = s ? s.brandKana : (record.brandKana || "");
@@ -2128,7 +2202,6 @@ function submitSurvey() {
   document.getElementById('surveyThanks').style.display = 'block';
 
   setTimeout(() => {
-    // フォームリセット
     document.querySelectorAll('input[name="sv-age"], input[name="sv-gender"], input[name="sv-kpi"]').forEach(el => el.checked = false);
     document.getElementById('surveyForm').style.display = 'block';
     document.getElementById('surveyThanks').style.display = 'none';
@@ -2177,7 +2250,6 @@ function showTermTooltip() {
   // 5秒後に自動消去
   hideTimer = setTimeout(hideTermTooltip, 5000);
 
-  // 画面タップで消去 (直後に反応しないよう少し遅延して登録)
   setTimeout(() => {
     document.addEventListener('click', hideTermTooltip);
     document.addEventListener('touchstart', hideTermTooltip, {passive: true});
@@ -2230,27 +2302,22 @@ function updateSliderGuide(axis) {
   }
   bubble.textContent = label;
 
-  // ツマミ（サム）の位置に合わせて吹き出しを正確に追従させる計算
   const percent = val / 100;
   const offset = 13 - (26 * percent);
   bubble.style.left = `calc(${val}% + ${offset}px)`;
 }
 
-/* ============ 初期化 ============ */
 renderSakeList();
 goScreen(1);
 
-// OP映像がない、またはスキップされたら少し待ってツールチップを表示
 setTimeout(() => {
   if (!document.body.classList.contains('op-active')) {
     showTermTooltip();
   }
 }, 1500);
 
-// アプリを開いた瞬間に「アクセス」のログを送信
 sendLogToSheet('アクセス', '未入力', '未入力');
 
-/* ============ OP動画制御 ============ */
 const opOverlay = document.getElementById('opOverlay');
 const opVideo = document.getElementById('opVideo');
 const opTitle = document.getElementById('opTitle');
@@ -2288,11 +2355,7 @@ if (opVideo) {
   });
 
   opVideo.addEventListener('ended', skipOp);
-  // 動画が見つからない場合(404)などのエラー時もスキップさせる
   opVideo.addEventListener('error', skipOp);
-} else {
-  // video要素が存在しない場合の安全策
-  skipOp();
 }
 </script>
 </body>

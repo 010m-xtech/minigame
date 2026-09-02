@@ -760,9 +760,9 @@
   }
 
   .pairing-card {
-    background: rgba(255, 255, 255, 0.25);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
     border: 1px solid var(--line);
     border-radius: var(--radius);
     overflow: hidden;
@@ -1991,10 +1991,12 @@ function showPairing(){
     const trendDiv = document.createElement('div');
     trendDiv.id = 'trendWrap';
     trendDiv.innerHTML = `
-      <div class="analysis-card" style="margin-top: 24px; margin-bottom: 0;">
-        <h4>本日これまでの一杯</h4>
-        <p>${trendText}</p>
-        <p class="note" style="margin-top:8px;">※今回のあなたの感じ方に基づく傾向です。ご自身の好みを知るひとつのきっかけとしてお楽しみください。</p>
+      <div class="pairing-card" style="margin-top: 24px; margin-bottom: 0;">
+        <div class="body">
+          <h4 style="margin: 0 0 12px; font-family: var(--font-mincho); font-size: 19px; color: var(--ai);">本日これまでの一杯</h4>
+          <p style="margin: 0; font-size: 16px; line-height: 1.75; color: var(--sumi);">${trendText}</p>
+          <p class="note" style="margin-top:8px;">※今回のあなたの感じ方に基づく傾向です。ご自身の好みを知るひとつのきっかけとしてお楽しみください。</p>
+        </div>
       </div>
     `;
     card.parentNode.insertBefore(trendDiv, card.nextSibling);

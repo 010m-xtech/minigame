@@ -73,7 +73,7 @@
     background-color: var(--kinari); /* Fallback */
     background-image: 
       linear-gradient(rgba(242, 238, 227, 0.8), rgba(242, 238, 227, 0.8)), 
-      url('header.webp');
+      url('namihira_header.webp');
     background-size: cover;
     background-position: center;
     border-bottom: 1px solid var(--line);
@@ -792,7 +792,7 @@
     background-color: var(--kinari); /* Fallback */
     background-image: 
       linear-gradient(rgba(242, 238, 227, 0.52), rgba(242, 238, 227, 0.52)), 
-      url('back.webp');
+      url('namihira_back.webp');
     background-size: cover;
     background-position: center top;
   }
@@ -1592,13 +1592,13 @@ function linkify(text) {
   const terms = Object.keys(glossaryData).sort((a, b) => b.length - a.length);
 
   terms.forEach((term, index) => {
-     const placeholder = `__TERM_${index}__`;
-     res = res.split(term).join(placeholder);
+      const placeholder = `__TERM_${index}__`;
+      res = res.split(term).join(placeholder);
   });
 
   terms.forEach((term, index) => {
-     const placeholder = `__TERM_${index}__`;
-     res = res.split(placeholder).join(`<span class="term-link" onclick="event.stopPropagation(); showGlossary('${term}')">${term}</span>`);
+      const placeholder = `__TERM_${index}__`;
+      res = res.split(placeholder).join(`<span class="term-link" onclick="event.stopPropagation(); showGlossary('${term}')">${term}</span>`);
   });
   return res;
 }

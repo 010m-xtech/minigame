@@ -99,7 +99,7 @@
     display: flex; align-items: center; gap: 10px;
   }
   .seal {
-    width: 46px; height: 46px; flex: 0 0 auto;
+    width: 54px; height: 54px; flex: 0 0 auto;
   }
 
   .brand h1 {
@@ -542,11 +542,6 @@
   .marker.user { margin-top: -32px; }
   .marker.ref { margin-top: 16px; }
 
-  .unified-divider {
-    border-top: 1px dashed var(--line);
-    margin: 24px 0 20px;
-  }
-
   .summary-text {
     font-size: 15.5px; color: var(--sumi); line-height: 1.75;
     margin: 16px 0 0;
@@ -900,10 +895,6 @@
   .op-title.show {
     opacity: 1;
     transform: translateY(0);
-  }
-  .op-seal {
-    width: 52px; height: 52px;
-    margin-bottom: 14px;
   }
   .op-title h1 {
     font-family: var(--font-mincho);
@@ -1327,7 +1318,7 @@ function sendLogToSheet(actionStr, genderStr, ageStr, sakeIdStr = "", amakaraVal
     // Google側のセキュリティ（CORS）ではじかれないようテキスト形式で送ります
     headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify(payload)
-  }).catch(err => console.log('送信エラー:', err));
+  });
 }
 /* ==================================== */
 
@@ -2048,8 +2039,8 @@ function renderHistory() {
   const sorted = [...pastRecords].reverse();
   
   sorted.forEach(record => {
-    // 1. 現在のリスト 2. 過去のリスト の順で探し、なければ記録自体に保存された名前を使う
-    const s = sakeList.find(x => x.id === record.sakeId) || archivedSakeList.find(x => x.id === record.sakeId);
+    // リストから探し、なければ記録自体に保存された名前を使う
+    const s = sakeList.find(x => x.id === record.sakeId);
     
     const brandKana = s ? s.brandKana : (record.brandKana || "");
     const brand = s ? s.brand : (record.brand || "不明な銘柄");

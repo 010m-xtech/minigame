@@ -41,7 +41,6 @@
     min-height: 100vh;
     display: flex;
     justify-content: center;
-    padding: 0;
   }
 
   body.op-active {
@@ -71,7 +70,7 @@
 
   header {
     position: sticky; top: 0; z-index: 20;
-    background-color: var(--kinari); /* Fallback */
+    background-color: var(--kinari);
     background-image: 
       linear-gradient(rgba(242, 238, 227, 0.8), rgba(242, 238, 227, 0.8)), 
       url('koziki_header.webp');
@@ -296,7 +295,7 @@
   }
 
   .slider-group {
-    margin-bottom: 40px; /* メモリ数字のスペースのため余白を広げる */
+    margin-bottom: 40px;
   }
 
   .slider-guide-bubble {
@@ -352,7 +351,6 @@
   
   .ticks {
     position: absolute;
-    /* サムの半分の幅(13px)分だけ内側に寄せて、スライダーの可動域と合わせる */
     left: 13px; right: 13px; 
     top: 50%; transform: translateY(-50%);
     display: flex; justify-content: space-between;
@@ -477,7 +475,7 @@
 
   .track-wrap {
     position: relative;
-    padding: 32px 13px 46px; /* 左右に13px(マーカー半径分)の余白を設ける */
+    padding: 32px 13px 46px;
   }
   .track {
     position: relative;
@@ -500,7 +498,7 @@
     display: flex;
     justify-content: center;
     width: 2px; height: 8px;
-    background: rgba(214, 204, 180, 0.6); /* --line色を少し薄く */
+    background: rgba(214, 204, 180, 0.6);
     border-radius: 1px;
   }
 
@@ -797,14 +795,11 @@
 
   .center-text { text-align: center; }
 
-  /* STEP 4専用の背景と余白調整 */
   .screen[data-screen="4"] {
-    /* ヘッダーの裏側（最上部）まで背景を広げるため、上にマイナスマージンを取る */
     margin: -125px -20px -40px;
-    /* 引き上げた分、中身がヘッダーと被らないように上に余白を追加する */
     padding: 135px 20px 60px;
     min-height: 100vh;
-    background-color: var(--kinari); /* Fallback */
+    background-color: var(--kinari);
     background-image: 
       linear-gradient(rgba(242, 238, 227, 0.52), rgba(242, 238, 227, 0.52)), 
       url('koziki_back.webp');
@@ -909,8 +904,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 80%; /* ロゴのサイズ調整用 */
-    max-width: 300px; /* 最大幅 */
+    width: 80%;
+    max-width: 300px;
     opacity: 0;
     transform: translateY(10px);
     transition: opacity 1.5s ease, transform 1.5s ease;
@@ -918,7 +913,6 @@
   .op-logo {
     width: 100%;
     height: auto;
-    /* 画像を白く塗りつぶしつつ、元のドロップシャドウを適用 */
     filter: brightness(0) invert(1) drop-shadow(0 2px 10px rgba(0,0,0,0.8));
   }
   .op-title.show {
@@ -1075,7 +1069,6 @@
 <div id="opOverlay" class="op-overlay" onclick="skipOp()">
   <video id="opVideo" class="op-video" src="title2.mp4" autoplay muted playsinline></video>
   <div id="opTitle" class="op-title">
-    <!-- Note: Image src may not load depending on environment -->
     <img src="koziki_shiro.png" alt="利き酒帖" class="op-logo">
   </div>
   <div class="op-skip-hint">タップでスキップ</div>
@@ -1670,7 +1663,6 @@ function closeGlossary() {
   document.getElementById('glossaryModal').classList.remove('show');
 }
 
-/* ============ 状態管理 ============ */
 let currentSakeId = null;
 let userAnswers = {};
 let favorites = JSON.parse(localStorage.getItem('kikizake_favorites')) || [];
@@ -1679,7 +1671,6 @@ let pastRecords = JSON.parse(localStorage.getItem('kikizake_records')) || [];
 let sessionRecords = []; 
 let screenBeforeHistory = 1;
 
-/* ============ 初期描画:銘柄リスト ============ */
 function renderSakeList(){
   const wrap = document.getElementById('sakeList');
   wrap.innerHTML = "";
@@ -1695,12 +1686,10 @@ function renderSakeList(){
     const favHtml = isFav ? `<div class="fav-icon" aria-label="お気に入り"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-linejoin="round" stroke-linecap="round"/></svg></div>` : '';
     const drankHtml = drankHistory.includes(s.id) ? `<div class="drank-icon" aria-label="記録済"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>` : '';
 
-    // サブタイトルに「純米吟醸」などが含まれているか判定し、重複する場合はスペック側の表示を省略する
     const typeCore = s.type.replace('酒', '').replace('(原酒)', '');
     const showType = !s.subtitle.includes(typeCore);
     const typeHtml = showType ? `<div class="meta"><span>${linkify(s.type)}</span></div>` : '';
 
-    // 産地（都道府県）のみを抽出（例：「はざま酒造(岐阜県)」→「岐阜県」）
     const prefMatch = s.kura.match(/\((.+?)\)/);
     const prefText = prefMatch ? prefMatch[1] : s.kura;
 
@@ -1755,7 +1744,6 @@ function selectSake(id){
   goScreen(2);
 }
 
-/* ============ 画面遷移 ============ */
 function goScreen(n){
   document.body.setAttribute('data-current-screen', n);
   document.querySelectorAll('.screen').forEach(el=>{
@@ -1772,7 +1760,6 @@ function goScreen(n){
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
-/* ============ 比較結果生成 ============ */
 function showComparison(){
   userAnswers = {
     amakara: parseInt(document.getElementById('s-amakara').value),
@@ -1805,7 +1792,6 @@ function showComparison(){
 
   const s = sakeList.find(x=>x.id===currentSakeId);
 
-  // 履歴へ保存
   const newPastRecord = {
     sakeId: currentSakeId,
     brand: s ? s.brand : "",
@@ -1981,7 +1967,6 @@ function showComparison(){
     </div>
   `;
 
-  // --- ↓ スプレッドシートへ利き酒評価データを送信 ↓ ---
   sendLogToSheet(
     '評価記録', 
     '未入力', 
@@ -1992,13 +1977,11 @@ function showComparison(){
     userAnswers.keiju, 
     userAnswers.comment
   );
-  // --- ↑ ここまで追加 ↑ ---
 
   body.innerHTML = html;
   goScreen(3);
 }
 
-/* ============ おすすめ料理 ============ */
 function showPairing(){
   const s = sakeList.find(x=>x.id===currentSakeId);
   const card = document.getElementById('pairingCard');
@@ -2066,7 +2049,6 @@ function showPairing(){
   goScreen(4);
 }
 
-/* ============ 履歴の表示 ============ */
 function showHistory() {
   const current = document.body.getAttribute('data-current-screen');
   if (current !== 'history') {
@@ -2092,7 +2074,6 @@ function renderHistory() {
   const sorted = [...pastRecords].reverse();
   
   sorted.forEach(record => {
-    // リストから探し、なければ記録自体に保存された名前を使う
     const s = sakeList.find(x => x.id === record.sakeId);
     
     const brandKana = s ? s.brandKana : (record.brandKana || "");
@@ -2140,10 +2121,8 @@ function resetAll(){
 }
 
 function clearSurveyError(groupId) {
-  // 選択された項目のエラーハイライトを消す
   document.getElementById(groupId).classList.remove('error-highlight');
   
-  // すべて選択済みか確認し、揃っていれば全体のエラー文を消す
   const ageEl = document.querySelector('input[name="sv-age"]:checked');
   const genderEl = document.querySelector('input[name="sv-gender"]:checked');
   const kpiEl = document.querySelector('input[name="sv-kpi"]:checked');
@@ -2160,7 +2139,6 @@ function submitSurvey() {
 
   let hasError = false;
 
-  // 未回答の項目を赤くハイライトする
   if (!ageEl) { document.getElementById('group-age').classList.add('error-highlight'); hasError = true; }
   if (!genderEl) { document.getElementById('group-gender').classList.add('error-highlight'); hasError = true; }
   if (!kpiEl) { document.getElementById('group-kpi').classList.add('error-highlight'); hasError = true; }
@@ -2168,9 +2146,8 @@ function submitSurvey() {
   if (hasError) {
     errorEl.style.display = 'block';
     
-    // 注意書きをブルッと震わせて視線を誘導する
     errorEl.classList.remove('shake-animation');
-    void errorEl.offsetWidth; // リフローを強制
+    void errorEl.offsetWidth;
     errorEl.classList.add('shake-animation');
     return;
   }
@@ -2184,7 +2161,6 @@ function submitSurvey() {
   document.getElementById('surveyThanks').style.display = 'block';
 
   setTimeout(() => {
-    // フォームリセット
     document.querySelectorAll('input[name="sv-age"], input[name="sv-gender"], input[name="sv-kpi"]').forEach(el => el.checked = false);
     document.getElementById('surveyForm').style.display = 'block';
     document.getElementById('surveyThanks').style.display = 'none';
@@ -2204,16 +2180,13 @@ function escapeHtml(str){
   return div.innerHTML;
 }
 
-/* ============ 用語ツールチップ (初回のみ) ============ */
 let tooltipEl = null;
 let hideTimer = null;
 
 function showTermTooltip() {
   if (localStorage.getItem('kikizake_hint_seen')) return;
 
-  // STEP1画面の一番上の銘柄カードにある最初の用語リンクを取得
   const links = document.querySelectorAll('.screen[data-screen="1"] .sake-card:first-child .term-link');
-  // ターゲットは必ず最初の用語（純米吟醸など）にする
   const link = links[0];
   if (!link) return;
 
@@ -2221,19 +2194,15 @@ function showTermTooltip() {
   tooltipEl.className = 'term-tooltip';
   tooltipEl.textContent = 'タップで解説を表示';
   
-  // 対象の用語の中に絶対配置で追加することで、周囲の文字を押し出さないようにする
   link.appendChild(tooltipEl);
 
-  // リフローを強制してから表示
   tooltipEl.getBoundingClientRect();
   tooltipEl.classList.add('show');
   
   localStorage.setItem('kikizake_hint_seen', 'true');
 
-  // 5秒後に自動消去
   hideTimer = setTimeout(hideTermTooltip, 5000);
 
-  // 画面タップで消去 (直後に反応しないよう少し遅延して登録)
   setTimeout(() => {
     document.addEventListener('click', hideTermTooltip);
     document.addEventListener('touchstart', hideTermTooltip, {passive: true});
@@ -2247,7 +2216,6 @@ function hideTermTooltip() {
   document.removeEventListener('click', hideTermTooltip);
   document.removeEventListener('touchstart', hideTermTooltip);
   
-  // アニメーションを待って削除
   setTimeout(() => {
     if (tooltipEl && tooltipEl.parentNode) {
       tooltipEl.parentNode.removeChild(tooltipEl);
@@ -2256,7 +2224,6 @@ function hideTermTooltip() {
   }, 350);
 }
 
-/* ============ スライダーガイド ============ */
 function updateSliderGuide(axis) {
   const slider = document.getElementById(`s-${axis}`);
   const bubble = document.getElementById(`b-${axis}`);
@@ -2286,27 +2253,22 @@ function updateSliderGuide(axis) {
   }
   bubble.textContent = label;
 
-  // ツマミ（サム）の位置に合わせて吹き出しを正確に追従させる計算
   const percent = val / 100;
   const offset = 13 - (26 * percent);
   bubble.style.left = `calc(${val}% + ${offset}px)`;
 }
 
-/* ============ 初期化 ============ */
 renderSakeList();
 goScreen(1);
 
-// OP映像がない、またはスキップされたら少し待ってツールチップを表示
 setTimeout(() => {
   if (!document.body.classList.contains('op-active')) {
     showTermTooltip();
   }
 }, 1500);
 
-// アプリを開いた瞬間に「アクセス」のログを送信
 sendLogToSheet('アクセス', '未入力', '未入力');
 
-/* ============ OP動画制御 ============ */
 const opOverlay = document.getElementById('opOverlay');
 const opVideo = document.getElementById('opVideo');
 const opTitle = document.getElementById('opTitle');
@@ -2323,7 +2285,6 @@ function skipOp() {
   
   document.body.classList.remove('op-active');
   
-  // OPスキップ時にツールチップの判定を行う
   setTimeout(showTermTooltip, 1000);
 
   setTimeout(() => {

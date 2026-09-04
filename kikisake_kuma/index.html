@@ -834,7 +834,7 @@
     min-height: 100vh;
     background-color: var(--kinari);
     background-image: 
-      linear-gradient(rgba(242, 238, 227, 0.52), rgba(242, 238, 227, 0.52)), 
+      linear-gradient(rgba(242, 238, 227, 0.75), rgba(242, 238, 227, 0.75)), 
       url('wagakuma_back.webp');
     background-size: cover;
     background-position: center top;
@@ -1086,7 +1086,7 @@
   <header>
     <div class="brand-row">
       <div class="brand">
-        <img src="ashi.png" alt="ロゴ" class="seal">
+        <img src="ashi.png" alt="ロゴ" class="seal" onerror="this.src='https://placehold.co/34x34/22385C/FFFFFF?text=W'">
         <div class="brand-text">
           <h1><span>吾</span><span>熊</span></h1>
           <p>WAGAKUMA</p>
@@ -1095,10 +1095,10 @@
       
       <!-- 追加: 足跡の画像群 -->
       <div class="footprints">
-        <img src="ashi.png" alt="足跡" class="footprint">
-        <img src="ashi.png" alt="足跡" class="footprint">
-        <img src="ashi.png" alt="足跡" class="footprint">
-        <img src="ashi.png" alt="足跡" class="footprint">
+        <img src="ashi.png" alt="足跡" class="footprint" onerror="this.src='https://placehold.co/24x24/22385C/FFFFFF?text=f'">
+        <img src="ashi.png" alt="足跡" class="footprint" onerror="this.src='https://placehold.co/24x24/22385C/FFFFFF?text=f'">
+        <img src="ashi.png" alt="足跡" class="footprint" onerror="this.src='https://placehold.co/24x24/22385C/FFFFFF?text=f'">
+        <img src="ashi.png" alt="足跡" class="footprint" onerror="this.src='https://placehold.co/24x24/22385C/FFFFFF?text=f'">
       </div>
 
       <button class="history-btn" onclick="showHistory()">
@@ -1231,13 +1231,11 @@
     <section class="screen" data-screen="4">
       <p class="eyebrow">STEP 4</p>
       <div class="stamp-wrap">
-        <svg class="stamp" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="44" fill="none" stroke="#BD4630" stroke-width="4"/>
-          <text x="50" y="46" text-anchor="middle" font-size="15" fill="#BD4630" font-family="'Shippori Mincho', serif" font-weight="700">本日</text>
-          <text x="50" y="66" text-anchor="middle" font-size="15" fill="#BD4630" font-family="'Shippori Mincho', serif" font-weight="700">一献</text>
-        </svg>
+        <img src="ashi.png" alt="本日一献" class="stamp" onerror="this.src='https://placehold.co/96x96/BD4630/FFFFFF?text=Ash'">
       </div>
-      <p class="lead center-text">この一杯には、当店のこんな一品はいかがでしょうか。</p>
+      <p class="lead center-text" style="font-family: var(--font-mincho); font-size: 17px; font-weight: 700; color: var(--ai); letter-spacing: 0.05em; margin-bottom: 24px; line-height: 1.6;">
+        <span style="display: inline-block;">この一杯には、</span><span style="display: inline-block;">当店のこんな一品は</span><span style="display: inline-block;">いかがでしょうか。</span>
+      </p>
       <div class="pairing-card" id="pairingCard"></div>
       <div class="btn-row">
         <button id="btnNextFromStep4" class="btn btn-primary" style="width:100%" onclick="goScreen('survey')">次へ：最後にお聞かせください</button>
@@ -1386,6 +1384,9 @@ function sendLogToSheet(actionStr, genderStr, ageStr, sakeIdStr = "", amakaraVal
   }).catch(err => console.log('送信エラー:', err));
 }
 
+// -------------------------------------------------------------
+// sakeListのpairing情報を、指定された料理メニューで更新
+// -------------------------------------------------------------
 const sakeList = [
   {
     id: "harushika",
@@ -1399,7 +1400,11 @@ const sakeList = [
     values: { amakara: 85, kaori: 30, keiju: 40 },
     description: "穏やかな香りと、まろやかな口当たり。凛としたキレ味の良さが特徴で、冷やしてすっきり、燗でふくらみが出る超辛口の定番酒。<br><br>「日本酒発祥の地」とされる奈良ですが、実は春鹿を醸す今西家は元々、世界遺産・春日大社の神官を務めていた家系。「神様にお供えする神聖なお酒」というルーツを持つ、日本酒の歴史そのものと言える由緒正しき蔵元です。",
     source: "情報源:今西清兵衛商店 公式サイト",
-    pairing: { name: "白身魚の薄造り", description: "お酒の鋭いキレと米の旨味が、白身魚の淡白な甘みを引き立てます。" }
+    pairings: [
+      { name: "極上タコぶつ", description: "お酒の鋭いキレと米の旨味が、噛むほどに溢れるタコの旨味をぐっと引き立てます。" },
+      { name: "【辛口】あじの大人のなめろう", description: "超辛口のキレが、薬味の効いたなめろうの風味と見事に同調します。" },
+      { name: "砂肝の唐揚げ", description: "凛としたキレ味が、揚げ物の脂や砂肝の食感をさっぱりと洗い流してくれます。" }
+    ]
   },
   {
     id: "saira",
@@ -1413,7 +1418,10 @@ const sakeList = [
     values: { amakara: 45, kaori: 75, keiju: 40 },
     description: "夏から秋にかけての夜風のような爽やかさをイメージした生酒。マスカットを思わせるみずみずしい香りと、フレッシュでクリアな甘みが口いっぱいに広がり、綺麗な酸でフィニッシュします。<br><br>老舗蔵の若き5代目が、20代〜30代の若い蔵人たちだけでゼロから立ち上げた次世代ブランド。長年の勘に頼るのではなく、データ分析と最新の温度管理システムを駆使し、「埼玉（彩の国）から新しい未来（來）へ」という決意を込めて、マスカットのような未体験の香りを生み出しました。",
     source: "情報源:日本酒データベース(Sakenomy)",
-    pairing: { name: "イカのカルパッチョ", description: "みずみずしい香りと綺麗な酸が、イカの甘みやオリーブオイルと好相性です。" }
+    pairings: [
+      { name: "ヤゲン軟骨の梅水晶", description: "みずみずしいマスカットのような香りと綺麗な酸が、梅の酸味や軟骨の食感と心地よくマッチします。" },
+      { name: "活〆鱧（ハモ）湯引きor天ぷら", description: "フレッシュでフルーティーな香りが、ハモの上品で繊細な旨味を華やかに彩ります。" }
+    ]
   },
   {
     id: "bakuren",
@@ -1427,7 +1435,10 @@ const sakeList = [
     values: { amakara: 95, kaori: 55, keiju: 50 },
     description: "日本酒度+20という極めて高い辛口でありながら、ほのかにフルーティーな吟醸香を持ち、口に含むとまろやか。喉越しは鮮烈にキレる、痛快な超辛口。<br><br>「ばくれん」とは「親の言うことを聞かない、すれっからしの女」という強烈な意味。ラベルの印象的な浮世絵は、実は蔵元社長が無類の浮世絵コレクターだからこそ描けたもの。「くどき上手」という名も、色恋ではなく「武将が敵を説き伏せる（口説く）ように、人の心を解きほぐす酒」という意味が込められています。",
     source: "情報源:酒販店特約店情報",
-    pairing: { name: "豚の角煮", description: "鮮烈なキレと高いアルコールが、豚の脂と甘辛いタレをスッと洗い流します。" }
+    pairings: [
+      { name: "砂肝の唐揚げ", description: "鮮烈なキレと高いアルコール感が、砂肝のコリコリとした食感と揚げ物の脂をスッと洗い流します。" },
+      { name: "極上タコぶつ", description: "超辛口の痛快な味わいが、タコの淡白ながらも噛むほどに広がる甘みを引き出します。" }
+    ]
   },
   {
     id: "michizakari",
@@ -1441,7 +1452,10 @@ const sakeList = [
     values: { amakara: 85, kaori: 60, keiju: 30 },
     description: "辛口一筋の三千盛を代表する純米大吟醸。梨のような澄んだ吟醸香と、雑味のないクリアな旨み。どこまでもシャープで潔いキレ味が食事の味を引き立てます。<br><br>昭和の日本酒が「甘くてとろみがあるのが高級」ともてはやされた時代。三千盛は周囲から「水みたいだ」と批判されながらも、料理を引き立てる「辛口」を頑なに造り続けました。その信念が後の大辛口ブームを生み出した、まさに「辛口日本酒のパイオニア」です。",
     source: "情報源:三千盛 公式サイト",
-    pairing: { name: "鮎の塩焼き", description: "シャープな飲み口と澄んだ香りが、鮎の繊細な風味と塩気を引き立てます。" }
+    pairings: [
+      { name: "【辛口】あじの大人のなめろう", description: "大辛口のシャープな飲み口が、薬味の効いた大人のなめろうの風味と見事に同調し、箸が止まらなくなります。" },
+      { name: "極上タコぶつ", description: "雑味のないクリアな旨味が、タコのピュアな味わいを損なうことなく引き立てます。" }
+    ]
   },
   {
     id: "hijiri",
@@ -1455,7 +1469,10 @@ const sakeList = [
     values: { amakara: 40, kaori: 60, keiju: 45 },
     description: "デラウェア葡萄を思わせる果実感と柔らかな甘みが、細やかな酸と微炭酸に引っ張られて奥行きのある味わいを生み出します。<br><br>「DOPE（最高、かっこいい）」の名の通り、伝統的な「生酛造り」をモダンに昇華させた一本。生酛特有の重さを感じさせない、爽やかで飲みやすい現代的な仕上がりは、まさにモダン生酛の到達点ともいえる完成度です。",
     source: "情報源:酒泉洞堀一",
-    pairing: { name: "白身魚のカルパッチョ", description: "果実感と細やかな酸・ガス感が、白身魚の上品な甘みを引き立てます。" }
+    pairings: [
+      { name: "伊勢まぐろのレバ刺風", description: "果実感と微炭酸が、ごま油や塩気の効いた濃厚な旨味をさっぱりとさせつつ、奥行きを引き出します。" },
+      { name: "【馬刺し】千本筋", description: "生酛ならではの立体的な酸が、馬刺しのしっかりとした旨味と絶妙にマッチします。" }
+    ]
   },
   {
     id: "kusudama",
@@ -1469,7 +1486,10 @@ const sakeList = [
     values: { amakara: 85, kaori: 20, keiju: 40 },
     description: "飛騨高山で醸される、日本酒度+15を誇る超辛口。本醸造ならではのキリッとした喉越しと、料理の邪魔をしない控えめな香りが特徴で、飛騨の郷土料理と相性抜群。<br><br>創業はなんと1623年（江戸時代初期）。飛騨高山に現存する「最古」の酒蔵です。「久寿玉（くすだま）」というめでたい名前は、祝い事のくす玉ではなく、古代中国で魔除けや延命長寿を願って身につけた「薬玉（百薬の長）」に由来しており、長く地元で愛され続ける歴史の証です。",
     source: "情報源:平瀬酒造店 公式サイト",
-    pairing: { name: "漬物ステーキ", description: "キリッとした超辛口が、熱々で香ばしい飛騨の郷土料理にピタリと合います。" }
+    pairings: [
+      { name: "おつまみメンマ", description: "キリッとした超辛口が、メンマのしっかりとした味付けや風味を邪魔することなく、喉を爽快に潤します。" },
+      { name: "砂肝の唐揚げ", description: "本醸造ならではのキレの良さが、唐揚げの旨味を邪魔せず後味をスッキリさせます。" }
+    ]
   },
   {
     id: "nanbubijin",
@@ -1483,7 +1503,10 @@ const sakeList = [
     values: { amakara: 48, kaori: 65, keiju: 55 },
     description: "岩手県産の酒造好適米「ぎんおとめ」を主に使用。ふわっと広がる上品な吟醸香と、お米本来の柔らかな旨味が綺麗に調和した究極のスタンダード。<br><br>実は「世界で初めてヴィーガン（完全菜食主義）認証を取得した日本酒」という驚きの称号を持っています。酒造りの「濾過」の工程で動物性の成分を一切使わないことを証明し、中東の航空会社のファーストクラスで提供されるなど、伝統の味をそのままに世界標準を切り開いています。",
     source: "情報源:南部美人 公式サイト",
-    pairing: { name: "鶏の唐揚げ", description: "上品な果実香と適度な旨味が、唐揚げのジューシーな脂をさっぱりと包み込みます。" }
+    pairings: [
+      { name: "【馬刺し】千本筋", description: "上品な果実香と適度な旨味が、希少部位である千本筋の噛みごたえある食感と旨味を優しく包み込みます。" },
+      { name: "ヤゲン軟骨の梅水晶", description: "お米のピュアで綺麗な甘みが、梅水晶の爽やかな酸味と心地よいハーモニーを奏でます。" }
+    ]
   },
   {
     id: "nabeshima",
@@ -1497,7 +1520,10 @@ const sakeList = [
     values: { amakara: 65, kaori: 75, keiju: 40 },
     description: "フレッシュで甘い香りと、夏を思わせるキレイな口当たり。旨味がくるように見せておいてサラリとかわして流れていく、爽快なキレが特徴の夏季限定酒。<br><br>佐賀県の小さな蔵から始まり、今や世界的な品評会でチャンピオンに輝くなど、入手困難な銘酒となった鍋島。「ムーン」シリーズは四季を彩る展開しており、このサマームーンはしっかりと冷やして、時には丸氷を浮かべて楽しむのもおすすめです。",
     source: "情報源:酒販店特約店情報",
-    pairing: { name: "夏野菜の揚げ浸し", description: "爽快なキレとシャープな酸味が、出汁を含んだ夏野菜の旨味をさっぱりと引き立てます。" }
+    pairings: [
+      { name: "活〆鱧（ハモ）湯引きor天ぷら", description: "爽快なキレとシャープな酸味が、夏を代表するハモの上品で繊細な旨味をさっぱりと引き立てます。" },
+      { name: "伊勢まぐろのレバ刺風", description: "フレッシュな口当たりが、ごま油香る濃厚な味わいを爽やかにリセットしてくれます。" }
+    ]
   },
   {
     id: "dewazakura",
@@ -1511,7 +1537,10 @@ const sakeList = [
     values: { amakara: 40, kaori: 85, keiju: 45 },
     description: "「吟醸酒」という言葉を世に広めたパイオニア的存在。洋梨やメロンのような華やかでフルーティーな香りと、フレッシュでふくよかな味わいが多くの人を魅了し続ける名酒。<br><br>今でこそ当たり前の「フルーティーな香りの日本酒（吟醸酒）」ですが、実はかつては品評会用の特別なものでした。それを1980年に初めて一般向けに市販化し、全国に「吟醸酒ブーム」を巻き起こしたのがこの「桜花吟醸酒」。さらに英国王室御用達のワイン商が初めて扱った日本酒でもあります。",
     source: "情報源:出羽桜酒造 公式サイト",
-    pairing: { name: "トマトとモッツァレラのカプレーゼ", description: "華やかな果実香が、トマトの酸味やチーズのまろやかさと美しく調和します。" }
+    pairings: [
+      { name: "極上タコぶつ", description: "華やかな果実香が、タコの淡白ながらも噛むほどに広がる甘みと美しく調和します。" },
+      { name: "活〆鱧（ハモ）湯引きor天ぷら", description: "フルーティーな香りが、ハモの天ぷらなどを上品で華やかな一品に昇華させます。" }
+    ]
   },
   {
     id: "gorin",
@@ -1525,7 +1554,10 @@ const sakeList = [
     values: { amakara: 55, kaori: 40, keiju: 60 },
     description: "なめらかな口当たりとふくらみのある旨味が特徴の食中酒。「天狗舞」を醸す車多酒造が、親しみやすい旨さを追求して立ち上げたブランドです。<br><br>重厚でガツンとくる超有名銘柄「天狗舞」を造る蔵元が、「天狗舞とは真逆の、いつまでも飲み飽きない優しい酒を造りたい」と立ち上げた、いわば“裏の顔”。名前には「お客様・飲食店・酒屋・蔵元・杜氏」の5者が、凛とした関係で酒を楽しめるようにという粋な願いが込められています。",
     source: "情報源:車多酒造 公式サイト",
-    pairing: { name: "おでん", description: "なめらかな口当たりとふくよかな旨味が、お出汁の染みた具材と優しく調和します。" }
+    pairings: [
+      { name: "おつまみメンマ", description: "なめらかな口当たりとふくよかな旨味が、メンマの素朴な味わいと優しく寄り添い、いつまでも飲み飽きません。" },
+      { name: "【馬刺し】千本筋", description: "ふくらみのある純米酒の旨味が、馬刺しの赤身の旨味をどっしりと受け止めます。" }
+    ]
   },
   {
     id: "taka",
@@ -1539,7 +1571,10 @@ const sakeList = [
     values: { amakara: 75, kaori: 30, keiju: 80 },
     description: "精米歩合80%で米の旨味を最大限に引き出した純米酒。濃醇でありながら、しっかりとした酸と辛さが全体を引き締め、後口はスパッとキレる男前な味わい。燗酒にも最適です。<br><br>蔵元の永山氏は、フランスのワイナリーで修行した経歴の持ち主。そこで「酒の味は土地が決める」と痛感し、現在は自らトラクターを運転して酒米を育てています。日本酒に「テロワール（風土）」という概念を持ち込み、ワインに負けない「骨太な酸」を追求する情熱の蔵です。",
     source: "情報源:永山本家酒造場 公式サイト",
-    pairing: { name: "牛すじの煮込み", description: "どっしりとしたコクと酸味が、濃い味付けの煮込み料理をしっかり受け止めます。" }
+    pairings: [
+      { name: "A5仙台牛トンビの炙りユッケ", description: "どっしりとしたコクと骨太な酸味が、A5ランク牛肉の強い旨味や脂をしっかりと受け止め、極上のマリアージュを生みます。" },
+      { name: "伊勢まぐろのレバ刺風", description: "しっかりとした酸と辛さが、ごま油の効いた濃厚な味わいを引き締め、次の一口を誘います。" }
+    ]
   },
   {
     id: "sawayamatsumoto",
@@ -1553,7 +1588,10 @@ const sakeList = [
     values: { amakara: 60, kaori: 55, keiju: 45 },
     description: "特上ランクの希少な酒米「愛山」を100％使用。愛山特有の可愛らしい甘みを控えめに表現しつつ、発酵由来の心地よい微炭酸と爽やかな酸味が重なり、スーッと消えていく見事なキレを持ちます。<br><br>京都・伏見の豊かな地下水（中硬水）を活かし、料理を引き立てる酒造りを追求。「守破離（しゅはり）」とは、伝統を守り、破り、離れて新しい価値を創造するという茶道や武道の精神。和食と合わせることで、その真価を最大限に発揮します。",
     source: "情報源:酒泉洞堀一",
-    pairing: { name: "出汁巻き玉子", description: "心地よい酸と微炭酸が、優しいお出汁の旨味と美しく調和し、味わいを輝かせます。" }
+    pairings: [
+      { name: "活〆鱧（ハモ）湯引きor天ぷら", description: "心地よい酸と微炭酸が、ハモの天ぷらの油をスッキリと流し、湯引きの上品な甘みをより輝かせます。" },
+      { name: "【辛口】あじの大人のなめろう", description: "微炭酸と綺麗な酸味が、薬味の効いたなめろうの旨味をより一層引き立てます。" }
+    ]
   },
   {
     id: "iraka",
@@ -1567,7 +1605,10 @@ const sakeList = [
     values: { amakara: 40, kaori: 80, keiju: 55 },
     description: "リンゴのような華やかな香りと、超軟水仕込みならではのやわらかでふくよかな旨み。甘美な入り口から、きれいでシャープな酒質へと展開する、「甍 銀」シリーズの中でも最も華やかな生酒。<br><br>2024年秋、長野県松川村で1665年創業の歴史ある蔵を継承して誕生した超新星。「甍（いらか）」とは伝統的な屋根を意味し、日本を代表する名杜氏が全量長野県産の米と水で醸します。先入観なしに味わってほしいと、あえてスペックは非公表にしています。",
     source: "情報源:SAKETIME / 酒販店情報",
-    pairing: { name: "信州サーモンのマリネ", description: "華やかな香りとシャープな酸が、サーモンの上質な脂と優しくマッチします。" }
+    pairings: [
+      { name: "【辛口】あじの大人のなめろう", description: "華やかな香りとシャープな酸が、なめろうのピリッとした辛味や旨味と絶妙なコントラストを描きます。" },
+      { name: "ヤゲン軟骨の梅水晶", description: "ふくよかな旨みと心地よい酸味が、梅水晶のコリコリ感や酸味と相性抜群です。" }
+    ]
   },
   {
     id: "ishizuchi",
@@ -1581,7 +1622,10 @@ const sakeList = [
     values: { amakara: 80, kaori: 30, keiju: 50 },
     description: "愛媛の銘酒・石鎚の辛口定番。ただ辛いだけではなく、食中酒としてお米のふくよかな旨みを感じさせつつ、後味をスッと断ち切る鋭いキレを持つ。冷酒からお燗まで万能な一本。<br><br>家族中心で営む小さな蔵ですが、その実力は凄まじく、全日本空輸(ANA)の国際線ファーストクラスやビジネスクラスの機内食で長年提供され続けています。最新の機械ではなく、昔ながらの「木槽（きぶね）」と呼ばれる木製の道具を使い、現在も手作業で優しくお酒を搾り出しています。",
     source: "情報源:石鎚酒造 公式サイト",
-    pairing: { name: "鯛の塩焼き", description: "辛口の鋭いキレが鯛の繊細な旨味を引き出し、口の中をさっぱりと整えます。" }
+    pairings: [
+      { name: "砂肝の唐揚げ", description: "辛口の鋭いキレが唐揚げの旨味を最大限に引き出し、口の中をさっぱりと整えて次の一口を誘います。" },
+      { name: "おつまみメンマ", description: "食中酒の極みとも言えるバランスで、メンマの素朴な味わいに優しく寄り添います。" }
+    ]
   }
 ];
 
@@ -2015,11 +2059,16 @@ function showComparison(){
 function showPairing(){
   const s = sakeList.find(x=>x.id===currentSakeId);
   const card = document.getElementById('pairingCard');
+  
+  // 複数のペアリング候補からランダムに1つを選択
+  const pairings = s.pairings || [s.pairing]; // 互換性のためのフォールバック
+  const randomPairing = pairings[Math.floor(Math.random() * pairings.length)];
+  
   card.innerHTML = `
     <div class="band">この一杯に合う、当店の一品</div>
     <div class="body">
-      <h3>${s.pairing.name}</h3>
-      <p>${linkify(s.pairing.description)}</p>
+      <h3>${randomPairing.name}</h3>
+      <p>${linkify(randomPairing.description)}</p>
     </div>
   `;
 

@@ -1046,6 +1046,7 @@
   .lead-step1-2 { font-size: clamp(11px, calc((100vw - 40px) / 27.5), 13px); letter-spacing: -0.02em; white-space: nowrap; }
   .lead-step2 { font-size: clamp(11px, calc((100vw - 40px) / 21.5), 16px); font-weight: 700; white-space: nowrap; letter-spacing: -0.03em; }
   .lead-step3 { font-size: clamp(11px, calc((100vw - 40px) / 20), 15px); white-space: nowrap; letter-spacing: -0.02em; line-height: 1.8; }
+  .lead-step4 { font-size: 16px; font-weight: 700; color: var(--ai); line-height: 1.6; margin-bottom: 24px; }
   .title-survey { text-align: center; font-size: 18px; margin-bottom: 6px; }
   .note-survey-top { text-align: center; font-size: 12px; color: var(--shu); font-weight: 500; margin-top: 0; margin-bottom: 20px; }
   .note-survey-bottom { font-size: 13px; text-align: center; margin-top: 16px; margin-bottom: 24px; }
@@ -1212,7 +1213,7 @@
       <div class="stamp-wrap">
         <img src="koziki_logo.png" alt="本日一献 ロゴ" class="stamp" style="border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
       </div>
-      <p class="lead center-text">この一杯には、当店のこんな一品はいかがでしょうか。</p>
+      <p class="lead center-text lead-step4">この一杯には、<br>当店のこんな一品はいかがでしょうか。</p>
       <div class="pairing-card" id="pairingCard"></div>
       <div class="btn-row">
         <button id="btnNextFromStep4" class="btn btn-primary w-full" onclick="goScreen('survey')">次へ：最後にお聞かせください</button>

@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>居酒屋 乞食 のお魚たち</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --kinari: #F2EEE3;
+    --kinari-deep: #E9E2CF;
+    --ai: #22385C;
+    --ai-light: #4C6A94;
+    --ai-pale: #DCE3EC;
+    --shu: #BD4630;
+    --shu-pale: #F1DCD5;
+    --sumi: #2A2620;
+    --line: #D6CCB4;
+    --muted: #a89d87;
+    --font-mincho: 'Shippori Mincho', serif;
+    --font-gothic: 'Zen Kaku Gothic New', sans-serif;
+    --radius: 14px;
+  }
+
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  html,body{
+    margin:0; padding:0;
+    background: #0d1b2a;
+    color: var(--sumi);
+    font-family: var(--font-gothic);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body{ min-height:100vh; display:flex; justify-content:center; }
+
+  /* ============ 背景動画(全画面共通・ループ再生) ============ */
+  .bg-video-wrap{
+    position: fixed; inset: 0; z-index: 0;
+    overflow: hidden; background: #0d1b2a;
+  }
+  .bg-video-wrap video{
+    position:absolute; top:50%; left:50%;
+    min-width:100%; min-height:100%;
+    width:auto; height:auto;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out; /* 動画切り替え時のクロスフェード */
+  }
+  .bg-video-wrap video.show-bg {
+    opacity: 1; /* アクティブな背景動画を表示 */
+  }
+  .bg-video-overlay{
+    position:absolute; inset:0;
+    background: linear-gradient(180deg, rgba(13,27,42,0.72), rgba(13,27,42,0.85));
+  }
+
+  .app{
+    width:100%; max-width:460px; min-height:100vh;
+    position:relative; z-index:1;
+    display:flex; flex-direction:column;
+  }
+
+  header{
+    position:sticky; top:0; z-index:20;
+    background: transparent;
+    border-bottom:1px solid rgba(242,238,227,0.15);
+    padding: 16px 20px 14px;
+  }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .seal{ width:32px; height:32px; flex:0 0 auto; object-fit: contain; }
+  .brand h1{
+    font-family: var(--font-mincho); font-weight:700; font-size:18.5px;
+    letter-spacing:0.04em; margin:0; color:var(--kinari);
+    line-height: 1.4;
+  }
+  .brand p{ margin:0; font-size:10px; color:rgba(242,238,227,0.6); letter-spacing:0.08em; }
+
+  main{ flex:1; padding:26px 20px 48px; position:relative; }
+
+  .screen{ display:none; animation: fadeUp .5s ease both; }
+  .screen.active{ display:block; }
+  .screen[data-screen="op"]{ animation: none; }
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:translateY(0);} }
+  @media (prefers-reduced-motion: reduce){ .screen{ animation:none; } }
+
+  .eyebrow{ font-size:11px; letter-spacing:.14em; color:var(--shu-pale); font-weight:700; margin:0 0 8px; }
+  h2.title{ font-family:var(--font-mincho); font-size:21px; line-height:1.6; margin:0 0 16px; color:var(--kinari); }
+  .lead{ font-size:13px; color:rgba(242,238,227,0.85); line-height:1.9; margin:0 0 22px; }
+
+  /* --- OP画面 --- */
+  .op-wrapper {
+    position: fixed; inset: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  .op-logo-img {
+    opacity: 0; transition: opacity 1s ease-in-out;
+    max-width: 250px; width: 60%; height: auto;
+  }
+  .skip-telop {
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    color: rgba(242, 238, 227, 0.85); /* 馴染むような白っぽい色 */
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    pointer-events: none; /* タップの邪魔にならないように */
+    white-space: nowrap;
+    animation: floatBlink 3s ease-in-out infinite;
+  }
+  @keyframes floatBlink {
+    0%, 100% {
+      transform: translate(-50%, 0);
+      opacity: 0.3;
+    }
+    50% {
+      transform: translate(-50%, -10px);
+      opacity: 1;
+    }
+  }
+
+  /* --- 魚選択グリッド --- */
+  .fish-grid{
+    display:grid; grid-template-columns: 1fr 1fr; gap:12px;
+  }
+  .fish-card{
+    background: rgba(242,238,227,0.06);
+    border:1px solid rgba(242,238,227,0.25);
+    border-radius: var(--radius);
+    padding: 18px 12px;
+    text-align:center;
+    cursor:pointer;
+    color: var(--kinari);
+    font-family: inherit;
+    transition: background .15s ease, transform .15s ease, border-color .15s ease;
+  }
+  .fish-card:hover{ background: rgba(242,238,227,0.12); transform:translateY(-2px); border-color: var(--shu-pale); }
+  .fish-card:focus-visible{ outline:2px solid var(--shu-pale); outline-offset:2px; }
+  .fish-card .icon{ width:34px; height:34px; margin:0 auto 8px; opacity:0.85; }
+  .fish-card .name{ font-family: var(--font-mincho); font-weight:700; font-size:15.5px; }
+  .fish-card .kana{ font-size:10.5px; color: rgba(242,238,227,0.6); margin-top:2px; }
+
+  /* --- 魚詳細画面 --- */
+  .fish-header{
+    display:flex; align-items:baseline; gap:10px; margin-bottom:6px;
+  }
+  .fish-header .kana{ font-size:11.5px; color: rgba(242,238,227,0.6); }
+  .fish-header .name{ font-family: var(--font-mincho); font-size:24px; font-weight:700; color: var(--kinari); }
+
+  .hook-card{
+    background: linear-gradient(135deg, rgba(189,70,48,0.92), rgba(159,54,36,0.92));
+    border-radius: var(--radius);
+    padding: 18px 18px;
+    margin: 18px 0;
+    color:#fff;
+  }
+  .hook-card .label{ font-size:10.5px; letter-spacing:.1em; color: var(--shu-pale); font-weight:700; margin-bottom:8px; }
+  .hook-card p{ margin:0; font-size:14.5px; line-height:1.8; font-weight:500; }
+
+  .taste-card{
+    background: rgba(242,238,227,0.08);
+    border:1px solid rgba(242,238,227,0.2);
+    border-radius: var(--radius);
+    padding:16px 18px;
+    margin-bottom: 22px;
+  }
+  .taste-card .label{ font-size:10.5px; letter-spacing:.1em; color: var(--shu-pale); font-weight:700; margin-bottom:8px; }
+  .taste-card p{ margin:0; font-size:13.5px; line-height:1.85; color: rgba(242,238,227,0.92); }
+
+  h3.section-title{
+    font-family: var(--font-mincho); font-size:15.5px; color: var(--kinari);
+    margin: 30px 0 14px; display:flex; align-items:center; gap:8px;
+  }
+  h3.section-title::before{
+    content:''; width:4px; height:14px; background: var(--shu); border-radius:2px; display:inline-block;
+  }
+
+  /* --- メニュー枠(プレースホルダー) --- */
+  .menu-empty{
+    border: 1px dashed rgba(242,238,227,0.35);
+    border-radius: var(--radius);
+    padding: 26px 20px;
+    text-align:center;
+  }
+  .menu-empty svg{ width:26px; height:26px; stroke: rgba(242,238,227,0.5); margin-bottom:10px; }
+  .menu-empty p{ margin:0; font-size:12.5px; color: rgba(242,238,227,0.6); line-height:1.8; }
+  .menu-list{ display:none; } /* 後日メニューデータが入った際に使用する一覧枠 */
+  .menu-item{
+    background: rgba(242,238,227,0.06);
+    border:1px solid rgba(242,238,227,0.18);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom:10px;
+  }
+  .menu-item .name{ font-family: var(--font-mincho); font-weight:700; font-size:14px; color: var(--kinari); }
+  .menu-item .desc{ font-size:12px; color: rgba(242,238,227,0.7); margin-top:4px; line-height:1.6; }
+
+  /* --- お酒の提案 --- */
+  .sake-group-label{
+    font-size:11.5px; font-weight:700; color: var(--shu-pale);
+    letter-spacing:.06em; margin: 18px 0 10px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .sake-card{
+    background: rgba(242,238,227,0.08);
+    border:1px solid rgba(242,238,227,0.2);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom:12px;
+  }
+  .sake-card .tag{
+    display:inline-block; font-size:10.5px; font-weight:700;
+    background: var(--shu); color:#fff; padding:2px 9px; border-radius:20px;
+    margin-bottom:8px;
+  }
+  .sake-card .name-row{ display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; margin-bottom:6px; }
+  .sake-card .name{ font-family: var(--font-mincho); font-weight:700; font-size:16px; color: var(--kinari); }
+  .sake-card .region{ font-size:11px; color: rgba(242,238,227,0.55); }
+  .sake-card .taste{ font-size:12.5px; color: rgba(242,238,227,0.85); line-height:1.75; margin:0; }
+
+  .btn-row{ display:flex; gap:10px; margin-top:30px; }
+  button.btn{
+    font-family:var(--font-gothic); font-weight:700; font-size:14px;
+    padding:14px 18px; border-radius:10px; border:none; cursor:pointer;
+    letter-spacing:.03em; transition:opacity .15s ease, transform .1s ease;
+  }
+  button.btn:active{ transform:scale(0.98); }
+  button.btn:focus-visible{ outline:2px solid var(--shu-pale); outline-offset:2px; }
+  .btn-primary{ flex:1; background:var(--shu); color:#fff; }
+  .btn-primary:hover{ opacity:.92; }
+  .btn-ghost{ background: rgba(242,238,227,0.08); color:var(--kinari); border:1px solid rgba(242,238,227,0.3); }
+
+  /* --- 汎用パーツ(プロフィール・アンケート) --- */
+  .radio-buttons{ display:flex; gap:8px; flex-wrap:wrap; }
+  .radio-btn-wrap{ flex:1; min-width:84px; cursor:pointer; }
+  .radio-btn-wrap input{ display:none; }
+  .radio-box{
+    display:flex; align-items:center; justify-content:center; padding:12px 0;
+    border:1px solid rgba(242,238,227,0.3); background: rgba(242,238,227,0.05); border-radius:8px;
+    font-size:13px; font-weight:700; color: rgba(242,238,227,0.75); transition:all .2s ease;
+  }
+  .radio-box::before{
+    content:''; display:inline-block; width:14px; height:14px; border-radius:50%;
+    border:1px solid rgba(242,238,227,0.4); margin-right:6px; transition:all .2s ease;
+  }
+  .radio-btn-wrap input:checked + .radio-box{ background: var(--shu); border-color: var(--shu); color:#fff; }
+  .radio-btn-wrap input:checked + .radio-box::before{ border-width:4px; border-color:#fff; background: var(--shu); }
+  .radio-group-error{ color: var(--shu-pale); font-size:12.5px; font-weight:700; margin:-14px 0 20px; display:none; }
+  @keyframes shake{ 0%,100%{transform:translateX(0);} 20%,60%{transform:translateX(-4px);} 40%,80%{transform:translateX(4px);} }
+  .shake{ animation: shake .4s ease; }
+  .errhi .radio-box{ border-color: var(--shu-pale); background: rgba(189,70,48,0.25); }
+
+  .radio-buttons-col{ display:flex; flex-direction:column; gap:8px; }
+  .radio-buttons-col .radio-box{ justify-content:flex-start; padding:12px 16px; font-size:13.5px; text-align:left; }
+
+  .profile-group{ margin-bottom:24px; }
+  .profile-group > label{ display:block; font-size:12.5px; font-weight:700; color: var(--kinari); margin-bottom:10px; }
+
+  .note{ font-size:10.5px; color: rgba(242,238,227,0.5); margin-top:10px; line-height:1.6; text-align:center; }
+
+  .stamp-wrap{ display:flex; justify-content:center; margin:14px 0 24px; }
+  .stamp{ width:96px; height:96px; animation: stampIn .6s cubic-bezier(.2,1.4,.4,1) both; }
+  @media (prefers-reduced-motion: reduce){ .stamp{ animation:none; } }
+  @keyframes stampIn{
+    0%{ opacity:0; transform:scale(2.2) rotate(-18deg); }
+    70%{ opacity:1; }
+    100%{ opacity:1; transform:scale(1) rotate(-8deg); }
+  }
+
+  .center-text{ text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="bg-video-wrap">
+  <!-- オープニング画面用背景動画 (初期表示で表示状態 class="show-bg") -->
+  <video id="bg-video-op" class="show-bg" autoplay muted playsinline>
+    <source src="title3.mp4" type="video/mp4">
+  </video>
+  <!-- その他の画面用背景動画 -->
+  <video id="bg-video-main" autoplay muted loop playsinline>
+    <source src="back.mp4" type="video/mp4">
+  </video>
+  <div class="bg-video-overlay"></div>
+</div>
+
+<div class="app">
+  <header id="main-header" style="display: none;">
+    <div class="brand">
+      <img src="koziki_logo.png" class="seal" alt="居酒屋 乞食 ロゴ">
+      <div>
+        <h1>居酒屋 乞食 のお魚たち</h1>
+      </div>
+    </div>
+  </header>
+  <main>
+
+    <!-- Screen: オープニング -->
+    <section class="screen active" data-screen="op" onclick="goScreen('select')">
+      <div class="op-wrapper">
+        <img src="koziki3.png" id="op-logo" class="op-logo-img" alt="居酒屋 乞食">
+        <p class="skip-telop">画面をタップしてスキップ</p>
+      </div>
+    </section>
+
+    <!-- Screen: サカナ選択 -->
+    <section class="screen" data-screen="select">
+      <p class="eyebrow">CHOOSE</p>
+      <h2 class="title">気になる魚を選んでください</h2>
+      <div class="fish-grid" id="fishGrid"></div>
+    </section>
+
+    <!-- Screen: 魚詳細(情報+メニュー枠+お酒提案) -->
+    <section class="screen" data-screen="detail">
+      <div class="fish-header">
+        <span class="kana" id="detailKana"></span>
+      </div>
+      <div class="fish-header" style="margin-bottom:4px;">
+        <span class="name" id="detailName"></span>
+      </div>
+
+      <div class="hook-card">
+        <div class="label">知ってましたか?</div>
+        <p id="detailHook"></p>
+      </div>
+
+      <div class="taste-card">
+        <div class="label">味わいポイント</div>
+        <p id="detailTaste"></p>
+      </div>
+
+      <h3 class="section-title">この魚を使ったメニュー</h3>
+      <div class="menu-empty" id="menuEmpty">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 19h16M4 15h16M8 4h8l2 7H6l2-7z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <p>ただいま準備中です。<br>近日、メニューをご紹介します。</p>
+      </div>
+      <div class="menu-list" id="menuList"></div>
+
+      <h3 class="section-title">この一皿に合うお酒</h3>
+      <div id="sakeSuggestions"></div>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goScreen('select')">他の魚も見る</button>
+        <button class="btn btn-primary" onclick="goToSurveyOrFinish()">今日はここまで</button>
+      </div>
+    </section>
+
+    <!-- Screen: アンケート(初回のみ) -->
+    <section class="screen" data-screen="survey">
+      <p class="eyebrow">LAST STEP</p>
+      <h2 class="title">最後にお聞かせください</h2>
+      <p class="lead">(初回のみ・次回からは表示されません)</p>
+
+      <div class="profile-group" id="group-gender">
+        <label>性別</label>
+        <div class="radio-buttons">
+          <label class="radio-btn-wrap"><input type="radio" name="s-gender" value="男性" onchange="clearErr('group-gender')"><span class="radio-box">男性</span></label>
+          <label class="radio-btn-wrap"><input type="radio" name="s-gender" value="女性" onchange="clearErr('group-gender')"><span class="radio-box">女性</span></label>
+          <label class="radio-btn-wrap"><input type="radio" name="s-gender" value="無回答" onchange="clearErr('group-gender')"><span class="radio-box" style="font-size:12px;">無回答</span></label>
+        </div>
+      </div>
+
+      <div class="profile-group" id="group-age">
+        <label>年齢</label>
+        <div class="radio-buttons">
+          <label class="radio-btn-wrap"><input type="radio" name="s-age" value="34歳以下" onchange="clearErr('group-age')"><span class="radio-box">34歳以下</span></label>
+          <label class="radio-btn-wrap"><input type="radio" name="s-age" value="35歳以上" onchange="clearErr('group-age')"><span class="radio-box">35歳以上</span></label>
+        </div>
+      </div>
+
+      <div class="profile-group" id="group-kpi" style="margin-bottom:8px;">
+        <label>お魚やお酒のお話について、いつもより言葉で説明しやすかったですか?</label>
+        <div class="radio-buttons-col">
+          <label class="radio-btn-wrap"><input type="radio" name="s-kpi" value="いつもより説明しやすかった" onchange="clearErr('group-kpi')"><span class="radio-box">いつもより説明しやすかった</span></label>
+          <label class="radio-btn-wrap"><input type="radio" name="s-kpi" value="やや説明しやすかった" onchange="clearErr('group-kpi')"><span class="radio-box">やや説明しやすかった</span></label>
+          <label class="radio-btn-wrap"><input type="radio" name="s-kpi" value="あまり変わらない" onchange="clearErr('group-kpi')"><span class="radio-box">あまり変わらない</span></label>
+          <label class="radio-btn-wrap"><input type="radio" name="s-kpi" value="わからない" onchange="clearErr('group-kpi')"><span class="radio-box">わからない</span></label>
+        </div>
+      </div>
+
+      <p class="radio-group-error" id="surveyError">すべての項目にご回答ください</p>
+      <p class="note">※サービス改善のための参考にさせていただきます</p>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" style="width:100%" onclick="submitSurvey()">送信して終わる</button>
+      </div>
+    </section>
+
+    <!-- Screen: 完了 -->
+    <section class="screen" data-screen="done">
+      <div class="stamp-wrap">
+        <svg class="stamp" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="44" fill="none" stroke="#F1DCD5" stroke-width="3"/>
+          <text x="50" y="46" text-anchor="middle" font-size="14" fill="#F1DCD5" font-family="'Shippori Mincho', serif" font-weight="700">本日</text>
+          <text x="50" y="66" text-anchor="middle" font-size="14" fill="#F1DCD5" font-family="'Shippori Mincho', serif" font-weight="700">お疲れ様</text>
+        </svg>
+      </div>
+      <p class="lead center-text">今日出会った魚とお酒が、<br>少しでも記憶に残りますように。<br>またのご来店をお待ちしております。</p>
+      <div class="btn-row">
+        <button class="btn btn-ghost" style="width:100%" onclick="goScreen('select')">また魚を見る</button>
+      </div>
+    </section>
+
+  </main>
+
+</div>
+
+<script>
+/* ============ ログ送信設定(このコンテンツ専用。他コンテンツとは別のURL/シート) ============ */
+const GAS_URL = 'YOUR_GAS_WEBHOOK_URL_HERE';
+
+function sendLog(action, extra) {
+  const payload = Object.assign({
+    deviceId: fishDeviceId,
+    action: action
+  }, extra || {});
+  fetch(GAS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(payload)
+  }).catch(err => console.log('送信エラー:', err));
+}
+
+let fishDeviceId = localStorage.getItem('fish_device_id');
+if (!fishDeviceId) {
+  fishDeviceId = 'fdev_' + Math.random().toString(36).slice(2, 11);
+  localStorage.setItem('fish_device_id', fishDeviceId);
+}
+
+/* ============ 魚データ ============
+   menuItems: [] は空の状態(枠のみ)。後日、実際のメニュー情報を追加する。
+   例: { name: "真鯵の刺身", description: "..." }
+============================================= */
+const fishList = [
+  {
+    id: "aji", name: "真鯵", kana: "まあじ",
+    hook: "「アジ」という名前は、味が良いことに由来するという説があります。",
+    taste: "皮目の香ばしさと、身に感じる脂の甘みのバランスに注目してみてください。",
+    menuItems: []
+  },
+  {
+    id: "katsuo", name: "カツオ", kana: "かつお",
+    hook: "カツオは泳ぎを止めると呼吸ができなくなるため、生涯泳ぎ続ける魚です。",
+    taste: "藁焼きの香ばしさと、赤身ならではの濃い旨みを味わってみてください。",
+    menuItems: []
+  },
+  {
+    id: "maguro", name: "まぐろ", kana: "まぐろ",
+    hook: "同じマグロでも、大トロ・中トロ・赤身では脂の乗り方がまったく異なります。",
+    taste: "部位ごとの脂の量と、口の中でとろける食感の違いに注目してみてください。",
+    menuItems: []
+  },
+  {
+    id: "salmon", name: "サーモン", kana: "さーもん",
+    hook: "「鮭」と「サーモン」は使われる魚の種類が異なることが多く、生食用の多くは養殖されたものです。",
+    taste: "脂の甘みと、なめらかな舌触りを楽しんでみてください。",
+    menuItems: []
+  },
+  {
+    id: "hirame", name: "ヒラメ", kana: "ひらめ",
+    hook: "「左ヒラメに右カレイ」という言葉の通り、目の付き方でヒラメとカレイを見分けられます。",
+    taste: "淡白な中にある上品な旨みと、コリコリとした食感に注目してみてください。",
+    menuItems: []
+  },
+  {
+    id: "shimaaji", name: "シマアジ", kana: "しまあじ",
+    hook: "シマアジは天然物の漁獲量が非常に少なく、白身魚の中でも高級魚として扱われています。",
+    taste: "脂の甘さと、しっかりとした歯ごたえを味わってみてください。",
+    menuItems: []
+  },
+  {
+    id: "maiwashi", name: "真いわし", kana: "まいわし",
+    hook: "イワシは群れで泳ぐことで大きな一つの塊のように見せかけ、外敵から身を守っていると言われています。",
+    taste: "青魚ならではの香りと、脂ののった身の旨みを楽しんでみてください。",
+    menuItems: []
+  },
+  {
+    id: "madako", name: "真だこ", kana: "まだこ",
+    hook: "タコの心臓は3つあり、血液は人間と違って青色をしています。",
+    taste: "噛むほどに広がる旨みと、しっかりとした歯ごたえに注目してみてください。",
+    menuItems: []
+  },
+  {
+    id: "unagi", name: "うなぎ", kana: "うなぎ",
+    hook: "うなぎの生態には今も謎が多く、産卵場所が特定されたのは近年になってからのことです。",
+    taste: "ふっくらとした身と、香ばしいタレの絡み具合を楽しんでみてください。",
+    menuItems: []
+  },
+  {
+    id: "yariika", name: "ヤリイカ", kana: "やりいか",
+    hook: "「ヤリイカ」という名前は、細長い胴の形が槍に似ていることに由来します。",
+    taste: "上品な甘みと、柔らかな食感に注目してみてください。",
+    menuItems: []
+  },
+  {
+    id: "amaebi", name: "甘エビ", kana: "あまえび",
+    hook: "甘エビは生まれた時はすべてオスで、成長するとメスに性転換します。",
+    taste: "とろけるような甘みと、なめらかな口当たりを味わってみてください。",
+    menuItems: []
+  }
+];
+
+/* ============ お酒データ(どの魚を選んでも共通のおすすめとして表示) ============ */
+const sakeList = [
+  {
+    id: "oze", group: "冷や・常温で", tag: "辛口",
+    name: "尾瀬のゆきどけ", region: "群馬",
+    taste: "キレのある喉ごしと、澄んだ後味に注目してみてください。"
+  },
+  {
+    id: "hakkaisan", group: "冷や・常温で", tag: "スッキリ",
+    name: "八海山", region: "新潟",
+    taste: "雑味のないクリアな味わいと、軽やかな飲み口を楽しんでみてください。"
+  },
+  {
+    id: "zaku", group: "冷や・常温で", tag: "旨甘口",
+    name: "作", region: "三重",
+    taste: "やわらかな甘みと、ふくよかな米の旨みに注目してみてください。"
+  },
+  {
+    id: "manozuru", group: "熱燗で", tag: "辛口",
+    name: "真野鶴", region: "新潟",
+    taste: "温めることで引き立つ、まろやかな辛口の味わいを楽しんでみてください。"
+  },
+  {
+    id: "tateyama", group: "熱燗で", tag: "超辛口",
+    name: "立山", region: "富山",
+    taste: "熱燗にすることで際立つ、キレのある辛さに注目してみてください。"
+  }
+];
+
+/* ============ 状態管理 ============ */
+let currentFishId = null;
+let surveyProfile = JSON.parse(localStorage.getItem('fish_survey')) || null;
+
+/* ============ 画面遷移と背景切り替え ============ */
+function goScreen(name){
+  document.querySelectorAll('.screen').forEach(el=>{
+    el.classList.toggle('active', el.dataset.screen === name);
+  });
+  window.scrollTo({top:0, behavior:'smooth'});
+
+  // 背景動画とヘッダーの切り替え制御
+  const opVideo = document.getElementById('bg-video-op');
+  const mainVideo = document.getElementById('bg-video-main');
+  const header = document.getElementById('main-header');
+  
+  if(name === 'op') {
+    if(opVideo) opVideo.classList.add('show-bg');
+    if(mainVideo) mainVideo.classList.remove('show-bg');
+    if(header) header.style.display = 'none';
+  } else {
+    if(opVideo) opVideo.classList.remove('show-bg');
+    if(mainVideo) mainVideo.classList.add('show-bg');
+    if(header) header.style.display = 'block';
+  }
+}
+
+function clearErr(groupId){
+  const el = document.getElementById(groupId);
+  if (el) el.classList.remove('errhi');
+}
+
+/* ============ 魚選択グリッドの描画 ============ */
+function renderFishGrid(){
+  const wrap = document.getElementById('fishGrid');
+  wrap.innerHTML = "";
+  fishList.forEach(f=>{
+    const btn = document.createElement('button');
+    btn.className = "fish-card";
+    btn.innerHTML = `
+      <svg class="icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 24c8-10 20-14 30-10-2 4-2 6 0 10-10 4-22 0-30-10z" stroke="#F2EEE3" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="M34 14c4 3 6 7 6 10s-2 7-6 10" stroke="#F2EEE3" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="14" cy="22" r="1.4" fill="#F2EEE3"/>
+      </svg>
+      <div class="name">${f.name}</div>
+      <div class="kana">${f.kana}</div>
+    `;
+    btn.onclick = () => selectFish(f.id);
+    wrap.appendChild(btn);
+  });
+}
+
+/* ============ 魚詳細の描画 ============ */
+function selectFish(id){
+  currentFishId = id;
+  const f = fishList.find(x=>x.id===id);
+  if (!f) return;
+
+  document.getElementById('detailKana').textContent = f.kana;
+  document.getElementById('detailName').textContent = f.name;
+  document.getElementById('detailHook').textContent = f.hook;
+  document.getElementById('detailTaste').textContent = f.taste;
+
+  const menuEmpty = document.getElementById('menuEmpty');
+  const menuListEl = document.getElementById('menuList');
+  if (f.menuItems && f.menuItems.length > 0) {
+    menuEmpty.style.display = 'none';
+    menuListEl.style.display = 'block';
+    menuListEl.innerHTML = f.menuItems.map(m => `
+      <div class="menu-item">
+        <div class="name">${m.name}</div>
+        <div class="desc">${m.description || ''}</div>
+      </div>
+    `).join('');
+  } else {
+    menuEmpty.style.display = 'block';
+    menuListEl.style.display = 'none';
+    menuListEl.innerHTML = '';
+  }
+
+  renderSakeSuggestions();
+
+  sendLog('魚を見た', { fishId: f.id, fishName: f.name });
+
+  goScreen('detail');
+}
+
+function renderSakeSuggestions(){
+  const wrap = document.getElementById('sakeSuggestions');
+  wrap.innerHTML = "";
+  const groups = [...new Set(sakeList.map(s => s.group))];
+  groups.forEach(groupName => {
+    wrap.innerHTML += `<div class="sake-group-label">${groupName}</div>`;
+    sakeList.filter(s => s.group === groupName).forEach(s => {
+      wrap.innerHTML += `
+        <div class="sake-card">
+          <span class="tag">${s.tag}</span>
+          <div class="name-row">
+            <span class="name">${s.name}</span>
+            <span class="region">〈${s.region}〉</span>
+          </div>
+          <p class="taste">${s.taste}</p>
+        </div>
+      `;
+    });
+  });
+}
+
+/* ============ アンケートへ進む、または直接終了する ============ */
+function goToSurveyOrFinish(){
+  if (surveyProfile) {
+    goScreen('done');
+  } else {
+    goScreen('survey');
+  }
+}
+
+/* ============ アンケート送信 ============ */
+function submitSurvey(){
+  const genderEl = document.querySelector('input[name="s-gender"]:checked');
+  const ageEl = document.querySelector('input[name="s-age"]:checked');
+  const kpiEl = document.querySelector('input[name="s-kpi"]:checked');
+  const errorEl = document.getElementById('surveyError');
+
+  let hasError = false;
+  if (!genderEl) { document.getElementById('group-gender').classList.add('errhi'); hasError = true; }
+  if (!ageEl) { document.getElementById('group-age').classList.add('errhi'); hasError = true; }
+  if (!kpiEl) { document.getElementById('group-kpi').classList.add('errhi'); hasError = true; }
+
+  if (hasError) {
+    errorEl.style.display = 'block';
+    errorEl.classList.remove('shake'); void errorEl.offsetWidth; errorEl.classList.add('shake');
+    return;
+  }
+  errorEl.style.display = 'none';
+
+  surveyProfile = { gender: genderEl.value, age: ageEl.value };
+  localStorage.setItem('fish_survey', JSON.stringify(surveyProfile));
+
+  sendLog('アンケート回答', {
+    gender: genderEl.value,
+    age: ageEl.value,
+    kpi: kpiEl.value,
+    fishId: currentFishId
+  });
+
+  goScreen('done');
+}
+
+/* ============ 初期化 ============ */
+renderFishGrid();
+goScreen('op');
+sendLog('アクセス');
+
+/* ============ OP動画終了イベント ============ */
+const opVid = document.getElementById('bg-video-op');
+const opLogo = document.getElementById('op-logo');
+if (opVid && opLogo) {
+  opVid.addEventListener('ended', () => {
+    // 動画終了後、ロゴ画像をふわっと表示
+    opLogo.style.opacity = '1';
+    
+    // 1秒のフェードイン後、2秒待機してコンテンツ画面へ遷移（計3秒）
+    setTimeout(() => {
+      // 既に手動で遷移していない場合のみ実行
+      const opScreen = document.querySelector('[data-screen="op"]');
+      if (opScreen.classList.contains('active')) {
+        goScreen('select');
+      }
+    }, 3000);
+  });
+}
+</script>
+
+</body>
+</html>

@@ -238,16 +238,28 @@
     text-align: center;
     display: none; /* JSで切り替え */
   }
-  .trivia-illustration-wrap svg {
+  .trivia-illustration-wrap img { /* SVGからimgに変更、スタイルを追加 */
     width: 100%;
     max-width: 260px;
     height: auto;
     border-radius: 6px;
-    background: rgba(13,27,42,0.3);
+    background: transparent; /* 背景を透明に */
     border: 1px solid rgba(220,227,236,0.15);
     margin: 0 auto;
     display: block;
+    mix-blend-mode: multiply; /* 白背景を透過させるためのブレンドモード */
   }
+  /* アイコンやロゴ画像にも適用する場合 */
+  img.icon, img.seal, img.op-logo-img {
+      mix-blend-mode: multiply;
+  }
+  /* ダークテーマの場合はスクリーンを使うと黒背景が抜けます。背景色に合わせて調整してください */
+  /*
+  .trivia-illustration-wrap img, img.icon, img.seal, img.op-logo-img {
+       mix-blend-mode: screen; 
+  }
+  */
+
   .trivia-illustration-caption {
     font-size: 11px;
     color: var(--ai-pale);

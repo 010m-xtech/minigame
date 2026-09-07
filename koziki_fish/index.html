@@ -149,39 +149,111 @@
   }
   .fish-header .name{ font-family: var(--font-mincho); font-size:24px; font-weight:700; color: var(--kinari); }
 
-  /* --- 情報カード (基本・意外・豆知識) --- */
-  .info-card {
+  /* --- 魚のストーリー (読み物風) --- */
+  .fish-story {
+    background: rgba(242,238,227,0.04);
+    border: 1px solid rgba(242,238,227,0.15);
     border-radius: var(--radius);
-    padding: 16px 18px;
-    margin-bottom: 16px;
-  }
-  .info-card .label { font-size:10.5px; letter-spacing:.1em; font-weight:700; margin-bottom:8px; }
-  .info-card p { margin:0; font-size:13.5px; line-height:1.85; }
-
-  /* 基本的な情報 */
-  .info-card.basic {
-    background: rgba(242,238,227,0.08);
-    border:1px solid rgba(242,238,227,0.2);
+    padding: 20px;
+    margin-bottom: 24px;
     color: rgba(242,238,227,0.92);
   }
-  .info-card.basic .label { color: var(--shu-pale); }
-
-  /* 意外な情報 (朱色グラデーション) */
-  .info-card.surprising {
-    background: linear-gradient(135deg, rgba(189,70,48,0.92), rgba(159,54,36,0.92));
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  .story-basic {
+    font-size: 14px;
+    line-height: 1.8;
+    margin: 0 0 20px;
   }
-  .info-card.surprising .label { color: var(--shu-pale); }
-  .info-card.surprising p { font-size:14.5px; font-weight:500; }
-
-  /* 豆知識 (藍色グラデーション) */
-  .info-card.trivia {
-    background: linear-gradient(135deg, rgba(34,56,92,0.85), rgba(76,106,148,0.85));
-    border: 1px solid rgba(220,227,236,0.3);
-    color: #fff;
+  
+  .story-highlight {
+    margin: 0 -20px 20px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, rgba(189,70,48,0.15), transparent);
+    border-left: 4px solid var(--shu);
   }
-  .info-card.trivia .label { color: var(--ai-pale); }
+  .highlight-title {
+    font-family: var(--font-mincho);
+    font-size: 16.5px;
+    color: var(--shu-pale);
+    margin: 0 0 8px;
+    font-weight: 700;
+  }
+  .story-highlight p {
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  /* --- 味わいと特徴 --- */
+  .story-taste {
+    margin: 0 0 24px;
+  }
+  .taste-title {
+    font-family: var(--font-mincho);
+    font-size: 15.5px;
+    color: var(--kinari);
+    margin: 0 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .taste-title::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--shu);
+    transform: rotate(45deg);
+  }
+  .story-taste p {
+    font-size: 14px;
+    line-height: 1.8;
+    margin: 0;
+  }
+  
+  .story-trivia {
+    background: rgba(34,56,92,0.4);
+    border-radius: 8px;
+    padding: 14px 16px;
+    border: 1px solid rgba(76,106,148,0.3);
+  }
+  .trivia-label {
+    font-size: 11px;
+    color: var(--ai-pale);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .story-trivia p {
+    font-size: 13px;
+    line-height: 1.7;
+    margin: 0;
+  }
+  
+  /* --- 豆知識用 イラスト (コード描画) --- */
+  .trivia-illustration-wrap {
+    margin-top: 16px;
+    text-align: center;
+    display: none; /* JSで切り替え */
+  }
+  .trivia-illustration-wrap svg {
+    width: 100%;
+    max-width: 260px;
+    height: auto;
+    border-radius: 6px;
+    background: rgba(13,27,42,0.3);
+    border: 1px solid rgba(220,227,236,0.15);
+    margin: 0 auto;
+    display: block;
+  }
+  .trivia-illustration-caption {
+    font-size: 11px;
+    color: var(--ai-pale);
+    margin-top: 8px;
+    opacity: 0.8;
+  }
 
   h3.section-title{
     font-family: var(--font-mincho); font-size:15.5px; color: var(--kinari);
@@ -344,20 +416,33 @@
         <span class="name" id="detailName"></span>
       </div>
 
-      <div class="info-card basic">
-        <div class="label">基本的な情報</div>
-        <p id="detailBasic"></p>
-      </div>
+      <article class="fish-story">
+        <p class="story-basic" id="detailBasic"></p>
+        
+        <div class="story-taste">
+          <h4 class="taste-title">味わいと食べるポイント</h4>
+          <p id="detailEatingPoint"></p>
+        </div>
 
-      <div class="info-card surprising">
-        <div class="label">意外な情報</div>
-        <p id="detailSurprising"></p>
-      </div>
-
-      <div class="info-card trivia">
-        <div class="label">豆知識</div>
-        <p id="detailTrivia"></p>
-      </div>
+        <div class="story-highlight">
+          <h4 class="highlight-title">実は…</h4>
+          <p id="detailSurprising"></p>
+        </div>
+        
+        <div class="story-trivia">
+          <div class="trivia-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            豆知識
+          </div>
+          <p id="detailTrivia"></p>
+          
+          <!-- イラスト(SVG)描画エリア -->
+          <div class="trivia-illustration-wrap" id="detailIllWrap">
+            <div id="detailIllSvg"></div>
+            <div class="trivia-illustration-caption" id="detailIllCaption"></div>
+          </div>
+        </div>
+      </article>
 
       <button class="btn btn-ghost" style="width: 100%; margin-top: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;" onclick="goToMenu()">
         <span>この魚を使ったメニューを見る</span>
@@ -459,7 +544,7 @@
 </div>
 
 <script>
-/* ============ ログ送信設定(このコンテンツ専用。他コンテンツとは別のURL/シート) ============ */
+/* ============ ログ送信設定 ============ */
 const GAS_URL = 'YOUR_GAS_WEBHOOK_URL_HERE';
 
 function sendLog(action, extra) {
@@ -480,21 +565,22 @@ if (!fishDeviceId) {
   localStorage.setItem('fish_device_id', fishDeviceId);
 }
 
-/* ============ 魚データ ============
-   menuItems: [] は空の状態(枠のみ)。後日、実際のメニュー情報を追加する。
-   recommendedSake: 各魚に最も合うお酒のIDを紐づけています。
-============================================= */
+/* ============ 魚データ (イラストはSVGコードとして設定) ============ */
 const fishList = [
   {
     id: "aji", name: "真鯵", kana: "まあじ", img: "maaji.png",
     basicInfo: "通年出回るが、旬は初夏から夏。旨味成分が豊富で、刺身、塩焼き、フライなど万能な青魚です。",
+    eatingPoint: "皮目の香ばしさと、身に感じる脂の甘みのバランスが絶妙です。生姜やネギなどの薬味と一緒に食べると、より一層旨味が引き立ちます。",
     surprisingInfo: "「アジ」という名前は「味が良い」ことから名付けられたという説が有力で、古くから日本人に愛されてきました。",
     trivia: "側線（そくせん）と呼ばれる体の横の線にある「ゼイゴ」という硬いウロコは、アジ科の魚特有のものです。",
+    illustration: `<img src="maaji_kaisetsu.png" alt="アジのゼイゴ" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
+    illCaption: "尾の方にある硬いウロコ「ゼイゴ」",
     menuItems: [], recommendedSake: "hakkaisan"
   },
   {
     id: "katsuo", name: "カツオ", kana: "かつお", img: "katsuo.png",
     basicInfo: "春の「初鰹」と秋の「戻り鰹」で年に2回旬を迎える、赤身魚の代表格。鉄分を多く含みます。",
+    eatingPoint: "藁焼きの香ばしさと、赤身ならではの濃い旨みが特徴です。ニンニクやポン酢と合わせることで、さっぱりとしつつも力強い味わいを楽しめます。",
     surprisingInfo: "泳ぎを止めるとエラ呼吸ができず窒息してしまうため、一生休むことなく高速で泳ぎ続けています。",
     trivia: "鰹節（かつおぶし）は世界一硬い食品としてギネス認定されており、日本料理の出汁に欠かせない存在です。",
     menuItems: [], recommendedSake: "tateyama"
@@ -502,6 +588,7 @@ const fishList = [
   {
     id: "maguro", name: "まぐろ", kana: "まぐろ", img: "maguro.png",
     basicInfo: "寿司や刺身の主役。赤身、中トロ、大トロと部位によって脂の乗り方と味わいが大きく異なります。",
+    eatingPoint: "赤身はさっぱりとした酸味と旨味が、トロは口の中でとろける濃厚な脂の甘みが楽しめます。部位ごとの味わいの違いをぜひ食べ比べてみてください。",
     surprisingInfo: "マグロもカツオと同様に、泳ぎ続けないと呼吸ができない回遊魚で、寝ている間もゆっくり泳いでいます。",
     trivia: "江戸時代、脂の多いトロの部分は「腐りやすい」として捨てられたり、畑の肥料にされたりしていました。",
     menuItems: [], recommendedSake: "zaku"
@@ -509,6 +596,7 @@ const fishList = [
   {
     id: "salmon", name: "サーモン", kana: "さーもん", img: "sa-mon.png",
     basicInfo: "脂がたっぷり乗り、とろけるような食感が特徴。子供から大人まで大人気の魚です。",
+    eatingPoint: "豊かな脂の甘みと、なめらかな舌触りが最大の魅力です。炙ることで香ばしさが加わり、生とはまた違ったとろける食感を味わえます。",
     surprisingInfo: "生食用の「サーモン」は基本的に寄生虫対策がされた養殖物で、天然の「鮭」は加熱調理が基本です。",
     trivia: "身がオレンジ色をしていますが、実は「白身魚」に分類されます。餌の甲殻類の色素（アスタキサンチン）が蓄積してこの色になります。",
     menuItems: [], recommendedSake: "oze"
@@ -516,13 +604,17 @@ const fishList = [
   {
     id: "hirame", name: "ヒラメ", kana: "ひらめ", img: "hirame.png",
     basicInfo: "上品な旨味とコリコリとした食感が特徴の高級白身魚。冬に脂が乗って「寒ビラメ」として美味しくなります。",
+    eatingPoint: "淡白な中にも上品な旨みがあり、コリコリとした弾力のある食感が楽しめます。えんがわ部分は脂が乗っており、特有の甘みが口に広がります。",
     surprisingInfo: "生まれたばかりのヒラメは普通の魚のように目が両側にありますが、成長するにつれて右目が左側に移動します。",
     trivia: "「左ヒラメに右カレイ」と言われ、目を上にして置いた時に顔が左を向くのがヒラメ、右を向くのがカレイと見分けます。",
+    illustration: `<img src="hirame_kaisetsu.png" alt="左ヒラメに右カレイ" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
+    illCaption: "目の位置でヒラメとカレイを見分ける図解",
     menuItems: [], recommendedSake: "hakkaisan"
   },
   {
     id: "shimaaji", name: "シマアジ", kana: "しまあじ", img: "shimaaji.png",
     basicInfo: "アジ類の中で最も味が良いとされ、高級魚として扱われます。身が締まり、上品な脂の甘みがあります。",
+    eatingPoint: "青魚特有のクセがなく、白身魚のような上品な脂の甘さと、しっかりとした歯ごたえを同時に味わえるのが特徴です。",
     surprisingInfo: "天然物は非常に漁獲量が少なく「幻の魚」とも呼ばれますが、養殖技術の進歩により安定して流通するようになりました。",
     trivia: "体の側面に鮮やかな黄色の縦線（シマ）が入っていることが、「シマアジ」という名前の由来の一つです。",
     menuItems: [], recommendedSake: "manozuru"
@@ -530,20 +622,27 @@ const fishList = [
   {
     id: "maiwashi", name: "真いわし", kana: "まいわし", img: "iwashi.png",
     basicInfo: "青魚の代表で、EPAやDHAなどの栄養素が豊富。新鮮なものは刺身でも絶品です。",
+    eatingPoint: "青魚ならではの豊かな香りと、とろけるように脂ののった身の旨みがたまりません。生姜醤油でさっぱりといただくのがおすすめです。",
     surprisingInfo: "「弱し（よわし）」が名前の由来と言われるほど鮮度落ちが早く、水揚げされるとすぐに死んでしまいます。",
     trivia: "敵から身を守るために、何万匹という巨大な群れ（トルネード）を作って泳ぐ習性があります。",
+    illustration: `<img src="iwashi_kaisetsu.jpg" alt="イワシの群れ（トルネード）" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
+    illCaption: "巨大な群れ（トルネード）を作って泳ぐイワシ",
     menuItems: [], recommendedSake: "tateyama"
   },
   {
     id: "madako", name: "真だこ", kana: "まだこ", img: "tako.png",
     basicInfo: "噛むほどに広がる濃厚な旨味と、しっかりとした弾力が特徴。日本で最も一般的に食べられるタコです。",
+    eatingPoint: "噛めば噛むほどに広がる濃厚な旨みと、しっかりとした歯ごたえが特徴です。吸盤のコリコリとした食感も良いアクセントになります。",
     surprisingInfo: "タコは心臓を3つ、脳を9つ持っており、非常に高い知能を持っていると言われています。",
     trivia: "日本では茹でると赤くなりますが、生きている時は環境に合わせて一瞬で体の色や模様を変えることができます。",
+    illustration: `<img src="tako_kaisetsu.png" alt="タコにある3つの心臓と9つの脳" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
+    illCaption: "タコにある3つの心臓と9つの脳",
     menuItems: [], recommendedSake: "manozuru"
   },
   {
     id: "unagi", name: "うなぎ", kana: "うなぎ", img: "unagi.png",
     basicInfo: "土用の丑の日に食べる習慣でおなじみ。ふっくらとした身と香ばしいタレの相性が抜群です。",
+    eatingPoint: "皮目はパリッと香ばしく、身はふっくらと柔らかな食感。甘辛いタレと脂の旨味が絡み合い、ご飯やお酒がどんどん進む深い味わいです。",
     surprisingInfo: "ウナギの生態は長年謎に包まれていましたが、近年になってようやくマリアナ諸島付近で産卵することが判明しました。",
     trivia: "ウナギの血には毒（イクチオトキシン）が含まれているため、加熱せずに生で食べることは基本的にできません。",
     menuItems: [], recommendedSake: "zaku"
@@ -551,13 +650,17 @@ const fishList = [
   {
     id: "yariika", name: "ヤリイカ", kana: "やりいか", img: "ika.png",
     basicInfo: "上品な甘みと、コリコリとした歯切れの良い食感が魅力。冬から春にかけてが旬です。",
+    eatingPoint: "透き通るような身は、上品な甘みと柔らかくも歯切れの良い食感が魅力です。噛むほどにイカ本来の優しい旨味が口いっぱいに広がります。",
     surprisingInfo: "寿命はわずか1年。秋に生まれて成長し、翌年の春に産卵を終えると一生を終えます。",
     trivia: "「ヤリイカ（槍烏賊）」という名前は、細長く先が尖った胴体の形が「槍の穂先」に似ていることに由来します。",
+    illustration: `<img src="ika_kaisetsu.png" alt="ヤリイカのシルエット" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
+    illCaption: "槍の穂先に似ているヤリイカのシルエット",
     menuItems: [], recommendedSake: "oze"
   },
   {
     id: "amaebi", name: "甘エビ", kana: "あまえび", img: "ebi.png",
     basicInfo: "その名の通り、とろけるような強い甘みが特徴。正式名称は「ホッコクアカエビ」といいます。",
+    eatingPoint: "口に入れた瞬間にとろけるような強い甘みと、ねっとりとしたなめらかな口当たりが特徴です。頭の味噌も濃厚で、余すところなく楽しめます。",
     surprisingInfo: "生まれた時はすべてオスで、4〜5年経つとメスに性転換するという不思議な生態を持っています。",
     trivia: "水揚げされてから少し時間が経つことで、自己消化によりアミノ酸が増え、より甘みが増します。",
     menuItems: [], recommendedSake: "oze"
@@ -568,7 +671,7 @@ const fishList = [
 const sakeList = [
   {
     id: "oze", group: "冷や・常温で", tag: "辛口",
-    name: "尾瀬のゆきどけ", region: "群生",
+    name: "尾瀬のゆきどけ", region: "群馬",
     taste: "キレのある喉ごしと、澄んだ後味に注目してみてください。"
   },
   {
@@ -615,7 +718,6 @@ function startSeamlessLoop() {
   vid1.classList.add('show-bg');
 
   const checkTime = (currentVid, nextVid) => {
-    // 再生位置が終了間際に近づいたら、次の動画を再生開始して表示する
     if (currentVid.duration > 0 && currentVid.currentTime >= currentVid.duration - fadeTime) {
       if (nextVid.paused) {
         nextVid.currentTime = 0;
@@ -624,13 +726,11 @@ function startSeamlessLoop() {
         currentVid.classList.remove('show-bg');
       }
     }
-    // 完全に終わったら一時停止して待機
     if (currentVid.currentTime >= currentVid.duration - 0.2) {
       currentVid.pause();
     }
   };
 
-  // timeupdateイベントで再生時間を常に監視
   vid1.addEventListener('timeupdate', () => checkTime(vid1, vid2));
   vid2.addEventListener('timeupdate', () => checkTime(vid2, vid1));
 }
@@ -641,7 +741,6 @@ function goScreen(name){
   });
   window.scrollTo({top:0, behavior:'smooth'});
 
-  // 背景動画とヘッダーの切り替え制御
   const opVideo = document.getElementById('bg-video-op');
   const header = document.getElementById('main-header');
   
@@ -683,11 +782,24 @@ function selectFish(id){
   if (!f) return;
 
   document.getElementById('detailName').textContent = f.name;
-  
-  // 新しい情報項目をセット
   document.getElementById('detailBasic').textContent = f.basicInfo;
+  document.getElementById('detailEatingPoint').textContent = f.eatingPoint;
   document.getElementById('detailSurprising').textContent = f.surprisingInfo;
   document.getElementById('detailTrivia').textContent = f.trivia;
+
+  // イラスト(SVG)の表示切り替え
+  const illWrap = document.getElementById('detailIllWrap');
+  const illSvg = document.getElementById('detailIllSvg');
+  const illCaption = document.getElementById('detailIllCaption');
+  
+  if(f.illustration) {
+    illSvg.innerHTML = f.illustration;
+    illCaption.textContent = f.illCaption || "";
+    illWrap.style.display = 'block';
+  } else {
+    illWrap.style.display = 'none';
+    illSvg.innerHTML = "";
+  }
 
   sendLog('魚を見た', { fishId: f.id, fishName: f.name });
 
@@ -702,7 +814,6 @@ function goToMenu(){
 
   const wrap = document.getElementById('menuScreenList');
   
-  // メニューデータがある場合はそれを、ない場合は選択した魚の名前を使った仮メニューを表示
   const items = f.menuItems && f.menuItems.length > 0 ? f.menuItems : [
     { name: `${f.name}のお造り`, description: "鮮度抜群。素材本来の味をお楽しみください。", recommendedSake: f.recommendedSake },
     { name: `${f.name}の特製なめろう`, description: "日本酒にぴったり。ちびちびとつまめる一品です。", recommendedSake: "zaku" },
@@ -794,12 +905,9 @@ const opVid = document.getElementById('bg-video-op');
 const opLogo = document.getElementById('op-logo');
 if (opVid && opLogo) {
   opVid.addEventListener('ended', () => {
-    // 動画終了後、ロゴ画像をふわっと表示
     opLogo.style.opacity = '1';
     
-    // 1秒のフェードイン後、2秒待機してコンテンツ画面へ遷移（計3秒）
     setTimeout(() => {
-      // 既に手動で遷移していない場合のみ実行
       const opScreen = document.querySelector('[data-screen="op"]');
       if (opScreen.classList.contains('active')) {
         goScreen('select');

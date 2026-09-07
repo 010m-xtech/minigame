@@ -105,10 +105,10 @@
     position: absolute;
     bottom: 50px;
     left: 50%;
-    color: rgba(242, 238, 227, 0.85); /* 馴染むような白っぽい色 */
+    color: rgba(242, 238, 227, 0.85);
     font-size: 13px;
     letter-spacing: 0.1em;
-    pointer-events: none; /* タップの邪魔にならないように */
+    pointer-events: none;
     white-space: nowrap;
     animation: floatBlink 3s ease-in-out infinite;
   }
@@ -145,29 +145,43 @@
 
   /* --- 魚詳細画面 --- */
   .fish-header{
-    display:flex; align-items:baseline; gap:10px; margin-bottom:6px;
+    display:flex; align-items:baseline; gap:10px; margin-bottom:12px;
   }
   .fish-header .name{ font-family: var(--font-mincho); font-size:24px; font-weight:700; color: var(--kinari); }
 
-  .hook-card{
-    background: linear-gradient(135deg, rgba(189,70,48,0.92), rgba(159,54,36,0.92));
+  /* --- 情報カード (基本・意外・豆知識) --- */
+  .info-card {
     border-radius: var(--radius);
-    padding: 18px 18px;
-    margin: 18px 0;
-    color:#fff;
+    padding: 16px 18px;
+    margin-bottom: 16px;
   }
-  .hook-card .label{ font-size:10.5px; letter-spacing:.1em; color: var(--shu-pale); font-weight:700; margin-bottom:8px; }
-  .hook-card p{ margin:0; font-size:14.5px; line-height:1.8; font-weight:500; }
+  .info-card .label { font-size:10.5px; letter-spacing:.1em; font-weight:700; margin-bottom:8px; }
+  .info-card p { margin:0; font-size:13.5px; line-height:1.85; }
 
-  .taste-card{
+  /* 基本的な情報 */
+  .info-card.basic {
     background: rgba(242,238,227,0.08);
     border:1px solid rgba(242,238,227,0.2);
-    border-radius: var(--radius);
-    padding:16px 18px;
-    margin-bottom: 22px;
+    color: rgba(242,238,227,0.92);
   }
-  .taste-card .label{ font-size:10.5px; letter-spacing:.1em; color: var(--shu-pale); font-weight:700; margin-bottom:8px; }
-  .taste-card p{ margin:0; font-size:13.5px; line-height:1.85; color: rgba(242,238,227,0.92); }
+  .info-card.basic .label { color: var(--shu-pale); }
+
+  /* 意外な情報 (朱色グラデーション) */
+  .info-card.surprising {
+    background: linear-gradient(135deg, rgba(189,70,48,0.92), rgba(159,54,36,0.92));
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .info-card.surprising .label { color: var(--shu-pale); }
+  .info-card.surprising p { font-size:14.5px; font-weight:500; }
+
+  /* 豆知識 (藍色グラデーション) */
+  .info-card.trivia {
+    background: linear-gradient(135deg, rgba(34,56,92,0.85), rgba(76,106,148,0.85));
+    border: 1px solid rgba(220,227,236,0.3);
+    color: #fff;
+  }
+  .info-card.trivia .label { color: var(--ai-pale); }
 
   h3.section-title{
     font-family: var(--font-mincho); font-size:15.5px; color: var(--kinari);
@@ -326,21 +340,26 @@
 
     <!-- Screen: 魚詳細(情報+メニュー枠+お酒提案) -->
     <section class="screen" data-screen="detail">
-      <div class="fish-header" style="margin-bottom:4px;">
+      <div class="fish-header">
         <span class="name" id="detailName"></span>
       </div>
 
-      <div class="hook-card">
-        <div class="label">知ってましたか?</div>
-        <p id="detailHook"></p>
+      <div class="info-card basic">
+        <div class="label">基本的な情報</div>
+        <p id="detailBasic"></p>
       </div>
 
-      <div class="taste-card">
-        <div class="label">味わいポイント</div>
-        <p id="detailTaste"></p>
+      <div class="info-card surprising">
+        <div class="label">意外な情報</div>
+        <p id="detailSurprising"></p>
       </div>
 
-      <button class="btn btn-ghost" style="width: 100%; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;" onclick="goToMenu()">
+      <div class="info-card trivia">
+        <div class="label">豆知識</div>
+        <p id="detailTrivia"></p>
+      </div>
+
+      <button class="btn btn-ghost" style="width: 100%; margin-top: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;" onclick="goToMenu()">
         <span>この魚を使ったメニューを見る</span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </button>
@@ -468,68 +487,79 @@ if (!fishDeviceId) {
 const fishList = [
   {
     id: "aji", name: "真鯵", kana: "まあじ", img: "maaji.png",
-    hook: "「アジ」という名前は、味が良いことに由来するという説があります。",
-    taste: "皮目の香ばしさと、身に感じる脂の甘みのバランスに注目してみてください。",
+    basicInfo: "通年出回るが、旬は初夏から夏。旨味成分が豊富で、刺身、塩焼き、フライなど万能な青魚です。",
+    surprisingInfo: "「アジ」という名前は「味が良い」ことから名付けられたという説が有力で、古くから日本人に愛されてきました。",
+    trivia: "側線（そくせん）と呼ばれる体の横の線にある「ゼイゴ」という硬いウロコは、アジ科の魚特有のものです。",
     menuItems: [], recommendedSake: "hakkaisan"
   },
   {
     id: "katsuo", name: "カツオ", kana: "かつお", img: "katsuo.png",
-    hook: "カツオは泳ぎを止めると呼吸ができなくなるため、生涯泳ぎ続ける魚です。",
-    taste: "藁焼きの香ばしさと、赤身ならではの濃い旨みを味わってみてください。",
+    basicInfo: "春の「初鰹」と秋の「戻り鰹」で年に2回旬を迎える、赤身魚の代表格。鉄分を多く含みます。",
+    surprisingInfo: "泳ぎを止めるとエラ呼吸ができず窒息してしまうため、一生休むことなく高速で泳ぎ続けています。",
+    trivia: "鰹節（かつおぶし）は世界一硬い食品としてギネス認定されており、日本料理の出汁に欠かせない存在です。",
     menuItems: [], recommendedSake: "tateyama"
   },
   {
     id: "maguro", name: "まぐろ", kana: "まぐろ", img: "maguro.png",
-    hook: "同じマグロでも、大トロ・中トロ・赤身では脂の乗り方がまったく異なります。",
-    taste: "部位ごとの脂の量と、口の中でとろける食感の違いに注目してみてください。",
+    basicInfo: "寿司や刺身の主役。赤身、中トロ、大トロと部位によって脂の乗り方と味わいが大きく異なります。",
+    surprisingInfo: "マグロもカツオと同様に、泳ぎ続けないと呼吸ができない回遊魚で、寝ている間もゆっくり泳いでいます。",
+    trivia: "江戸時代、脂の多いトロの部分は「腐りやすい」として捨てられたり、畑の肥料にされたりしていました。",
     menuItems: [], recommendedSake: "zaku"
   },
   {
     id: "salmon", name: "サーモン", kana: "さーもん", img: "sa-mon.png",
-    hook: "「鮭」と「サーモン」は使われる魚の種類が異なることが多く、生食用の多くは養殖されたものです。",
-    taste: "脂の甘みと、なめらかな舌触りを楽しんでみてください。",
+    basicInfo: "脂がたっぷり乗り、とろけるような食感が特徴。子供から大人まで大人気の魚です。",
+    surprisingInfo: "生食用の「サーモン」は基本的に寄生虫対策がされた養殖物で、天然の「鮭」は加熱調理が基本です。",
+    trivia: "身がオレンジ色をしていますが、実は「白身魚」に分類されます。餌の甲殻類の色素（アスタキサンチン）が蓄積してこの色になります。",
     menuItems: [], recommendedSake: "oze"
   },
   {
     id: "hirame", name: "ヒラメ", kana: "ひらめ", img: "hirame.png",
-    hook: "「左ヒラメに右カレイ」という言葉の通り、目の付き方でヒラメとカレイを見分けられます。",
-    taste: "淡白な中にある上品な旨みと、コリコリとした食感に注目してみてください。",
+    basicInfo: "上品な旨味とコリコリとした食感が特徴の高級白身魚。冬に脂が乗って「寒ビラメ」として美味しくなります。",
+    surprisingInfo: "生まれたばかりのヒラメは普通の魚のように目が両側にありますが、成長するにつれて右目が左側に移動します。",
+    trivia: "「左ヒラメに右カレイ」と言われ、目を上にして置いた時に顔が左を向くのがヒラメ、右を向くのがカレイと見分けます。",
     menuItems: [], recommendedSake: "hakkaisan"
   },
   {
     id: "shimaaji", name: "シマアジ", kana: "しまあじ", img: "shimaaji.png",
-    hook: "シマアジは天然物の漁獲量が非常に少なく、白身魚の中でも高級魚として扱われています。",
-    taste: "脂の甘さと、しっかりとした歯ごたえを味わってみてください。",
+    basicInfo: "アジ類の中で最も味が良いとされ、高級魚として扱われます。身が締まり、上品な脂の甘みがあります。",
+    surprisingInfo: "天然物は非常に漁獲量が少なく「幻の魚」とも呼ばれますが、養殖技術の進歩により安定して流通するようになりました。",
+    trivia: "体の側面に鮮やかな黄色の縦線（シマ）が入っていることが、「シマアジ」という名前の由来の一つです。",
     menuItems: [], recommendedSake: "manozuru"
   },
   {
     id: "maiwashi", name: "真いわし", kana: "まいわし", img: "iwashi.png",
-    hook: "イワシは群れで泳ぐことで大きな一つの塊のように見せかけ、外敵から身を守っていると言われています。",
-    taste: "青魚ならではの香りと、脂ののった身の旨みを楽しんでみてください。",
+    basicInfo: "青魚の代表で、EPAやDHAなどの栄養素が豊富。新鮮なものは刺身でも絶品です。",
+    surprisingInfo: "「弱し（よわし）」が名前の由来と言われるほど鮮度落ちが早く、水揚げされるとすぐに死んでしまいます。",
+    trivia: "敵から身を守るために、何万匹という巨大な群れ（トルネード）を作って泳ぐ習性があります。",
     menuItems: [], recommendedSake: "tateyama"
   },
   {
     id: "madako", name: "真だこ", kana: "まだこ", img: "tako.png",
-    hook: "タコの心臓は3つあり、血液は人間と違って青色をしています。",
-    taste: "噛むほどに広がる旨みと、しっかりとした歯ごたえに注目してみてください。",
+    basicInfo: "噛むほどに広がる濃厚な旨味と、しっかりとした弾力が特徴。日本で最も一般的に食べられるタコです。",
+    surprisingInfo: "タコは心臓を3つ、脳を9つ持っており、非常に高い知能を持っていると言われています。",
+    trivia: "日本では茹でると赤くなりますが、生きている時は環境に合わせて一瞬で体の色や模様を変えることができます。",
     menuItems: [], recommendedSake: "manozuru"
   },
   {
     id: "unagi", name: "うなぎ", kana: "うなぎ", img: "unagi.png",
-    hook: "うなぎの生態には今も謎が多く、産卵場所が特定されたのは近年になってからのことです。",
-    taste: "ふっくらとした身と、香ばしいタレの絡み具合を楽しんでみてください。",
+    basicInfo: "土用の丑の日に食べる習慣でおなじみ。ふっくらとした身と香ばしいタレの相性が抜群です。",
+    surprisingInfo: "ウナギの生態は長年謎に包まれていましたが、近年になってようやくマリアナ諸島付近で産卵することが判明しました。",
+    trivia: "ウナギの血には毒（イクチオトキシン）が含まれているため、加熱せずに生で食べることは基本的にできません。",
     menuItems: [], recommendedSake: "zaku"
   },
   {
     id: "yariika", name: "ヤリイカ", kana: "やりいか", img: "ika.png",
-    hook: "「ヤリイカ」という名前は、細長い胴の形が槍に似ていることに由来します。",
-    taste: "上品な甘みと、柔らかな食感に注目してみてください。",
+    basicInfo: "上品な甘みと、コリコリとした歯切れの良い食感が魅力。冬から春にかけてが旬です。",
+    surprisingInfo: "寿命はわずか1年。秋に生まれて成長し、翌年の春に産卵を終えると一生を終えます。",
+    trivia: "「ヤリイカ（槍烏賊）」という名前は、細長く先が尖った胴体の形が「槍の穂先」に似ていることに由来します。",
     menuItems: [], recommendedSake: "oze"
   },
   {
     id: "amaebi", name: "甘エビ", kana: "あまえび", img: "ebi.png",
-    hook: "甘エビは生まれた時はすべてオスで、成長するとメスに性転換します。",
-    taste: "とろけるような甘みと、なめらかな口当たりを味わってみてください。",
+    basicInfo: "その名の通り、とろけるような強い甘みが特徴。正式名称は「ホッコクアカエビ」といいます。",
+    surprisingInfo: "生まれた時はすべてオスで、4〜5年経つとメスに性転換するという不思議な生態を持っています。",
+    trivia: "水揚げされてから少し時間が経つことで、自己消化によりアミノ酸が増え、より甘みが増します。",
     menuItems: [], recommendedSake: "oze"
   }
 ];
@@ -538,7 +568,7 @@ const fishList = [
 const sakeList = [
   {
     id: "oze", group: "冷や・常温で", tag: "辛口",
-    name: "尾瀬のゆきどけ", region: "群馬",
+    name: "尾瀬のゆきどけ", region: "群生",
     taste: "キレのある喉ごしと、澄んだ後味に注目してみてください。"
   },
   {
@@ -653,8 +683,11 @@ function selectFish(id){
   if (!f) return;
 
   document.getElementById('detailName').textContent = f.name;
-  document.getElementById('detailHook').textContent = f.hook;
-  document.getElementById('detailTaste').textContent = f.taste;
+  
+  // 新しい情報項目をセット
+  document.getElementById('detailBasic').textContent = f.basicInfo;
+  document.getElementById('detailSurprising').textContent = f.surprisingInfo;
+  document.getElementById('detailTrivia').textContent = f.trivia;
 
   sendLog('魚を見た', { fishId: f.id, fishName: f.name });
 

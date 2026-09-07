@@ -140,15 +140,13 @@
   }
   .fish-card:hover{ background: rgba(242,238,227,0.12); transform:translateY(-2px); border-color: var(--shu-pale); }
   .fish-card:focus-visible{ outline:2px solid var(--shu-pale); outline-offset:2px; }
-  .fish-card .icon{ width:34px; height:34px; margin:0 auto 8px; opacity:0.85; }
+  .fish-card .icon{ width:48px; height:48px; margin:0 auto 8px; opacity:0.9; object-fit: contain; }
   .fish-card .name{ font-family: var(--font-mincho); font-weight:700; font-size:15.5px; }
-  .fish-card .kana{ font-size:10.5px; color: rgba(242,238,227,0.6); margin-top:2px; }
 
   /* --- 魚詳細画面 --- */
   .fish-header{
     display:flex; align-items:baseline; gap:10px; margin-bottom:6px;
   }
-  .fish-header .kana{ font-size:11.5px; color: rgba(242,238,227,0.6); }
   .fish-header .name{ font-family: var(--font-mincho); font-size:24px; font-weight:700; color: var(--kinari); }
 
   .hook-card{
@@ -320,9 +318,6 @@
 
     <!-- Screen: 魚詳細(情報+メニュー枠+お酒提案) -->
     <section class="screen" data-screen="detail">
-      <div class="fish-header">
-        <span class="kana" id="detailKana"></span>
-      </div>
       <div class="fish-header" style="margin-bottom:4px;">
         <span class="name" id="detailName"></span>
       </div>
@@ -441,67 +436,67 @@ if (!fishDeviceId) {
 ============================================= */
 const fishList = [
   {
-    id: "aji", name: "真鯵", kana: "まあじ",
+    id: "aji", name: "真鯵", kana: "まあじ", img: "maaji.png",
     hook: "「アジ」という名前は、味が良いことに由来するという説があります。",
     taste: "皮目の香ばしさと、身に感じる脂の甘みのバランスに注目してみてください。",
     menuItems: []
   },
   {
-    id: "katsuo", name: "カツオ", kana: "かつお",
+    id: "katsuo", name: "カツオ", kana: "かつお", img: "katsuo.png",
     hook: "カツオは泳ぎを止めると呼吸ができなくなるため、生涯泳ぎ続ける魚です。",
     taste: "藁焼きの香ばしさと、赤身ならではの濃い旨みを味わってみてください。",
     menuItems: []
   },
   {
-    id: "maguro", name: "まぐろ", kana: "まぐろ",
+    id: "maguro", name: "まぐろ", kana: "まぐろ", img: "maguro.png",
     hook: "同じマグロでも、大トロ・中トロ・赤身では脂の乗り方がまったく異なります。",
     taste: "部位ごとの脂の量と、口の中でとろける食感の違いに注目してみてください。",
     menuItems: []
   },
   {
-    id: "salmon", name: "サーモン", kana: "さーもん",
+    id: "salmon", name: "サーモン", kana: "さーもん", img: "sa-mon.png",
     hook: "「鮭」と「サーモン」は使われる魚の種類が異なることが多く、生食用の多くは養殖されたものです。",
     taste: "脂の甘みと、なめらかな舌触りを楽しんでみてください。",
     menuItems: []
   },
   {
-    id: "hirame", name: "ヒラメ", kana: "ひらめ",
+    id: "hirame", name: "ヒラメ", kana: "ひらめ", img: "hirame.png",
     hook: "「左ヒラメに右カレイ」という言葉の通り、目の付き方でヒラメとカレイを見分けられます。",
     taste: "淡白な中にある上品な旨みと、コリコリとした食感に注目してみてください。",
     menuItems: []
   },
   {
-    id: "shimaaji", name: "シマアジ", kana: "しまあじ",
+    id: "shimaaji", name: "シマアジ", kana: "しまあじ", img: "shimaaji.png",
     hook: "シマアジは天然物の漁獲量が非常に少なく、白身魚の中でも高級魚として扱われています。",
     taste: "脂の甘さと、しっかりとした歯ごたえを味わってみてください。",
     menuItems: []
   },
   {
-    id: "maiwashi", name: "真いわし", kana: "まいわし",
+    id: "maiwashi", name: "真いわし", kana: "まいわし", img: "iwashi.png",
     hook: "イワシは群れで泳ぐことで大きな一つの塊のように見せかけ、外敵から身を守っていると言われています。",
     taste: "青魚ならではの香りと、脂ののった身の旨みを楽しんでみてください。",
     menuItems: []
   },
   {
-    id: "madako", name: "真だこ", kana: "まだこ",
+    id: "madako", name: "真だこ", kana: "まだこ", img: "tako.png",
     hook: "タコの心臓は3つあり、血液は人間と違って青色をしています。",
     taste: "噛むほどに広がる旨みと、しっかりとした歯ごたえに注目してみてください。",
     menuItems: []
   },
   {
-    id: "unagi", name: "うなぎ", kana: "うなぎ",
+    id: "unagi", name: "うなぎ", kana: "うなぎ", img: "unagi.png",
     hook: "うなぎの生態には今も謎が多く、産卵場所が特定されたのは近年になってからのことです。",
     taste: "ふっくらとした身と、香ばしいタレの絡み具合を楽しんでみてください。",
     menuItems: []
   },
   {
-    id: "yariika", name: "ヤリイカ", kana: "やりいか",
+    id: "yariika", name: "ヤリイカ", kana: "やりいか", img: "ika.png",
     hook: "「ヤリイカ」という名前は、細長い胴の形が槍に似ていることに由来します。",
     taste: "上品な甘みと、柔らかな食感に注目してみてください。",
     menuItems: []
   },
   {
-    id: "amaebi", name: "甘エビ", kana: "あまえび",
+    id: "amaebi", name: "甘エビ", kana: "あまえび", img: "ebi.png",
     hook: "甘エビは生まれた時はすべてオスで、成長するとメスに性転換します。",
     taste: "とろけるような甘みと、なめらかな口当たりを味わってみてください。",
     menuItems: []
@@ -612,13 +607,8 @@ function renderFishGrid(){
     const btn = document.createElement('button');
     btn.className = "fish-card";
     btn.innerHTML = `
-      <svg class="icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 24c8-10 20-14 30-10-2 4-2 6 0 10-10 4-22 0-30-10z" stroke="#F2EEE3" stroke-width="1.6" stroke-linejoin="round"/>
-        <path d="M34 14c4 3 6 7 6 10s-2 7-6 10" stroke="#F2EEE3" stroke-width="1.6" stroke-linecap="round"/>
-        <circle cx="14" cy="22" r="1.4" fill="#F2EEE3"/>
-      </svg>
+      <img class="icon" src="${f.img}" alt="${f.name}">
       <div class="name">${f.name}</div>
-      <div class="kana">${f.kana}</div>
     `;
     btn.onclick = () => selectFish(f.id);
     wrap.appendChild(btn);
@@ -631,7 +621,6 @@ function selectFish(id){
   const f = fishList.find(x=>x.id===id);
   if (!f) return;
 
-  document.getElementById('detailKana').textContent = f.kana;
   document.getElementById('detailName').textContent = f.name;
   document.getElementById('detailHook').textContent = f.hook;
   document.getElementById('detailTaste').textContent = f.taste;

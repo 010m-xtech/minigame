@@ -48,7 +48,7 @@
     transform: translate(-50%, -50%);
     object-fit: cover;
     opacity: 0;
-    transition: opacity 0.8s ease-in-out; /* 動画切り替え時のクロスフェード */
+    transition: opacity 1.5s ease-in-out; /* 動画切り替え時のクロスフェード */
   }
   .bg-video-wrap video.show-bg {
     opacity: 1; /* アクティブな背景動画を表示 */
@@ -281,8 +281,11 @@
   <video id="bg-video-op" class="show-bg" autoplay muted playsinline>
     <source src="title3.mp4" type="video/mp4">
   </video>
-  <!-- その他の画面用背景動画 -->
-  <video id="bg-video-main" autoplay muted loop playsinline>
+  <!-- その他の画面用背景動画 (クロスフェードで擬似シームレスループ用) -->
+  <video id="bg-video-main-1" muted playsinline>
+    <source src="back.mp4" type="video/mp4">
+  </video>
+  <video id="bg-video-main-2" muted playsinline>
     <source src="back.mp4" type="video/mp4">
   </video>
   <div class="bg-video-overlay"></div>
@@ -539,6 +542,43 @@ let currentFishId = null;
 let surveyProfile = JSON.parse(localStorage.getItem('fish_survey')) || null;
 
 /* ============ 画面遷移と背景切り替え ============ */
+let isMainVideoPlaying = false;
+
+function startSeamlessLoop() {
+  if (isMainVideoPlaying) return;
+  isMainVideoPlaying = true;
+  
+  const vid1 = document.getElementById('bg-video-main-1');
+  const vid2 = document.getElementById('bg-video-main-2');
+  const fadeTime = 1.5; // 動画終了の何秒前にクロスフェードを開始するか
+
+  if (!vid1 || !vid2) return;
+
+  vid1.currentTime = 0;
+  vid1.play().catch(e => console.log('Video play error:', e));
+  vid1.classList.add('show-bg');
+
+  const checkTime = (currentVid, nextVid) => {
+    // 再生位置が終了間際に近づいたら、次の動画を再生開始して表示する
+    if (currentVid.duration > 0 && currentVid.currentTime >= currentVid.duration - fadeTime) {
+      if (nextVid.paused) {
+        nextVid.currentTime = 0;
+        nextVid.play().catch(e => console.log('Video play error:', e));
+        nextVid.classList.add('show-bg');
+        currentVid.classList.remove('show-bg');
+      }
+    }
+    // 完全に終わったら一時停止して待機
+    if (currentVid.currentTime >= currentVid.duration - 0.2) {
+      currentVid.pause();
+    }
+  };
+
+  // timeupdateイベントで再生時間を常に監視
+  vid1.addEventListener('timeupdate', () => checkTime(vid1, vid2));
+  vid2.addEventListener('timeupdate', () => checkTime(vid2, vid1));
+}
+
 function goScreen(name){
   document.querySelectorAll('.screen').forEach(el=>{
     el.classList.toggle('active', el.dataset.screen === name);
@@ -547,16 +587,14 @@ function goScreen(name){
 
   // 背景動画とヘッダーの切り替え制御
   const opVideo = document.getElementById('bg-video-op');
-  const mainVideo = document.getElementById('bg-video-main');
   const header = document.getElementById('main-header');
   
   if(name === 'op') {
     if(opVideo) opVideo.classList.add('show-bg');
-    if(mainVideo) mainVideo.classList.remove('show-bg');
     if(header) header.style.display = 'none';
   } else {
     if(opVideo) opVideo.classList.remove('show-bg');
-    if(mainVideo) mainVideo.classList.add('show-bg');
+    startSeamlessLoop();
     if(header) header.style.display = 'block';
   }
 }

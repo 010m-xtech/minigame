@@ -158,12 +158,6 @@
     margin-bottom: 12px;
     filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
   }
-  .fish-card .kana {
-    font-size: 10px;
-    color: #FFFFFF;
-    letter-spacing: 0.1em;
-    margin-bottom: 2px;
-  }
   .fish-card .name {
     font-family: var(--font-mincho);
     font-size: 16px;
@@ -779,7 +773,6 @@ function renderFishGrid() {
   grid.innerHTML = fishList.map(f => `
     <div class="fish-card" onclick="selectFish('${f.id}')">
       <img src="${f.img}" alt="${f.name}">
-      <div class="kana">${f.kana}</div>
       <div class="name">${f.name}</div>
     </div>
   `).join('');

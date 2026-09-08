@@ -828,12 +828,12 @@ function startAquarium() {
 
       // カツオの猛ダッシュ処理
       if (f.id === 'katsuo') {
-        if (!f.isDashing && Math.random() < 0.002 * dt) { // たまにダッシュ
+        if (!f.isDashing && Math.random() < 0.0002 * dt) { // 稀にダッシュ (確率を大幅に下げる)
           f.isDashing = true;
-          // 暴走レベルの超高速ダッシュに設定
-          f.targetVx = (Math.random() > 0.5 ? 1 : -1) * (60 + Math.random() * 40); 
-          f.targetVy = (Math.random() - 0.5) * 40;
-        } else if (f.isDashing && Math.random() < 0.03 * dt) { // しばらくしたら落ち着く
+          // 画面を横切るくらいの超高速ダッシュに設定
+          f.targetVx = (Math.random() > 0.5 ? 1 : -1) * (40 + Math.random() * 30); 
+          f.targetVy = (Math.random() - 0.5) * 15;
+        } else if (f.isDashing && Math.random() < 0.015 * dt) { // しばらくしたら落ち着く
           f.isDashing = false;
         }
       }

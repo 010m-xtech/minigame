@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>居酒屋 乞食 のお魚たち</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --kinari: #F2EEE3;
+    --kinari-deep: #E9E2CF;
+    --ai: #22385C;
+    --ai-light: #4C6A94;＠
+    --ai-pale: #DCE3EC;
+    --shu: #BD4630;
+    --shu-pale: #F1DCD5;
+    --sumi: #2A2620;
+    --line: #D6CCB4;
+    --muted: #a89d87;
+    --font-mincho: 'Shippori Mincho', serif;
+    --font-gothic: 'Zen Kaku Gothic New', sans-serif;
+    --radius: 14px;
+  }
+
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  html,body{
+    margin:0; padding:0;
+    background: #0d1b2a;
+    color: var(--sumi);
+    font-family: var(--font-gothic);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body{ min-height:100vh; display:flex; justify-content:center; }
+
+  /* ============ 背景動画(全画面共通・ループ再生) ============ */
+  .bg-video-wrap{
+    position: fixed; inset: 0; z-index: 0;
+    overflow: hidden; background: #0d1b2a;
+  }
+  .bg-video-wrap video{
+    position:absolute; top:50%; left:50%;
+    min-width:100%; min-height:100%;
+    width:auto; height:auto;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out; /* 動画切り替え時のクロスフェード */
+  }
+  .bg-video-wrap video.show-bg {
+    opacity: 1; /* アクティブな背景動画を表示 */
+  }
+  #bg-video-op {
+    filter: brightness(2.5); /* オープニング動画の明るさをかなり明るく調整 */
+  }
+  .bg-video-overlay{
+    position:absolute; inset:0;
+    background: linear-gradient(180deg, rgba(13,27,42,0.72), rgba(13,27,42,0.85));
+  }
+
+  .app{
+    width:100%; max-width:460px; min-height:100vh;
+    position:relative; z-index:1;
+    display:flex; flex-direction:column;
+  }
+
+  header{
+    position:sticky; top:0; z-index:20;
+    background: transparent;
+    border-bottom:1px solid rgba(242,238,227,0.15);
+    padding: 16px 20px 14px;
+  }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .seal{ width:32px; height:32px; flex:0 0 auto; object-fit: contain; }
+  .brand h1{
+    font-family: var(--font-mincho); font-weight:700; font-size:18.5px;
+    letter-spacing:0.04em; margin:0; color:var(--kinari);
+    line-height: 1.4;
+  }
+  .brand p{ margin:0; font-size:10px; color:rgba(242,238,227,0.6); letter-spacing:0.08em; }
+
+  main{ flex:1; padding:26px 20px 48px; position:relative; }
+
+  .screen{ display:none; animation: fadeUp .5s ease both; }
+  .screen.active{ display:block; }
+  .screen[data-screen="op"]{ animation: none; }
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:translateY(0);} }
+  @media (prefers-reduced-motion: reduce){ .screen{ animation:none; } }
+
+  .eyebrow{ font-size:12px; letter-spacing:.14em; color:var(--shu-pale); font-weight:700; margin:0 0 8px; }
+  h2.title{ font-family:var(--font-mincho); font-size:24px; line-height:1.6; margin:0 0 16px; color:var(--kinari); }
+  .lead{ font-size:15px; color:rgba(242,238,227,0.85); line-height:1.9; margin:0 0 22px; }
+
+  /* --- OP画面 --- */
+  .op-wrapper {
+    position: fixed; inset: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  .op-logo-img {
+    opacity: 0; transition: opacity 1s ease-in-out;
+    max-width: 250px; width: 60%; height: auto;
+  }
+  .skip-telop {
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    color: rgba(242, 238, 227, 0.85);
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    pointer-events: none;
+    white-space: nowrap;
+    animation: floatBlink 3s ease-in-out infinite;
+  }
+  @keyframes floatBlink {
+    0%, 100% {
+      transform: translate(-50%, 0);
+      opacity: 0.3;
+    }
+    50% {
+      transform: translate(-50%, -10px);
+      opacity: 1;
+    }
+  }
+
+  /* --- 水槽（魚選択） --- */
+  .aquarium-wrap {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background: transparent;
+    border: none;
+    overflow: hidden;
+    z-index: 5;
+    pointer-events: none;
+  }
+  .swimming-fish {
+    position: absolute;
+    top: 0; left: 0;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: filter 0.2s;
+    user-select: none;
+    -webkit-user-drag: none;
+    pointer-events: auto; /* 魚自体はクリック可能に */
+  }
+  .swimming-fish:hover, .swimming-fish:active {
+    filter: brightness(1.2) drop-shadow(0 0 10px rgba(242,238,227,0.3));
+  }
+  .swimming-fish img {
+    width: auto;
+    height: auto;
+    max-width: 140px;
+    max-height: 100px;
+    object-fit: contain;
+    transition: transform 0.4s ease; /* 向き変更のアニメーション */
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+    pointer-events: none;
+  }
+
+  /* --- 魚詳細画面 --- */
+  .fish-header{
+    display:flex; align-items:baseline; gap:10px; margin-bottom:12px;
+  }
+  .fish-header .name{ font-family: var(--font-mincho); font-size:24px; font-weight:700; color: var(--kinari); }
+
+  /* --- 魚のストーリー (読み物風) --- */
+  .fish-story {
+    background: rgba(242,238,227,0.04);
+    border: 1px solid rgba(242,238,227,0.15);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 24px;
+    color: rgba(242,238,227,0.92);
+  }
+  .story-basic {
+    font-size: 14px;
+    line-height: 1.8;
+    margin: 0 0 20px;
+  }
+  
+  .story-highlight {
+    margin: 0 -20px 20px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, rgba(189,70,48,0.15), transparent);
+    border-left: 4px solid var(--shu);
+  }
+  .highlight-title {
+    font-family: var(--font-mincho);
+    font-size: 16.5px;
+    color: var(--shu-pale);
+    margin: 0 0 8px;
+    font-weight: 700;
+  }
+  .story-highlight p {
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  /* --- 味わいと特徴 --- */
+  .story-taste {
+    margin: 0 0 24px;
+  }
+  .taste-title {
+    font-family: var(--font-mincho);
+    font-size: 15.5px;
+    color: var(--kinari);
+    margin: 0 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .taste-title::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--shu);
+    transform: rotate(45deg);
+  }
+  .story-taste p {
+    font-size: 14px;
+    line-height: 1.8;
+    margin: 0;
+  }
+  
+  .story-trivia {
+    background: rgba(34,56,92,0.4);
+    border-radius: 8px;
+    padding: 14px 16px;
+    border: 1px solid rgba(76,106,148,0.3);
+  }
+  .trivia-label {
+    font-size: 11px;
+    color: var(--ai-pale);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .story-trivia p {
+    font-size: 13px;
+    line-height: 1.7;
+    margin: 0;
+  }
+  
+  /* --- 豆知識用 イラスト (コード描画) --- */
+  .trivia-illustration-wrap {
+    margin-top: 16px;
+    text-align: center;
+    display: none; /* JSで切り替え */
+  }
+  .trivia-illustration-wrap img { /* SVGからimgに変更、スタイルを追加 */
+    width: 100%;
+    max-width: 260px;
+    height: auto;
+    border-radius: 6px;
+    background: transparent; /* 背景を透明に */
+    border: 1px solid rgba(220,227,236,0.15);
+    margin: 0 auto;
+    display: block;
+  }
+
+  .trivia-illustration-caption {
+    font-size: 11px;
+    color: var(--ai-pale);
+    margin-top: 8px;
+    opacity: 0.8;
+  }
+
+  h3.section-title{
+    font-family: var(--font-mincho); font-size:15.5px; color: var(--kinari);
+    margin: 30px 0 14px; display:flex; align-items:center; gap:8px;
+  }
+  h3.section-title::before{
+    content:''; width:4px; height:14px; background: var(--shu); border-radius:2px; display:inline-block;
+  }
+
+  /* --- メニューアイテム --- */
+  .menu-item{
+    background: rgba(242,238,227,0.06);
+    border:1px solid rgba(242,238,227,0.18);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom:12px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .menu-item:hover{ background: rgba(242,238,227,0.1); }
+  .menu-item .name{ font-family: var(--font-mincho); font-weight:700; font-size:16px; color: var(--kinari); display: flex; justify-content: space-between; align-items: center; }
+  .menu-item .chevron { transition: transform 0.3s ease; opacity: 0.6; }
+  .menu-item.open .chevron { transform: rotate(180deg); }
+  .menu-item .desc{ font-size:13px; color: rgba(242,238,227,0.7); margin-top:6px; line-height:1.6; }
+  
+  .pairing-sake {
+    display: none;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed rgba(242,238,227,0.2);
+  }
+  .menu-item.open .pairing-sake {
+    display: block;
+    animation: fadeInSake 0.3s ease both;
+  }
+  @keyframes fadeInSake { from{opacity:0; transform:translateY(-4px);} to{opacity:1; transform:translateY(0);} }
+
+  /* --- お酒の提案 --- */
+  .sake-group-label{
+    font-size:11.5px; font-weight:700; color: var(--shu-pale);
+    letter-spacing:.06em; margin: 18px 0 10px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .sake-card{
+    background: rgba(242,238,227,0.08);
+    border:1px solid rgba(242,238,227,0.2);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom:12px;
+  }
+  .sake-card .tag{
+    display:inline-block; font-size:10.5px; font-weight:700;
+    background: var(--shu); color:#fff; padding:2px 9px; border-radius:20px;
+    margin-bottom:8px;
+  }
+  .sake-card .name-row{ display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; margin-bottom:6px; }
+  .sake-card .name{ font-family: var(--font-mincho); font-weight:700; font-size:16px; color: var(--kinari); }
+  .sake-card .region{ font-size:11px; color: rgba(242,238,227,0.55); }
+  .sake-card .taste{ font-size:12.5px; color: rgba(242,238,227,0.85); line-height:1.75; margin:0; }
+
+  .btn-row{ display:flex; gap:10px; margin-top:30px; }
+  button.btn{
+    font-family:var(--font-gothic); font-weight:700; font-size:14px;
+    padding:14px 18px; border-radius:10px; border:none; cursor:pointer;
+    letter-spacing:.03em; transition:opacity .15s ease, transform .1s ease;
+  }
+  button.btn:active{ transform:scale(0.98); }
+  button.btn:focus-visible{ outline:2px solid var(--shu-pale); outline-offset:2px; }
+  .btn-primary{ flex:1; background:var(--shu); color:#fff; }
+  .btn-primary:hover{ opacity:.92; }
+  .btn-ghost{ background: rgba(242,238,227,0.08); color:var(--kinari); border:1px solid rgba(242,238,227,0.3); }
+
+  /* --- 汎用パーツ(プロフィール・アンケート) --- */
+  .radio-buttons{ display:flex; gap:8px; flex-wrap:wrap; }
+  .radio-btn-wrap{ flex:1; min-width:84px; cursor:pointer; }
+  .radio-btn-wrap input{ display:none; }
+  .radio-box{
+    display:flex; align-items:center; justify-content:center; padding:12px 0;
+    border:1px solid rgba(242,238,227,0.3); background: rgba(242,238,227,0.05); border-radius:8px;
+    font-size:13px; font-weight:700; color: rgba(242,238,227,0.75); transition:all .2s ease;
+  }
+  .radio-box::before{
+    content:''; display:inline-block; width:14px; height:14px; border-radius:50%;
+    border:1px solid rgba(242,238,227,0.4); margin-right:6px; transition:all .2s ease;
+  }
+  .radio-btn-wrap input:checked + .radio-box{ background: var(--shu); border-color: var(--shu); color:#fff; }
+  .radio-btn-wrap input:checked + .radio-box::before{ border-width:4px; border-color:#fff; background: var(--shu); }
+  .radio-group-error{ color: var(--shu-pale); font-size:12.5px; font-weight:700; margin:-14px 0 20px; display:none; }
+  @keyframes shake{ 0%,100%{transform:translateX(0);} 20%,60%{transform:translateX(-4px);} 40%,80%{transform:translateX(4px);} }
+  .shake{ animation: shake .4s ease; }
+  .errhi .radio-box{ border-color: var(--shu-pale); background: rgba(189,70,48,0.25); }
+
+  .radio-buttons-col{ display:flex; flex-direction:column; gap:8px; }
+  .radio-buttons-col .radio-box{ justify-content:flex-start; padding:12px 16px; font-size:13.5px; text-align:left; }
+
+  .profile-group{ margin-bottom:24px; }
+  .profile-group > label{ display:block; font-size:12.5px; font-weight:700; color: var(--kinari); margin-bottom:10px; }
+
+  .note{ font-size:10.5px; color: rgba(242,238,227,0.5); margin-top:10px; line-height:1.6; text-align:center; }
+
+  .stamp-wrap{ display:flex; justify-content:center; margin:14px 0 24px; }
+  .stamp{ width:96px; height:96px; animation: stampIn .6s cubic-bezier(.2,1.4,.4,1) both; }
+  @media (prefers-reduced-motion: reduce){ .stamp{ animation:none; } }
+  @keyframes stampIn{
+    0%{ opacity:0; transform:scale(2.2) rotate(-18deg); }
+    70%{ opacity:1; }
+    100%{ opacity:1; transform:scale(1) rotate(-8deg); }
+  }
+
+  .center-text{ text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="bg-video-wrap">
+  <!-- オープニング画面用背景動画 (初期表示で表示状態 class="show-bg") -->
+  <video id="bg-video-op" class="show-bg" autoplay muted playsinline>
+    <source src="title3.mp4" type="video/mp4">
+  </video>
+  <!-- その他の画面用背景動画 (クロスフェードで擬似シームレスループ用) -->
+  <video id="bg-video-main-1" muted playsinline>
+    <source src="back.mp4" type="video/mp4">
+  </video>
+  <video id="bg-video-main-2" muted playsinline>
+    <source src="back.mp4" type="video/mp4">
+  </video>
+  <div class="bg-video-overlay"></div>
+</div>
+
+<div class="app">
+  <header id="main-header" style="display: none;">
+    <div class="brand">
+      <img src="koziki_logo.png" class="seal" alt="居酒屋 乞食 ロゴ">
+      <div>
+        <h1>居酒屋 乞食 のお魚たち</h1>
+      </div>
+    </div>
+  </header>
+  <main>
+
+    <!-- Screen: オープニング -->
+    <section class="screen active" data-screen="op" onclick="goScreen('select')">
+      <div class="op-wrapper">
+        <img src="koziki_title.png" id="op-logo" class="op-logo-img" alt="居酒屋 乞食">
+        <p class="skip-telop">画面をタップしてスキップ</p>
+      </div>
+    </section>
+
+    <!-- Screen: サカナ選択 -->
+    <section class="screen" data-screen="select">
+      <p class="eyebrow">CHOOSE</p>
+      <h2 class="title">気になる魚を選んでください</h2>
+      <p class="lead">
+        居酒屋 乞食の新鮮なお魚たち。<br><br>
+        選んだお魚の豆知識と、<br>
+        相性抜群の日本酒をご提案します。
+      </p>
+      <div class="aquarium-wrap" id="aquarium"></div>
+    </section>
+
+    <!-- Screen: 魚詳細(情報+メニュー枠+お酒提案) -->
+    <section class="screen" data-screen="detail">
+      <div class="fish-header">
+        <span class="name" id="detailName"></span>
+      </div>
+
+      <article class="fish-story">
+        <p class="story-basic" id="detailBasic"></p>
+        
+        <div class="story-taste">
+          <h4 class="taste-title">味わいと食べるポイント</h4>
+          <p id="detailEatingPoint"></p>
+        </div>
+
+        <div class="story-highlight">
+          <h4 class="highlight-title">実は…</h4>
+          <p id="detailSurprising"></p>
+        </div>
+        
+        <div class="story-trivia">
+          <div class="trivia-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            豆知識
+          </div>
+          <p id="detailTrivia"></p>
+          
+          <!-- イラスト(SVG)描画エリア -->
+          <div class="trivia-illustration-wrap" id="detailIllWrap">
+            <div id="detailIllSvg"></div>
+            <div class="trivia-illustration-caption" id="detailIllCaption"></div>
+          </div>
+        </div>
+      </article>
+
+      <button class="btn btn-ghost" style="width: 100%; margin-top: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;" onclick="goToMenu()">
+        <span>この魚を使ったメニューを見る</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goScreen('select')">他の魚も見る</button>
+        <button class="btn btn-primary" onclick="goToSurveyOrFinish()">今日はここまで</button>
+      </div>
+    </section>
+
+    <!-- Screen: メニュー一覧 -->
+    <section class="screen" data-screen="menu">
+      <p class="eyebrow">MENU</p>
+      <h2 class="title"><span id="menuScreenName"></span> のメニュー</h2>
+      
+      <div id="menuScreenList">
+        <!-- JSでメニューが生成される -->
+      </div>
+
+      <div class="btn-row" style="margin-top: 32px;">
+        <button class="btn btn-ghost" style="width:100%" onclick="goScreen('detail')">魚の詳細に戻る</button>
+      </div>
+    </section>
+
+    <!-- Screen: お酒一覧 -->
+    <section class="screen" data-screen="sake">
+      <p class="eyebrow">SAKE</p>
+      <h2 class="title"><span id="sakeScreenName"></span> に合うお酒</h2>
+      
+      <div id="sakeScreenList">
+        <!-- JSでお酒が生成される -->
+      </div>
+
+      <div class="btn-row" style="margin-top: 32px;">
+        <button class="btn btn-ghost" style="width:100%" onclick="goScreen('detail')">魚の詳細に戻る</button>
+      </div>
+    </section>
+
+    <!-- Screen: アンケート(初回のみ) -->
+    <section class="screen" data-screen="survey">
+      <p class="eyebrow">LAST STEP</p>
+      <h2 class="title">最後にお聞かせください</h2>
+      <p class="lead">(初回のみ・次回からは表示されません)</p>
+
+      <div class="profile-group" id="group-gender">
+        <label>性別</label>
+        <div class="radio-buttons">
+          <label class="radio-btn-wrap"><input type="radio" name="s-gender" value="男性" onchange="clearErr('group-gender')"><span class="radio-box">男性</span></label>
+          <label class="radio-btn-wrap"><input type="radio" name="s-gender" value="女性" onchange="clearErr('group-gender')"><span class="radio-box">女性</span></label>
+          <label class="radio-btn-wrap"><input type="radio" name="s-gender" value="無回答" onchange="clearErr('group-gender')"><span class="radio-box" style="font-size:12px;">無回答</span></label>
+        </div>
+      </div>
+
+      <div class="profile-group" id="group-age">
+        <label>年齢</label>
+        <div class="radio-buttons">
+          <label class="radio-btn-wrap"><input type="radio" name="s-age" value="34歳以下" onchange="clearErr('group-age')"><span class="radio-box">34歳以下</span></label>
+          <label class="radio-btn-wrap"><input type="radio" name="s-age" value="35歳以上" onchange="clearErr('group-age')"><span class="radio-box">35歳以上</span></label>
+        </div>
+      </div>
+
+      <div class="profile-group" id="group-kpi" style="margin-bottom:8px;">
+        <label>お魚やお酒のお話について、いつもより言葉で説明しやすかったですか?</label>
+        <div class="radio-buttons-col">
+          <label class="radio-btn-wrap"><input type="radio" name="s-kpi" value="いつもより説明しやすかった" onchange="clearErr('group-kpi')"><span class="radio-box">いつもより説明しやすかった</span></label>
+          <label class="radio-btn-wrap"><input type="radio" name="s-kpi" value="やや説明しやすかった" onchange="clearErr('group-kpi')"><span class="radio-box">やや説明しやすかった</span></label>
+          <label class="radio-btn-wrap"><input type="radio" name="s-kpi" value="あまり変わらない" onchange="clearErr('group-kpi')"><span class="radio-box">あまり変わらない</span></label>
+          <label class="radio-btn-wrap"><input type="radio" name="s-kpi" value="わからない" onchange="clearErr('group-kpi')"><span class="radio-box">わからない</span></label>
+        </div>
+      </div>
+
+      <p class="radio-group-error" id="surveyError">すべての項目にご回答ください</p>
+      <p class="note">※サービス改善のための参考にさせていただきます</p>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" style="width:100%" onclick="submitSurvey()">送信して終わる</button>
+      </div>
+    </section>
+
+    <!-- Screen: 完了 -->
+    <section class="screen" data-screen="done">
+      <div class="stamp-wrap">
+        <svg class="stamp" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="44" fill="none" stroke="#F1DCD5" stroke-width="3"/>
+          <text x="50" y="46" text-anchor="middle" font-size="14" fill="#F1DCD5" font-family="'Shippori Mincho', serif" font-weight="700">本日</text>
+          <text x="50" y="66" text-anchor="middle" font-size="14" fill="#F1DCD5" font-family="'Shippori Mincho', serif" font-weight="700">お疲れ様</text>
+        </svg>
+      </div>
+      <p class="lead center-text">今日出会った魚とお酒が、<br>少しでも記憶に残りますように。<br>またのご来店をお待ちしております。</p>
+      <div class="btn-row">
+        <button class="btn btn-ghost" style="width:100%" onclick="goScreen('select')">また魚を見る</button>
+      </div>
+    </section>
+
+  </main>
+
+</div>
+
+<script>
+/* ============ ログ送信設定 ============ */
+const GAS_URL = 'YOUR_GAS_WEBHOOK_URL_HERE';
+
+function sendLog(action, extra) {
+  const payload = Object.assign({
+    deviceId: fishDeviceId,
+    action: action
+  }, extra || {});
+  fetch(GAS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(payload)
+  }).catch(err => console.log('送信エラー:', err));
+}
+
+let fishDeviceId = localStorage.getItem('fish_device_id');
+if (!fishDeviceId) {
+  fishDeviceId = 'fdev_' + Math.random().toString(36).slice(2, 11);
+  localStorage.setItem('fish_device_id', fishDeviceId);
+}
+
+/* ============ 魚データ (イラストはSVGコードとして設定) ============ */
+const fishList = [
+  {
+    id: "aji", name: "真鯵", kana: "まあじ", img: "maaji.png",
+    basicInfo: "通年出回るが、旬は初夏から夏。旨味成分が豊富で、刺身、塩焼き、フライなど万能な青魚です。",
+    eatingPoint: "皮目の香ばしさと、身に感じる脂の甘みのバランスが絶妙です。生姜やネギなどの薬味と一緒に食べると、より一層旨味が引き立ちます。",
+    surprisingInfo: "「アジ」という名前は「味が良い」ことから名付けられたという説が有力で、古くから日本人に愛されてきました。",
+    trivia: "側線（そくせん）と呼ばれる体の横の線にある「ゼイゴ」という硬いウロコは、アジ科の魚特有のものです。",
+    illustration: `<img src="maaji_kaisetsu.png" alt="アジのゼイゴ" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
+    illCaption: "尾の方にある硬いウロコ「ゼイゴ」",
+    menuItems: [], recommendedSake: "hakkaisan"
+  },
+  {
+    id: "katsuo", name: "カツオ", kana: "かつお", img: "katsuo.png",
+    basicInfo: "春の「初鰹」と秋の「戻り鰹」で年に2回旬を迎える、赤身魚の代表格。鉄分を多く含みます。",
+    eatingPoint: "藁焼きの香ばしさと、赤身ならではの濃い旨みが特徴です。ニンニクやポン酢と合わせることで、さっぱりとしつつも力強い味わいを楽しめます。",
+    surprisingInfo: "泳ぎを止めるとエラ呼吸ができず窒息してしまうため、一生休むことなく高速で泳ぎ続けています。",
+    trivia: "鰹節（かつおぶし）は世界一硬い食品としてギネス認定されており、日本料理の出汁に欠かせない存在です。",
+    menuItems: [], recommendedSake: "tateyama"
+  },
+  {
+    id: "maguro", name: "まぐろ", kana: "まぐろ", img: "maguro.png",
+    basicInfo: "寿司や刺身の主役。赤身、中トロ、大トロと部位によって脂の乗り方と味わいが大きく異なります。",
+    eatingPoint: "赤身はさっぱりとした酸味と旨味が、トロは口の中でとろける濃厚な脂の甘みが楽しめます。部位ごとの味わいの違いをぜひ食べ比べてみてください。",
+    surprisingInfo: "マグロもカツオと同様に、泳ぎ続けないと呼吸ができない回遊魚で、寝ている間もゆっくり泳いでいます。",
+    trivia: "江戸時代、脂の多いトロの部分は「腐りやすい」として捨てられたり、畑の肥料にされたりしていました。",
+    menuItems: [], recommendedSake: "zaku"
+  },
+  {
+    id: "salmon", name: "サーモン", kana: "さーもん", img: "sa-mon.png",
+    basicInfo: "脂がたっぷり乗り、とろけるような食感が特徴。子供から大人まで大人気の魚です。",
+    eatingPoint: "豊かな脂の甘みと、なめらかな舌触りが最大の魅力です。炙ることで香ばしさが加わり、生とはまた違ったとろける食感を味わえます。",
+    surprisingInfo: "生食用の「サーモン」は基本的に寄生虫対策がされた養殖物で、天然の「鮭」は加熱調理が基本です。",
+    trivia: "身がオレンジ色をしていますが、実は「白身魚」に分類されます。餌の甲殻類の色素（アスタキサンチン）が蓄積してこの色になります。",
+    menuItems: [], recommendedSake: "oze"
+  },
+  {
+    id: "hirame", name: "ヒラメ", kana: "ひらめ", img: "hirame.png",
+    basicInfo: "上品な旨味とコリコリとした食感が特徴の高級白身魚。冬に脂が乗って「寒ビラメ」として美味しくなります。",
+    eatingPoint: "淡白な中にも上品な旨みがあり、コリコリとした弾力のある食感が楽しめます。えんがわ部分は脂が乗っており、特有の甘みが口に広がります。",
+    surprisingInfo: "生まれたばかりのヒラメは普通の魚のように目が両側にありますが、成長するにつれて右目が左側に移動します。",
+    trivia: "「左ヒラメに右カレイ」と言われ、目を上にして置いた時に顔が左を向くのがヒラメ、右を向くのがカレイと見分けます。",
+    illustration: `
+      <div>
+        <img src="hirame_kaisetsu2.png" alt="左ヒラメに右カレイ" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">
+        <div style="display: flex; justify-content: space-around; margin-top: 10px; font-size: 13px; font-weight: bold; color: var(--kinari);">
+          <span>左ヒラメ</span>
+          <span>右カレイ</span>
+        </div>
+      </div>
+    `,
+    illCaption: "目の位置でヒラメとカレイを見分ける図解",
+    menuItems: [], recommendedSake: "hakkaisan"
+  },
+  {
+    id: "shimaaji", name: "シマアジ", kana: "しまあじ", img: "shimaaji_kaisetsu.png",
+    basicInfo: "アジ類の中で最も味が良いとされ、高級魚として扱われます。身が締まり、上品な脂の甘みがあります。",
+    eatingPoint: "青魚特有のクセがなく、白身魚のような上品な脂の甘さと、しっかりとした歯ごたえを同時に味わえるのが特徴です。",
+    surprisingInfo: "天然物は非常に漁獲量が少なく「幻の魚」とも呼ばれますが、養殖技術の進歩により安定して流通するようになりました。",
+    trivia: "体の側面に鮮やかな黄色の縦線（シマ）が入っていることが、「シマアジ」という名前の由来の一つです。",
+    illustration: `<img src="shimaaji_kaisetsu.png" alt="シマアジの特徴" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
+    illCaption: "体の側面に入る鮮やかな黄色の縦線（シマ）",
+    menuItems: [], recommendedSake: "manozuru"
+  },
+  {
+    id: "maiwashi", name: "真いわし", kana: "まいわし", img: "iwashi.png",
+    basicInfo: "青魚の代表で、EPAやDHAなどの栄養素が豊富。新鮮なものは刺身でも絶品です。",
+    eatingPoint: "青魚ならではの豊かな香りと、とろけるように脂ののった身の旨みがたまりません。生姜醤油でさっぱりといただくのがおすすめです。",
+    surprisingInfo: "「弱し（よわし）」が名前の由来と言われるほど鮮度落ちが早く、水揚げされるとすぐに死んでしまいます。",
+    trivia: "敵から身を守るために、何万匹という巨大な群れ（トルネード）を作って泳ぐ習性があります。",
+    illustration: `<img src="iwashi_kaisetsu.jpg" alt="イワシの群れ（トルネード）" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
+    illCaption: "巨大な群れ（トルネード）を作って泳ぐイワシ",
+    menuItems: [], recommendedSake: "tateyama"
+  },
+  {
+    id: "madako", name: "真だこ", kana: "まだこ", img: "tako.png",
+    basicInfo: "噛むほどに広がる濃厚な旨味と、しっかりとした弾力が特徴。日本で最も一般的に食べられるタコです。",
+    eatingPoint: "噛めば噛むほどに広がる濃厚な旨みと、しっかりとした歯ごたえが特徴です。吸盤のコリコリとした食感も良いアクセントになります。",
+    surprisingInfo: "タコは心臓を3つ、脳を9つ持っており、非常に高い知能を持っていると言われています。",
+    trivia: "日本では茹でると赤くなりますが、生きている時は環境に合わせて一瞬で体の色や模様を変えることができます。",
+    illustration: `<img src="tako_kaisetsu.png" alt="タコにある3つの心臓と9つの脳" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
+    illCaption: "タコにある3つの心臓と9つの脳",
+    menuItems: [], recommendedSake: "manozuru"
+  },
+  {
+    id: "unagi", name: "うなぎ", kana: "うなぎ", img: "unagi.png",
+    basicInfo: "土用の丑の日に食べる習慣でおなじみ。ふっくらとした身と香ばしいタレの相性が抜群です。",
+    eatingPoint: "皮目はパリッと香ばしく、身はふっくらと柔らかな食感。甘辛いタレと脂の旨味が絡み合い、ご飯やお酒がどんどん進む深い味わいです。",
+    surprisingInfo: "ウナギの生態は長年謎に包まれていましたが、近年になってようやくマリアナ諸島付近で産卵することが判明しました。",
+    trivia: "ウナギの血には毒（イクチオトキシン）が含まれているため、加熱せずに生で食べることは基本的にできません。",
+    menuItems: [], recommendedSake: "zaku"
+  },
+  {
+    id: "yariika", name: "ヤリイカ", kana: "やりいか", img: "ika.png",
+    basicInfo: "上品な甘みと、コリコリとした歯切れの良い食感が魅力。冬から春にかけてが旬です。",
+    eatingPoint: "透き通るような身は、上品な甘みと柔らかくも歯切れの良い食感が魅力です。噛むほどにイカ本来の優しい旨味が口いっぱいに広がります。",
+    surprisingInfo: "寿命はわずか1年。秋に生まれて成長し、翌年の春に産卵を終えると一生を終えます。",
+    trivia: "「ヤリイカ（槍烏賊）」という名前は、細長く先が尖った胴体の形が「槍の穂先」に似ていることに由来します。",
+    illustration: `<img src="ika_kaisetsu.png" alt="ヤリイカのシルエット" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
+    illCaption: "槍の穂先に似ているヤリイカのシルエット",
+    menuItems: [], recommendedSake: "oze"
+  },
+  {
+    id: "amaebi", name: "甘エビ", kana: "あまえび", img: "ebi.png",
+    basicInfo: "その名の通り、とろけるような強い甘みが特徴。正式名称は「ホッコクアカエビ」といいます。",
+    eatingPoint: "口に入れた瞬間にとろけるような強い甘みと、ねっとりとしたなめらかな口当たりが特徴です。頭の味噌も濃厚で、余すところなく楽しめます。",
+    surprisingInfo: "生まれた時はすべてオスで、4〜5年経つとメスに性転換するという不思議な生態を持っています。",
+    trivia: "水揚げされてから少し時間が経つことで、自己消化によりアミノ酸が増え、より甘みが増します。",
+    menuItems: [], recommendedSake: "oze"
+  }
+];
+
+/* ============ お酒データ(マスタデータ) ============ */
+const sakeList = [
+  {
+    id: "oze", group: "冷や・常温で", tag: "辛口",
+    name: "尾瀬のゆきどけ", region: "群馬",
+    taste: "キレのある喉ごしと、澄んだ後味が特徴です。ほのかなフルーティーな香りがありつつも、後味はスッと切れるため、サーモンやヤリイカのような甘みのある魚の脂や旨味を綺麗に洗い流してくれます。お造りなどの生食と合わせるのが特におすすめです。"
+  },
+  {
+    id: "hakkaisan", group: "冷や・常温で", tag: "スッキリ",
+    name: "八海山", region: "新潟",
+    taste: "雑味のないクリアな味わいと、淡麗で軽やかな飲み口が魅力の銘酒。魚の繊細な風味を一切邪魔せず、むしろ引き立ててくれます。ヒラメのような上品な白身魚や、アジなどの青魚を塩焼きにした際の香ばしさとも見事に調和します。"
+  },
+  {
+    id: "zaku", group: "冷や・常温で", tag: "旨甘口",
+    name: "作", region: "三重",
+    taste: "やわらかな甘みと、ふくよかな米の旨みが口いっぱいに広がるリッチな味わい。マグロのトロやウナギのような、脂が乗っていて味の濃い魚と合わせると、お酒の甘みと魚の脂が口の中で溶け合い、極上のペアリングを生み出します。濃いめのタレや味噌を使った料理にもよく合います。"
+  },
+  {
+    id: "manozuru", group: "熱燗で", tag: "辛口",
+    name: "真野鶴", region: "新潟",
+    taste: "温めることで米本来のまろやかな旨味と、辛口ならではの輪郭がグッと引き立ちます。シマアジのようなしっかりとした旨味を持つ魚や、タコのように噛むほどに味が出る魚介と合わせると、燗酒の温かさが素材の甘みをより一層深めてくれます。"
+  },
+  {
+    id: "tateyama", group: "熱燗で", tag: "超辛口",
+    name: "立山", region: "富山",
+    taste: "熱燗にすることでキレ味と辛さがより一層際立つ、食中酒の王道。口の中をさっぱりとリセットしてくれるので、カツオのタタキやイワシなど、クセや香りが強めの青魚・赤身魚と相性抜群です。香ばしい炭火焼きの料理と合わせても負けない力強さがあります。"
+  }
+];
+
+/* ============ 状態管理 ============ */
+let currentFishId = null;
+let surveyProfile = JSON.parse(localStorage.getItem('fish_survey')) || null;
+let reqAnimId = null;
+let fishSwarm = [];
+
+/* ============ 画面遷移と背景切り替え ============ */
+let isMainVideoPlaying = false;
+
+function startSeamlessLoop() {
+  if (isMainVideoPlaying) return;
+  isMainVideoPlaying = true;
+  
+  const vid1 = document.getElementById('bg-video-main-1');
+  const vid2 = document.getElementById('bg-video-main-2');
+  const fadeTime = 1.5; // 動画終了の何秒前にクロスフェードを開始するか
+
+  if (!vid1 || !vid2) return;
+
+  vid1.currentTime = 0;
+  vid1.play().catch(e => console.log('Video play error:', e));
+  vid1.classList.add('show-bg');
+
+  const checkTime = (currentVid, nextVid) => {
+    if (currentVid.duration > 0 && currentVid.currentTime >= currentVid.duration - fadeTime) {
+      if (nextVid.paused) {
+        nextVid.currentTime = 0;
+        nextVid.play().catch(e => console.log('Video play error:', e));
+        nextVid.classList.add('show-bg');
+        currentVid.classList.remove('show-bg');
+      }
+    }
+    if (currentVid.currentTime >= currentVid.duration - 0.2) {
+      currentVid.pause();
+    }
+  };
+
+  vid1.addEventListener('timeupdate', () => checkTime(vid1, vid2));
+  vid2.addEventListener('timeupdate', () => checkTime(vid2, vid1));
+}
+
+function goScreen(name){
+  document.querySelectorAll('.screen').forEach(el=>{
+    el.classList.toggle('active', el.dataset.screen === name);
+  });
+  window.scrollTo({top:0, behavior:'smooth'});
+
+  const opVideo = document.getElementById('bg-video-op');
+  const header = document.getElementById('main-header');
+  
+  if(name === 'op') {
+    if(opVideo) opVideo.classList.add('show-bg');
+    if(header) header.style.display = 'none';
+  } else {
+    if(opVideo) opVideo.classList.remove('show-bg');
+    startSeamlessLoop();
+    if(header) header.style.display = 'block';
+  }
+
+  // 画面に応じて水槽アニメーションのON/OFFを切り替える
+  if (name === 'select') {
+    startAquarium();
+  } else {
+    stopAquarium();
+  }
+}
+
+function clearErr(groupId){
+  const el = document.getElementById(groupId);
+  if (el) el.classList.remove('errhi');
+}
+
+/* ============ 水槽（魚選択）アニメーション ============ */
+function initAquarium(){
+  const aq = document.getElementById('aquarium');
+  if (!aq) return;
+  aq.innerHTML = "";
+  fishSwarm = [];
+
+  // 画面全体を水槽とする
+  const aqWidth = window.innerWidth;
+  const aqHeight = window.innerHeight;
+
+  fishList.forEach(f => {
+    const el = document.createElement('div');
+    el.className = "swimming-fish";
+    el.onclick = () => selectFish(f.id);
+    
+    // 画像のみを配置（テロップ削除）
+    el.innerHTML = `
+      <img src="${f.img}" alt="${f.name}">
+    `;
+    aq.appendChild(el);
+
+    // 魚の初期状態（ランダムな位置と速度）
+    const sizeW = 140;
+    const sizeH = 100;
+    // 初期位置を画面内に散らばせる
+    const startX = Math.random() * (aqWidth - sizeW);
+    const startY = Math.random() * (aqHeight - sizeH);
+    
+    // X方向の速度（左右どちらかにランダム）
+    let speedX = (Math.random() * 1.5 + 0.5);
+    speedX *= Math.random() > 0.5 ? 1 : -1;
+    
+    // Y方向の速度（ゆっくり上下）
+    const speedY = (Math.random() * 0.8 - 0.4);
+
+    fishSwarm.push({
+      el: el,
+      x: startX,
+      y: startY,
+      vx: speedX,
+      vy: speedY,
+      width: sizeW,
+      height: sizeH,
+      angle: Math.random() * Math.PI * 2 // 波打つアニメーション用の初期角度
+    });
+  });
+}
+
+function startAquarium() {
+  if (fishSwarm.length === 0) {
+    initAquarium();
+  }
+  if (!reqAnimId) {
+    animateAquarium();
+  }
+}
+
+function stopAquarium() {
+  if (reqAnimId) {
+    cancelAnimationFrame(reqAnimId);
+    reqAnimId = null;
+  }
+}
+
+function animateAquarium() {
+  const aq = document.getElementById('aquarium');
+  if (!aq) return;
+  
+  const aqWidth = window.innerWidth;
+  const aqHeight = window.innerHeight;
+  
+  // 画面外に出て良いマージン（この値だけ外に出たら跳ね返る）
+  const outMargin = 300;
+
+  fishSwarm.forEach(f => {
+    f.x += f.vx;
+    f.y += f.vy;
+    f.angle += 0.03; // 上下の波打ち速度
+
+    // Y軸にサインカーブを足してフワフワ感を出す
+    const waveY = f.y + Math.sin(f.angle) * 15;
+
+    // 左右の画面外の見えない壁で跳ね返り
+    if (f.x <= -outMargin) {
+      f.x = -outMargin;
+      f.vx *= -1;
+    } else if (f.x + f.width >= aqWidth + outMargin) {
+      f.x = aqWidth + outMargin - f.width;
+      f.vx *= -1;
+    }
+
+    // 上下の画面外の見えない壁で跳ね返り
+    if (waveY <= -outMargin) {
+      f.y = -outMargin;
+      f.vy *= -1;
+    } else if (waveY + f.height >= aqHeight + outMargin) {
+      f.y = aqHeight + outMargin - f.height;
+      f.vy *= -1;
+    }
+
+    // 進行方向に向かって画像を反転させる
+    // (画像が左向きデフォルトと想定: vx < 0 ならそのまま、vx > 0 なら左右反転)
+    const scaleX = f.vx < 0 ? 1 : -1;
+    const imgEl = f.el.querySelector('img');
+    if (imgEl) {
+      imgEl.style.transform = `scaleX(${scaleX})`;
+    }
+
+    // 座標の更新
+    f.el.style.transform = `translate(${f.x}px, ${waveY}px)`;
+  });
+
+  reqAnimId = requestAnimationFrame(animateAquarium);
+}
+
+/* ============ 魚詳細の描画 ============ */
+function selectFish(id){
+  currentFishId = id;
+  const f = fishList.find(x=>x.id===id);
+  if (!f) return;
+
+  document.getElementById('detailName').textContent = f.name;
+  document.getElementById('detailBasic').textContent = f.basicInfo;
+  document.getElementById('detailEatingPoint').textContent = f.eatingPoint;
+  document.getElementById('detailSurprising').textContent = f.surprisingInfo;
+  document.getElementById('detailTrivia').textContent = f.trivia;
+
+  // イラスト(SVG)の表示切り替え
+  const illWrap = document.getElementById('detailIllWrap');
+  const illSvg = document.getElementById('detailIllSvg');
+  const illCaption = document.getElementById('detailIllCaption');
+  
+  if(f.illustration) {
+    illSvg.innerHTML = f.illustration;
+    illCaption.textContent = f.illCaption || "";
+    illWrap.style.display = 'block';
+  } else {
+    illWrap.style.display = 'none';
+    illSvg.innerHTML = "";
+  }
+
+  sendLog('魚を見た', { fishId: f.id, fishName: f.name });
+
+  goScreen('detail');
+}
+
+/* ============ メニュー画面へ遷移 ============ */
+function goToMenu(){
+  const f = fishList.find(x=>x.id===currentFishId);
+  if (!f) return;
+  document.getElementById('menuScreenName').textContent = f.name;
+
+  const wrap = document.getElementById('menuScreenList');
+  
+  const items = f.menuItems && f.menuItems.length > 0 ? f.menuItems : [
+    { name: `${f.name}のお造り`, description: "鮮度抜群。素材本来の味をお楽しみください。", recommendedSake: f.recommendedSake },
+    { name: `${f.name}の特製なめろう`, description: "日本酒にぴったり。ちびちびとつまめる一品です。", recommendedSake: "zaku" },
+    { name: `${f.name}の炭火焼き`, description: "香ばしい香りが食欲をそそります。", recommendedSake: "tateyama" }
+  ];
+
+  wrap.innerHTML = items.map(m => {
+    const s = sakeList.find(sake => sake.id === m.recommendedSake);
+    let sakeHtml = '';
+    if (s) {
+      sakeHtml = `
+        <div class="pairing-sake">
+          <div class="sake-group-label" style="margin-top:0;">おすすめのペアリング</div>
+          <div class="sake-card" style="margin-bottom:0; background: rgba(0,0,0,0.15);">
+            <span class="tag">${s.tag}</span>
+            <div class="name-row">
+              <span class="name">${s.name}</span>
+              <span class="region">〈${s.region}〉</span>
+            </div>
+            <p class="taste">${s.taste}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="menu-item" onclick="this.classList.toggle('open')">
+        <div class="name">
+          ${m.name}
+          <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="desc">${m.description}</div>
+        ${sakeHtml}
+      </div>
+    `;
+  }).join('');
+
+  goScreen('menu');
+}
+
+/* ============ アンケートへ進む、または直接終了する ============ */
+function goToSurveyOrFinish(){
+  if (surveyProfile) {
+    goScreen('done');
+  } else {
+    goScreen('survey');
+  }
+}
+
+/* ============ アンケート送信 ============ */
+function submitSurvey(){
+  const genderEl = document.querySelector('input[name="s-gender"]:checked');
+  const ageEl = document.querySelector('input[name="s-age"]:checked');
+  const kpiEl = document.querySelector('input[name="s-kpi"]:checked');
+  const errorEl = document.getElementById('surveyError');
+
+  let hasError = false;
+  if (!genderEl) { document.getElementById('group-gender').classList.add('errhi'); hasError = true; }
+  if (!ageEl) { document.getElementById('group-age').classList.add('errhi'); hasError = true; }
+  if (!kpiEl) { document.getElementById('group-kpi').classList.add('errhi'); hasError = true; }
+
+  if (hasError) {
+    errorEl.style.display = 'block';
+    errorEl.classList.remove('shake'); void errorEl.offsetWidth; errorEl.classList.add('shake');
+    return;
+  }
+  errorEl.style.display = 'none';
+
+  surveyProfile = { gender: genderEl.value, age: ageEl.value };
+  localStorage.setItem('fish_survey', JSON.stringify(surveyProfile));
+
+  sendLog('アンケート回答', {
+    gender: genderEl.value,
+    age: ageEl.value,
+    kpi: kpiEl.value,
+    fishId: currentFishId
+  });
+
+  goScreen('done');
+}
+
+/* ============ 初期化 ============ */
+goScreen('op');
+sendLog('アクセス');
+
+/* ============ OP動画終了イベント ============ */
+const opVid = document.getElementById('bg-video-op');
+const opLogo = document.getElementById('op-logo');
+if (opVid && opLogo) {
+  opVid.addEventListener('ended', () => {
+    opLogo.style.opacity = '1';
+    
+    setTimeout(() => {
+      const opScreen = document.querySelector('[data-screen="op"]');
+      if (opScreen.classList.contains('active')) {
+        goScreen('select');
+      }
+    }, 3000);
+  });
+}
+</script>
+
+</body>
+</html>

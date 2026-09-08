@@ -473,14 +473,10 @@
         </div>
       </article>
 
-      <button class="btn btn-ghost" style="width: 100%; margin-top: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;" onclick="goToMenu()">
+      <button class="btn btn-primary" style="width: 100%; margin-top: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;" onclick="goToMenu()">
         <span>この魚を使ったメニューを見る</span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </button>
-
-      <div class="btn-row">
-        <button class="btn btn-primary" style="width:100%" id="finishButton" onclick="handleFinishClick()"></button>
-      </div>
     </section>
 
     <!-- Screen: メニュー一覧 -->
@@ -492,8 +488,8 @@
         <!-- JSでメニューが生成される -->
       </div>
 
-      <div class="btn-row" style="margin-top: 32px;">
-        <button class="btn btn-ghost" style="width:100%" onclick="goScreen('detail')">魚の詳細に戻る</button>
+      <div class="btn-row" style="margin-top: 32px; flex-direction: column;">
+        <button class="btn btn-primary" style="width:100%" id="finishButton" onclick="handleFinishClick()"></button>
       </div>
     </section>
 
@@ -504,10 +500,6 @@
       
       <div id="sakeScreenList">
         <!-- JSでお酒が生成される -->
-      </div>
-
-      <div class="btn-row" style="margin-top: 32px;">
-        <button class="btn btn-ghost" style="width:100%" onclick="goScreen('detail')">魚の詳細に戻る</button>
       </div>
     </section>
 
@@ -907,13 +899,6 @@ function selectFish(id){
     illSvg.innerHTML = "";
   }
 
-  const finishBtn = document.getElementById('finishButton');
-  if (surveyProfile) {
-    finishBtn.textContent = '最初に戻る';
-  } else {
-    finishBtn.textContent = '最後にお聞かせください';
-  }
-
   sendLog('魚を見た', { fishId: f.id, fishName: f.name });
 
   goScreen('detail');
@@ -963,6 +948,13 @@ function goToMenu(){
       </div>
     `;
   }).join('');
+
+  const finishBtn = document.getElementById('finishButton');
+  if (surveyProfile) {
+    finishBtn.textContent = '最初に戻る';
+  } else {
+    finishBtn.textContent = '最後にお聞かせください';
+  }
 
   goScreen('menu');
 }

@@ -126,43 +126,41 @@
     }
   }
 
-  /* --- 水槽（魚選択） --- */
-  .aquarium-wrap {
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    background: transparent;
-    border: none;
-    overflow: hidden;
-    z-index: 5;
-    pointer-events: none;
+  /* --- 水槽アニメーション --- */
+  .screen[data-screen="select"] {
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden; /* 画面外はみ出し分を隠す */
+    padding: 26px 20px 0; /* 下部のパディングをなくして全画面使う */
   }
-  .swimming-fish {
+  .screen[data-screen="select"] > .eyebrow,
+  .screen[data-screen="select"] > .title,
+  .screen[data-screen="select"] > .lead {
+    position: relative;
+    z-index: 20; /* 魚よりも手前に表示 */
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8); /* テキストを見やすく */
+  }
+
+  .aqua-wrap {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    overflow: visible; /* コンテナ外（画面外）の描画を許可 */
+    pointer-events: none;
+    z-index: 10;
+  }
+  .aqua-fish {
     position: absolute;
     top: 0; left: 0;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: filter 0.2s;
-    user-select: none;
-    -webkit-user-drag: none;
-    pointer-events: auto; /* 魚自体はクリック可能に */
-  }
-  .swimming-fish:hover, .swimming-fish:active {
-    filter: brightness(1.2) drop-shadow(0 0 10px rgba(242,238,227,0.3));
-  }
-  .swimming-fish img {
-    width: auto;
+    width: 140px; /* アイコンを大きめに設定 */
     height: auto;
-    max-width: 140px;
-    max-height: 100px;
-    object-fit: contain;
-    transition: transform 0.4s ease; /* 向き変更のアニメーション */
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
-    pointer-events: none;
+    cursor: pointer;
+    pointer-events: auto; /* 魚自体はタップ可能 */
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+    transition: filter 0.2s;
+    transform-origin: center center;
+  }
+  .aqua-fish:active {
+    filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)) brightness(1.2);
   }
 
   /* --- 魚詳細画面 --- */
@@ -428,13 +426,12 @@
     <!-- Screen: サカナ選択 -->
     <section class="screen" data-screen="select">
       <p class="eyebrow">CHOOSE</p>
-      <h2 class="title">魚をタップして捕まえてみてください</h2>
-      <p class="lead">
+      <h2 class="title" style="font-size: 26px;">魚をタップして<br>捕まえてみてください</h2>
+      <p class="lead" style="font-size: 16px;">
         居酒屋 乞食の新鮮なお魚たち。<br><br>
-        選んだお魚の豆知識と、<br>
-        相性抜群の日本酒をご提案します。
+        選んだお魚の豆知識と、<br>相性抜群の日本酒を<br>ご提案します。
       </p>
-      <div class="aquarium-wrap" id="aquarium"></div>
+      <div class="aqua-wrap" id="aquaWrap"></div>
     </section>
 
     <!-- Screen: 魚詳細(情報+メニュー枠+お酒提案) -->
@@ -710,8 +707,6 @@ const sakeList = [
 /* ============ 状態管理 ============ */
 let currentFishId = null;
 let surveyProfile = JSON.parse(localStorage.getItem('fish_survey')) || null;
-let reqAnimId = null;
-let fishSwarm = [];
 
 /* ============ 画面遷移と背景切り替え ============ */
 let isMainVideoPlaying = false;
@@ -766,7 +761,7 @@ function goScreen(name){
     if(header) header.style.display = 'block';
   }
 
-  // 画面に応じて水槽アニメーションのON/OFFを切り替える
+  // アニメーションのオンオフ制御
   if (name === 'select') {
     startAquarium();
   } else {
@@ -779,141 +774,106 @@ function clearErr(groupId){
   if (el) el.classList.remove('errhi');
 }
 
-/* ============ 水槽（魚選択）アニメーション ============ */
-function initAquarium(){
-  const aq = document.getElementById('aquarium');
-  if (!aq) return;
-  aq.innerHTML = "";
-  fishSwarm = [];
-
-  // 画面全体を水槽とする
-  const aqWidth = window.innerWidth;
-  const aqHeight = window.innerHeight;
-
-  fishList.forEach(f => {
-    const el = document.createElement('div');
-    el.className = "swimming-fish";
-    el.onclick = () => selectFish(f.id);
-    
-    // 画像のみを配置（テロップ削除）
-    el.innerHTML = `
-      <img src="${f.img}" alt="${f.name}">
-    `;
-    aq.appendChild(el);
-
-    // 魚の初期状態（ランダムな位置と速度）
-    const sizeW = 140;
-    const sizeH = 100;
-    // 初期位置を画面内に散らばせる
-    const startX = Math.random() * (aqWidth - sizeW);
-    const startY = Math.random() * (aqHeight - sizeH);
-    
-    // X方向の速度（左右どちらかにランダム）
-    let speedX = (Math.random() * 1.5 + 0.5);
-    speedX *= Math.random() > 0.5 ? 1 : -1;
-    
-    // Y方向の速度（ゆっくり上下）
-    const speedY = (Math.random() * 0.8 - 0.4);
-
-    fishSwarm.push({
-      id: f.id,
-      el: el,
-      x: startX,
-      y: startY,
-      vx: speedX,
-      vy: speedY,
-      baseVx: Math.abs(speedX),
-      isDashing: false,
-      dashFrames: 0,
-      width: sizeW,
-      height: sizeH,
-      angle: Math.random() * Math.PI * 2 // 波打つアニメーション用の初期角度
-    });
-  });
-}
+/* ============ 水槽アニメーション ============ */
+let aquaFishes = [];
+let aquaAnimId = null;
 
 function startAquarium() {
-  if (fishSwarm.length === 0) {
-    initAquarium();
+  if (aquaAnimId) return; // 既に動いていればスキップ
+  
+  const wrap = document.getElementById('aquaWrap');
+  if (!wrap) return;
+
+  // 初回のみ要素を生成
+  if (aquaFishes.length === 0) {
+    wrap.innerHTML = '';
+    fishList.forEach((f) => {
+      const img = document.createElement('img');
+      img.src = f.img;
+      img.className = 'aqua-fish';
+      img.alt = f.name;
+      img.onclick = () => selectFish(f.id);
+      wrap.appendChild(img);
+
+      aquaFishes.push({
+        id: f.id,
+        el: img,
+        x: Math.random() * (window.innerWidth || 400),
+        y: Math.random() * ((window.innerHeight || 800) - 200) + 100,
+        vx: (Math.random() - 0.5) * 2, // 速度X
+        vy: (Math.random() - 0.5) * 1, // 速度Y
+        targetVx: 0,
+        targetVy: 0,
+        time: Math.random() * 100,
+        isDashing: false
+      });
+    });
   }
-  if (!reqAnimId) {
-    animateAquarium();
+
+  let lastTime = performance.now();
+
+  function animate(now) {
+    const dt = Math.min((now - lastTime) / 16.6, 2); // コマ落ち対策
+    lastTime = now;
+
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const marginX = 150; // 画面外に出る余裕
+    const marginY = 150;
+
+    aquaFishes.forEach(f => {
+      f.time += dt;
+
+      // カツオの猛ダッシュ処理
+      if (f.id === 'katsuo') {
+        if (!f.isDashing && Math.random() < 0.002 * dt) { // たまにダッシュ
+          f.isDashing = true;
+          // 暴走レベルの超高速ダッシュに設定
+          f.targetVx = (Math.random() > 0.5 ? 1 : -1) * (60 + Math.random() * 40); 
+          f.targetVy = (Math.random() - 0.5) * 40;
+        } else if (f.isDashing && Math.random() < 0.03 * dt) { // しばらくしたら落ち着く
+          f.isDashing = false;
+        }
+      }
+
+      // 通常のランダムな速度変化（ダッシュ中以外）
+      if (!f.isDashing && f.time > 100) {
+        f.targetVx = (Math.random() - 0.5) * 2;
+        f.targetVy = (Math.random() - 0.5) * 1;
+        f.time = 0;
+      }
+
+      // 目標速度へ滑らかに近づく (ダッシュ時はより急加速させる)
+      f.vx += (f.targetVx - f.vx) * (f.isDashing ? 0.4 : 0.02) * dt;
+      f.vy += (f.targetVy - f.vy) * (f.isDashing ? 0.4 : 0.02) * dt;
+
+      // 座標更新
+      f.x += f.vx * dt;
+      f.y += f.vy * dt;
+
+      // 画面外（マージン）に出たら跳ね返る
+      if (f.x < -marginX) { f.x = -marginX; f.vx *= -1; f.targetVx *= -1; }
+      if (f.x > w + marginX) { f.x = w + marginX; f.vx *= -1; f.targetVx *= -1; }
+      if (f.y < -marginY) { f.y = -marginY; f.vy *= -1; f.targetVy *= -1; }
+      if (f.y > h + marginY) { f.y = h + marginY; f.vy *= -1; f.targetVy *= -1; }
+
+      // 進行方向に向きを変える (画像はデフォルト左向きと仮定、右に進む場合は反転)
+      const scaleX = f.vx > 0 ? -1 : 1;
+      
+      f.el.style.transform = `translate(${f.x}px, ${f.y}px) scaleX(${scaleX})`;
+    });
+
+    aquaAnimId = requestAnimationFrame(animate);
   }
+
+  aquaAnimId = requestAnimationFrame(animate);
 }
 
 function stopAquarium() {
-  if (reqAnimId) {
-    cancelAnimationFrame(reqAnimId);
-    reqAnimId = null;
+  if (aquaAnimId) {
+    cancelAnimationFrame(aquaAnimId);
+    aquaAnimId = null;
   }
-}
-
-function animateAquarium() {
-  const aq = document.getElementById('aquarium');
-  if (!aq) return;
-  
-  const aqWidth = window.innerWidth;
-  const aqHeight = window.innerHeight;
-  
-  // 画面外に出て良いマージン（この値だけ外に出たら跳ね返る）
-  const outMargin = 300;
-
-  fishSwarm.forEach(f => {
-    // カツオ特有の「猛スピードで泳ぐ」処理
-    if (f.id === 'katsuo') {
-      if (f.isDashing) {
-        f.dashFrames--;
-        if (f.dashFrames <= 0) {
-          f.isDashing = false;
-          f.vx = f.baseVx * (f.vx < 0 ? -1 : 1); // 元の速度に戻す
-        }
-      } else {
-        if (Math.random() < 0.005) { // 時々(約0.5%の確率で)ダッシュ開始
-          f.isDashing = true;
-          f.dashFrames = 40 + Math.random() * 40; // ダッシュ期間
-          f.vx = f.baseVx * (f.vx < 0 ? -1 : 1) * 7; // 7倍の猛スピード
-        }
-      }
-    }
-
-    f.x += f.vx;
-    f.y += f.vy;
-    f.angle += 0.03; // 上下の波打ち速度
-
-    // Y軸にサインカーブを足してフワフワ感を出す
-    const waveY = f.y + Math.sin(f.angle) * 15;
-
-    // 左右の画面外の見えない壁で跳ね返り
-    if (f.x <= -outMargin) {
-      f.x = -outMargin;
-      f.vx *= -1;
-    } else if (f.x + f.width >= aqWidth + outMargin) {
-      f.x = aqWidth + outMargin - f.width;
-      f.vx *= -1;
-    }
-
-    // 上下の画面外の見えない壁で跳ね返り
-    if (waveY <= -outMargin) {
-      f.y = -outMargin;
-      f.vy *= -1;
-    } else if (waveY + f.height >= aqHeight + outMargin) {
-      f.y = aqHeight + outMargin - f.height;
-      f.vy *= -1;
-    }
-
-    // 進行方向に向かって画像を反転させる
-    // (画像が左向きデフォルトと想定: vx < 0 ならそのまま、vx > 0 なら左右反転)
-    const scaleX = f.vx < 0 ? 1 : -1;
-    const imgEl = f.el.querySelector('img');
-    if (imgEl) {
-      imgEl.style.transform = `scaleX(${scaleX})`;
-    }
-
-    // 座標の更新
-    f.el.style.transform = `translate(${f.x}px, ${waveY}px)`;
-  });
-
-  reqAnimId = requestAnimationFrame(animateAquarium);
 }
 
 /* ============ 魚詳細の描画 ============ */

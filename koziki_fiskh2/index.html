@@ -12,7 +12,7 @@
     --kinari: #F2EEE3;
     --kinari-deep: #E9E2CF;
     --ai: #22385C;
-    --ai-light: #4C6A94;＠
+    --ai-light: #4C6A94;
     --ai-pale: #DCE3EC;
     --shu: #BD4630;
     --shu-pale: #F1DCD5;
@@ -424,12 +424,13 @@
     </section>
 
     <!-- Screen: サカナ選択 -->
+    <!-- 修正箇所：タイトルを1行で表示し、画面幅に合わせて自動調整されるように修正 -->
     <section class="screen" data-screen="select">
       <p class="eyebrow">CHOOSE</p>
-      <h2 class="title" style="font-size: 26px;">魚をタップして<br>捕まえてみてください</h2>
+      <h2 class="title" style="font-size: clamp(14px, 4.5vw, 24px); white-space: nowrap;">魚をタップして捕まえてみてください</h2>
       <p class="lead" style="font-size: 16px;">
         居酒屋 乞食の新鮮なお魚たち。<br><br>
-        選んだお魚の豆知識と、<br>相性抜群の日本酒を<br>ご提案します。
+        選んだお魚の豆知識と、<br>相性抜群の日本酒をご提案します。
       </p>
       <div class="aqua-wrap" id="aquaWrap"></div>
     </section>

@@ -816,11 +816,15 @@ function initAquarium(){
     const speedY = (Math.random() * 0.8 - 0.4);
 
     fishSwarm.push({
+      id: f.id,
       el: el,
       x: startX,
       y: startY,
       vx: speedX,
       vy: speedY,
+      baseVx: Math.abs(speedX),
+      isDashing: false,
+      dashFrames: 0,
       width: sizeW,
       height: sizeH,
       angle: Math.random() * Math.PI * 2 // 波打つアニメーション用の初期角度
@@ -855,6 +859,23 @@ function animateAquarium() {
   const outMargin = 300;
 
   fishSwarm.forEach(f => {
+    // カツオ特有の「猛スピードで泳ぐ」処理
+    if (f.id === 'katsuo') {
+      if (f.isDashing) {
+        f.dashFrames--;
+        if (f.dashFrames <= 0) {
+          f.isDashing = false;
+          f.vx = f.baseVx * (f.vx < 0 ? -1 : 1); // 元の速度に戻す
+        }
+      } else {
+        if (Math.random() < 0.005) { // 時々(約0.5%の確率で)ダッシュ開始
+          f.isDashing = true;
+          f.dashFrames = 40 + Math.random() * 40; // ダッシュ期間
+          f.vx = f.baseVx * (f.vx < 0 ? -1 : 1) * 7; // 7倍の猛スピード
+        }
+      }
+    }
+
     f.x += f.vx;
     f.y += f.vy;
     f.angle += 0.03; // 上下の波打ち速度

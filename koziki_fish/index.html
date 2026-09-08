@@ -90,8 +90,8 @@
   @keyframes fadeUp{ from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:translateY(0);} }
   @media (prefers-reduced-motion: reduce){ .screen{ animation:none; } }
 
-  .eyebrow{ font-size:11px; letter-spacing:.14em; color:var(--shu-pale); font-weight:700; margin:0 0 8px; }
-  h2.title{ font-family:var(--font-mincho); font-size:21px; line-height:1.6; margin:0 0 16px; color:var(--kinari); }
+  .eyebrow{ font-size:12px; letter-spacing:.14em; color:var(--shu-pale); font-weight:700; margin:0 0 8px; }
+  h2.title{ font-family:var(--font-mincho); font-size:24px; line-height:1.6; margin:0 0 16px; color:var(--kinari); }
   .lead{ font-size:15px; color:rgba(242,238,227,0.85); line-height:1.9; margin:0 0 22px; }
 
   /* --- OP画面 --- */
@@ -126,25 +126,50 @@
     }
   }
 
-  /* --- 魚選択グリッド --- */
-  .fish-grid{
-    display:grid; grid-template-columns: 1fr 1fr; gap:12px;
+  /* --- 魚選択（グリッド） --- */
+  .fish-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 24px;
   }
-  .fish-card{
+  .fish-card {
     background: rgba(242,238,227,0.06);
-    border:1px solid rgba(242,238,227,0.25);
+    border: 1px solid rgba(242,238,227,0.18);
     border-radius: var(--radius);
-    padding: 18px 12px;
-    text-align:center;
-    cursor:pointer;
-    color: var(--kinari);
-    font-family: inherit;
-    transition: background .15s ease, transform .15s ease, border-color .15s ease;
+    padding: 20px 10px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
   }
-  .fish-card:hover{ background: rgba(242,238,227,0.12); transform:translateY(-2px); border-color: var(--shu-pale); }
-  .fish-card:focus-visible{ outline:2px solid var(--shu-pale); outline-offset:2px; }
-  .fish-card .icon{ width:140px; height:140px; margin:0 auto 8px; opacity:0.9; object-fit: contain; }
-  .fish-card .name{ font-family: var(--font-mincho); font-weight:700; font-size:15.5px; }
+  .fish-card:hover, .fish-card:active {
+    background: rgba(242,238,227,0.12);
+    transform: translateY(-2px);
+  }
+  .fish-card img {
+    width: auto;
+    height: auto;
+    max-width: 100px;
+    max-height: 70px;
+    object-fit: contain;
+    margin-bottom: 12px;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+  }
+  .fish-card .kana {
+    font-size: 10px;
+    color: rgba(242,238,227,0.6);
+    letter-spacing: 0.1em;
+    margin-bottom: 2px;
+  }
+  .fish-card .name {
+    font-family: var(--font-mincho);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--kinari);
+  }
 
   /* --- 魚詳細画面 --- */
   .fish-header{
@@ -409,8 +434,11 @@
     <!-- Screen: サカナ選択 -->
     <section class="screen" data-screen="select">
       <p class="eyebrow">CHOOSE</p>
-      <h2 class="title">気になる魚を選んでください</h2>
-      <p class="lead">居酒屋 乞食の新鮮なお魚たち。<br>選んだお魚の豆知識と、<br>相性抜群の日本酒をご提案します。</p>
+      <h2 class="title" style="font-size: 26px;">気になる魚を選んでください</h2>
+      <p class="lead" style="font-size: 16px;">
+        居酒屋 乞食の新鮮なお魚たち。<br><br>
+        選んだお魚の豆知識と、<br>相性抜群の日本酒を<br>ご提案します。
+      </p>
       <div class="fish-grid" id="fishGrid"></div>
     </section>
 
@@ -454,8 +482,7 @@
       </button>
 
       <div class="btn-row">
-        <button class="btn btn-ghost" onclick="goScreen('select')">他の魚も見る</button>
-        <button class="btn btn-primary" onclick="goToSurveyOrFinish()">今日はここまで</button>
+        <button class="btn btn-primary" style="width:100%" id="finishButton" onclick="handleFinishClick()"></button>
       </div>
     </section>
 
@@ -510,36 +537,11 @@
         </div>
       </div>
 
-      <div class="profile-group" id="group-kpi" style="margin-bottom:8px;">
-        <label>お魚やお酒のお話について、いつもより言葉で説明しやすかったですか?</label>
-        <div class="radio-buttons-col">
-          <label class="radio-btn-wrap"><input type="radio" name="s-kpi" value="いつもより説明しやすかった" onchange="clearErr('group-kpi')"><span class="radio-box">いつもより説明しやすかった</span></label>
-          <label class="radio-btn-wrap"><input type="radio" name="s-kpi" value="やや説明しやすかった" onchange="clearErr('group-kpi')"><span class="radio-box">やや説明しやすかった</span></label>
-          <label class="radio-btn-wrap"><input type="radio" name="s-kpi" value="あまり変わらない" onchange="clearErr('group-kpi')"><span class="radio-box">あまり変わらない</span></label>
-          <label class="radio-btn-wrap"><input type="radio" name="s-kpi" value="わからない" onchange="clearErr('group-kpi')"><span class="radio-box">わからない</span></label>
-        </div>
-      </div>
-
       <p class="radio-group-error" id="surveyError">すべての項目にご回答ください</p>
       <p class="note">※サービス改善のための参考にさせていただきます</p>
 
       <div class="btn-row">
-        <button class="btn btn-primary" style="width:100%" onclick="submitSurvey()">送信して終わる</button>
-      </div>
-    </section>
-
-    <!-- Screen: 完了 -->
-    <section class="screen" data-screen="done">
-      <div class="stamp-wrap">
-        <svg class="stamp" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="44" fill="none" stroke="#F1DCD5" stroke-width="3"/>
-          <text x="50" y="46" text-anchor="middle" font-size="14" fill="#F1DCD5" font-family="'Shippori Mincho', serif" font-weight="700">本日</text>
-          <text x="50" y="66" text-anchor="middle" font-size="14" fill="#F1DCD5" font-family="'Shippori Mincho', serif" font-weight="700">お疲れ様</text>
-        </svg>
-      </div>
-      <p class="lead center-text">今日出会った魚とお酒が、<br>少しでも記憶に残りますように。<br>またのご来店をお待ちしております。</p>
-      <div class="btn-row">
-        <button class="btn btn-ghost" style="width:100%" onclick="goScreen('select')">また魚を見る</button>
+        <button class="btn btn-primary" style="width:100%" onclick="submitSurvey()">終了する</button>
       </div>
     </section>
 
@@ -774,19 +776,16 @@ function clearErr(groupId){
 }
 
 /* ============ 魚選択グリッドの描画 ============ */
-function renderFishGrid(){
-  const wrap = document.getElementById('fishGrid');
-  wrap.innerHTML = "";
-  fishList.forEach(f=>{
-    const btn = document.createElement('button');
-    btn.className = "fish-card";
-    btn.innerHTML = `
-      <img class="icon" src="${f.img}" alt="${f.name}">
+function renderFishGrid() {
+  const grid = document.getElementById('fishGrid');
+  if (!grid) return;
+  grid.innerHTML = fishList.map(f => `
+    <div class="fish-card" onclick="selectFish('${f.id}')">
+      <img src="${f.img}" alt="${f.name}">
+      <div class="kana">${f.kana}</div>
       <div class="name">${f.name}</div>
-    `;
-    btn.onclick = () => selectFish(f.id);
-    wrap.appendChild(btn);
-  });
+    </div>
+  `).join('');
 }
 
 /* ============ 魚詳細の描画 ============ */
@@ -813,6 +812,13 @@ function selectFish(id){
   } else {
     illWrap.style.display = 'none';
     illSvg.innerHTML = "";
+  }
+
+  const finishBtn = document.getElementById('finishButton');
+  if (surveyProfile) {
+    finishBtn.textContent = '最初に戻る';
+  } else {
+    finishBtn.textContent = '最後にお聞かせください';
   }
 
   sendLog('魚を見た', { fishId: f.id, fishName: f.name });
@@ -869,9 +875,9 @@ function goToMenu(){
 }
 
 /* ============ アンケートへ進む、または直接終了する ============ */
-function goToSurveyOrFinish(){
+function handleFinishClick(){
   if (surveyProfile) {
-    goScreen('done');
+    goScreen('select');
   } else {
     goScreen('survey');
   }
@@ -881,13 +887,11 @@ function goToSurveyOrFinish(){
 function submitSurvey(){
   const genderEl = document.querySelector('input[name="s-gender"]:checked');
   const ageEl = document.querySelector('input[name="s-age"]:checked');
-  const kpiEl = document.querySelector('input[name="s-kpi"]:checked');
   const errorEl = document.getElementById('surveyError');
 
   let hasError = false;
   if (!genderEl) { document.getElementById('group-gender').classList.add('errhi'); hasError = true; }
   if (!ageEl) { document.getElementById('group-age').classList.add('errhi'); hasError = true; }
-  if (!kpiEl) { document.getElementById('group-kpi').classList.add('errhi'); hasError = true; }
 
   if (hasError) {
     errorEl.style.display = 'block';
@@ -902,11 +906,10 @@ function submitSurvey(){
   sendLog('アンケート回答', {
     gender: genderEl.value,
     age: ageEl.value,
-    kpi: kpiEl.value,
     fishId: currentFishId
   });
 
-  goScreen('done');
+  goScreen('select');
 }
 
 /* ============ 初期化 ============ */

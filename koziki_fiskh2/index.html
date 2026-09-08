@@ -92,7 +92,7 @@
 
   .eyebrow{ font-size:12px; letter-spacing:.14em; color:var(--shu-pale); font-weight:700; margin:0 0 8px; }
   h2.title{ font-family:var(--font-mincho); font-size:24px; line-height:1.6; margin:0 0 16px; color:var(--kinari); }
-  .lead{ font-size:15px; color:rgba(242,238,227,0.85); line-height:1.9; margin:0 0 22px; }
+  .lead{ font-size:15px; color:#ffffff; line-height:1.9; margin:0 0 22px; }
 
   /* --- OP画面 --- */
   .op-wrapper {
@@ -177,12 +177,13 @@
     border-radius: var(--radius);
     padding: 20px;
     margin-bottom: 24px;
-    color: rgba(242,238,227,0.92);
+    color: #ffffff; /* 視認性を上げるため白に変更 */
   }
   .story-basic {
     font-size: 14px;
     line-height: 1.8;
     margin: 0 0 20px;
+    color: #ffffff; /* 視認性を上げるため白に変更 */
   }
   
   .story-highlight {
@@ -202,6 +203,7 @@
     font-size: 14px;
     line-height: 1.7;
     margin: 0;
+    color: #ffffff; /* 視認性を上げるため白に変更 */
   }
 
   /* --- 味わいと特徴 --- */
@@ -229,6 +231,7 @@
     font-size: 14px;
     line-height: 1.8;
     margin: 0;
+    color: #ffffff; /* 視認性を上げるため白に変更 */
   }
   
   .story-trivia {
@@ -251,6 +254,7 @@
     font-size: 13px;
     line-height: 1.7;
     margin: 0;
+    color: #ffffff; /* 視認性を上げるため白に変更 */
   }
   
   /* --- 豆知識用 イラスト (コード描画) --- */
@@ -272,9 +276,9 @@
 
   .trivia-illustration-caption {
     font-size: 11px;
-    color: var(--ai-pale);
+    color: #ffffff; /* 視認性を上げるため白に変更 */
     margin-top: 8px;
-    opacity: 0.8;
+    opacity: 0.9;
   }
 
   h3.section-title{
@@ -299,7 +303,7 @@
   .menu-item .name{ font-family: var(--font-mincho); font-weight:700; font-size:16px; color: var(--kinari); display: flex; justify-content: space-between; align-items: center; }
   .menu-item .chevron { transition: transform 0.3s ease; opacity: 0.6; }
   .menu-item.open .chevron { transform: rotate(180deg); }
-  .menu-item .desc{ font-size:13px; color: rgba(242,238,227,0.7); margin-top:6px; line-height:1.6; }
+  .menu-item .desc{ font-size:13px; color: #ffffff; margin-top:6px; line-height:1.6; } /* 視認性を上げるため白に変更 */
   
   .pairing-sake {
     display: none;
@@ -334,7 +338,7 @@
   .sake-card .name-row{ display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; margin-bottom:6px; }
   .sake-card .name{ font-family: var(--font-mincho); font-weight:700; font-size:16px; color: var(--kinari); }
   .sake-card .region{ font-size:11px; color: rgba(242,238,227,0.55); }
-  .sake-card .taste{ font-size:12.5px; color: rgba(242,238,227,0.85); line-height:1.75; margin:0; }
+  .sake-card .taste{ font-size:12.5px; color: #ffffff; line-height:1.75; margin:0; } /* 視認性を上げるため白に変更 */
 
   .btn-row{ display:flex; gap:10px; margin-top:30px; }
   button.btn{
@@ -511,7 +515,7 @@
     <section class="screen" data-screen="survey">
       <p class="eyebrow">LAST STEP</p>
       <h2 class="title">最後にお聞かせください</h2>
-      <p class="lead">(初回のみ・次回からは表示されません)</p>
+      <p class="lead" style="color: #ffffff;">(初回のみ・次回からは表示されません)</p>
 
       <div class="profile-group" id="group-gender">
         <label>性別</label>

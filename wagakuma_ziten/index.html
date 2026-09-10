@@ -156,7 +156,7 @@
     background: rgba(255, 255, 255, 0.75);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
-    border:1px solid rgba(214, 204, 180, 0.8); border-left:4px solid var(--ai);
+    border:1px solid rgba(214, 204, 180, 0.8); border-left:4px solid var(--shu);
     border-radius:var(--radius); padding:20px 18px; margin-bottom:32px;
     cursor:pointer; text-align:left; font-family:inherit;
     transition: transform .15s ease, box-shadow .15s ease;
@@ -393,9 +393,9 @@
     text-align: left;
     align-items: flex-start;
     justify-content: flex-start;
-    /* 見出し（藍色）と同じ色味の枠線に変更し、左にアクセントを追加 */
-    border: 1px solid rgba(76, 106, 148, 0.4); 
-    border-left: 4px solid var(--ai);
+    /* 左に朱色のアクセントを追加 */
+    border: 1px solid rgba(189, 70, 48, 0.4); 
+    border-left: 4px solid var(--shu);
     overflow: hidden;
   }
   .flip-card-front h3 {
@@ -490,7 +490,7 @@
     transform: translateX(8px);
   }
   .floating-label {
-    font-size: 13px; font-weight: 700; color: var(--sumi);
+    font-size: 13px; font-weight: 700; color: #fff;
     font-family: var(--font-gothic); transition: color 0.2s ease;
   }
   .floating-item.active .floating-label { color: var(--shu); }

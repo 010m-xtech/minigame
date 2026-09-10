@@ -55,9 +55,9 @@
     height: 100vh;
     height: 100dvh; /* 最近のスマホのURLバー伸縮に対応 */
     z-index: -1; /* 文字やカードの後ろ(背面)に配置 */
-    background-color: var(--kinari);
+    background-color: #1a1a1a; /* ベースの色も黒系に合わせて暗く */
     background-image: 
-      linear-gradient(rgba(242, 238, 227, 0.83), rgba(242, 238, 227, 0.83)),
+      linear-gradient(rgba(20, 20, 20, 0.83), rgba(20, 20, 20, 0.83)), /* 黒系のフィルターを重ねる */
       url('wagakuma_back.webp');
     background-size: 100% auto; /* 横幅にピッタリ収める */
     background-repeat: repeat; 

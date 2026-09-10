@@ -69,12 +69,14 @@
     display: flex;
     align-items: center; /* 文字やボタンを上下中央に配置 */
     min-height: 85px; /* これまでの高さをキープ */
-    background-color: #1a1a1a; /* 画像が読み込まれるまでのベース色 */
-    background-image: url('wagakuma_header.webp');
+    background-color: #f8f8f8; /* 画像が読み込まれるまでのベース色を明るめに変更 */
+    background-image: 
+      linear-gradient(rgba(255, 255, 255, 0.70), rgba(255, 255, 255, 0.70)), /* 70%の白系フィルター */
+      url('wagakuma_header.webp');
     background-size: cover; /* 画像をヘッダー全体に綺麗に広げる */
     background-position: center; /* 画像の中央を基準にする */
     background-repeat: no-repeat;
-    border-bottom: 1px solid rgba(214, 204, 180, 0.3); /* うっすら境界線を入れて引き締める */
+    border-bottom: 1px solid rgba(214, 204, 180, 0.6); /* うっすら境界線を入れて引き締める */
   }
   .header-inner {
     width: 100%;

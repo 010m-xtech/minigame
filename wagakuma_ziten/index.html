@@ -40,6 +40,7 @@
     width:100%; max-width:460px; min-height:100vh;
     background-color: transparent; /* 背景色は下のレイヤーに任せるため透明に */
     position:relative;
+    isolation: isolate; /* ★これを追加：背景用の下敷きが完全に裏へ隠れてしまうのを防ぐ */
     box-shadow: 0 0 40px rgba(0,0,0,0.08);
     display:flex; flex-direction:column;
   }

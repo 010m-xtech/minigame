@@ -35,13 +35,12 @@
   }
 
   /* --- 文字の自然な改行・折り返し設定 --- */
-  h1, h2, h3, h4, .title, .section-title, .name {
-    text-wrap: balance; /* 見出しの行の長さを均等にバランス良くする */
-  }
   p, .lead, .article-text, .desc, .accordion-body, .material-detail-desc, .quiz-result p {
-    text-wrap: pretty; /* 本文の最後の行が極端に短くなるのを防ぐ */
-    word-break: auto-phrase; /* AI/辞書ベースで文節など自然な位置での改行を行う（最新ブラウザ用） */
-    line-break: strict; /* 句読点やカッコが不自然な位置にくるのを厳格に防ぐ */
+    text-align: justify; /* 枠の右端までピタッと文字を揃える */
+    text-justify: inter-ideograph; /* 日本語の文字間隔を自然に調整 */
+    word-break: normal; /* 単語の途中で変に切れるのを防ぐ */
+    overflow-wrap: break-word; /* 枠からはみ出しそうな時だけ改行 */
+    line-break: strict; /* 句読点やカッコが行頭・行末に不自然にこないようにする（禁則処理） */
   }
 
   body{ min-height:100vh; display:flex; justify-content:center; }

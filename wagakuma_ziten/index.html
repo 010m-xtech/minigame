@@ -34,6 +34,16 @@
     -webkit-font-smoothing: antialiased;
   }
 
+  /* --- 文字の自然な改行・折り返し設定 --- */
+  h1, h2, h3, h4, .title, .section-title, .name {
+    text-wrap: balance; /* 見出しの行の長さを均等にバランス良くする */
+  }
+  p, .lead, .article-text, .desc, .accordion-body, .material-detail-desc, .quiz-result p {
+    text-wrap: pretty; /* 本文の最後の行が極端に短くなるのを防ぐ */
+    word-break: auto-phrase; /* AI/辞書ベースで文節など自然な位置での改行を行う（最新ブラウザ用） */
+    line-break: strict; /* 句読点やカッコが不自然な位置にくるのを厳格に防ぐ */
+  }
+
   body{ min-height:100vh; display:flex; justify-content:center; }
 
   .app{
@@ -397,6 +407,9 @@
   }
   .quiz-result h4.incorrect-text {
     color: var(--ai-light);
+  }
+  .quiz-result p strong {
+    color: var(--shu);
   }
 
   /* --- フリップカード(豆知識) --- */

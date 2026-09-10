@@ -69,9 +69,11 @@
     display: flex;
     align-items: center; /* 文字やボタンを上下中央に配置 */
     min-height: 85px; /* これまでの高さをキープ */
-    background: rgba(242, 238, 227, 0.75); /* 生成り色を半透明で敷く */
-    backdrop-filter: blur(12px); /* すりガラス効果で下の文字をぼかす */
-    -webkit-backdrop-filter: blur(12px);
+    background-color: #1a1a1a; /* 画像が読み込まれるまでのベース色 */
+    background-image: url('wagakuma_header.webp');
+    background-size: cover; /* 画像をヘッダー全体に綺麗に広げる */
+    background-position: center; /* 画像の中央を基準にする */
+    background-repeat: no-repeat;
     border-bottom: 1px solid rgba(214, 204, 180, 0.3); /* うっすら境界線を入れて引き締める */
   }
   .header-inner {

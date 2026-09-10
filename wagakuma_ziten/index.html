@@ -57,7 +57,7 @@
     z-index: -1; /* 文字やカードの後ろ(背面)に配置 */
     background-color: #1a1a1a; /* ベースの色も黒系に合わせて暗く */
     background-image: 
-      linear-gradient(rgba(20, 20, 20, 0.83), rgba(20, 20, 20, 0.83)), /* 黒系のフィルターを重ねる */
+      linear-gradient(rgba(20, 20, 20, 0.70), rgba(20, 20, 20, 0.70)), /* 黒系のフィルターを70%に */
       url('wagakuma_back.webp');
     background-size: 100% auto; /* 横幅にピッタリ収める */
     background-repeat: repeat; 
@@ -108,8 +108,8 @@
   @keyframes fadeUp{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
   @media (prefers-reduced-motion: reduce){ .screen{ animation:none; } }
 
-  h2.title{ font-family:var(--font-mincho); font-size:19px; line-height:1.5; margin:0 0 14px; color:var(--ai); }
-  .lead{ font-size:14px; color:var(--sumi); line-height:1.85; margin:0 0 32px; }
+  h2.title{ font-family:var(--font-mincho); font-size:19px; line-height:1.5; margin:0 0 14px; color:#fff; }
+  .lead{ font-size:14px; color:#fff; line-height:1.85; margin:0 0 32px; }
 
   /* --- トップ画面・各画面のリード文エリア（すりガラス枠） --- */
   .glass-box {
@@ -177,12 +177,20 @@
   .term-link:hover{ opacity:.7; }
 
   h3.section-title{
-    font-family: var(--font-mincho); font-size:15.5px; color: var(--ai);
+    font-family: var(--font-mincho); font-size:15.5px; color: #fff;
     margin: 0 0 12px; display:flex; align-items:center; gap:8px;
   }
   h3.section-title::before{
     content:''; width:4px; height:14px; background: var(--shu); border-radius:2px; display:inline-block;
   }
+
+  /* 枠の中（glass-box内）にある見出し・リード文は元の色に戻す */
+  .glass-box h2.title,
+  .glass-box h3.section-title { color: var(--ai); }
+  .glass-box .lead { color: var(--sumi); }
+
+  /* 枠外の小見出し（朱色文字で指定されているもの）の文字色を白で上書き */
+  .screen div[style*="border-left:3px solid var(--shu)"] { color: #fff !important; }
 
   /* --- モーダル(用語解説) --- */
   .modal-overlay{

@@ -344,6 +344,61 @@
     border-top: 1px dashed var(--line);
   }
 
+  /* --- クイズ --- */
+  .quiz-box {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 2px dashed rgba(76, 106, 148, 0.6);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  .quiz-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 10px;
+    background: #fff;
+    border: 1px solid var(--ai-light);
+    color: var(--ai);
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+  }
+  .quiz-btn:last-child {
+    margin-bottom: 0;
+  }
+  .quiz-btn:hover:not(:disabled) {
+    background: var(--ai-pale);
+  }
+  .quiz-btn:disabled {
+    cursor: default;
+    opacity: 0.8;
+  }
+  .quiz-btn.correct {
+    background: var(--shu);
+    color: #fff;
+    border-color: var(--shu);
+  }
+  .quiz-btn.incorrect {
+    background: var(--ai-pale);
+    color: var(--ai-light);
+    border-color: var(--line);
+  }
+  .quiz-result {
+    text-align: left;
+  }
+  .quiz-result h4.correct-text {
+    color: var(--shu);
+  }
+  .quiz-result h4.incorrect-text {
+    color: var(--ai-light);
+  }
+
   /* --- フリップカード(豆知識) --- */
   .flip-card {
     background-color: transparent;
@@ -1201,24 +1256,21 @@
         <div class="accordion-body">個性豊かな「モルト」と、穏やかな「グレーン」を絶妙な比率でブレンドしたもの。プロの職人が計算し尽くして味をまとめているため、非常にバランスが良く、飲みやすいのが最大の魅力です。</div>
       </div>
 
-      <div class="flip-card" onclick="this.classList.toggle('is-flipped')" style="margin-top: 32px;">
-        <div class="flip-card-inner">
-          <div class="flip-card-front">
-            <h3>よく聞く<br>「シングル」って何？</h3>
-            <div class="tap-hint">
-              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-              タップして裏返す
-            </div>
-          </div>
-          <div class="flip-card-back">
-            <h4>ブレンドしない「一点モノ」</h4>
-            <p style="margin-bottom: 8px;">
-              「シングル」とは<strong>「たった一つの蒸留所（工場）」</strong>で造られたという意味。
-            </p>
-            <p>
-              他のお酒を一切混ぜないため、その土地の気候や造り手のこだわりが<strong>ダイレクトに現れます。</strong>蔵ごとの個性を味わえる、いわば「一点モノの芸術品」です。
-            </p>
-          </div>
+      <div class="quiz-box" id="whiskyQuiz" style="margin-top: 32px;">
+        <h3 style="margin: 0 0 16px; font-family: var(--font-mincho); font-size: 19px; color: var(--ai); line-height: 1.5;">Q. 「シングルモルト」の<br>「シングル」って何？</h3>
+        
+        <div id="quizOptions">
+          <button class="quiz-btn" onclick="answerQuiz('A')">A: たった一つの「樽」から取り出されたもの</button>
+          <button class="quiz-btn" onclick="answerQuiz('B')">B: たった一つの「蒸留所」で造られたもの</button>
+        </div>
+
+        <div class="quiz-result" id="quizResult" style="display: none; margin-top: 20px; padding-top: 16px; border-top: 1px dashed var(--ai-light);">
+          <h4 id="quizResultTitle" style="font-family: var(--font-mincho); font-size: 16.5px; margin: 0 0 12px; border-bottom: 1px solid var(--shu-pale); padding-bottom: 8px;"></h4>
+          <p style="font-size: 13.5px; line-height: 1.7; color: var(--sumi); margin: 0;">
+            「シングルモルト」の「シングル」は、<strong>「たった一つの蒸留所（工場）」</strong>で造られた原酒のみを瓶詰めしているという意味です。<br><br>
+            ちなみに、Aの「たった一つの樽」から取り出されたものは「シングルカスク（一つの樽）」と呼ばれ、同じ蒸留所の中でもさらに希少価値が高いウイスキーです。<br><br>
+            他の蒸留所のお酒を一切混ぜない「シングルモルト」は、その土地の気候や造り手のこだわりが<strong>ダイレクトに現れます。</strong>蔵ごとの個性を味わえる、いわば「一点モノの芸術品」です。
+          </p>
         </div>
       </div>
 
@@ -1320,21 +1372,6 @@
           ウイスキーの風味の大部分は「樽」で決まるとも言われます。以前何を入れていた樽かによって、お酒に驚くほどの魔法がかかるのです。
         </p>
       </div>
-
-      <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>スモーキーな香りの正体</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="accordion-body">スコッチウイスキーなどを飲むと、「正露丸」や「焚き火」のような強烈な香りがすることがあります。これは麦芽を乾燥させるときに燃やす「ピート（泥炭：シダやコケが長い年月をかけて炭化したもの）」の煙の香り。最初は「うっ」と思っても、不思議とこのクセのある香りの虜になってしまう人が後を絶ちません。</div>
-      </div>
-
-      <div style="font-weight:700; color:var(--shu); margin:32px 0 12px; padding-left:8px; border-left:3px solid var(--shu); font-family:var(--font-mincho);">
-        ウイスキーの風味を決める「樽（カスク）」
-      </div>
-      <p class="article-text">
-        ウイスキーの風味の大部分は「樽」で決まるとも言われます。以前何を入れていた樽かによって、お酒に驚くほどの魔法がかかるのです。
-      </p>
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
@@ -1722,6 +1759,29 @@ renderList('ourSakeList', sakeItems, true);
 renderList('ourShochuList', shochuGroups, false);
 renderList('ourWhiskyList', whiskyGroups, false);
 goScreen('top');
+
+/* ============ クイズ機能 ============ */
+function answerQuiz(answer) {
+  const options = document.getElementById('quizOptions').querySelectorAll('.quiz-btn');
+  options.forEach(btn => btn.disabled = true); // 一度答えたらボタンを無効化
+
+  const resultBox = document.getElementById('quizResult');
+  const resultTitle = document.getElementById('quizResultTitle');
+
+  if (answer === 'B') {
+    options[1].classList.add('correct');
+    resultTitle.textContent = "大正解！";
+    resultTitle.className = "correct-text";
+  } else {
+    options[0].classList.add('incorrect');
+    options[1].classList.add('correct'); // 正解も示す
+    resultTitle.textContent = "おしい！ 正解はBです";
+    resultTitle.className = "incorrect-text";
+  }
+
+  resultBox.style.display = "block";
+  resultBox.style.animation = "fadeUp 0.4s ease";
+}
 </script>
 
 </body>

@@ -92,6 +92,27 @@
     letter-spacing:0.04em; margin:0; color:var(--ai); 
     text-shadow: 0 1px 4px rgba(242, 238, 227, 0.9), 0 0 8px rgba(255, 255, 255, 0.8);
   }
+
+  /* --- 追加：タイトルと足跡を横に並べる枠 --- */
+  .brand-title-wrap {
+    display: flex; align-items: center;
+  }
+  .paw-prints {
+    display: flex; align-items: center; gap: 4px; margin-left: 10px;
+  }
+  .paw-prints .paw {
+    width: 15px; height: 15px; object-fit: contain;
+    opacity: 0.75; /* 主役の文字より少し控えめに */
+  }
+  /* 上下にずらしつつ、左向きに回転させる */
+  /* ※元の画像の向きによっては、rotate(-90deg) を scaleX(-1) 等に変更してください */
+  .paw-prints .paw-up {
+    transform: translateY(-3px) rotate(-90deg);
+  }
+  .paw-prints .paw-down {
+    transform: translateY(3px) rotate(-90deg);
+  }
+
   .brand p{ margin:0; font-size:10px; color:var(--ai-light); letter-spacing:0.08em; }
 
   .back-btn{
@@ -505,8 +526,14 @@
     <div class="header-inner">
       <div class="brand">
         <img src="ashi.png" alt="吾熊ロゴ" class="header-logo">
-        <div>
+        <div class="brand-title-wrap">
           <h1>酒肴家 吾熊</h1>
+          <div class="paw-prints">
+            <img src="ashi.png" class="paw paw-up" alt="">
+            <img src="ashi.png" class="paw paw-down" alt="">
+            <img src="ashi.png" class="paw paw-up" alt="">
+            <img src="ashi.png" class="paw paw-down" alt="">
+          </div>
         </div>
       </div>
       <button class="back-btn" id="backBtn">

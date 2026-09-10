@@ -353,6 +353,16 @@
     border-top: 1px dashed var(--line);
   }
 
+  /* --- 国旗アイコン --- */
+  .flag-icon {
+    width: 24px;
+    height: 16px;
+    object-fit: cover;
+    border-radius: 2px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    flex: 0 0 auto;
+  }
+
   /* --- クイズ --- */
   .quiz-box {
     background: rgba(255, 255, 255, 0.75);
@@ -1272,15 +1282,15 @@
         <h3 style="margin: 0 0 16px; font-family: var(--font-mincho); font-size: 19px; color: var(--ai); line-height: 1.5;">Q. 「シングルモルト」の<br>「シングル」って何？</h3>
         
         <div id="quizOptions">
-          <button class="quiz-btn" onclick="answerQuiz('A')">A: たった一つの「樽」から取り出されたもの</button>
-          <button class="quiz-btn" onclick="answerQuiz('B')">B: たった一つの「蒸留所」で造られたもの</button>
+          <button class="quiz-btn" onclick="answerQuiz('A')">A: たった一つの「蒸留所」で造られたもの</button>
+          <button class="quiz-btn" onclick="answerQuiz('B')">B: たった一つの「樽」から取り出されたもの</button>
         </div>
 
         <div class="quiz-result" id="quizResult" style="display: none; margin-top: 20px; padding-top: 16px; border-top: 1px dashed var(--ai-light);">
           <h4 id="quizResultTitle" style="font-family: var(--font-mincho); font-size: 16.5px; margin: 0 0 12px; border-bottom: 1px solid var(--shu-pale); padding-bottom: 8px;"></h4>
           <p style="font-size: 13.5px; line-height: 1.7; color: var(--sumi); margin: 0;">
             「シングルモルト」の「シングル」は、<strong>「たった一つの蒸留所（工場）」</strong>で造られた原酒のみを瓶詰めしているという意味です。<br><br>
-            ちなみに、Aの「たった一つの樽」から取り出されたものは「シングルカスク（一つの樽）」と呼ばれ、同じ蒸留所の中でもさらに希少価値が高いウイスキーです。<br><br>
+            ちなみに、Bの「たった一つの樽」から取り出されたものは「シングルカスク（一つの樽）」と呼ばれ、同じ蒸留所の中でもさらに希少価値が高いウイスキーです。<br><br>
             他の蒸留所のお酒を一切混ぜない「シングルモルト」は、その土地の気候や造り手のこだわりが<strong>ダイレクトに現れます。</strong>蔵ごとの個性を味わえる、いわば「一点モノの芸術品」です。
           </p>
         </div>
@@ -1310,7 +1320,10 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>スコッチ（スコットランド）</div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <img src="scotland.webp" alt="スコットランド" class="flag-icon">
+            <span>スコッチ（スコットランド）</span>
+          </div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">ウイスキーの代名詞とも言える存在。「ピート」と呼ばれる泥炭を燃やして麦芽を乾燥させるため、特有の「スモーキーな香り（煙っぽさ）」があるのが最大の特徴です。</div>
@@ -1318,7 +1331,10 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>バーボン（アメリカ）</div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <img src="UK.webp" alt="アメリカ" class="flag-icon">
+            <span>バーボン（アメリカ）</span>
+          </div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">トウモロコシを主原料とし、内側を焦がした新しいオーク樽で熟成させます。バニラやカラメルのような甘く濃厚な香りと、パンチの効いた力強い味わいが魅力です。</div>
@@ -1326,7 +1342,10 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>ジャパニーズ（日本）</div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <img src="japan.webp" alt="日本" class="flag-icon">
+            <span>ジャパニーズ（日本）</span>
+          </div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">スコッチをお手本にしながら、日本の気候と日本人の繊細な味覚に合わせて独自に進化。クセが少なく、非常にバランスが良いため、食事と合わせやすいのが特徴です。</div>
@@ -1334,7 +1353,10 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>アイリッシュ（アイルランド）</div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <img src="Ireland.webp" alt="アイルランド" class="flag-icon">
+            <span>アイリッシュ（アイルランド）</span>
+          </div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">ウイスキー発祥の地とも言われています。原料を乾燥させる時にピート（泥炭）を使わないことが多く、スモーキーさがありません。なめらかでマイルドな、とても飲みやすい味わいです。</div>
@@ -1342,7 +1364,10 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>カナディアン（カナダ）</div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <img src="Canada.webp" alt="カナダ" class="flag-icon">
+            <span>カナディアン（カナダ）</span>
+          </div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">5大ウイスキーの中で最も軽快でマイルド。クセがなくスッキリとしているため、そのまま飲むだけでなく、カクテルのベースとしても世界中で愛されています。</div>
@@ -1780,14 +1805,14 @@ function answerQuiz(answer) {
   const resultBox = document.getElementById('quizResult');
   const resultTitle = document.getElementById('quizResultTitle');
 
-  if (answer === 'B') {
-    options[1].classList.add('correct');
+  if (answer === 'A') {
+    options[0].classList.add('correct');
     resultTitle.textContent = "大正解！";
     resultTitle.className = "correct-text";
   } else {
-    options[0].classList.add('incorrect');
-    options[1].classList.add('correct'); // 正解も示す
-    resultTitle.textContent = "おしい！ 正解はBです";
+    options[1].classList.add('incorrect');
+    options[0].classList.add('correct'); // 正解も示す
+    resultTitle.textContent = "おしい！ 正解はAです";
     resultTitle.className = "incorrect-text";
   }
 

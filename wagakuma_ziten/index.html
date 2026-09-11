@@ -196,6 +196,16 @@
     flex: 0 0 auto;
   }
   
+  /* トップ画面の文字サイズを大きく調整（はみ出し防止機能付き） */
+  .screen[data-screen="top"] h2.title {
+    font-size: clamp(17px, 5vw, 24px);
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+  .screen[data-screen="top"] .lead {
+    font-size: clamp(15px, 4.5vw, 17px);
+  }
+  
   @keyframes fadeUp{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
   @media (prefers-reduced-motion: reduce){ .screen{ animation:none; } }
 

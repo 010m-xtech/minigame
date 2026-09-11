@@ -293,11 +293,14 @@
   }
 
   h3.section-title{
-    font-family: var(--font-mincho); font-size:15.5px; color: #fff;
+    font-family: var(--font-mincho); 
+    font-size: clamp(16px, 4.5vw, 19px); 
+    white-space: nowrap; 
+    color: #fff;
     margin: 0 0 12px; display:flex; align-items:center; gap:8px;
   }
   h3.section-title::before{
-    content:''; width:4px; height:14px; background: var(--shu); border-radius:2px; display:inline-block;
+    content:''; width:4px; height:16px; background: var(--shu); border-radius:2px; display:inline-block;
   }
 
   .glass-box h2.title,
@@ -550,7 +553,6 @@
 
     <!-- Screen: 日本酒・導入 -->
     <section class="screen" data-screen="sake-intro">
-      <h2 class="title">日本酒</h2>
       <h3 class="section-title">日本酒ってどんなお酒？</h3>
       <div class="glass-box">
         <p class="article-text">
@@ -596,7 +598,6 @@
 
     <!-- Screen: 焼酎・導入 -->
     <section class="screen" data-screen="shochu-intro">
-      <h2 class="title">焼酎</h2>
       <h3 class="section-title">焼酎ってどんなお酒？</h3>
       <div class="glass-box">
         <p class="article-text">
@@ -619,7 +620,6 @@
 
     <!-- Screen: ウイスキー・導入 -->
     <section class="screen" data-screen="whisky-intro">
-      <h2 class="title">ウイスキー</h2>
       <h3 class="section-title">ウイスキーってどんなお酒？</h3>
       <div class="glass-box">
         <p class="article-text">

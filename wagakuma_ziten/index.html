@@ -177,14 +177,19 @@
 
   main{ flex:1; padding:24px 20px 44px; position:relative; }
 
+  /* 画面の切り替え設定 */
   .screen{ display:none; animation: fadeUp .45s ease both; }
   .screen.active{ display:block; }
   
+  /* 【修正箇所】 トップ画面のみ display:flex になる設定を、.active がついた時だけに限定 */
   .screen[data-screen="top"] {
     min-height: calc(100dvh - 130px);
-    display: flex;
     flex-direction: column;
   }
+  .screen[data-screen="top"].active {
+    display: flex;
+  }
+
   .screen[data-screen="top"] .glass-box {
     margin-bottom: 0; 
     flex: 0 0 auto;
@@ -475,6 +480,7 @@
   </header>
 
   <main>
+    <!-- Screen: トップ(カテゴリ選択) -->
     <section class="screen active" data-screen="top">
       <div class="glass-box">
         <h2 class="title">今夜の一杯を、もっと美味しく。</h2>

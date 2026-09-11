@@ -36,7 +36,7 @@
 
   body { min-height:100vh; display:flex; justify-content:center; }
 
-  /* ============ 背景動画(全画面共通・ループ再生) ============ */
+  /* ============ 背景動画 ============ */
   .bg-video-wrap {
     position: fixed; inset: 0; z-index: 0;
     overflow: hidden; background: #0d1b2a;
@@ -63,11 +63,11 @@
     display:flex; flex-direction:column;
   }
 
+  /* --- ヘッダー (スクロール時のかぶり防止) --- */
   header {
     position:sticky; top:0; z-index:20;
-    /* 背景色を少し透過させた暗い色にし、すりガラス効果を追加して文字被りを防ぐ */
-    background: rgba(13, 27, 42, 0.85);
-    backdrop-filter: blur(8px);
+    background: rgba(13, 27, 42, 0.85); /* 透過背景を追加 */
+    backdrop-filter: blur(8px); /* すりガラス効果 */
     -webkit-backdrop-filter: blur(8px);
     border-bottom:1px solid rgba(255,255,255,0.15);
     padding: 16px 20px 14px;
@@ -134,14 +134,12 @@
   }
   .fish-card .name { font-family: var(--font-mincho); font-size: 16px; font-weight: 700; color: var(--kinari); }
 
-  /* --- 魚詳細画面 --- */
   .fish-header { display:flex; align-items:baseline; gap:10px; margin-bottom:12px; }
   .fish-header .name { font-family: var(--font-mincho); font-size:24px; font-weight:700; color: var(--kinari); }
 
   .fish-story {
     background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.15);
-    border-radius: var(--radius); padding: 20px;
-    margin-bottom: 24px; color: #FFFFFF;
+    border-radius: var(--radius); padding: 20px; margin-bottom: 24px; color: #FFFFFF;
   }
   .story-basic { font-size: 14px; line-height: 1.8; margin: 0 0 20px; }
   
@@ -159,8 +157,7 @@
   /* --- クイズUI --- */
   .quiz-container {
     background: rgba(34,56,92,0.4); border: 1px solid rgba(76,106,148,0.3);
-    border-radius: var(--radius); padding: 18px 20px;
-    margin-bottom: 8px;
+    border-radius: var(--radius); padding: 18px 20px; margin-bottom: 8px;
   }
   .quiz-question {
     font-family: var(--font-mincho); font-size: 16.5px; font-weight: 700;
@@ -184,7 +181,7 @@
     cursor: pointer; -webkit-tap-highlight-color: transparent;
   }
   .flip-card {
-    position: relative; width: 100%;
+    position: relative; width: 100%; min-height: 160px;
     transition: transform 0.65s cubic-bezier(0.4, 0.2, 0.2, 1);
     transform-style: preserve-3d; -webkit-transform-style: preserve-3d;
     display: grid;
@@ -206,7 +203,7 @@
     transform: rotateY(180deg);
   }
 
-  /* --- 豆知識・解説エリア (共通) --- */
+  /* --- 解説・豆知識表示エリア (インタラクション後に表示される部分) --- */
   .story-trivia {
     background: rgba(34,56,92,0.2); border-radius: 8px;
     padding: 14px 16px; border: 1px dashed rgba(76,106,148,0.4);
@@ -217,7 +214,7 @@
   }
   .story-trivia p { font-size: 13px; line-height: 1.7; margin: 0; }
   
-  .trivia-illustration-wrap { margin-top: 16px; text-align: center; display: none; }
+  .trivia-illustration-wrap { margin-top: 16px; text-align: center; }
   .trivia-illustration-wrap img {
     width: 100%; max-width: 260px; height: auto; border-radius: 6px;
     background: transparent; border: 1px solid rgba(220,227,236,0.15);
@@ -231,7 +228,6 @@
   }
   h3.section-title::before { content:''; width:4px; height:14px; background: var(--shu); border-radius:2px; display:inline-block; }
 
-  /* --- メニューアイテム --- */
   .menu-item {
     background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.18);
     border-radius: 10px; padding: 16px; margin-bottom:12px; cursor: pointer; transition: background 0.2s ease;
@@ -246,7 +242,6 @@
   .menu-item.open .pairing-sake { display: block; animation: fadeInSake 0.3s ease both; }
   @keyframes fadeInSake { from{opacity:0; transform:translateY(-4px);} to{opacity:1; transform:translateY(0);} }
 
-  /* --- お酒の提案 --- */
   .sake-group-label {
     font-size:11.5px; font-weight:700; color: var(--shu-pale);
     letter-spacing:.06em; margin: 18px 0 10px; display:flex; align-items:center; gap:6px;
@@ -276,7 +271,6 @@
   .btn-primary:hover { opacity:.92; }
   .btn-ghost { background: rgba(255,255,255,0.08); color:var(--kinari); border:1px solid rgba(255,255,255,0.3); }
 
-  /* --- 汎用パーツ(プロフィール・アンケート) --- */
   .radio-buttons { display:flex; gap:8px; flex-wrap:wrap; }
   .radio-btn-wrap { flex:1; min-width:84px; cursor:pointer; }
   .radio-btn-wrap input { display:none; }
@@ -349,7 +343,7 @@
       <div class="fish-grid" id="fishGrid"></div>
     </section>
 
-    <!-- Screen: 魚詳細(情報+メニュー枠+お酒提案) -->
+    <!-- Screen: 魚詳細 -->
     <section class="screen" data-screen="detail">
       <div class="fish-header">
         <span class="name" id="detailName"></span>
@@ -374,7 +368,7 @@
           </div>
           <p id="detailExplanation"></p>
           
-          <div class="trivia-illustration-wrap" id="detailIllWrap">
+          <div class="trivia-illustration-wrap" id="detailIllWrap" style="display:none;">
             <div id="detailIllSvg"></div>
             <div class="trivia-illustration-caption" id="detailIllCaption"></div>
           </div>
@@ -398,7 +392,7 @@
       </div>
     </section>
 
-    <!-- Screen: アンケート(初回のみ) -->
+    <!-- Screen: アンケート -->
     <section class="screen" data-screen="survey">
       <p class="eyebrow">LAST STEP</p>
       <h2 class="title">最後にお聞かせください</h2>
@@ -440,7 +434,7 @@ function sendLog(action, extra) {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify(payload)
-  }).catch(err => console.log('Log Sync:', err));
+  }).catch(err => console.log('送信エラー:', err));
 }
 
 let fishDeviceId = localStorage.getItem('fish_device_id');
@@ -449,7 +443,7 @@ if (!fishDeviceId) {
   localStorage.setItem('fish_device_id', fishDeviceId);
 }
 
-/* ============ 魚データ (2択クイズ / フリップカード設定追加) ============ */
+/* ============ 魚データ (クイズ・フリップ設定追加) ============ */
 const fishList = [
   {
     id: "aji", name: "真鯵", kana: "まあじ", img: "maaji.png",
@@ -459,10 +453,10 @@ const fishList = [
       type: 'quiz',
       question: '「アジ」という名前の由来として有力な説は？',
       options: [
-        { text: '「味が良い」ことから', isCorrect: true },
-        { text: 'アジア周辺で獲れるから', isCorrect: false }
+        { text: '「味が良い」ことから。', isCorrect: true },
+        { text: 'アジア周辺で獲れるから。', isCorrect: false }
       ],
-      explanation: '味が良いことから名付けられたという説が有力で、古くから日本人に愛されてきました。また、側線（そくせん）と呼ばれる体の横の線にある「ゼイゴ」という硬いウロコは、アジ科の魚特有のものです。'
+      explanation: '側線（そくせん）と呼ばれる体の横の線にある「ゼイゴ」という硬いウロコは、アジ科の魚特有のものです。'
     },
     illustration: `<img src="maaji_kaisetsu.png" alt="アジのゼイゴ" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
     illCaption: "尾の方にある硬いウロコ「ゼイゴ」",
@@ -476,10 +470,10 @@ const fishList = [
       type: 'quiz',
       question: 'カツオが一生休むことなく高速で泳ぎ続ける理由は？',
       options: [
-        { text: '泳ぎを止めると窒息するから', isCorrect: true },
-        { text: '常に獲物を探し続けるため', isCorrect: false }
+        { text: '泳ぎを止めるとエラ呼吸ができず窒息してしまうため。', isCorrect: true },
+        { text: '常に獲物を探し続けるため。', isCorrect: false }
       ],
-      explanation: '泳ぎを止めるとエラ呼吸ができず窒息してしまうため、寝ている間も一生休むことなく高速で泳ぎ続けています。ちなみに、鰹節は世界一硬い食品としてギネス認定されています。'
+      explanation: '鰹節（かつおぶし）は世界一硬い食品としてギネス認定されており、日本料理の出汁に欠かせない存在です。'
     },
     menuItems: [], recommendedSake: "tateyama"
   },
@@ -491,10 +485,10 @@ const fishList = [
       type: 'quiz',
       question: '江戸時代、脂の多い「トロ」の部分はどう扱われていた？',
       options: [
-        { text: '捨てられたり畑の肥料にされた', isCorrect: true },
-        { text: '将軍家への高級献上品とされた', isCorrect: false }
+        { text: '腐りやすいとして捨てられたり、畑の肥料にされていた。', isCorrect: true },
+        { text: '将軍家への高級献上品として扱われていた。', isCorrect: false }
       ],
-      explanation: '当時は保存技術がなく脂身は腐りやすかったため、捨てられたり畑の肥料にされたりしていました。なお、マグロもカツオと同様に、泳ぎ続けないと呼吸ができない回遊魚です。'
+      explanation: 'マグロもカツオと同様に、泳ぎ続けないと呼吸ができない回遊魚で、寝ている間もゆっくり泳いでいます。'
     },
     menuItems: [], recommendedSake: "zaku"
   },
@@ -506,10 +500,10 @@ const fishList = [
       type: 'quiz',
       question: '身がオレンジ色をしているのに「白身魚」に分類される理由は？',
       options: [
-        { text: 'エサの色素が蓄積しているから', isCorrect: true },
-        { text: '加熱すると身が白く変化するから', isCorrect: false }
+        { text: 'エサである甲殻類の色素（アスタキサンチン）が蓄積しているから。', isCorrect: true },
+        { text: '加熱すると身が白く変化するから。', isCorrect: false }
       ],
-      explanation: 'エサである甲殻類の色素（アスタキサンチン）が蓄積してこの色になります。ちなみに生食用の「サーモン」は寄生虫対策がされた養殖物で、天然の「鮭」は加熱調理が基本です。'
+      explanation: '生食用の「サーモン」は基本的に寄生虫対策がされた養殖物で、天然の「鮭」は加熱調理が基本です。'
     },
     menuItems: [], recommendedSake: "oze"
   },
@@ -519,13 +513,17 @@ const fishList = [
     eatingPoint: "淡白な中にも上品な旨みがあり、コリコリとした弾力のある食感が楽しめます。えんがわ部分は脂が乗っており、特有の甘みが口に広がります。",
     interactive: {
       type: 'flip',
-      front: 'ヒラメとカレイの<br>見分け方は？',
-      back: '「左ヒラメに右カレイ」。<br><br>目を上にして置いた時に顔が左を向くのがヒラメ、右を向くのがカレイです。',
+      front: 'ヒラメとカレイの見分け方は？',
+      back: '「左ヒラメに右カレイ」。目を上にして置いた時に顔が左を向くのがヒラメ、右を向くのがカレイ。',
       explanation: '生まれたばかりのヒラメは普通の魚のように目が両側にありますが、成長するにつれて右目が左側に移動します。'
     },
     illustration: `
       <div>
         <img src="hirame_kaisetsu2.png" alt="左ヒラメに右カレイ" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">
+        <div style="display: flex; justify-content: space-around; margin-top: 10px; font-size: 13px; font-weight: bold; color: var(--kinari);">
+          <span>左ヒラメ</span>
+          <span>右カレイ</span>
+        </div>
       </div>
     `,
     illCaption: "目の位置でヒラメとカレイを見分ける図解",
@@ -539,10 +537,10 @@ const fishList = [
       type: 'quiz',
       question: '「シマアジ」という名前の由来の一つは？',
       options: [
-        { text: '体の側面に黄色の縦線があるから', isCorrect: true },
-        { text: '特定の暖かい島周辺でしか獲れないから', isCorrect: false }
+        { text: '体の側面に鮮やかな黄色の縦線（シマ）が入っているから。', isCorrect: true },
+        { text: '特定の暖かい島周辺でしか獲れないから。', isCorrect: false }
       ],
-      explanation: '体の側面に鮮やかな黄色の縦線（シマ）が入っていることが名前の由来の一つです。天然物は非常に漁獲量が少なく「幻の魚」とも呼ばれます。'
+      explanation: '天然物は非常に漁獲量が少なく「幻の魚」とも呼ばれますが、養殖技術の進歩により安定して流通するようになりました。'
     },
     illustration: `<img src="shimaaji_kaisetsu.png" alt="シマアジの特徴" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
     illCaption: "体の側面に入る鮮やかな黄色の縦線（シマ）",
@@ -554,9 +552,9 @@ const fishList = [
     eatingPoint: "青魚ならではの豊かな香りと、とろけるように脂ののった身の旨みがたまりません。生姜醤油でさっぱりといただくのがおすすめです。",
     interactive: {
       type: 'flip',
-      front: '漢字で魚へんに<br>「弱い（鰯）」と書く由来は？',
+      front: '漢字で魚へんに「弱い（鰯）」と書く由来は？',
       back: '「弱し（よわし）」が訛ったと言われるほど鮮度落ちが早く、水揚げされるとすぐに死んでしまうため。',
-      explanation: 'また、敵から身を守るために、海中では何万匹という巨大な群れ（トルネード）を作って泳ぐ習性があります。'
+      explanation: '敵から身を守るために、何万匹という巨大な群れ（トルネード）を作って泳ぐ習性があります。'
     },
     illustration: `<img src="iwashi_kaisetsu.jpg" alt="イワシの群れ（トルネード）" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
     illCaption: "巨大な群れ（トルネード）を作って泳ぐイワシ",
@@ -570,10 +568,10 @@ const fishList = [
       type: 'quiz',
       question: 'タコが持っている心臓と脳の数は？',
       options: [
-        { text: '心臓が3つ、脳が9つ', isCorrect: true },
-        { text: '心臓が3つ、脳が6つ', isCorrect: false }
+        { text: '心臓が3つ、脳が9つ。', isCorrect: true },
+        { text: '心臓が3つ、脳が6つ。', isCorrect: false }
       ],
-      explanation: 'タコは心臓を3つ、脳を9つ持っており、非常に高い知能を持っていると言われています。また、日本では茹でると赤くなりますが、生きている時は環境に合わせて一瞬で体の色や模様を変えることができます。'
+      explanation: '日本では茹でると赤くなりますが、生きている時は環境に合わせて一瞬で体の色や模様を変えることができます。'
     },
     illustration: `<img src="tako_kaisetsu.png" alt="タコにある3つの心臓と9つの脳" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
     illCaption: "タコにある3つの心臓と9つの脳",
@@ -585,9 +583,9 @@ const fishList = [
     eatingPoint: "皮目はパリッと香ばしく、身はふっくらと柔らかな食感。甘辛いタレと脂の旨味が絡み合い、ご飯やお酒がどんどん進む深い味わいです。",
     interactive: {
       type: 'flip',
-      front: 'ウナギを基本的に<br>「生（刺身）」で食べない理由は？',
+      front: 'ウナギを基本的に「生（刺身）」で食べない理由は？',
       back: 'ウナギの血には毒（イクチオトキシン）が含まれているため、加熱処理が必須だから。',
-      explanation: 'ちなみにウナギの生態は長年謎に包まれていましたが、近年になってようやくマリアナ諸島付近で産卵することが判明しました。'
+      explanation: 'ウナギの生態は長年謎に包まれていましたが、近年になってようやくマリアナ諸島付近で産卵することが判明しました。'
     },
     menuItems: [], recommendedSake: "zaku"
   },
@@ -599,10 +597,10 @@ const fishList = [
       type: 'quiz',
       question: 'ヤリイカの寿命はどのくらい？',
       options: [
-        { text: 'わずか1年', isCorrect: true },
-        { text: '約10年', isCorrect: false }
+        { text: 'わずか1年（秋に生まれ、翌春に産卵して一生を終える）。', isCorrect: true },
+        { text: '約10年。', isCorrect: false }
       ],
-      explanation: '秋に生まれて成長し、翌年の春に産卵を終えると一生を終えます。「ヤリイカ（槍烏賊）」という名前は、細長く先が尖った胴体の形が「槍の穂先」に似ていることに由来します。'
+      explanation: '「ヤリイカ（槍烏賊）」という名前は、細長く先が尖った胴体の形が「槍の穂先」に似ていることに由来します。'
     },
     illustration: `<img src="ika_kaisetsu.png" alt="ヤリイカのシルエット" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
     illCaption: "槍の穂先に似ているヤリイカのシルエット",
@@ -614,7 +612,7 @@ const fishList = [
     eatingPoint: "口に入れた瞬間にとろけるような強い甘みと、ねっとりとしたなめらかな口当たりが特徴です。頭の味噌も濃厚で、余すところなく楽しめます。",
     interactive: {
       type: 'flip',
-      front: '甘エビの不思議な<br>生態とは？',
+      front: '甘エビの不思議な生態とは？',
       back: '生まれた時はすべてオスで、4〜5年経つとメスに性転換する。',
       explanation: '水揚げされてから少し時間が経つことで、自己消化によりアミノ酸が増え、より甘みが増します。'
     },
@@ -622,16 +620,14 @@ const fishList = [
   }
 ];
 
-/* ============ お酒データ(マスタデータ) ============ */
 const sakeList = [
-  { id: "oze", group: "冷や・常温で", tag: "辛口", name: "尾瀬のゆきどけ", region: "群馬", taste: "キレのある喉ごしと、澄んだ後味が特徴です。ほのかなフルーティーな香りがありつつも、後味はスッと切れるため、甘みのある魚の脂や旨味を綺麗に洗い流してくれます。" },
-  { id: "hakkaisan", group: "冷や・常温で", tag: "スッキリ", name: "八海山", region: "新潟", taste: "雑味のないクリアな味わいと、淡麗で軽やかな飲み口が魅力の銘酒。魚の繊細な風味を一切邪魔せず、むしろ引き立ててくれます。上品な白身魚や塩焼きとも見事に調和します。" },
-  { id: "zaku", group: "冷や・常温で", tag: "旨甘口", name: "作", region: "三重", taste: "やわらかな甘みと、ふくよかな米の旨みが口いっぱいに広がるリッチな味わい。脂が乗っていて味の濃い魚と合わせると、お酒の甘みと魚の脂が口の中で溶け合い、極上のペアリングを生み出します。" },
-  { id: "manozuru", group: "熱燗で", tag: "辛口", name: "真野鶴", region: "新潟", taste: "温めることで米本来のまろやかな旨味と、辛口ならではの輪郭がグッと引き立ちます。しっかりとした旨味を持つ魚介と合わせると、燗酒の温かさが素材の甘みをより一層深めてくれます。" },
-  { id: "tateyama", group: "熱燗で", tag: "超辛口", name: "立山", region: "富山", taste: "熱燗にすることでキレ味と辛さがより一層際立つ、食中酒の王道。口の中をさっぱりとリセットしてくれるので、クセや香りが強めの青魚・赤身魚と相性抜群です。" }
+  { id: "oze", group: "冷や・常温で", tag: "辛口", name: "尾瀬のゆきどけ", region: "群馬", taste: "キレのある喉ごしと、澄んだ後味が特徴です。ほのかなフルーティーな香りがありつつも、後味はスッと切れるため、サーモンやヤリイカのような甘みのある魚の脂や旨味を綺麗に洗い流してくれます。お造りなどの生食と合わせるのが特におすすめです。" },
+  { id: "hakkaisan", group: "冷や・常温で", tag: "スッキリ", name: "八海山", region: "新潟", taste: "雑味のないクリアな味わいと、淡麗で軽やかな飲み口が魅力の銘酒。魚の繊細な風味を一切邪魔せず、むしろ引き立ててくれます。ヒラメのような上品な白身魚や、アジなどの青魚を塩焼きにした際の香ばしさとも見事に調和します。" },
+  { id: "zaku", group: "冷や・常温で", tag: "旨甘口", name: "作", region: "三重", taste: "やわらかな甘みと、ふくよかな米の旨みが口いっぱいに広がるリッチな味わい。マグロのトロやウナギのような、脂が乗っていて味の濃い魚と合わせると、お酒の甘みと魚の脂が口の中で溶け合い、極上のペアリングを生み出します。濃いめのタレや味噌を使った料理にもよく合います。" },
+  { id: "manozuru", group: "熱燗で", tag: "辛口", name: "真野鶴", region: "新潟", taste: "温めることで米本来のまろやかな旨味と、辛口ならではの輪郭がグッと引き立ちます。シマアジのようなしっかりとした旨味を持つ魚や、タコのように噛むほどに味が出る魚介と合わせると、燗酒の温かさが素材の甘みをより一層深めてくれます。" },
+  { id: "tateyama", group: "熱燗で", tag: "超辛口", name: "立山", region: "富山", taste: "熱燗にすることでキレ味と辛さがより一層際立つ、食中酒の王道。口の中をさっぱりとリセットしてくれるので、カツオのタタキやイワシなど、クセや香りが強めの青魚・赤身魚と相性抜群です。香ばしい炭火焼きの料理と合わせても負けない力強さがあります。" }
 ];
 
-/* ============ 状態管理と画面遷移 ============ */
 let currentFishId = null;
 let surveyProfile = JSON.parse(localStorage.getItem('fish_survey')) || null;
 let isMainVideoPlaying = false;
@@ -690,7 +686,6 @@ function clearErr(groupId){
   if (el) el.classList.remove('errhi');
 }
 
-/* ============ グリッド・詳細画面の描画 ============ */
 function renderFishGrid() {
   const grid = document.getElementById('fishGrid');
   if (!grid) return;
@@ -721,24 +716,24 @@ function selectFish(id){
     finishBtn.textContent = '最後にお聞かせください';
   }
 
-  sendLog('魚を見た', { fishId: f.id });
+  sendLog('魚を見た', { fishId: f.id, fishName: f.name });
   goScreen('detail');
 }
 
-/* ============ クイズ/フリップカード構築 ============ */
 function buildInteractiveUI(fish) {
   const intArea = document.getElementById('interactiveArea');
   const expArea = document.getElementById('explanationArea');
   
-  // 初期化
+  // 初期化：詳細画面を開いた直後は、解説エリアを非表示にする
   intArea.innerHTML = '';
   expArea.style.display = 'none';
   
   const interact = fish.interactive;
   if (!interact) return;
 
+  // クイズかフリップカードかを判定してHTMLを構築
   if (interact.type === 'quiz') {
-    // 選択肢シャッフル
+    // 選択肢のシャッフル
     const options = [...interact.options].sort(() => Math.random() - 0.5);
     const correctIndex = options.findIndex(o => o.isCorrect);
 
@@ -746,7 +741,7 @@ function buildInteractiveUI(fish) {
       return `<button class="quiz-btn" onclick="answerQuiz(${opt.isCorrect}, ${i}, ${correctIndex})">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                   <span>${opt.text}</span>
-                  <span class="quiz-icon" style="font-size:12px; font-weight:bold;"></span>
+                  <span class="quiz-icon" style="font-size:14px; font-weight:bold;"></span>
                 </div>
               </button>`;
     }).join('');
@@ -770,7 +765,7 @@ function buildInteractiveUI(fish) {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
               タップして裏返す
             </div>
-            <div style="font-size:16.5px; font-weight:700; line-height:1.6; font-family:var(--font-mincho);">${interact.front}</div>
+            <div style="font-size:16px; font-weight:700; line-height:1.6; font-family:var(--font-mincho);">${interact.front}</div>
           </div>
           <div class="flip-card-back">
             <div class="trivia-label" style="margin-bottom:14px; color: var(--shu-pale);">
@@ -784,8 +779,9 @@ function buildInteractiveUI(fish) {
     `;
   }
 
-  // 解説文とイラストのセット
+  // 解説文とイラストをセット（まだ表示はされない）
   document.getElementById('detailExplanation').textContent = interact.explanation || '';
+  
   const illWrap = document.getElementById('detailIllWrap');
   const illSvg = document.getElementById('detailIllSvg');
   const illCaption = document.getElementById('detailIllCaption');
@@ -800,22 +796,23 @@ function buildInteractiveUI(fish) {
   }
 }
 
-/* ============ インタラクション操作時の処理 ============ */
+// クイズ回答時の処理
 function answerQuiz(isCorrect, selectedIdx, correctIdx) {
   const btns = document.querySelectorAll('.quiz-container .quiz-btn');
+  // 一度押したらボタンを無効化し、正誤の色をつける
   btns.forEach((btn, i) => {
     btn.disabled = true;
     const iconSpan = btn.querySelector('.quiz-icon');
     if (i === correctIdx) {
-      btn.classList.add('correct');
-      if (iconSpan) iconSpan.textContent = '⭕️ 正解';
+      btn.classList.add('correct'); // 正解のボタンを緑に
+      if (iconSpan) iconSpan.textContent = '⭕️';
     } else if (i === selectedIdx && !isCorrect) {
-      btn.classList.add('incorrect');
+      btn.classList.add('incorrect'); // 選んだ不正解のボタンを赤に
       if (iconSpan) iconSpan.textContent = '❌';
     }
   });
 
-  // 少し遅れて解説を表示
+  // 少し遅れて解説・イラストエリアを表示
   setTimeout(() => {
     const expArea = document.getElementById('explanationArea');
     expArea.style.display = 'block';
@@ -823,11 +820,12 @@ function answerQuiz(isCorrect, selectedIdx, correctIdx) {
   }, 400);
 }
 
+// カードフリップ時の処理
 function flipCard(cardEl) {
   if(cardEl.classList.contains('flipped')) return;
   cardEl.classList.add('flipped');
   
-  // 裏返った直後に解説を表示
+  // 裏返った直後に解説・イラストエリアを表示
   setTimeout(() => {
     const expArea = document.getElementById('explanationArea');
     expArea.style.display = 'block';
@@ -835,7 +833,6 @@ function flipCard(cardEl) {
   }, 500);
 }
 
-/* ============ メニュー画面・アンケート ============ */
 function goToMenu(){
   const f = fishList.find(x=>x.id===currentFishId);
   if (!f) return;
@@ -907,11 +904,11 @@ function submitSurvey(){
 
   surveyProfile = { gender: genderEl.value, age: ageEl.value };
   localStorage.setItem('fish_survey', JSON.stringify(surveyProfile));
-  sendLog('アンケート', { gender: genderEl.value, age: ageEl.value, fishId: currentFishId });
+  sendLog('アンケート回答', { gender: genderEl.value, age: ageEl.value, fishId: currentFishId });
   goScreen('select');
 }
 
-/* ============ 初期化処理 ============ */
+/* ============ 初期化 ============ */
 renderFishGrid();
 goScreen('op');
 

@@ -1608,8 +1608,8 @@ openingVideo.addEventListener('timeupdate', () => {
   if (hasSkipped) return;
   const time = openingVideo.currentTime;
   
-  // 5秒経過でロゴを白くフワッと表示
-  if (time >= 5 && openingLogo.style.opacity === '0') {
+  // 5秒経過でロゴを白くフワッと表示（判定を修正）
+  if (time >= 5 && openingLogo.style.opacity !== '1') {
     openingLogo.style.opacity = '1';
   }
   

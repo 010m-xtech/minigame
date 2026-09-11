@@ -141,7 +141,7 @@
     z-index: 2;
   }
   
-  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand{ display:flex; align-items:center; gap:10px; cursor:pointer; }
   .header-logo{ width:40px; height:40px; flex:0 0 auto; object-fit: contain; }
   .brand h1{ 
     font-family: var(--font-mincho); font-weight:700; font-size:20px; 
@@ -485,7 +485,7 @@
 <div class="app">
   <header>
     <div class="header-inner">
-      <div class="brand">
+      <div class="brand" onclick="goScreen('top')">
         <img src="ashi.webp" alt="吾熊ロゴ" class="header-logo">
         <div class="brand-title-wrap">
           <h1>酒肴家 吾熊</h1>

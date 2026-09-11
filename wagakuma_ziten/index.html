@@ -162,13 +162,13 @@
   /* --- トップ画面：浮遊するアイコンカテゴリ --- */
   .top-categories-wrap {
     display: flex; flex-direction: column; align-items: center;
-    gap: 16px; margin-top: 10px; margin-bottom: 40px;
+    gap: 28px; margin-top: 20px; margin-bottom: 40px;
   }
   .top-categories-row {
-    display: flex; justify-content: center; gap: 40px; width: 100%;
+    display: flex; justify-content: center; gap: 48px; width: 100%;
   }
   .top-category-item {
-    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
     cursor: pointer; -webkit-tap-highlight-color: transparent;
     animation: floatAnim 3.5s ease-in-out infinite;
   }
@@ -178,7 +178,7 @@
   .top-category-right { animation-duration: 4.1s; animation-delay: 1.2s; }
 
   .top-category-icon {
-    width: 100px; height: 100px;
+    width: 120px; height: 120px;
     display: flex; align-items: center; justify-content: center;
     transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
@@ -188,7 +188,7 @@
     filter: drop-shadow(0 6px 10px rgba(0,0,0,0.25)); /* 画像の下に影を落として浮いているように見せる */
   }
   .top-category-label {
-    font-family: var(--font-mincho); font-weight: 700; font-size: 16px;
+    font-family: var(--font-mincho); font-weight: 700; font-size: 17px;
     color: #fff; letter-spacing: 0.05em;
     text-shadow: 0 2px 6px rgba(0,0,0,0.5); /* 背景に溶け込まないよう文字に影をつける */
   }

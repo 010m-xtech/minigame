@@ -204,62 +204,49 @@
     margin-bottom: 0 !important;
   }
 
-  /* --- トップ画面：浮遊するアイコンカテゴリ --- */
+  /* --- トップ画面：横並びの浮遊アイコン --- */
   .top-categories-wrap {
-    display: flex; flex-direction: column; align-items: center;
-    gap: 40px; margin-top: 32px; margin-bottom: 48px;
-  }
-  .top-categories-row {
-    display: flex; justify-content: center; gap: 56px; width: 100%;
+    display: flex; 
+    flex-direction: row; 
+    justify-content: space-between; 
+    align-items: center;
+    gap: 12px; 
+    margin-top: 16px; 
+    margin-bottom: 16px;
   }
   .top-category-item {
     display: flex; flex-direction: column; align-items: center; gap: 8px;
     cursor: pointer; -webkit-tap-highlight-color: transparent;
     animation: floatAnim 3.5s ease-in-out infinite;
+    flex: 1; /* 横幅を3つで均等に分ける */
   }
+  /* それぞれのアイコンの浮遊タイミングをずらす */
+  .top-category-item:nth-child(1) { animation-duration: 3.8s; animation-delay: 0s; }
+  .top-category-item:nth-child(2) { animation-duration: 3.2s; animation-delay: 0.5s; }
+  .top-category-item:nth-child(3) { animation-duration: 4.1s; animation-delay: 1.2s; }
   
   .top-category-icon {
-    width: 140px; height: 140px; 
+    width: 22vw; /* スマホ画面の幅に合わせて自動調整 */
+    max-width: 100px; /* ただし最大100pxまで */
+    height: 22vw;
+    max-height: 100px; 
     display: flex; align-items: center; justify-content: center;
     transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
-  .top-category-top .top-category-icon { width: 180px; height: 180px; }
   .top-category-item:hover .top-category-icon { transform: scale(1.15); }
   .top-category-icon img {
     width: 100%; height: 100%; object-fit: contain;
     filter: drop-shadow(0 6px 10px rgba(0,0,0,0.25));
   }
   
-  /* タップできることを明示するボタン風ラベル */
   .top-category-label {
-    display: flex; align-items: center; justify-content: center; gap: 6px;
-    background: rgba(255, 255, 255, 0.95);
-    color: var(--ai);
-    font-family: var(--font-mincho);
-    font-weight: 700;
-    font-size: 17px;
-    padding: 8px 20px;
-    border-radius: 30px;
-    border: 2px solid var(--shu);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    margin-top: -10px; /* アイコンに少し被せる */
-    position: relative;
-    z-index: 2;
-    animation: pulse-label 2.5s infinite;
-  }
-  .tap-badge {
-    font-family: var(--font-gothic);
-    font-size: 11px;
-    color: #fff;
-    background: var(--shu);
-    padding: 2px 6px;
-    border-radius: 10px;
+    font-family: var(--font-mincho); 
+    font-weight: 700; 
+    font-size: 15px;
+    color: #fff; 
     letter-spacing: 0.05em;
-  }
-
-  @keyframes pulse-label {
-    0%, 100% { transform: scale(1); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-    50% { transform: scale(1.05); box-shadow: 0 6px 16px rgba(189, 70, 48, 0.4); }
+    text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    white-space: nowrap; /* 文字が折り返さないようにする */
   }
 
   .term-chip-wrap{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:26px; }
@@ -542,30 +529,24 @@
 
     <!-- Screen: トップ(カテゴリ選択) -->
     <section class="screen active" data-screen="top">
-      <div class="glass-box" style="margin-bottom: 32px;">
+      <div class="glass-box" style="margin-bottom: 24px;">
         <h2 class="title">今夜の一杯を、もっと美味しく。</h2>
         <p class="lead" style="margin-bottom:0;">ラベルの言葉や造り方の秘密を少し知るだけで、いつものお酒が違った表情を見せてくれます。<br>気になるお酒をタップして、今夜の気分にぴったりの一杯を探してみませんか？</p>
       </div>
 
+      <!-- 横並びのアイコン -->
       <div class="top-categories-wrap">
-        <!-- 1段目（上） -->
-        <div class="top-categories-row">
-          <div class="top-category-item top-category-top" onclick="openCategory('sake')">
-            <div class="top-category-icon"><img src="sake.webp" alt="日本酒"></div>
-            <!-- ボタンであることを強調するラベルとバッジ -->
-            <div class="top-category-label">日本酒 <span class="tap-badge">TAP</span></div>
-          </div>
+        <div class="top-category-item" onclick="openCategory('sake')">
+          <div class="top-category-icon"><img src="sake.webp" alt="日本酒"></div>
+          <div class="top-category-label">日本酒</div>
         </div>
-        <!-- 2段目（下左右） -->
-        <div class="top-categories-row">
-          <div class="top-category-item top-category-left" onclick="openCategory('shochu')">
-            <div class="top-category-icon"><img src="syotyu.webp" alt="焼酎"></div>
-            <div class="top-category-label">焼酎 <span class="tap-badge">TAP</span></div>
-          </div>
-          <div class="top-category-item top-category-right" onclick="openCategory('whisky')">
-            <div class="top-category-icon"><img src="whisky.webp" alt="ウイスキー"></div>
-            <div class="top-category-label">ウイスキー <span class="tap-badge">TAP</span></div>
-          </div>
+        <div class="top-category-item" onclick="openCategory('shochu')">
+          <div class="top-category-icon"><img src="syotyu.webp" alt="焼酎"></div>
+          <div class="top-category-label">焼酎</div>
+        </div>
+        <div class="top-category-item" onclick="openCategory('whisky')">
+          <div class="top-category-icon"><img src="whisky.webp" alt="ウイスキー"></div>
+          <div class="top-category-label">ウイスキー</div>
         </div>
       </div>
     </section>

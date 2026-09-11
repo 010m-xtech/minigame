@@ -37,8 +37,8 @@
   p, .lead, .article-text, .desc, .accordion-body, .material-detail-desc, .quiz-result p {
     text-align: justify;
     text-justify: inter-ideograph;
-    word-break: normal;
-    overflow-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: anywhere;
     line-break: strict;
   }
 
@@ -196,9 +196,9 @@
     flex: 0 0 auto;
   }
   
-  /* トップ画面の文字サイズを大きく調整（はみ出し防止機能付き） */
+  /* トップ画面の文字サイズ調整 */
   .screen[data-screen="top"] h2.title {
-    font-size: clamp(17px, 5vw, 24px);
+    font-size: clamp(16px, 4.5vw, 24px);
     letter-spacing: 0;
     white-space: nowrap;
   }
@@ -225,7 +225,7 @@
     margin-bottom: 0 !important;
   }
 
-  /* --- 見出しの共通クラス（最適化箇所） --- */
+  /* --- 見出しの共通クラス --- */
   .sub-heading {
     font-weight: 700; color: #fff;
     margin: 32px 0 12px;
@@ -254,9 +254,9 @@
 
   /* 焼酎とウイスキーの段（2段目）の配置調整 */
   .top-categories-row.row-bottom {
-    gap: 20vw; /* アイコンの間隔を広げる(焼酎を左、ウイスキーを右へ) */
-    margin-top: -24vh; /* マイナスの値を大きくして全体をさらに上に移動 */
-    align-items: flex-end; /* 焼酎とウイスキーのラベル(テロップ)の高さを揃える */
+    gap: 20vw;
+    margin-top: -24vh;
+    align-items: flex-end;
   }
   
   .top-category-item {
@@ -294,7 +294,7 @@
 
   h3.section-title{
     font-family: var(--font-mincho); 
-    font-size: clamp(16px, 4.5vw, 19px); 
+    font-size: clamp(17px, 5vw, 20px); 
     white-space: nowrap; 
     color: #fff;
     margin: 0 0 12px; display:flex; align-items:center; gap:8px;
@@ -307,7 +307,7 @@
   .glass-box h3.section-title { color: var(--ai); }
   .glass-box .lead { color: var(--sumi); }
 
-  .article-text{ font-size: 15px; color: var(--sumi); line-height: 1.8; margin-bottom: 24px; }
+  .article-text{ font-size: 16px; color: var(--sumi); line-height: 1.8; margin-bottom: 24px; }
   .article-text strong{ color: var(--shu); font-weight: 700; }
 
   /* メインボタン */
@@ -372,6 +372,10 @@
     font-family: var(--font-mincho);
     color: var(--ai);
   }
+  .accordion-header > div {
+    word-break: break-word;
+    padding-right: 12px;
+  }
   .accordion-header .icon {
     transition: transform 0.2s ease;
     width: 16px; height: 16px; stroke: currentColor; stroke-width: 2; fill: none; flex: 0 0 auto;
@@ -384,7 +388,7 @@
     overflow: hidden;
     transition: max-height 0.3s ease, padding 0.3s ease;
     background: var(--kinari);
-    font-size: 14.5px;
+    font-size: 15px;
     color: var(--sumi);
     line-height: 1.7;
     padding: 0 16px;
@@ -407,6 +411,7 @@
     display: block; width: 100%; padding: 12px; margin-bottom: 10px; background: #fff;
     border: 1px solid var(--ai-light); color: var(--ai); font-weight: 700; border-radius: 8px;
     cursor: pointer; transition: all 0.2s ease; font-size: 14px;
+    word-break: break-word; white-space: normal; line-height: 1.4;
   }
   .quiz-btn:last-child { margin-bottom: 0; }
   .quiz-btn:hover:not(:disabled) { background: var(--ai-pale); }
@@ -441,18 +446,33 @@
   }
   .flip-card-back {
     transform: rotateY(180deg); text-align: left; align-items: flex-start; justify-content: flex-start;
-    border: 1px solid rgba(189, 70, 48, 0.4); border-left: 4px solid var(--shu); overflow-y: auto;
+    border: 1px solid rgba(189, 70, 48, 0.4); border-left: 4px solid var(--shu); 
+    overflow-y: auto;
   }
   .flip-card-front h3 { font-family: var(--font-mincho); font-size: 19px; color: var(--ai); margin: 0 0 12px; line-height: 1.5; }
   .flip-card-front .tap-hint { margin-top: 16px; font-size: 11px; font-weight: 700; color: var(--ai-light); display: flex; align-items: center; gap: 6px; background: #fff; padding: 6px 14px; border-radius: 20px; border: 1px solid var(--line); }
   .flip-card-back h4 { font-family: var(--font-mincho); font-size: 15.5px; color: var(--shu); margin: 0 0 12px; border-bottom: 1px solid var(--shu-pale); padding-bottom: 8px; width: 100%; }
-  .flip-card-back p { font-size: 14.5px; line-height: 1.7; color: var(--sumi); margin: 0; }
+  .flip-card-back p { font-size: 15px; line-height: 1.7; color: var(--sumi); margin: 0; }
   
   .komeo-char { position: absolute; width: 85px; height: 85px; object-fit: contain; opacity: 0.9; z-index: 0; }
   .komeo-pos1 { top: 8px; left: 8px; transform: rotate(-15deg); }
   .komeo-pos2 { top: 12px; right: 8px; transform: rotate(20deg); }
   .komeo-pos3 { bottom: 10px; left: 10px; transform: rotate(-10deg); }
   .komeo-pos4 { bottom: 8px; right: 10px; transform: rotate(15deg); }
+
+  /* 甘口・辛口カード専用のキャラクターサイズ調整 */
+  .screen[data-screen="sake-intro"] .komeo-char {
+    width: 115px; 
+    height: 115px;
+  }
+  .screen[data-screen="sake-intro"] .komeo-pos3 {
+    bottom: 5px;
+    left: 5px;
+  }
+  .screen[data-screen="sake-intro"] .komeo-pos4 {
+    bottom: 5px;
+    right: 5px;
+  }
 
   .flip-card-front h3, .flip-card-front .tap-hint, .flip-card-back h4, .flip-card-back p { position: relative; z-index: 1; }
 
@@ -488,7 +508,7 @@
   }
   .material-detail-box.show { display: block; animation: fadeUp 0.3s ease; }
   .material-detail-title { font-family: var(--font-mincho); font-weight: 700; font-size: 16px; color: var(--ai); margin: 0 0 8px; display: flex; align-items: center; gap: 8px; }
-  .material-detail-desc { font-size: 14.5px; color: var(--sumi); line-height: 1.7; margin: 0; }
+  .material-detail-desc { font-size: 15px; color: var(--sumi); line-height: 1.7; margin: 0; }
 </style>
 </head>
 <body>
@@ -506,7 +526,7 @@
       <div class="brand" onclick="goScreen('top')">
         <img src="ashi.webp" alt="吾熊ロゴ" class="header-logo">
         <div class="brand-title-wrap">
-          <h1>酒肴家 吾熊</h1>
+          <h1 style="cursor: pointer;">酒肴家 吾熊</h1>
           <div class="paw-prints">
             <img src="ashi.webp" class="paw paw-up" alt="">
             <img src="ashi.webp" class="paw paw-down" alt="">
@@ -527,7 +547,7 @@
     <section class="screen active" data-screen="top">
       <div class="glass-box">
         <h2 class="title">今夜の一杯を、もっと美味しく。</h2>
-        <p class="lead" style="margin-bottom: 16px;">ラベルの言葉や造り方の秘密を少し知るだけで、いつものお酒が違った表情を見せてくれます。<br>知ればもっと美味しくなる、お酒の知識を深めてみませんか？</p>
+        <p class="lead" style="margin-bottom: 16px;">知ればもっと美味しくなる、お酒の知識を深めてみませんか？</p>
         <p style="font-size: 13.5px; font-weight: 700; color: var(--shu); margin: 0;">※お酒のアイコンをタップしてください。</p>
       </div>
 
@@ -645,7 +665,7 @@
       <h2 class="title">特定名称酒の主な種類</h2>
       
       <div class="glass-box">
-        <p class="article-text" style="font-size: clamp(15px, 4.5vw, 16.5px); line-height: 1.85;">
+        <p class="article-text" style="font-size: clamp(15.5px, 4vw, 17px); line-height: 1.85;">
           原料や「精米歩合」などの基準を満たした日本酒を<strong>「特定名称酒」</strong>と呼びます。<br>
           分類の基本は、以下の3つのキーワードの組み合わせです。<br><br>
           <span style="color:var(--shu); font-weight:700;">・純米：</span>お米と水だけで造る<br>
@@ -1167,7 +1187,7 @@
 
         <div class="quiz-result" id="quizResult" style="display: none; margin-top: 20px; padding-top: 16px; border-top: 1px dashed var(--ai-light);">
           <h4 id="quizResultTitle" class="quiz-result-title"></h4>
-          <p style="font-size: 14.5px; line-height: 1.7; color: var(--sumi); margin: 0;">
+          <p style="font-size: 15px; line-height: 1.7; color: var(--sumi); margin: 0;">
             「シングルモルト」の「シングル」は、<strong>「たった一つの蒸留所（工場）」</strong>で造られた原酒のみを瓶詰めしているという意味です。<br><br>
             ちなみに、Bの「たった一つの樽」から取り出されたものは「シングルカスク（一つの樽）」と呼ばれ、同じ蒸留所の中でもさらに希少価値が高いウイスキーです。<br><br>
             他の蒸留所のお酒を一切混ぜない「シングルモルト」は、その土地の気候や造り手のこだわりが<strong>ダイレクトに現れます。</strong>蔵ごとの個性を味わえる、いわば「一点モノの芸術品」です。
@@ -1538,7 +1558,7 @@ function goScreen(name){
   };
   backBtn.onclick = () => goScreen(backMap[name] || 'top');
 
-  window.scrollTo({top:0, behavior:'smooth'});
+  window.scrollTo(0, 0);
 }
 
 /* ============ 銘柄一覧の描画 ============ */

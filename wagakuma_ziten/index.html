@@ -222,15 +222,17 @@
   .top-categories-row {
     display: flex; justify-content: center; gap: 8vw; width: 100%;
   }
+  
+  /* 焼酎とウイスキーの段（2段目）の配置調整 */
+  .top-categories-row.row-bottom {
+    gap: 18vw; /* アイコンの間隔を広げて、焼酎をさらに左、ウイスキーをさらに右へ */
+    margin-top: -5vh; /* 高さを揃えたまま、2つとも少し上（日本酒寄り）に移動 */
+  }
+  
   .top-category-item {
     display: flex; flex-direction: column; align-items: center; gap: 1vh;
     cursor: pointer; -webkit-tap-highlight-color: transparent;
     animation: floatAnim 3.5s ease-in-out infinite;
-  }
-  
-  /* ウイスキーのアイコンだけ少し上にずらす */
-  .top-category-right {
-    margin-top: -4vh;
   }
   
   /* 画面の高さ(vh)を使ってサイズを自動計算し、はみ出しを防ぐ */
@@ -548,12 +550,11 @@
           </div>
         </div>
         <!-- 2段目（下左右） -->
-        <div class="top-categories-row">
+        <div class="top-categories-row row-bottom">
           <div class="top-category-item top-category-left" onclick="openCategory('shochu')">
             <div class="top-category-icon"><img src="syotyu.webp" alt="焼酎"></div>
             <div class="top-category-label">焼酎</div>
           </div>
-          <!-- ウイスキーだけを少し上にずらすクラスを適用 -->
           <div class="top-category-item top-category-right" onclick="openCategory('whisky')">
             <div class="top-category-icon"><img src="whisky.webp" alt="ウイスキー"></div>
             <div class="top-category-label">ウイスキー</div>

@@ -36,11 +36,11 @@
 
   /* --- 文字の自然な改行・折り返し設定 --- */
   p, .lead, .article-text, .desc, .accordion-body, .material-detail-desc, .quiz-result p {
-    text-align: justify; /* 枠の右端までピタッと文字を揃える */
-    text-justify: inter-ideograph; /* 日本語の文字間隔を自然に調整 */
-    word-break: normal; /* 単語の途中で変に切れるのを防ぐ */
-    overflow-wrap: break-word; /* 枠からはみ出しそうな時だけ改行 */
-    line-break: strict; /* 句読点やカッコが行頭・行末に不自然にこないようにする（禁則処理） */
+    text-align: justify;
+    text-justify: inter-ideograph;
+    word-break: normal;
+    overflow-wrap: break-word;
+    line-break: strict;
   }
 
   body{ min-height:100vh; display:flex; justify-content:center; }
@@ -95,9 +95,9 @@
 
   .app{
     width:100%; max-width:460px; min-height:100vh;
-    background-color: transparent; /* 背景色は下のレイヤーに任せるため透明に */
+    background-color: transparent; 
     position:relative;
-    isolation: isolate; /* ★これを追加：背景用の下敷きが完全に裏へ隠れてしまうのを防ぐ */
+    isolation: isolate; 
     box-shadow: 0 0 40px rgba(0,0,0,0.08);
     display:flex; flex-direction:column;
   }
@@ -110,13 +110,13 @@
     transform: translateX(-50%);
     width: 100%; max-width: 460px;
     height: 100vh;
-    height: 100dvh; /* 最近のスマホのURLバー伸縮に対応 */
-    z-index: -1; /* 文字やカードの後ろ(背面)に配置 */
-    background-color: #1a1a1a; /* ベースの色も黒系に合わせて暗く */
+    height: 100dvh; 
+    z-index: -1; 
+    background-color: #1a1a1a; 
     background-image: 
-      linear-gradient(rgba(20, 20, 20, 0.70), rgba(20, 20, 20, 0.70)), /* 黒系のフィルターを70%に */
+      linear-gradient(rgba(20, 20, 20, 0.70), rgba(20, 20, 20, 0.70)), 
       url('wagakuma_back.webp');
-    background-size: 100% auto; /* 横幅にピッタリ収める */
+    background-size: 100% auto; 
     background-repeat: repeat; 
     background-position: top center;
   }
@@ -124,16 +124,16 @@
   header{
     position:sticky; top:0; z-index:20;
     display: flex;
-    align-items: center; /* 文字やボタンを上下中央に配置 */
-    min-height: 85px; /* これまでの高さをキープ */
-    background-color: #f8f8f8; /* 画像が読み込まれるまでのベース色を明るめに変更 */
+    align-items: center; 
+    min-height: 85px; 
+    background-color: #f8f8f8; 
     background-image: 
-      linear-gradient(rgba(255, 255, 255, 0.70), rgba(255, 255, 255, 0.70)), /* 70%の白系フィルター */
+      linear-gradient(rgba(255, 255, 255, 0.70), rgba(255, 255, 255, 0.70)), 
       url('wagakuma_header.webp');
-    background-size: cover; /* 画像をヘッダー全体に綺麗に広げる */
-    background-position: center; /* 画像の中央を基準にする */
+    background-size: cover; 
+    background-position: center; 
     background-repeat: no-repeat;
-    border-bottom: 1px solid rgba(214, 204, 180, 0.6); /* うっすら境界線を入れて引き締める */
+    border-bottom: 1px solid rgba(214, 204, 180, 0.6); 
   }
   .header-inner {
     width: 100%;
@@ -150,7 +150,6 @@
     text-shadow: 0 1px 4px rgba(242, 238, 227, 0.9), 0 0 8px rgba(255, 255, 255, 0.8);
   }
 
-  /* --- 追加：タイトルと足跡を横に並べる枠 --- */
   .brand-title-wrap {
     display: flex; align-items: center;
   }
@@ -159,10 +158,8 @@
   }
   .paw-prints .paw {
     width: 15px; height: 15px; object-fit: contain;
-    opacity: 0.75; /* 主役の文字より少し控えめに */
+    opacity: 0.75; 
   }
-  /* 上下にずらしつつ、左向きに回転させる */
-  /* ※元の画像の向きによっては、rotate(-90deg) を scaleX(-1) 等に変更してください */
   .paw-prints .paw-up {
     transform: translateY(-3px) rotate(-90deg);
   }
@@ -210,65 +207,61 @@
   /* --- トップ画面：浮遊するアイコンカテゴリ --- */
   .top-categories-wrap {
     display: flex; flex-direction: column; align-items: center;
-    gap: 40px; margin-top: 32px; margin-bottom: 48px; /* アイコン間隔と余白を拡大 */
+    gap: 40px; margin-top: 32px; margin-bottom: 48px;
   }
   .top-categories-row {
-    display: flex; justify-content: center; gap: 56px; width: 100%; /* 横の間隔を拡大 */
+    display: flex; justify-content: center; gap: 56px; width: 100%;
   }
   .top-category-item {
-    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
     cursor: pointer; -webkit-tap-highlight-color: transparent;
     animation: floatAnim 3.5s ease-in-out infinite;
   }
-  /* 個別にアニメーションのタイミングをずらしてランダムな浮遊感を出す */
-  .top-category-top { animation-duration: 3.8s; animation-delay: 0s; }
-  .top-category-left { animation-duration: 3.2s; animation-delay: 0.5s; }
-  .top-category-right { animation-duration: 4.1s; animation-delay: 1.2s; }
-
+  
   .top-category-icon {
-    width: 140px; height: 140px; /* 焼酎・ウイスキー用の基本サイズ */
+    width: 140px; height: 140px; 
     display: flex; align-items: center; justify-content: center;
     transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
-  /* 日本酒（一番上）のアイコンだけさらに大きく目立たせる */
-  .top-category-top .top-category-icon {
-    width: 180px; height: 180px;
-  }
-  
+  .top-category-top .top-category-icon { width: 180px; height: 180px; }
   .top-category-item:hover .top-category-icon { transform: scale(1.15); }
   .top-category-icon img {
     width: 100%; height: 100%; object-fit: contain;
-    filter: drop-shadow(0 6px 10px rgba(0,0,0,0.25)); /* 画像の下に影を落として浮いているように見せる */
+    filter: drop-shadow(0 6px 10px rgba(0,0,0,0.25));
   }
+  
+  /* タップできることを明示するボタン風ラベル */
   .top-category-label {
-    font-family: var(--font-mincho); font-weight: 700; font-size: 19px; /* 文字サイズを少し拡大 */
-    color: #fff; letter-spacing: 0.05em;
-    text-shadow: 0 2px 6px rgba(0,0,0,0.5); /* 背景に溶け込まないよう文字に影をつける */
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--ai);
+    font-family: var(--font-mincho);
+    font-weight: 700;
+    font-size: 17px;
+    padding: 8px 20px;
+    border-radius: 30px;
+    border: 2px solid var(--shu);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    margin-top: -10px; /* アイコンに少し被せる */
+    position: relative;
+    z-index: 2;
+    animation: pulse-label 2.5s infinite;
+  }
+  .tap-badge {
+    font-family: var(--font-gothic);
+    font-size: 11px;
+    color: #fff;
+    background: var(--shu);
+    padding: 2px 6px;
+    border-radius: 10px;
+    letter-spacing: 0.05em;
   }
 
-  /* --- カテゴリ選択(トップ) 旧カードレイアウト --- */
-  .cat-card{
-    width:100%; display:flex; align-items:center; gap:16px;
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    border:1px solid rgba(214, 204, 180, 0.8); border-left:4px solid var(--shu);
-    border-radius:var(--radius); padding:20px 18px; margin-bottom:32px;
-    cursor:pointer; text-align:left; font-family:inherit;
-    transition: transform .15s ease, box-shadow .15s ease;
+  @keyframes pulse-label {
+    0%, 100% { transform: scale(1); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    50% { transform: scale(1.05); box-shadow: 0 6px 16px rgba(189, 70, 48, 0.4); }
   }
-  .cat-card:hover{ transform:translateY(-1px); box-shadow:0 4px 14px rgba(34,56,92,0.1); }
-  .cat-card .icon{
-    flex:0 0 auto; width:46px; height:46px; border-radius:50%;
-    background:var(--ai-pale); display:flex; align-items:center; justify-content:center;
-  }
-  .cat-card .icon svg, .cat-card .icon img { width:26px; height:26px; stroke:var(--ai); fill:none; stroke-width:1.8; object-fit:contain; }
-  .cat-card .info{ flex:1; min-width:0; }
-  .cat-card .name{ font-family:var(--font-mincho); font-weight:700; font-size:17px; color:var(--sumi); margin-bottom:3px; }
-  .cat-card .desc{ font-size:12px; color:var(--sumi); line-height:1.6; }
-  .cat-card .count{ font-size:11px; color:var(--shu); font-weight:700; margin-top:4px; }
 
-  /* --- 用語チップ(ことばを知る) --- */
   .term-chip-wrap{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:26px; }
   .term-chip{
     background:var(--ai-pale); color:var(--ai); border:none; border-radius:20px;
@@ -277,18 +270,6 @@
   }
   .term-chip:hover{ background:var(--ai); color:#fff; }
 
-  /* --- 銘柄紹介 --- */
-  .sub-label{
-    font-family:var(--font-mincho); font-size:14px; font-weight:700; color:var(--ai);
-    margin: 22px 0 10px; padding-left:10px; border-left:3px solid var(--shu);
-  }
-  .brand-card{
-    background:#fff; border:1px solid var(--line); border-radius:10px;
-    padding:13px 16px; margin-bottom:10px; font-size:14px; color:var(--sumi);
-    line-height:1.7;
-  }
-
-  /* --- 用語リンク --- */
   .term-link{
     color: var(--shu);
     border-bottom: 1.5px dotted var(--shu);
@@ -305,12 +286,9 @@
     content:''; width:4px; height:14px; background: var(--shu); border-radius:2px; display:inline-block;
   }
 
-  /* 枠の中（glass-box内）にある見出し・リード文は元の色に戻す */
   .glass-box h2.title,
   .glass-box h3.section-title { color: var(--ai); }
   .glass-box .lead { color: var(--sumi); }
-
-  /* 枠外の小見出し（朱色文字で指定されているもの）の文字色を白で上書き */
   .screen div[style*="border-left:3px solid var(--shu)"] { color: #fff !important; }
 
   /* --- モーダル(用語解説) --- */
@@ -343,107 +321,55 @@
     background:var(--ai-pale); padding:3px 10px; border-radius:20px; margin-bottom:12px;
   }
 
-  .note{ font-size:10.5px; color:var(--muted); margin-top:16px; line-height:1.6; }
-  
+  /* フォントサイズ拡大対応 */
   .article-text{ font-size: 15px; color: var(--sumi); line-height: 1.8; margin-bottom: 24px; }
   .article-text strong{ color: var(--shu); font-weight: 700; }
 
-  /* --- 補足コラム(info-box) --- */
-  .info-box {
-    background: var(--kinari);
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 24px;
-  }
-  .info-box-title {
-    font-family: var(--font-mincho);
-    font-weight: 700;
-    color: var(--ai);
-    margin: 0 0 10px;
-    font-size: 15px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .info-box p {
-    font-size: 13.5px;
-    color: var(--sumi);
-    line-height: 1.75;
-    margin: 0;
-  }
-  .info-box p strong {
-    color: var(--shu);
-  }
-
-  /* --- アニメーション定義 --- */
-  @keyframes pulse-btn {
-    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(189, 70, 48, 0.7); }
-    70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(189, 70, 48, 0); }
-    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(189, 70, 48, 0); }
-  }
-
-  @keyframes shiny {
-    0% { left: -100%; }
-    100% { left: 100%; }
-  }
-
-  /* --- ボタン --- */
+  /* 朱色のメインボタン */
   .primary-btn{
     display: flex; align-items: center; justify-content: center; gap: 8px;
     width: 100%; padding: 16px; margin-top: 16px;
-    background: var(--shu); color: #fff;
+    background: var(--shu); 
+    color: #fff;
     border: none; border-radius: var(--radius);
     font-family: var(--font-mincho); font-size: 15px; font-weight: 700; letter-spacing: 0.04em;
     cursor: pointer; transition: transform .15s ease, box-shadow .15s ease;
-    
-    /* アニメーションを追加 */
-    animation: pulse-btn 2s infinite;
     position: relative;
     overflow: hidden;
+    animation: pulse-btn 2s infinite;
   }
-  
-  /* キラッと光るエフェクト */
+  .primary-btn:hover{ transform: translateY(-2px); }
+  .primary-btn svg{ width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; }
+
+  /* ボタンのキラッと光るエフェクト */
   .primary-btn::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: -100%;
-    width: 50%;
-    height: 100%;
+    top: 0; left: -100%;
+    width: 50%; height: 100%;
     background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
-    transform: skewX(-25deg);
+    transform: skewX(-20deg);
     animation: shiny 3s infinite;
   }
   
-  .primary-btn:hover{ transform: translateY(-2px) scale(1.02); box-shadow: 0 6px 16px rgba(189, 70, 48, 0.4); animation-play-state: paused; }
-  .primary-btn:hover::before { animation-play-state: paused; }
-  
-  .primary-btn svg{ width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; position: relative; z-index: 1;}
+  /* ホームに戻るボタンはアニメーションさせないが、色は朱色にする */
+  .back-home-btn {
+    background: var(--shu) !important;
+    animation: none !important;
+    margin-top: 32px;
+  }
+  .back-home-btn::before { display: none; }
 
-  /* 最初の画面に戻るボタン(藍色)は特別扱い */
-  .primary-btn.back-home-btn {
-      background: var(--ai);
-      animation: none; /* アニメーションなし */
+  @keyframes pulse-btn {
+    0% { box-shadow: 0 0 0 0 rgba(189, 70, 48, 0.5); }
+    70% { box-shadow: 0 0 0 10px rgba(189, 70, 48, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(189, 70, 48, 0); }
   }
-  .primary-btn.back-home-btn::before {
-      display: none; /* 光るエフェクトもなし */
+  @keyframes shiny {
+    0% { left: -100%; }
+    20% { left: 200%; }
+    100% { left: 200%; }
   }
-  .primary-btn.back-home-btn:hover {
-      box-shadow: 0 6px 16px rgba(34, 56, 92, 0.4);
-      transform: translateY(-2px);
-  }
-
-  .secondary-btn{
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    width: 100%; padding: 16px; margin-top: 32px;
-    background: #fff; color: var(--ai);
-    border: 1px solid var(--line); border-radius: var(--radius);
-    font-family: var(--font-mincho); font-size: 15px; font-weight: 700; letter-spacing: 0.04em;
-    cursor: pointer; transition: transform .15s ease, box-shadow .15s ease;
-  }
-  .secondary-btn:hover{ transform: translateY(-2px); box-shadow: 0 6px 16px rgba(34,56,92,0.1); }
-  .secondary-btn svg{ width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; }
 
   /* --- アコーディオン --- */
   .accordion-item {
@@ -481,252 +407,104 @@
     padding: 0 16px;
   }
   .accordion-item.open .accordion-body {
-    max-height: 600px;
+    max-height: 600px; /* サイズ拡大に対応するため余裕を持たせる */
     padding: 14px 16px;
     border-top: 1px dashed var(--line);
   }
 
-  /* --- 国旗アイコン --- */
-  .flag-icon {
-    width: 24px;
-    height: 16px;
-    object-fit: cover;
-    border-radius: 2px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    flex: 0 0 auto;
-  }
+  .flag-icon { width: 24px; height: 16px; object-fit: cover; border-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); flex: 0 0 auto; }
 
   /* --- クイズ --- */
   .quiz-box {
     background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    border: 2px dashed rgba(76, 106, 148, 0.6);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 24px;
-    text-align: center;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    border: 2px dashed rgba(76, 106, 148, 0.6); border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: center;
   }
   .quiz-btn {
-    display: block;
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 10px;
-    background: #fff;
-    border: 1px solid var(--ai-light);
-    color: var(--ai);
-    font-weight: 700;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 14px;
+    display: block; width: 100%; padding: 12px; margin-bottom: 10px; background: #fff;
+    border: 1px solid var(--ai-light); color: var(--ai); font-weight: 700; border-radius: 8px;
+    cursor: pointer; transition: all 0.2s ease; font-size: 14px;
   }
-  .quiz-btn:last-child {
-    margin-bottom: 0;
-  }
-  .quiz-btn:hover:not(:disabled) {
-    background: var(--ai-pale);
-  }
-  .quiz-btn:disabled {
-    cursor: default;
-    opacity: 0.8;
-  }
-  .quiz-btn.correct {
-    background: var(--shu);
-    color: #fff;
-    border-color: var(--shu);
-  }
-  .quiz-btn.incorrect {
-    background: var(--ai-pale);
-    color: var(--ai-light);
-    border-color: var(--line);
-  }
-  .quiz-result {
-    text-align: left;
-  }
-  .quiz-result h4.correct-text {
-    color: var(--shu);
-  }
-  .quiz-result h4.incorrect-text {
-    color: var(--ai-light);
-  }
-  .quiz-result p strong {
-    color: var(--shu);
-  }
+  .quiz-btn:last-child { margin-bottom: 0; }
+  .quiz-btn:hover:not(:disabled) { background: var(--ai-pale); }
+  .quiz-btn:disabled { cursor: default; opacity: 0.8; }
+  .quiz-btn.correct { background: var(--shu); color: #fff; border-color: var(--shu); }
+  .quiz-btn.incorrect { background: var(--ai-pale); color: var(--ai-light); border-color: var(--line); }
+  .quiz-result { text-align: left; }
+  .quiz-result h4.correct-text { color: var(--shu); }
+  .quiz-result h4.incorrect-text { color: var(--ai-light); }
+  .quiz-result p strong { color: var(--shu); }
 
   /* --- フリップカード(豆知識) --- */
   .flip-card {
-    background-color: transparent;
-    width: 100%;
-    height: 280px; 
-    perspective: 1000px;
-    margin-bottom: 24px;
-    cursor: pointer;
+    background-color: transparent; width: 100%; height: 280px;  /* 枠からはみ出ないように拡大 */
+    perspective: 1000px; margin-bottom: 24px; cursor: pointer;
   }
   .flip-card-inner {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
-    transform-style: preserve-3d;
+    position: relative; width: 100%; height: 100%; text-align: center;
+    transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); transform-style: preserve-3d;
   }
-  .flip-card.is-flipped .flip-card-inner {
-    transform: rotateY(180deg);
-  }
+  .flip-card.is-flipped .flip-card-inner { transform: rotateY(180deg); }
   .flip-card-front, .flip-card-back {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    border-radius: 12px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    border: 1px solid rgba(214, 204, 180, 0.8);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    background: rgba(255, 255, 255, 0.75); /* 他のすりガラス枠と同じ透け具合に統一 */
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    -webkit-backface-visibility: hidden; backface-visibility: hidden;
+    border-radius: 12px; padding: 20px; display: flex; flex-direction: column;
+    justify-content: center; align-items: center; border: 1px solid rgba(214, 204, 180, 0.8);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05); background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
   }
   .flip-card-front {
-    background: rgba(242, 238, 227, 0.75); /* 表面も同じ透け具合に統一 */
-    border: 2px dashed rgba(76, 106, 148, 0.6);
-    overflow: hidden;
+    background: rgba(242, 238, 227, 0.75); border: 2px dashed rgba(76, 106, 148, 0.6); overflow: hidden;
   }
   .flip-card-back {
-    transform: rotateY(180deg);
-    text-align: left;
-    align-items: flex-start;
-    justify-content: flex-start;
-    /* 左に朱色のアクセントを追加 */
-    border: 1px solid rgba(189, 70, 48, 0.4); 
-    border-left: 4px solid var(--shu);
-    overflow: hidden;
+    transform: rotateY(180deg); text-align: left; align-items: flex-start; justify-content: flex-start;
+    border: 1px solid rgba(189, 70, 48, 0.4); border-left: 4px solid var(--shu); overflow: hidden;
   }
-  .flip-card-front h3 {
-    font-family: var(--font-mincho);
-    font-size: 19px;
-    color: var(--ai);
-    margin: 0 0 12px;
-    line-height: 1.5;
-  }
-  .flip-card-front .tap-hint {
-    margin-top: 16px;
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--ai-light);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: #fff;
-    padding: 6px 14px;
-    border-radius: 20px;
-    border: 1px solid var(--line);
-  }
-  .flip-card-back h4 {
-    font-family: var(--font-mincho);
-    font-size: 15.5px;
-    color: var(--shu);
-    margin: 0 0 12px;
-    border-bottom: 1px solid var(--shu-pale);
-    padding-bottom: 8px;
-    width: 100%;
-  }
-  .flip-card-back p {
-    font-size: 14.5px;
-    line-height: 1.7;
-    color: var(--sumi);
-    margin: 0;
-  }
+  .flip-card-front h3 { font-family: var(--font-mincho); font-size: 19px; color: var(--ai); margin: 0 0 12px; line-height: 1.5; }
+  .flip-card-front .tap-hint { margin-top: 16px; font-size: 11px; font-weight: 700; color: var(--ai-light); display: flex; align-items: center; gap: 6px; background: #fff; padding: 6px 14px; border-radius: 20px; border: 1px solid var(--line); }
+  .flip-card-back h4 { font-family: var(--font-mincho); font-size: 15.5px; color: var(--shu); margin: 0 0 12px; border-bottom: 1px solid var(--shu-pale); padding-bottom: 8px; width: 100%; }
+  .flip-card-back p { font-size: 14.5px; line-height: 1.7; color: var(--sumi); margin: 0; }
   
-  /* --- お米キャラクター(精米歩合カード表面に散りばめる) --- */
-  .komeo-char {
-    position: absolute;
-    width: 85px;
-    height: 85px;
-    object-fit: contain;
-    opacity: 0.9;
-    z-index: 0;
-  }
-  /* 枠内に完全に収めつつ、中央の文字を避けて四隅に配置 */
+  .komeo-char { position: absolute; width: 85px; height: 85px; object-fit: contain; opacity: 0.9; z-index: 0; }
   .komeo-pos1 { top: 8px; left: 8px; transform: rotate(-15deg); }
   .komeo-pos2 { top: 12px; right: 8px; transform: rotate(20deg); }
   .komeo-pos3 { bottom: 10px; left: 10px; transform: rotate(-10deg); }
   .komeo-pos4 { bottom: 8px; right: 10px; transform: rotate(15deg); }
 
-  .flip-card-front h3, .flip-card-front .tap-hint,
-  .flip-card-back h4, .flip-card-back p {
-    position: relative;
-    z-index: 1; /* テキストをキャラクターより手前にする */
-  }
+  .flip-card-front h3, .flip-card-front .tap-hint, .flip-card-back h4, .flip-card-back p { position: relative; z-index: 1; }
 
   .floating-wrap {
     display: flex; flex-wrap: wrap; justify-content: center; gap: 24px 8px;
     margin-bottom: 24px; padding: 10px 0;
   }
   .floating-item {
-    display: flex; flex-direction: column; align-items: center; gap: 8px;
-    cursor: pointer;
-    animation: floatAnim 3s ease-in-out infinite;
-    -webkit-tap-highlight-color: transparent;
-    width: calc(25% - 8px);
-    max-width: 95px; /* 80pxから95pxへ拡大 */
+    display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer;
+    animation: floatAnim 3s ease-in-out infinite; -webkit-tap-highlight-color: transparent;
+    width: calc(25% - 8px); max-width: 95px;
   }
-  /* 個別にアニメーションの速度とタイミングをずらしてランダムな浮遊感を出す */
   .floating-item:nth-child(2n) { animation-duration: 4s; animation-delay: 0.5s; }
   .floating-item:nth-child(3n) { animation-duration: 3.5s; animation-delay: 1s; }
   .floating-item:nth-child(5n) { animation-duration: 4.5s; animation-delay: 0.2s; }
   
   .floating-icon-box {
-    width: 80px; height: 80px; /* 64pxから80pxへ拡大 */
-    background: transparent;
-    display: flex; align-items: center; justify-content: center;
+    width: 80px; height: 80px; background: transparent; display: flex; align-items: center; justify-content: center;
     transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
-  .floating-item:hover .floating-icon-box, .floating-item.active .floating-icon-box {
-    transform: scale(1.15);
-  }
-  .floating-icon-box svg, .floating-icon-box img { 
-    width: 100%; height: 100%; object-fit: contain;
-    filter: drop-shadow(0 6px 8px rgba(0,0,0,0.1));
-  }
-  /* 泡盛画像の被写体が左に寄っているのを右にずらして補正 */
-  .awamori-adjust img {
-    transform: translateX(8px);
-  }
-  .floating-label {
-    font-size: 13px; font-weight: 700; color: #fff;
-    font-family: var(--font-gothic); transition: color 0.2s ease;
-  }
+  .floating-item:hover .floating-icon-box, .floating-item.active .floating-icon-box { transform: scale(1.15); }
+  .floating-icon-box svg, .floating-icon-box img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 6px 8px rgba(0,0,0,0.1)); }
+  .awamori-adjust img { transform: translateX(8px); }
+  .floating-label { font-size: 13px; font-weight: 700; color: #fff; font-family: var(--font-gothic); transition: color 0.2s ease; }
   .floating-item.active .floating-label { color: var(--shu); }
   
-  @keyframes floatAnim {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-  }
+  @keyframes floatAnim { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
-  /* 浮遊アイコンをタップした後の詳細表示エリア */
   .material-detail-box {
     background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--shu);
-    border-radius: 8px; padding: 16px; margin-bottom: 24px;
-    display: none; /* 初期非表示 */
+    border-radius: 8px; padding: 16px; margin-bottom: 24px; display: none;
   }
-  .material-detail-box.show {
-    display: block;
-    animation: fadeUp 0.3s ease;
-  }
-  .material-detail-title {
-    font-family: var(--font-mincho); font-weight: 700; font-size: 16px; color: var(--ai);
-    margin: 0 0 8px; display: flex; align-items: center; gap: 8px;
-  }
-  .material-detail-desc {
-    font-size: 14.5px; color: var(--sumi); line-height: 1.7; margin: 0;
-  }
+  .material-detail-box.show { display: block; animation: fadeUp 0.3s ease; }
+  .material-detail-title { font-family: var(--font-mincho); font-weight: 700; font-size: 16px; color: var(--ai); margin: 0 0 8px; display: flex; align-items: center; gap: 8px; }
+  .material-detail-desc { font-size: 14.5px; color: var(--sumi); line-height: 1.7; margin: 0; }
 </style>
 </head>
 <body>
@@ -774,18 +552,19 @@
         <div class="top-categories-row">
           <div class="top-category-item top-category-top" onclick="openCategory('sake')">
             <div class="top-category-icon"><img src="sake.webp" alt="日本酒"></div>
-            <div class="top-category-label">日本酒</div>
+            <!-- ボタンであることを強調するラベルとバッジ -->
+            <div class="top-category-label">日本酒 <span class="tap-badge">TAP</span></div>
           </div>
         </div>
         <!-- 2段目（下左右） -->
         <div class="top-categories-row">
           <div class="top-category-item top-category-left" onclick="openCategory('shochu')">
             <div class="top-category-icon"><img src="syotyu.webp" alt="焼酎"></div>
-            <div class="top-category-label">焼酎</div>
+            <div class="top-category-label">焼酎 <span class="tap-badge">TAP</span></div>
           </div>
           <div class="top-category-item top-category-right" onclick="openCategory('whisky')">
             <div class="top-category-icon"><img src="whisky.webp" alt="ウイスキー"></div>
-            <div class="top-category-label">ウイスキー</div>
+            <div class="top-category-label">ウイスキー <span class="tap-badge">TAP</span></div>
           </div>
         </div>
       </div>
@@ -800,14 +579,14 @@
         <h3 class="section-title">日本酒ってどんなお酒？</h3>
         <div class="glass-box">
           <p class="article-text">
-            <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">① 世界で一番度数が高い「発酵酒」</span>
-            実はビールやワインの仲間。なのに度数は20度近くまで上がる、とても珍しいお酒です。<br><br>
+            <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">① 世界一の「高アルコール度数」</span>
+            日本酒はワインやビールと同じ「発酵」で造られますが、実はその中で<strong>世界で一番アルコール度数が高くなる</strong>珍しいお酒です。<br><br>
             
-            <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">② フルーツゼロなのに「フルーティー」</span>
-            原料は<strong>「お米と水」だけ</strong>。それなのに、リンゴやメロンのような華やかな香りが生まれる魔法のようなお酒なんです。<br><br>
+            <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">② 「お米と水」だけで生まれる魔法</span>
+            フルーツを一切使っていないのに、リンゴやメロンのような華やかな香りが生まれるのは、日本酒ならではの魔法です。<br><br>
             
-            <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">③ 職人が生んだ「奇跡のスゴ技」</span>
-            甘みのないお米を、菌（麹）の力で<strong>「甘くしながら、同時にアルコールに変える」</strong>。世界中のどのお酒にもない、日本ならではのスゴ技です！
+            <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">③ 職人が編み出した「奇跡のスゴ技」</span>
+            甘みのないお米を、目に見えない菌（麹）の力で<strong>「甘くしながらアルコールに変える」</strong>という、世界中のどのお酒にもない高度な技術で造られています。
           </p>
         </div>
 
@@ -844,14 +623,14 @@
         <h3 class="section-title">焼酎ってどんなお酒？</h3>
         <div class="glass-box">
           <p class="article-text">
-            <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">① 身体に嬉しい「糖質・プリン体ゼロ」</span>
-            ウイスキーやブランデーと同じ製法で造られるため、不純物が少なく翌日に残りにくい、とてもヘルシーなお酒です。<br><br>
+            <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">① 「糖質・プリン体ゼロ」の嬉しいお酒</span>
+            焼酎はウイスキーなどと同じ「蒸留酒」の仲間。アルコールと香りの成分だけを集めるため、翌日に残りにくく身体に優しいのが特徴です。<br><br>
             
-            <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">② 世界でも珍しい「お湯で割る」文化</span>
-            温めて美味しく飲めるお酒は、実は世界的にも希少。お湯割りにすると素材の香りがふわりと開き、飲むとホッと心が落ち着きます。<br><br>
+            <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">② 世界でも珍しい「お湯割り」文化</span>
+            温めることで香りがふわっと広がり、心がホッと落ち着きます。温かいお湯で割って美味しく飲めるお酒は、実は世界的にもかなり希少です。<br><br>
             
-            <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">③ 変幻自在な「素材の個性」</span>
-            芋ならバナナのように甘く、麦なら香ばしい麦チョコのように。その日の気分で「水・お湯・炭酸」と自由に割って遊べる、懐の深いお酒です。
+            <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">③ 「素材の個性」をダイレクトに楽しむ</span>
+            芋、麦、米など、使う原料によってバナナや麦チョコのような多彩な風味が。水割り、炭酸割りなど、その日の気分に合わせて自由に遊べる懐の深いお酒です。
           </p>
         </div>
 
@@ -865,14 +644,14 @@
         <h3 class="section-title">ウイスキーってどんなお酒？</h3>
         <div class="glass-box">
           <p class="article-text">
-            <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">① 実は最初は「無色透明」</span>
-            グラスの中で琥珀色に輝くウイスキーですが、造りたての原酒は、実は焼酎のように無色透明なんです。<br><br>
+            <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">① できたては「無色透明」</span>
+            グラスで琥珀色に輝くウイスキーですが、実は造りたての原酒は焼酎のように無色透明だってご存知でしたか？<br><br>
             
-            <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">② 美しさと香りは「樽」の魔法</span>
-            あの美しい色合いや、バニラのような甘く芳醇な香りは、すべて<strong>「木の樽」</strong>の中で長い年月眠ることで初めて生まれます。<br><br>
+            <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">② 樽の中で「10年眠る」魔法</span>
+            あの美しい色合いとバニラのような甘い香りは、木で作られた樽の中で長い年月を静かに眠り続けることで初めて生まれるものです。<br><br>
             
-            <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">③ 半分は「時間」が造るロマン</span>
-            人間が手掛けるのは半分。あとの半分は<strong>「樽が過ごした時間と自然の魔法」</strong>が造り出します。グラスに込められた「時間」を味わう、大人の世界へようこそ。
+            <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">③ 人間と自然の「共同作業」</span>
+            人間が造る部分は半分。残りの半分は「木が過ごした時間と自然」が造り出す、とてもロマンチックで大人の時間を味わえるお酒です。
           </p>
         </div>
 
@@ -1195,7 +974,7 @@
 
       <div id="ourSakeList"></div>
 
-      <button class="primary-btn back-home-btn" onclick="goScreen('top')" style="margin-top: 32px; border: none; color: #fff;">
+      <button class="primary-btn back-home-btn" onclick="goScreen('top')">
         <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke-linecap="round" stroke-linejoin="round"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         最初の画面に戻る
       </button>
@@ -1384,7 +1163,7 @@
 
       <div id="ourShochuList"></div>
 
-      <button class="primary-btn back-home-btn" onclick="goScreen('top')" style="margin-top: 32px; border: none; color: #fff;">
+      <button class="primary-btn back-home-btn" onclick="goScreen('top')">
         <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke-linecap="round" stroke-linejoin="round"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         最初の画面に戻る
       </button>
@@ -1459,8 +1238,14 @@
       
       <div class="glass-box">
         <p class="article-text">
-          ウイスキーは世界中で造られ、愛されていますが、その中でも特に品質が高く、世界的なシェアを誇る5つの生産地があります。これらは<strong>「世界5大ウイスキー」</strong>と呼ばれています。<br><br>
-          実は、歴史あるスコットランドやアイルランドに並んで、<strong>日本もそのトップ5の1つ</strong>として世界中から大絶賛を受けているんです。日本の職人の繊細な技術が評価され、昨今では空前の「ジャパニーズウイスキー・ブーム」が巻き起こっていると思うと、なんだかとても誇らしい気持ちになりますよね。
+          <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">① 世界が認める「5つの聖地」</span>
+          ウイスキーは世界中で造られていますが、その中でも特に品質と人気が高い5つの生産地は<strong>「世界5大ウイスキー」</strong>と呼ばれています。<br><br>
+          
+          <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">② 実は「日本」もトップ5の1つ！</span>
+          歴史あるスコットランドやアイルランドと肩を並べ、<strong>日本もそのトップ5に選ばれている</strong>んです。<br><br>
+          
+          <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">③ 世界を魅了する「ジャパニーズ」</span>
+          日本の職人の繊細な技術は世界中から大絶賛されており、現在は空前の「ジャパニーズウイスキー・ブーム」が巻き起こっています。日本人としてなんだか誇らしい気持ちになりますね。
         </p>
       </div>
 
@@ -1606,7 +1391,7 @@
 
       <div id="ourWhiskyList"></div>
 
-      <button class="primary-btn back-home-btn" onclick="goScreen('top')" style="margin-top: 32px; border: none; color: #fff;">
+      <button class="primary-btn back-home-btn" onclick="goScreen('top')">
         <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke-linecap="round" stroke-linejoin="round"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         最初の画面に戻る
       </button>
@@ -1636,40 +1421,34 @@ const openingVideo = document.getElementById('openingVideo');
 const openingLogo = document.getElementById('openingLogo');
 let hasSkipped = false;
 
-// オープニングを終了してメイン画面へ切り替える関数
 function endOpening() {
   if (hasSkipped) return;
   hasSkipped = true;
-  openingScreen.style.opacity = '0'; // 1.5秒かけてフェードアウト
+  openingScreen.style.opacity = '0'; 
   setTimeout(() => {
-    openingScreen.style.display = 'none'; // フェードアウト後に完全に非表示
+    openingScreen.style.display = 'none'; 
   }, 1500);
 }
 
-// 画面をタップ（クリック）したら即座にスキップ
 openingScreen.addEventListener('click', endOpening);
 
-// 動画の再生時間に応じてアニメーションを制御
+// 確実にフェードイン・フェードアウトさせるための判定処理
 openingVideo.addEventListener('timeupdate', () => {
   if (hasSkipped) return;
   const time = openingVideo.currentTime;
   
-  // 5秒経過でロゴを白くフワッと表示（判定を修正）
   if (time >= 5 && openingLogo.style.opacity !== '1') {
     openingLogo.style.opacity = '1';
   }
   
-  // 8秒経過（ロゴ表示から3秒後）でオープニング終了
   if (time >= 8) {
     endOpening();
   }
 });
 
-// 万が一、ブラウザの仕様等で動画が自動再生されなかった場合のバックアップ（スキップ処理）
 const playPromise = openingVideo.play();
 if (playPromise !== undefined) {
   playPromise.catch(error => {
-    // 自動再生がブロックされた場合は、オープニングを待たずに即終了
     endOpening();
   });
 }
@@ -1751,9 +1530,7 @@ const materialData = {
 };
 
 function showMaterialDetail(key, element) {
-  // すべてのアクティブ状態を解除
   document.querySelectorAll('.floating-item').forEach(el => el.classList.remove('active'));
-  // クリックされたアイテムをアクティブに
   element.classList.add('active');
 
   const data = materialData[key];
@@ -1761,7 +1538,6 @@ function showMaterialDetail(key, element) {
   document.getElementById('materialDesc').textContent = data.desc;
   
   const detailBox = document.getElementById('materialDetailArea');
-  // 一度クラスを外して再描画させることでアニメーションを毎回発動
   detailBox.classList.remove('show');
   void detailBox.offsetWidth; 
   detailBox.classList.add('show');
@@ -1904,7 +1680,6 @@ function goScreen(name){
   const backBtn = document.getElementById('backBtn');
   backBtn.classList.toggle('show', name !== 'top');
   
-  // 戻るボタンの遷移先を動的に設定（連想配列でスリム化）
   const backMap = {
     'our-sake': 'sake-methods', 'sake-methods': 'sake-types', 'sake-types': 'category',
     'our-shochu': 'shochu-labels', 'shochu-labels': 'shochu-materials', 'shochu-materials': 'category',
@@ -1929,7 +1704,6 @@ function openCategory(key){
     leadEl.style.display = 'none';
   }
 
-  // 各コンテンツの表示リセット（ループでスリム化）
   const sections = ['sakeContent', 'shochuContent', 'whiskyContent', 'termsSection'];
   sections.forEach(id => {
     const el = document.getElementById(id);
@@ -1957,7 +1731,6 @@ function renderList(wrapId, dataGroups, isSake) {
   
   let html = '';
   if (isSake) {
-    // 日本酒用（グループ分けなし）
     html = dataGroups.map(item => `
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
@@ -1968,7 +1741,6 @@ function renderList(wrapId, dataGroups, isSake) {
       </div>
     `).join('');
   } else {
-    // 焼酎・ウイスキー用（グループ分けあり）
     dataGroups.forEach(group => {
       html += `<div style="font-weight:700; color:var(--shu); margin:24px 0 12px; padding-left:8px; border-left:3px solid var(--shu); font-family:var(--font-mincho);">${group.label}</div>`;
       html += group.items.map(item => `
@@ -1994,7 +1766,7 @@ goScreen('top');
 /* ============ クイズ機能 ============ */
 function answerQuiz(answer) {
   const options = document.getElementById('quizOptions').querySelectorAll('.quiz-btn');
-  options.forEach(btn => btn.disabled = true); // 一度答えたらボタンを無効化
+  options.forEach(btn => btn.disabled = true); 
 
   const resultBox = document.getElementById('quizResult');
   const resultTitle = document.getElementById('quizResultTitle');
@@ -2005,7 +1777,7 @@ function answerQuiz(answer) {
     resultTitle.className = "correct-text";
   } else {
     options[1].classList.add('incorrect');
-    options[0].classList.add('correct'); // 正解も示す
+    options[0].classList.add('correct'); 
     resultTitle.textContent = "おしい！ 正解はAです";
     resultTitle.className = "incorrect-text";
   }

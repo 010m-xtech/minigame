@@ -606,7 +606,16 @@ const fishList = [
     id: "aji", name: "真鯵", kana: "まあじ", img: "maaji.png",
     basicInfo: "通年出回るが、旬は初夏から夏。旨味成分が豊富で、刺身、塩焼き、フライなど万能な青魚です。",
     eatingPoint: "皮目の香ばしさと、身に感じる脂の甘みのバランスが絶妙です。生姜やネギなどの薬味と一緒に食べると、より一層旨味が引き立ちます。",
-    surprisingInfo: "「アジ」という名前は「味が良い」ことから名付けられたという説が有力で、古くから日本人に愛されてきました。",
+    // アジをクイズに変更
+    interaction: {
+      type: "quiz",
+      question: "「アジ」という名前の由来は次のうちどれでしょうか？",
+      options: [
+        { text: "味が良いから", isCorrect: true },
+        { text: "アジアから伝わったから", isCorrect: false }
+      ],
+      explanation: "「味が良い」から「アジ」と名付けられたという説が最も有力です！古くから日本人に愛されてきた魚です。"
+    },
     trivia: "側線（そくせん）と呼ばれる体の横の線にある「ゼイゴ」という硬いウロコは、アジ科の魚特有のものです。",
     illustration: `<img src="maaji_kaisetsu.png" alt="アジのゼイゴ" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
     illCaption: "尾の方にある硬いウロコ「ゼイゴ」",
@@ -633,8 +642,16 @@ const fishList = [
     id: "maguro", name: "まぐろ", kana: "まぐろ", img: "maguro.png",
     basicInfo: "寿司や刺身の主役。赤身、中トロ、大トロと部位によって脂の乗り方と味わいが大きく異なります。",
     eatingPoint: "赤身はさっぱりとした酸味と旨味が、トロは口の中でとろける濃厚な脂の甘みが楽しめます。部位ごとの味わいの違いをぜひ食べ比べてみてください。",
-    surprisingInfo: "マグロもカツオと同様に、泳ぎ続けないと呼吸ができない回遊魚で、寝ている間もゆっくり泳いでいます。",
-    trivia: "江戸時代、脂の多いトロの部分は「腐りやすい」として捨てられたり、畑の肥料にされたりしていました。",
+    interaction: {
+      type: "quiz",
+      question: "現在では大人気の「トロ」ですが、江戸時代はどのような扱いを受けていたでしょうか？",
+      options: [
+        { text: "殿様しか食べられない高級品", isCorrect: false },
+        { text: "捨てるか畑の肥料にしていた", isCorrect: true }
+      ],
+      explanation: "冷蔵（冷凍）技術がなかった当時、脂の多いトロはすぐに腐ってしまうため、「下等な部位」として捨てられたり、畑の肥料にされていました。"
+    },
+    trivia: "マグロもカツオと同様に、泳ぎ続けないとエラ呼吸ができず窒息してしまうため、寝ている間もゆっくり泳ぎ続けています。",
     menuItems: [], recommendedSake: "zaku"
   },
   {
@@ -661,8 +678,8 @@ const fishList = [
     // ヒラメはフリップカードに設定
     interaction: {
       type: "flip",
-      front: "ヒラメとカレイの見分け方。<br>「左ヒラメに右〇〇〇」？",
-      back: `正解は「右カレイ」！<br>目を上にして置いた時に顔が左を向くのがヒラメ、右を向くのがカレイと見分けます。
+      front: "ヒラメとカレイの見分け方は？",
+      back: `目を上にして置いた時に顔が左を向くのがヒラメ、右を向くのがカレイと見分けます。
       <div style="margin-top: 14px; background: rgba(0,0,0,0.15); padding: 10px; border-radius: 8px;">
         <img src="hirame_kaisetsu2.png" alt="左ヒラメに右カレイ" style="width: 100%; height: auto; border-radius: 4px; display: block; margin: 0 auto;">
         <div style="display: flex; justify-content: space-around; margin-top: 8px; font-size: 11px; font-weight: bold; color: #fff;">
@@ -678,8 +695,17 @@ const fishList = [
     id: "shimaaji", name: "シマアジ", kana: "しまあじ", img: "shimaaji_kaisetsu.png",
     basicInfo: "アジ類の中で最も味が良いとされ、高級魚として扱われます。身が締まり、上品な脂の甘みがあります。",
     eatingPoint: "青魚特有のクセがなく、白身魚のような上品な脂の甘さと、しっかりとした歯ごたえを同時に味わえるのが特徴です。",
-    surprisingInfo: "天然物は非常に漁獲量が少なく「幻の魚」とも呼ばれますが、養殖技術の進歩により安定して流通するようになりました。",
-    trivia: "体の側面に鮮やかな黄色の縦線（シマ）が入っていることが、「シマアジ」という名前の由来の一つです。",
+    // シマアジをクイズに変更
+    interaction: {
+      type: "quiz",
+      question: "「シマアジ」という名前の由来は、次のうちどちらでしょうか？",
+      options: [
+        { text: "体に縞（シマ）模様があるから", isCorrect: true },
+        { text: "身が引き締まっているから", isCorrect: false }
+      ],
+      explanation: "体の側面に走る鮮やかな黄色の縦線（シマ）が名前の由来と言われています！（※伊豆諸島などの「島」で獲れるからという説もあります）"
+    },
+    trivia: "天然物は非常に漁獲量が少なく「幻の魚」とも呼ばれます。現在お店で食べられるものの多くは、養殖技術の進歩によって美味しく育てられたものです。",
     illustration: `<img src="shimaaji_kaisetsu.png" alt="シマアジの特徴" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
     illCaption: "体の側面に入る鮮やかな黄色の縦線（シマ）",
     menuItems: [], recommendedSake: "manozuru"
@@ -688,7 +714,12 @@ const fishList = [
     id: "maiwashi", name: "真いわし", kana: "まいわし", img: "iwashi.png",
     basicInfo: "青魚の代表で、EPAやDHAなどの栄養素が豊富。新鮮なものは刺身でも絶品です。",
     eatingPoint: "青魚ならではの豊かな香りと、とろけるように脂ののった身の旨みがたまりません。生姜醤油でさっぱりといただくのがおすすめです。",
-    surprisingInfo: "「弱し（よわし）」が名前の由来と言われるほど鮮度落ちが早く、水揚げされるとすぐに死んでしまいます。",
+    // イワシをフリップに変更
+    interaction: {
+      type: "flip",
+      front: "イワシは漢字で魚へんに「弱い（鰯）」と書きます。一体なぜでしょうか？",
+      back: "水揚げされるとすぐに死んでしまうほど鮮度落ちが早く、「弱し（よわし）」と呼ばれたことが名前と漢字の由来だと言われています。"
+    },
     trivia: "敵から身を守るために、何万匹という巨大な群れ（トルネード）を作って泳ぐ習性があります。",
     illustration: `<img src="iwashi_kaisetsu.jpg" alt="イワシの群れ（トルネード）" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
     illCaption: "巨大な群れ（トルネード）を作って泳ぐイワシ",
@@ -730,7 +761,16 @@ const fishList = [
     id: "yariika", name: "ヤリイカ", kana: "やりいか", img: "ika.png",
     basicInfo: "上品な甘みと、コリコリとした歯切れの良い食感が魅力。冬から春にかけてが旬です。",
     eatingPoint: "透き通るような身は、上品な甘みと柔らかくも歯切れの良い食感が魅力です。噛むほどにイカ本来の優しい旨味が口いっぱいに広がります。",
-    surprisingInfo: "寿命はわずか1年。秋に生まれて成長し、翌年の春に産卵を終えると一生を終えます。",
+    // ヤリイカをクイズに変更
+    interaction: {
+      type: "quiz",
+      question: "ヤリイカの寿命はどれくらいでしょうか？",
+      options: [
+        { text: "約1年", isCorrect: true },
+        { text: "約10年", isCorrect: false }
+      ],
+      explanation: "実は寿命はわずか1年！秋に生まれて成長し、翌年の春に産卵を終えると一生を終える、とても短い命なんです。"
+    },
     trivia: "「ヤリイカ（槍烏賊）」という名前は、細長く先が尖った胴体の形が「槍の穂先」に似ていることに由来します。",
     illustration: `<img src="ika_kaisetsu.png" alt="ヤリイカのシルエット" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
     illCaption: "槍の穂先に似ているヤリイカのシルエット",

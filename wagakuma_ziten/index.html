@@ -164,8 +164,6 @@
     transform: translateY(3px) rotate(-90deg);
   }
 
-  .brand p{ margin:0; font-size:10px; color:var(--ai-light); letter-spacing:0.08em; }
-
   .back-btn{
     flex:0 0 auto;
     display:none;
@@ -182,9 +180,8 @@
   .screen{ display:none; animation: fadeUp .45s ease both; }
   .screen.active{ display:block; }
   
-  /* スクロールなしで画面に収めるためのトップ画面専用レイアウト */
   .screen[data-screen="top"] {
-    min-height: calc(100dvh - 130px); /* ヘッダーや余白を引いた画面いっぱいの高さ */
+    min-height: calc(100dvh - 130px);
     display: flex;
     flex-direction: column;
   }
@@ -212,21 +209,18 @@
     margin-bottom: 0 !important;
   }
 
-  /* --- トップ画面：浮遊するアイコンカテゴリ（画面フィット調整） --- */
   .top-categories-wrap {
-    flex: 1; /* 余った縦の空間をすべて使う */
+    flex: 1;
     display: flex; flex-direction: column; align-items: center; justify-content: space-evenly;
     gap: 2vh; 
-    padding: 2vh 0; /* 上下のバランス調整 */
+    padding: 2vh 0;
   }
   .top-categories-row {
     display: flex; justify-content: center; gap: 8vw; width: 100%;
   }
-  
-  /* 焼酎とウイスキーの段（2段目）の配置調整 */
   .top-categories-row.row-bottom {
-    gap: 24vw; /* さらにもう少し間隔を広げて、焼酎を左、ウイスキーを右へ */
-    margin-top: -12vh; /* 【調整】さらに上へ移動 */
+    gap: 24vw; 
+    margin-top: -12vh;
   }
   
   .top-category-item {
@@ -235,7 +229,6 @@
     animation: floatAnim 3.5s ease-in-out infinite;
   }
   
-  /* 画面の高さ(vh)を使ってサイズを自動計算し、はみ出しを防ぐ */
   .top-category-icon {
     width: 22vh; height: 22vh; 
     max-width: 140px; max-height: 140px;
@@ -254,26 +247,10 @@
   
   .top-category-label {
     font-family: var(--font-mincho); font-weight: 700; 
-    font-size: clamp(15px, 2.5vh, 19px); /* 画面サイズに合わせて文字サイズも自動調整 */
+    font-size: clamp(15px, 2.5vh, 19px);
     color: #fff; letter-spacing: 0.05em;
     text-shadow: 0 2px 6px rgba(0,0,0,0.5);
   }
-
-  .term-chip-wrap{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:26px; }
-  .term-chip{
-    background:var(--ai-pale); color:var(--ai); border:none; border-radius:20px;
-    padding:8px 14px; font-size:12.5px; font-weight:700; cursor:pointer;
-    font-family:inherit;
-  }
-  .term-chip:hover{ background:var(--ai); color:#fff; }
-
-  .term-link{
-    color: var(--shu);
-    border-bottom: 1.5px dotted var(--shu);
-    cursor: pointer;
-    font-weight: 700;
-  }
-  .term-link:hover{ opacity:.7; }
 
   h3.section-title{
     font-family: var(--font-mincho); font-size:15.5px; color: #fff;
@@ -288,40 +265,9 @@
   .glass-box .lead { color: var(--sumi); }
   .screen div[style*="border-left:3px solid var(--shu)"] { color: #fff !important; }
 
-  /* --- モーダル(用語解説) --- */
-  .modal-overlay{
-    position: fixed; top:0; left:0; width:100%; height:100%;
-    background: rgba(34,56,92,0.5); backdrop-filter: blur(4px);
-    z-index:1000; display:flex; align-items:center; justify-content:center;
-    opacity:0; pointer-events:none; transition: opacity .3s ease; padding:20px;
-  }
-  .modal-overlay.show{ opacity:1; pointer-events:auto; }
-  .modal-content{
-    background:#fff; width:100%; max-width:360px; border-radius:var(--radius);
-    padding:24px; box-shadow:0 10px 40px rgba(0,0,0,0.2);
-    transform: translateY(20px) scale(0.95); transition: transform .3s cubic-bezier(.2,1.4,.4,1);
-  }
-  .modal-overlay.show .modal-content{ transform: translateY(0) scale(1); }
-  .modal-header{
-    display:flex; justify-content:space-between; align-items:center;
-    margin-bottom:16px; padding-bottom:12px; border-bottom:1px dashed var(--line);
-  }
-  .modal-header h3{ margin:0; font-family:var(--font-mincho); font-size:19px; color:var(--ai); }
-  .close-btn{
-    background:none; border:none; padding:4px; color:var(--ai-light); cursor:pointer;
-    display:flex; align-items:center; justify-content:center; border-radius:50%;
-  }
-  .close-btn:hover{ background:var(--ai-pale); }
-  .modal-content p{ margin:0; font-size:15.5px; line-height:1.85; color:var(--sumi); }
-  .modal-tag{
-    display:inline-block; font-size:10.5px; font-weight:700; color:var(--ai-light);
-    background:var(--ai-pale); padding:3px 10px; border-radius:20px; margin-bottom:12px;
-  }
-
   .article-text{ font-size: 15px; color: var(--sumi); line-height: 1.8; margin-bottom: 24px; }
   .article-text strong{ color: var(--shu); font-weight: 700; }
 
-  /* 朱色のメインボタン */
   .primary-btn{
     display: flex; align-items: center; justify-content: center; gap: 8px;
     width: 100%; padding: 16px; margin-top: 16px;
@@ -365,7 +311,6 @@
     100% { left: 200%; }
   }
 
-  /* --- アコーディオン --- */
   .accordion-item {
     background: #fff;
     border: 1px solid var(--line);
@@ -408,7 +353,6 @@
 
   .flag-icon { width: 24px; height: 16px; object-fit: cover; border-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); flex: 0 0 auto; }
 
-  /* --- クイズ --- */
   .quiz-box {
     background: rgba(255, 255, 255, 0.75);
     backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
@@ -429,7 +373,6 @@
   .quiz-result h4.incorrect-text { color: var(--ai-light); }
   .quiz-result p strong { color: var(--shu); }
 
-  /* --- フリップカード(豆知識) --- */
   .flip-card {
     background-color: transparent; width: 100%; height: 280px; 
     perspective: 1000px; margin-bottom: 24px; cursor: pointer;
@@ -503,7 +446,6 @@
 </head>
 <body>
 
-<!-- オープニング動画・ロゴ画面 -->
 <div id="openingScreen">
   <video id="openingVideo" src="title2.mp4" autoplay muted playsinline></video>
   <img id="openingLogo" src="wagakuma.webp" alt="吾熊">
@@ -533,8 +475,6 @@
   </header>
 
   <main>
-
-    <!-- Screen: トップ(カテゴリ選択) -->
     <section class="screen active" data-screen="top">
       <div class="glass-box">
         <h2 class="title">今夜の一杯を、もっと美味しく。</h2>
@@ -542,20 +482,18 @@
       </div>
 
       <div class="top-categories-wrap">
-        <!-- 1段目（上） -->
         <div class="top-categories-row">
-          <div class="top-category-item top-category-top" onclick="openCategory('sake')">
+          <div class="top-category-item top-category-top" onclick="goScreen('sake-intro')">
             <div class="top-category-icon"><img src="sake.webp" alt="日本酒"></div>
             <div class="top-category-label">日本酒</div>
           </div>
         </div>
-        <!-- 2段目（下左右） -->
         <div class="top-categories-row row-bottom">
-          <div class="top-category-item top-category-left" onclick="openCategory('shochu')">
+          <div class="top-category-item top-category-left" onclick="goScreen('shochu-intro')">
             <div class="top-category-icon"><img src="syotyu.webp" alt="焼酎"></div>
             <div class="top-category-label">焼酎</div>
           </div>
-          <div class="top-category-item top-category-right" onclick="openCategory('whisky')">
+          <div class="top-category-item top-category-right" onclick="goScreen('whisky-intro')">
             <div class="top-category-icon"><img src="whisky.webp" alt="ウイスキー"></div>
             <div class="top-category-label">ウイスキー</div>
           </div>
@@ -563,108 +501,51 @@
       </div>
     </section>
 
-    <!-- Screen: カテゴリ詳細(共通テンプレート) -->
-    <section class="screen" data-screen="category">
-      <h2 class="title" id="catTitle"></h2>
-      <p class="lead" id="catLead"></p>
+    <section class="screen" data-screen="sake-intro">
+      <h2 class="title">日本酒</h2>
+      <h3 class="section-title">日本酒ってどんなお酒？</h3>
+      <div class="glass-box">
+        <p class="article-text">
+          <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">① 世界一の「高アルコール度数」</span>
+          日本酒はワインやビールと同じ「発酵」で造られますが、実はその中で<strong>世界で一番アルコール度数が高くなる</strong>珍しいお酒です。<br><br>
+          
+          <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">② 「お米と水」だけで生まれる魔法</span>
+          フルーツを一切使っていないのに、リンゴやメロンのような華やかな香りが生まれるのは、日本酒ならではの魔法です。<br><br>
+          
+          <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">③ 職人が編み出した「奇跡のスゴ技」</span>
+          甘みのないお米を、目に見えない菌（麹）の力で<strong>「甘くしながらアルコールに変える」</strong>という、世界中のどのお酒にもない高度な技術で造られています。
+        </p>
+      </div>
 
-      <div id="sakeContent" style="display:none;">
-        <h3 class="section-title">日本酒ってどんなお酒？</h3>
-        <div class="glass-box">
-          <p class="article-text">
-            <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">① 世界一の「高アルコール度数」</span>
-            日本酒はワインやビールと同じ「発酵」で造られますが、実はその中で<strong>世界で一番アルコール度数が高くなる</strong>珍しいお酒です。<br><br>
-            
-            <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">② 「お米と水」だけで生まれる魔法</span>
-            フルーツを一切使っていないのに、リンゴやメロンのような華やかな香りが生まれるのは、日本酒ならではの魔法です。<br><br>
-            
-            <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">③ 職人が編み出した「奇跡のスゴ技」</span>
-            甘みのないお米を、目に見えない菌（麹）の力で<strong>「甘くしながらアルコールに変える」</strong>という、世界中のどのお酒にもない高度な技術で造られています。
-          </p>
-        </div>
-
-        <div class="flip-card" onclick="this.classList.toggle('is-flipped')">
-          <div class="flip-card-inner">
-            <div class="flip-card-front">
-              <img src="komeo6.webp" class="komeo-char komeo-pos3" alt="">
-              <img src="komeo5.webp" class="komeo-char komeo-pos4" alt="">
-              <h3>「甘口・辛口」って<br>どう決まるの？</h3>
-              <div class="tap-hint">
-                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                タップして裏返す
-              </div>
-            </div>
-            <div class="flip-card-back">
-              <h4>実は「糖分と酸味のバランス」</h4>
-              <p style="margin-bottom: 8px;">
-                ラベルの「日本酒度（糖分の量）」がプラスなら辛口、マイナスなら甘口とされますが、<strong>実際の味わいは「酸味」とのバランス</strong>で決まります。
-              </p>
-              <p>
-                同じ糖分でも、酸味が強ければキリッと辛く引き締まり、弱ければまろやかな甘味を感じやすくなります。表記はあくまで目安に、ご自身の好みのバランスを探してみてください。
-              </p>
+      <div class="flip-card" onclick="this.classList.toggle('is-flipped')">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <img src="komeo6.webp" class="komeo-char komeo-pos3" alt="">
+            <img src="komeo5.webp" class="komeo-char komeo-pos4" alt="">
+            <h3>「甘口・辛口」って<br>どう決まるの？</h3>
+            <div class="tap-hint">
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+              タップして裏返す
             </div>
           </div>
+          <div class="flip-card-back">
+            <h4>実は「糖分と酸味のバランス」</h4>
+            <p style="margin-bottom: 8px;">
+              ラベルの「日本酒度（糖分の量）」がプラスなら辛口、マイナスなら甘口とされますが、<strong>実際の味わいは「酸味」とのバランス</strong>で決まります。
+            </p>
+            <p>
+              同じ糖分でも、酸味が強ければキリッと辛く引き締まり、弱ければまろやかな甘味を感じやすくなります。表記はあくまで目安に、ご自身の好みのバランスを探してみてください。
+            </p>
+          </div>
         </div>
-
-        <button class="primary-btn" onclick="goScreen('sake-types')">
-          特定名称酒の主な種類
-          <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
       </div>
 
-      <div id="shochuContent" style="display:none;">
-        <h3 class="section-title">焼酎ってどんなお酒？</h3>
-        <div class="glass-box">
-          <p class="article-text">
-            <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">① 「糖質・プリン体ゼロ」の嬉しいお酒</span>
-            焼酎はウイスキーなどと同じ「蒸留酒」の仲間。アルコールと香りの成分だけを集めるため、翌日に残りにくく身体に優しいのが特徴です。<br><br>
-            
-            <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">② 世界でも珍しい「お湯割り」文化</span>
-            温めることで香りがふわっと広がり、心がホッと落ち着きます。温かいお湯で割って美味しく飲めるお酒は、実は世界的にもかなり希少です。<br><br>
-            
-            <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">③ 「素材の個性」をダイレクトに楽しむ</span>
-            芋、麦、米など、使う原料によってバナナや麦チョコのような多彩な風味が。水割り、炭酸割りなど、その日の気分に合わせて自由に遊べる懐の深いお酒です。
-          </p>
-        </div>
-
-        <button class="primary-btn" onclick="goScreen('shochu-materials')">
-          何からできている？
-          <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-      </div>
-
-      <div id="whiskyContent" style="display:none;">
-        <h3 class="section-title">ウイスキーってどんなお酒？</h3>
-        <div class="glass-box">
-          <p class="article-text">
-            <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">① できたては「無色透明」</span>
-            グラスで琥珀色に輝くウイスキーですが、実は造りたての原酒は焼酎のように無色透明だってご存知でしたか？<br><br>
-            
-            <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">② 樽の中で「10年眠る」魔法</span>
-            あの美しい色合いとバニラのような甘い香りは、木で作られた樽の中で長い年月を静かに眠り続けることで初めて生まれるものです。<br><br>
-            
-            <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">③ 人間と自然の「共同作業」</span>
-            人間が造る部分は半分。残りの半分は「木が過ごした時間と自然」が造り出す、とてもロマンチックで大人の時間を味わえるお酒です。
-          </p>
-        </div>
-
-        <button class="primary-btn" onclick="goScreen('whisky-types')">
-          ラベルの正体
-          <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-      </div>
-
-      <div id="termsSection">
-        <h3 class="section-title">ことばを知る</h3>
-        <div class="glass-box" style="padding: 16px 20px;">
-          <p class="lead" style="margin-bottom:0; font-size:12px;">気になる言葉があれば、タップすると解説が見られます。</p>
-        </div>
-        <div class="term-chip-wrap" id="termChips"></div>
-      </div>
-
+      <button class="primary-btn" onclick="goScreen('sake-types')">
+        特定名称酒の主な種類
+        <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
     </section>
 
-    <!-- Screen: 特定名称種 -->
     <section class="screen" data-screen="sake-types">
       <h2 class="title">特定名称酒の主な種類</h2>
       
@@ -703,100 +584,56 @@
       <div style="font-weight:700; color:var(--shu); margin:24px 0 12px; padding-left:8px; border-left:3px solid var(--shu); font-family:var(--font-mincho);">
         純米酒系（米・米麹・水のみ）
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>純米大吟醸酒</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div>純米大吟醸酒</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">精米歩合50%以下まで磨いた米を使い、吟醸造りで仕込んだ純米酒です。日本酒の特定名称の中でも、最も磨かれた分類にあたります。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>純米吟醸酒</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div>純米吟醸酒</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">精米歩合60%以下の米を使い、低温でじっくり発酵させる「吟醸造り」で仕込んだ純米酒です。フルーティーな香りが出やすいのが特徴です。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>特別純米酒</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div>特別純米酒</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">精米歩合60%以下、または特別な製法で造られた純米酒です。「特別」の内容はラベル等に表記されます。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>純米酒</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div>純米酒</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">米・米麹・水のみを原料として造られた日本酒です。醸造アルコールを加えていません。お米本来のふくよかな旨味が楽しめます。</div>
       </div>
 
       <div style="font-weight:700; color:var(--shu); margin:32px 0 12px; padding-left:8px; border-left:3px solid var(--shu); font-family:var(--font-mincho);">
         本醸造酒系（醸造アルコール添加）
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>大吟醸酒</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div>大吟醸酒</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">精米歩合50%以下まで磨いた米を、吟醸造りで仕込んだ日本酒です。醸造アルコールが加えられているため、香りが立ちやすくスッキリとした飲み口になります。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>吟醸酒</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div>吟醸酒</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">精米歩合60%以下の米を、低温長期発酵させる「吟醸造り」で仕込んだ日本酒です。軽快でフルーティーな香りが特徴です。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>特別本醸造酒</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div>特別本醸造酒</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">精米歩合60%以下、または特別な製法で造られた本醸造酒です。通常の本醸造酒よりもスッキリと洗練された味わいになることが多いです。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>本醸造酒</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div>本醸造酒</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">精米歩合70%以下の米に、規定量以下の醸造アルコールを加えて造られた日本酒です。すっきりとした軽い飲み口になりやすいとされます。</div>
       </div>
 
       <div style="font-weight:700; color:var(--shu); margin:32px 0 12px; padding-left:8px; border-left:3px solid var(--shu); font-family:var(--font-mincho);">
         その他の種類（造り方の違いなど）
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>普通酒</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div>普通酒</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">特定名称酒の基準（精米歩合やアルコール添加量など）に当てはまらない日本酒です。手頃な価格帯のものが多く、日常の食中酒として親しまれている、いわゆる「レギュラー酒」の多くがこれに該当します。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>生酒</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div>生酒</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">通常、お酒の品質を安定させるために行う「火入れ（加熱殺菌）」を一切行わないお酒です。しぼりたてのみずみずしさや、フレッシュで華やかな香りが楽しめますが、味が変化しやすいため要冷蔵となります。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>にごり酒</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div>にごり酒</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">発酵が終わったお酒を搾る際に、目の粗い布などで漉すことで、お米の細かな粒をあえて残したお酒です。白く濁っており、とろりとした口当たりとお米本来の甘味や旨味をしっかりと感じられます。</div>
       </div>
 
@@ -806,7 +643,6 @@
       </button>
     </section>
 
-    <!-- Screen: さまざまな造り -->
     <section class="screen" data-screen="sake-methods">
       <h2 class="title">さまざまな「造り」</h2>
       
@@ -820,128 +656,72 @@
       <div style="font-weight:700; color:var(--shu); margin:24px 0 12px; padding-left:8px; border-left:3px solid var(--shu); font-family:var(--font-mincho);">
         お米の削り方による違い（精米歩合）
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div><ruby>普通<rt>ふつう</rt></ruby>造り</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div><ruby>普通<rt>ふつう</rt></ruby>造り</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">精米歩合に関する特別な規定を設けず、日常的に楽しめる日本酒を造る一般的な製法です。お米本来のしっかりとした旨味やコクが感じられることが多いです。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div><ruby>吟醸<rt>ぎんじょう</rt></ruby>造り</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div><ruby>吟醸<rt>ぎんじょう</rt></ruby>造り</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">精米歩合60%以下までお米を削って雑味を取り除き、低い温度でじっくりと時間をかけて発酵させる製法です。リンゴやメロンのようなフルーティーで華やかな「吟醸香」が引き出されます。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div><ruby>大吟醸<rt>だいぎんじょう</rt></ruby>造り</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div><ruby>大吟醸<rt>だいぎんじょう</rt></ruby>造り</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">精米歩合50%以下までさらに贅沢にお米を削り、極めて低い温度で繊細に発酵させる製法です。雑味がなく、とてもクリアで香り高い仕上がりになります。</div>
       </div>
 
       <div style="font-weight:700; color:var(--shu); margin:32px 0 12px; padding-left:8px; border-left:3px solid var(--shu); font-family:var(--font-mincho);">
         酵母の育て方による違い（酒母造り）
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div><ruby>速醸<rt>そくじょう</rt></ruby>造り</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div><ruby>速醸<rt>そくじょう</rt></ruby>造り</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">お酒造りに必要な「乳酸」をはじめから加えて、約2週間という短期間で効率よく酵母（アルコールを生み出す微生物）を育てる現代の主流な製法です。すっきりとクセのない、きれいな味わいに仕上がりやすくなります。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div><ruby>生酛<rt>きもと</rt></ruby>造り</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div><ruby>生酛<rt>きもと</rt></ruby>造り</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">蔵に住み着いている自然の乳酸菌を呼び込み、「山卸（やまおろし）」と呼ばれる、お米をすりつぶす大変な力仕事をしながら、約1ヶ月もかけてじっくり酵母を育てる昔ながらの製法です。奥深く複雑で、力強い酸味や旨味が生まれます。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div><ruby>山廃<rt>やまはい</rt></ruby>造り</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div><ruby>山廃<rt>やまはい</rt></ruby>造り</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">「山卸廃止（やまおろしはいし）」の略。生酛造りで行うお米をすりつぶす重労働（山卸）をなくし、自然の力でお米を溶かす製法です。生酛と同じように自然の乳酸菌を使うため、コクのあるしっかりとした味わいになります。</div>
       </div>
 
       <div style="font-weight:700; color:var(--shu); margin:32px 0 12px; padding-left:8px; border-left:3px solid var(--shu); font-family:var(--font-mincho);">
         もろみの発酵・仕込み方による違い
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>三段仕込み</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div>三段仕込み</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">お酒の元となるタンクに、材料（お米・米麹・水）を一度に全部入れるのではなく、3回に分けて数日かけて少しずつ足していく日本酒ならではの方法です。こうすることで、微生物（酵母）がびっくりせずに元気なまま、安全に発酵を進めることができます。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>低温長期発酵</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div>低温長期発酵</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">通常より低い温度（10度前後やそれ以下）で、ゆっくりと時間をかけて発酵させる方法です。吟醸造りなどで用いられ、華やかな香りと雑味のないきれいな味わいを引き出します。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div><ruby>貴醸酒<rt>きじょうしゅ</rt></ruby>造り</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div><ruby>貴醸酒<rt>きじょうしゅ</rt></ruby>造り</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">お酒を仕込む工程の最後に、水の代わりに「日本酒」を注ぎ入れて造る、とっても贅沢な製法です。非常に甘口でコクがあり、とろりとしたデザートワインのような味わいになります。</div>
       </div>
 
       <div style="font-weight:700; color:var(--shu); margin:32px 0 12px; padding-left:8px; border-left:3px solid var(--shu); font-family:var(--font-mincho);">
         搾った後の処理による違い
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div><ruby>生酒<rt>なまざけ</rt></ruby></div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div><ruby>生酒<rt>なまざけ</rt></ruby></div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">通常はお酒が傷まないように行う「火入れ（加熱殺菌）」を、一度も行わないお酒です。しぼりたてのみずみずしさや、フレッシュな香りが楽しめますが、味が変わりやすいため冷蔵庫での保管が必要です。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div><ruby>生詰酒<rt>なまづめしゅ</rt></ruby></div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div><ruby>生詰酒<rt>なまづめしゅ</rt></ruby></div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">通常2回行う「火入れ（加熱殺菌）」を、お酒をタンクで寝かせる前の1回だけ行うお酒です。秋に出回る「ひやおろし」などがこれにあたり、ひと夏を越してほどよく熟成されたまろやかな味わいが楽しめます。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div><ruby>生貯蔵酒<rt>なまちょぞうしゅ</rt></ruby></div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div><ruby>生貯蔵酒<rt>なまちょぞうしゅ</rt></ruby></div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">通常2回行う「火入れ（加熱殺菌）」を、瓶に詰めて出荷する直前の1回だけ行うお酒です。生酒のようなフレッシュな風味を残しつつ、品質を安定させています。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div><ruby>原酒<rt>げんしゅ</rt></ruby></div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div><ruby>原酒<rt>げんしゅ</rt></ruby></div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">搾った後に、アルコール度数を調整するための水（割水）を加えないお酒です。アルコール度数が高く（18〜20度程度）、濃醇でパンチのある力強い味わいが楽しめます。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div><ruby>無濾過<rt>むろか</rt></ruby></div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div><ruby>無濾過<rt>むろか</rt></ruby></div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">搾った後に、細かな不純物を取り除いて透明にする「濾過（ろか）」という作業をしない、またはごく軽く行うだけにしたお酒です。お酒本来の香りや旨味、かすかな色合いがそのまま残っています。</div>
       </div>
 
@@ -951,7 +731,6 @@
       </button>
     </section>
 
-    <!-- Screen: 吾熊の日本酒 -->
     <section class="screen" data-screen="our-sake">
       <h2 class="title">吾熊の日本酒</h2>
       
@@ -973,7 +752,28 @@
       </button>
     </section>
 
-    <!-- Screen: 何からできている？(焼酎の原料) -->
+    <section class="screen" data-screen="shochu-intro">
+      <h2 class="title">焼酎</h2>
+      <h3 class="section-title">焼酎ってどんなお酒？</h3>
+      <div class="glass-box">
+        <p class="article-text">
+          <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">① 「糖質・プリン体ゼロ」の嬉しいお酒</span>
+          焼酎はウイスキーなどと同じ「蒸留酒」の仲間。アルコールと香りの成分だけを集めるため、翌日に残りにくく身体に優しいのが特徴です。<br><br>
+          
+          <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">② 世界でも珍しい「お湯割り」文化</span>
+          温めることで香りがふわっと広がり、心がホッと落ち着きます。温かいお湯で割って美味しく飲めるお酒は、実は世界的にもかなり希少です。<br><br>
+          
+          <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">③ 「素材の個性」をダイレクトに楽しむ</span>
+          芋、麦、米など、使う原料によってバナナや麦チョコのような多彩な風味が。水割り、炭酸割りなど、その日の気分に合わせて自由に遊べる懐の深いお酒です。
+        </p>
+      </div>
+
+      <button class="primary-btn" onclick="goScreen('shochu-materials')">
+        何からできている？
+        <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </section>
+
     <section class="screen" data-screen="shochu-materials">
       <h2 class="title" style="font-size: 14px; letter-spacing: -0.03em;">何からできている？（原材料による「味」の違い）</h2>
       
@@ -1044,10 +844,8 @@
         ラベルの正体
         <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
-
     </section>
 
-    <!-- Screen: ラベルの正体(焼酎) -->
     <section class="screen" data-screen="shochu-labels">
       <h2 class="title">ラベルの正体</h2>
       
@@ -1060,76 +858,44 @@
       <div style="font-weight:700; color:var(--shu); margin:24px 0 12px; padding-left:8px; border-left:3px solid var(--shu); font-family:var(--font-mincho);">
         種類を表すことば
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>本格焼酎（乙類）</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div>本格焼酎（乙類）</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">昔ながらの伝統的な方法で造られた焼酎のこと。「乙類（おつるい）」とも呼ばれます。原料の風味がしっかり残り、香りや味わいの個性を楽しむならこちらがおすすめです。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>焼酎甲類</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div>焼酎甲類</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">近代的な機械で純度の高いアルコールを抽出し、水で薄めた焼酎のこと。無色透明でクセがなく、クリアな味わいが特徴です。主にサワーやチューハイ、お茶割りなどの「ベース（割り材）」として大活躍します。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>混和焼酎</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div>混和焼酎</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">風味の豊かな「本格焼酎（乙類）」と、スッキリとした「焼酎甲類」をブレンドした焼酎です。本格焼酎の香りやコクを楽しみつつ、甲類のクセのない飲みやすさを兼ね備えた、まさに「いいとこ取り」の飲みやすいお酒です。</div>
       </div>
 
       <div style="font-weight:700; color:var(--shu); margin:32px 0 12px; padding-left:8px; border-left:3px solid var(--shu); font-family:var(--font-mincho);">
         味のベースとなる「麹（こうじ）」
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>黒麹（くろこうじ）</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div>黒麹（くろこうじ）</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">沖縄の泡盛ルーツの麹。パンチのある力強いコクと、しっかりとした深みが生まれます。ガツンと飲みごたえのある焼酎が好きな方におすすめです。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>白麹（しろこうじ）</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div>白麹（しろこうじ）</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">黒麹から偶然生まれた突然変異の麹。香りが優しく、口当たりがマイルドでスッキリとした味わいになります。とても飲みやすく、焼酎のスタンダードとも言えます。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>黄麹（きこうじ）</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div>黄麹（きこうじ）</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">主に日本酒造りに使われる麹。管理が難しいため焼酎で使われるのは珍しいですが、フルーティーで華やかな香りや、軽快な味わいが生まれます。</div>
       </div>
 
       <div style="font-weight:700; color:var(--shu); margin:32px 0 12px; padding-left:8px; border-left:3px solid var(--shu); font-family:var(--font-mincho);">
         香りと口当たりを決める「蒸留」
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>常圧蒸留（じょうあつ）</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div>常圧蒸留（じょうあつ）</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">通常の気圧で蒸発させる、昔ながらの方法。高い温度で熱するため、原料の風味がガッツリと抽出され、コクと香りの強い「昔ながらの濃い焼酎」になります。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>減圧蒸留（げんあつ）</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div>減圧蒸留（げんあつ）</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">機械の中の気圧を下げて、低い温度で蒸発させる方法（高い山でお湯が早く沸くのと同じ原理です）。雑味が少なくなり、とても軽快でクリアな、飲みやすい焼酎になります。</div>
       </div>
 
@@ -1137,10 +903,8 @@
         吾熊の焼酎
         <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
-
     </section>
 
-    <!-- Screen: 吾熊の焼酎 -->
     <section class="screen" data-screen="our-shochu">
       <h2 class="title">吾熊の焼酎</h2>
       
@@ -1162,7 +926,28 @@
       </button>
     </section>
 
-    <!-- Screen: ラベルの正体(ウイスキー) -->
+    <section class="screen" data-screen="whisky-intro">
+      <h2 class="title">ウイスキー</h2>
+      <h3 class="section-title">ウイスキーってどんなお酒？</h3>
+      <div class="glass-box">
+        <p class="article-text">
+          <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">① できたては「無色透明」</span>
+          グラスで琥珀色に輝くウイスキーですが、実は造りたての原酒は焼酎のように無色透明だってご存知でしたか？<br><br>
+          
+          <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">② 樽の中で「10年眠る」魔法</span>
+          あの美しい色合いとバニラのような甘い香りは、木で作られた樽の中で長い年月を静かに眠り続けることで初めて生まれるものです。<br><br>
+          
+          <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">③ 人間と自然の「共同作業」</span>
+          人間が造る部分は半分。残りの半分は「木が過ごした時間と自然」が造り出す、とてもロマンチックで大人の時間を味わえるお酒です。
+        </p>
+      </div>
+
+      <button class="primary-btn" onclick="goScreen('whisky-types')">
+        ラベルの正体
+        <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </section>
+
     <section class="screen" data-screen="whisky-types">
       <h2 class="title">ラベルの正体</h2>
       
@@ -1175,29 +960,17 @@
       <div style="font-weight:700; color:var(--shu); margin:24px 0 12px; padding-left:8px; border-left:3px solid var(--shu); font-family:var(--font-mincho);">
         原料による違い
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>モルト</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div>モルト</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">大麦の麦芽（モルト）だけを原料にして造られるウイスキー。香りが豊かで個性が強く出やすいため、ウイスキーの味わいの主役となります。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>グレーン</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div>グレーン</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">トウモロコシや小麦などの穀物を主原料にしたウイスキー。クセが少なく軽やかな味わいで、ブレンドする際に味を優しくまとめる「縁の下の力持ち」として活躍します。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>ブレンデッド</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="accordion-body">個性豊かな「モルト」と、穏やかな「グレーン」を絶妙な比率でブレンドしたもの。プロの職ర్ణ人が計算し尽くして味をまとめているため、非常にバランスが良く、飲みやすいのが最大の魅力です。</div>
+        <div class="accordion-header"><div>ブレンデッド</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="accordion-body">個性豊かな「モルト」と、穏やかな「グレーン」を絶妙な比率でブレンドしたもの。プロの職人が計算し尽くして味をまとめているため、非常にバランスが良く、飲みやすいのが最大の魅力です。</div>
       </div>
 
       <div class="quiz-box" id="whiskyQuiz" style="margin-top: 32px;">
@@ -1222,10 +995,8 @@
         世界のウイスキー
         <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
-
     </section>
 
-    <!-- Screen: 世界のウイスキー -->
     <section class="screen" data-screen="world-whisky">
       <h2 class="title">世界のウイスキー</h2>
       
@@ -1245,7 +1016,6 @@
       <div style="font-weight:700; color:var(--shu); margin:24px 0 12px; padding-left:8px; border-left:3px solid var(--shu); font-family:var(--font-mincho);">
         世界5大ウイスキー
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
           <div style="display: flex; align-items: center; gap: 8px;">
@@ -1256,7 +1026,6 @@
         </div>
         <div class="accordion-body">ウイスキーの代名詞とも言える存在。「ピート」と呼ばれる泥炭を燃やして麦芽を乾燥させるため、特有の「スモーキーな香り（煙っぽさ）」があるのが最大の特徴です。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
           <div style="display: flex; align-items: center; gap: 8px;">
@@ -1267,7 +1036,6 @@
         </div>
         <div class="accordion-body">トウモロコシを主原料とし、内側を焦がした新しいオーク樽で熟成させます。バニラやカラメルのような甘く濃厚な香りと、パンチの効いた力強い味わいが魅力です。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
           <div style="display: flex; align-items: center; gap: 8px;">
@@ -1278,7 +1046,6 @@
         </div>
         <div class="accordion-body">スコッチをお手本にしながら、日本の気候と日本人の繊細な味覚に合わせて独自に進化。クセが少なく、非常にバランスが良いため、食事と合わせやすいのが特徴です。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
           <div style="display: flex; align-items: center; gap: 8px;">
@@ -1289,7 +1056,6 @@
         </div>
         <div class="accordion-body">ウイスキー発祥の地とも言われています。原料を乾燥させる時にピート（泥炭）を使わないことが多く、スモーキーさがありません。なめらかでマイルドな、とても飲みやすい味わいです。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
           <div style="display: flex; align-items: center; gap: 8px;">
@@ -1307,7 +1073,6 @@
       </button>
     </section>
 
-    <!-- Screen: もっとディープな話 -->
     <section class="screen" data-screen="whisky-deep">
       <h2 class="title">さまざまな個性</h2>
       
@@ -1320,12 +1085,8 @@
       <div style="font-weight:700; color:var(--shu); margin:24px 0 12px; padding-left:8px; border-left:3px solid var(--shu); font-family:var(--font-mincho); font-size: 12px; letter-spacing: -0.05em; white-space: nowrap;">
         好き嫌いが分かれる！？「ピート（泥炭）」の秘密
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>スモーキーな香りの正体</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div>スモーキーな香りの正体</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">スコッチウイスキーなどを飲むと、「正露丸」や「焚き火」のような強烈な香りがすることがあります。これは麦芽を乾燥させるときに燃やす「ピート（泥炭：シダやコケが長い年月をかけて炭化したもの）」の煙の香り。最初は「うっ」と思っても、不思議とこのクセのある香りの虜になってしまう人が後を絶ちません。</div>
       </div>
 
@@ -1337,28 +1098,16 @@
           ウイスキーの風味の大部分は「樽」で決まるとも言われます。以前何を入れていた樽かによって、お酒に驚くほどの魔法がかかるのです。
         </p>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>バーボン樽</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div>バーボン樽</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">以前にアメリカのバーボンを寝かせていた樽。ウイスキーに、バニラやカラメル、ハチミツのような甘く華やかな香りを与えてくれます。世界中で最も多く使われている定番の樽です。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>シェリー樽</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div>シェリー樽</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">スペインの酒精強化ワイン「シェリー酒」を寝かせていた樽。色が濃く赤みを帯び、レーズンなどのドライフルーツや、ビターチョコレートのようなリッチで深いコクが生まれます。</div>
       </div>
-
       <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>ミズナラ樽（日本独自の樽）</div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <div class="accordion-header"><div>ミズナラ樽（日本独自の樽）</div><svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="accordion-body">北海道などに自生する「ミズナラ（水楢）」で作られた樽。加工が難しく大変貴重ですが、長く寝かせると「お香」や「白檀（びゃくだん）」、「伽羅（きゃら）」といった日本らしい神秘的な香りが現れ、世界中のウイスキーファンから熱狂的な支持を集めています。</div>
       </div>
 
@@ -1368,7 +1117,6 @@
       </button>
     </section>
 
-    <!-- Screen: 吾熊のウイスキー -->
     <section class="screen" data-screen="our-whisky">
       <h2 class="title">吾熊のウイスキー</h2>
       
@@ -1393,22 +1141,7 @@
   </main>
 </div>
 
-<!-- 用語解説モーダル -->
-<div class="modal-overlay" id="glossaryModal" onclick="closeGlossary()">
-  <div class="modal-content" onclick="event.stopPropagation()">
-    <div class="modal-header">
-      <h3 id="glossaryTitle">用語</h3>
-      <button class="close-btn" onclick="closeGlossary()" aria-label="閉じる">
-        <svg viewBox="0 0 24 24" fill="none" width="22" height="22"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      </button>
-    </div>
-    <span class="modal-tag" id="glossaryTag"></span>
-    <p id="glossaryDesc">説明文がここに入ります。</p>
-  </div>
-</div>
-
 <script>
-/* ============ オープニング制御 ============ */
 const openingScreen = document.getElementById('openingScreen');
 const openingVideo = document.getElementById('openingVideo');
 const openingLogo = document.getElementById('openingLogo');
@@ -1425,7 +1158,6 @@ function endOpening() {
 
 openingScreen.addEventListener('click', endOpening);
 
-// 確実にフェードイン・フェードアウトさせるための判定処理
 openingVideo.addEventListener('timeupdate', () => {
   if (hasSkipped) return;
   const time = openingVideo.currentTime;
@@ -1446,68 +1178,6 @@ if (playPromise !== undefined) {
   });
 }
 
-/* ============ 用語辞典データ(カテゴリ横断・共通) ============ */
-const glossaryData = {
-  "純米酒": { category:"日本酒", def:"米・米麹・水のみを原料として造られた日本酒です。醸造アルコールを加えていません。" },
-  "純米吟醸酒": { category:"日本酒", def:"精米歩合60%以下の米を使い、低温でじっくり発酵させる「吟醸造り」で仕込んだ純米酒です。フルーティーな香りが出やすいのが特徴です。" },
-  "純米吟醸": { category:"日本酒", def:"精米歩合60%以下の米を使い、低温でじっくり発酵させる「吟醸造り」で仕込んだ純米酒です。フルーティーな香りが出やすいのが特徴です。" },
-  "純米大吟醸酒": { category:"日本酒", def:"精米歩合50%以下まで磨いた米を使い、吟醸造りで仕込んだ純米酒です。日本酒の特定名称の中でも、最も磨かれた分類にあたります。" },
-  "純米大吟醸": { category:"日本酒", def:"精米歩合50%以下まで磨いた米を使い、吟醸造りで仕込んだ純米酒です。日本酒の特定名称の中でも、最も磨かれた分類にあたります。" },
-  "特別純米酒": { category:"日本酒", def:"精米歩合60%以下、または特別な製法で造られた純米酒です。「特別」の内容はラベル等に表記されます。" },
-  "特別純米": { category:"日本酒", def:"精米歩合60%以下、または特別な製法で造られた純米酒です。「特別」の内容はラベル等に表記されます。" },
-  "本醸造酒": { category:"日本酒", def:"精米歩合70%以下の米に、規定量以下の醸造アルコールを加えて造られた日本酒です。すっきりとした軽い飲み口になりやすいとされます。" },
-  "特別本醸造酒": { category:"日本酒", def:"精米歩合60%以下、または特別な製法で造られた本醸造酒です。" },
-  "特別本醸造": { category:"日本酒", def:"精米歩合60%以下、または特別な製法で造られた本醸造酒です。" },
-  "大吟醸酒": { category:"日本酒", def:"精米歩合50%以下まで磨いた米を、吟醸造りで仕込んだ日本酒です。醸造アルコールが加えられているものを指します。" },
-  "吟醸酒": { category:"日本酒", def:"精米歩合60%以下の米を、低温長期発酵させる「吟醸造り」で仕込んだ日本酒です。" },
-  "吟醸": { category:"日本酒", def:"精米歩合60%以下の米を、低温長期発酵させる「吟醸造り」で仕込んだ日本酒です。" },
-  "生酒": { category:"日本酒", def:"通常2回行う「火入れ(加熱殺菌)」を一切行わない、フレッシュな風味の日本酒です。要冷蔵での管理が必要になります。" },
-  "生酛": { category:"日本酒", def:"自然界に存在する乳酸菌の力を借りて、時間をかけて酵母を育てる、伝統的な酒造りの製法です。奥行きのある酸味が生まれやすいとされます。" },
-  "無濾過原酒": { category:"日本酒", def:"搾った後に「濾過」を行わず、アルコール度数を調整する加水もしていない、そのままの状態の日本酒です。濃醇でしっかりとした味わいになりやすいです。" },
-  "瓶燗": { category:"日本酒", def:"タンクではなく、瓶に詰めた状態のまま火入れ(加熱殺菌)を行う製法です。香りや風味を損ないにくいとされます。" },
-  "雄町": { category:"日本酒", def:"岡山県を代表する、歴史ある酒造好適米(酒米)の品種です。ふくらみのある、しっかりとした味わいの日本酒になりやすいとされます。" },
-  "麦焼酎": { category:"焼酎", def:"大麦を主原料とした焼酎です。クセが少なく、まろやかな味わいが特徴です。" },
-  "芋焼酎": { category:"焼酎", def:"さつまいもを主原料とした焼酎です。ふくよかな香りと、独特の甘みが特徴です。" },
-  "米焼酎": { category:"焼酎", def:"米を主原料とした焼酎です。日本酒に近い、やわらかな口当たりが特徴です。" },
-  "泡盛": { category:"焼酎", def:"沖縄で造られる蒸留酒です。タイ米と黒麹を用いる、独自の製法で造られます。" },
-  "酒粕焼酎": { category:"焼酎", def:"日本酒を搾った後に残る「酒粕」を原料として造られる焼酎です。日本酒由来の香りがほのかに残るのが特徴です。" },
-  "黒麹": { category:"焼酎", def:"焼酎造りに使われる麹菌の一種です。クエン酸を多く生成し、コクと酸味のしっかりした味わいになりやすいとされます。" },
-  "白麹": { category:"焼酎", def:"焼酎造りに使われる麹菌の一種です。黒麹よりもまろやかで、すっきりとした味わいになりやすいとされます。" },
-  "シングルモルト": { category:"ウイスキー", def:"単一の蒸留所で、大麦麦芽(モルト)のみを原料として造られたウイスキーです。その蒸留所ごとの個性が色濃く出やすいとされます。" },
-  "ブレンデッドウイスキー": { category:"ウイスキー", def:"モルトウイスキーとグレーンウイスキーを組み合わせて造られたウイスキーです。バランスの取れた飲みやすさが特徴とされます。" },
-  "グレーンウイスキー": { category:"ウイスキー", def:"大麦以外の穀物(とうもろこし等)を主原料とするウイスキーです。クセが少なく、軽やかな味わいになりやすいとされます。" },
-  "12年": { category:"ウイスキー", def:"樽で12年間熟成されたことを示す年数表記です。熟成年数が長いほど、樽由来の香りや色合いが深まる傾向があるとされます。" },
-  "15年": { category:"ウイスキー", def:"樽で15年間熟成されたことを示す年数表記です。熟成年数が長いほど、樽由来の香りや色合いが深まる傾向があるとされます。" }
-};
-
-function linkify(text){
-  if (!text) return "";
-  let res = text;
-  const terms = Object.keys(glossaryData).sort((a,b)=> b.length - a.length);
-  terms.forEach((term, i)=>{
-    const ph = `__T${i}__`;
-    res = res.split(term).join(ph);
-  });
-  terms.forEach((term, i)=>{
-    const ph = `__T${i}__`;
-    res = res.split(ph).join(`<span class="term-link" onclick="event.stopPropagation(); showGlossary('${term}')">${term}</span>`);
-  });
-  return res;
-}
-
-function showGlossary(term){
-  const data = glossaryData[term];
-  if (!data) return;
-  document.getElementById('glossaryTitle').textContent = term;
-  document.getElementById('glossaryTag').textContent = data.category;
-  document.getElementById('glossaryDesc').textContent = data.def;
-  document.getElementById('glossaryModal').classList.add('show');
-}
-function closeGlossary(){
-  document.getElementById('glossaryModal').classList.remove('show');
-}
-
-/* ============ アコーディオン開閉 ============ */
 function toggleAccordion(element) {
   element.classList.toggle('open');
 }
@@ -1536,7 +1206,6 @@ function showMaterialDetail(key, element) {
   detailBox.classList.add('show');
 }
 
-/* ============ 銘柄データ ============ */
 const sakeItems = [
   { name: "<span style='font-size:12px; color:var(--ai-light); font-weight:normal; margin-right:4px;'>[奈良]</span><ruby>春鹿<rt>はるしか</rt></ruby> 超辛口 純米酒", desc: "奈良の老舗「今西清兵衛商店」が造る、辛口日本酒の代名詞とも言える名酒。穏やかな香りとまろやかな旨味の後に、スパーンと切れる潔い後味がやってきます。冷やでもお燗でも、どんな料理にもピタリと寄り添う万能な食中酒です。" },
   { name: "<span style='font-size:12px; color:var(--ai-light); font-weight:normal; margin-right:4px;'>[埼玉]</span><ruby>彩來<rt>さら</rt></ruby> 宵の月 純米吟醸生酒", desc: "埼玉県・北西酒造が手がける、透明感とフルーティーさが魅力の銘柄。マスカットやメロンを思わせる華やかな香りに、お米の優しい甘みと美しい酸味が絶妙に調和しています。日本酒を飲み慣れない方にもおすすめの瑞々しい一杯です。" },
@@ -1643,28 +1312,6 @@ const whiskyGroups = [
   }
 ];
 
-/* ============ カテゴリ定義 ============ */
-const categories = {
-  sake: {
-    title: "日本酒",
-    lead: "",
-    terms: ["純米酒","純米吟醸酒","純米大吟醸酒","特別純米酒","本醸造酒","特別本醸造酒","吟醸酒","生酒","生酛","無濾過原酒","瓶燗","雄町"]
-  },
-  shochu: {
-    title: "焼酎",
-    lead: "",
-    terms: ["麦焼酎","芋焼酎","米焼酎","泡盛","酒粕焼酎","黒麹","白麹"]
-  },
-  whisky: {
-    title: "ウイスキー",
-    lead: "",
-    terms: ["シングルモルト","ブレンデッドウイスキー","グレーンウイスキー","12年","15年"]
-  }
-};
-
-let currentCategory = null;
-
-/* ============ 画面遷移 ============ */
 function goScreen(name){
   document.querySelectorAll('.screen').forEach(el=>{
     el.classList.toggle('active', el.dataset.screen === name);
@@ -1674,50 +1321,15 @@ function goScreen(name){
   backBtn.classList.toggle('show', name !== 'top');
   
   const backMap = {
-    'our-sake': 'sake-methods', 'sake-methods': 'sake-types', 'sake-types': 'category',
-    'our-shochu': 'shochu-labels', 'shochu-labels': 'shochu-materials', 'shochu-materials': 'category',
-    'our-whisky': 'whisky-deep', 'whisky-deep': 'world-whisky', 'world-whisky': 'whisky-types', 'whisky-types': 'category',
-    'category': 'top'
+    'our-sake': 'sake-methods', 'sake-methods': 'sake-types', 'sake-types': 'sake-intro', 'sake-intro': 'top',
+    'our-shochu': 'shochu-labels', 'shochu-labels': 'shochu-materials', 'shochu-materials': 'shochu-intro', 'shochu-intro': 'top',
+    'our-whisky': 'whisky-deep', 'whisky-deep': 'world-whisky', 'world-whisky': 'whisky-types', 'whisky-types': 'whisky-intro', 'whisky-intro': 'top'
   };
   backBtn.onclick = () => goScreen(backMap[name] || 'top');
 
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
-function openCategory(key){
-  currentCategory = key;
-  const cat = categories[key];
-  document.getElementById('catTitle').textContent = cat.title;
-  
-  const leadEl = document.getElementById('catLead');
-  if(cat.lead) {
-    leadEl.style.display = 'block';
-    leadEl.textContent = cat.lead;
-  } else {
-    leadEl.style.display = 'none';
-  }
-
-  const sections = ['sakeContent', 'shochuContent', 'whiskyContent', 'termsSection'];
-  sections.forEach(id => {
-    const el = document.getElementById(id);
-    if(el) el.style.display = 'none';
-  });
-
-  if (key === 'sake') document.getElementById('sakeContent').style.display = 'block';
-  else if (key === 'shochu') document.getElementById('shochuContent').style.display = 'block';
-  else if (key === 'whisky') document.getElementById('whiskyContent').style.display = 'block';
-  else {
-    document.getElementById('termsSection').style.display = 'block';
-    const chipWrap = document.getElementById('termChips');
-    chipWrap.innerHTML = cat.terms.map(t =>
-      `<button class="term-chip" onclick="showGlossary('${t}')">${t}</button>`
-    ).join('');
-  }
-
-  goScreen('category');
-}
-
-/* ============ 銘柄一覧の描画 ============ */
 function renderList(wrapId, dataGroups, isSake) {
   const wrap = document.getElementById(wrapId);
   if (!wrap) return;
@@ -1750,13 +1362,11 @@ function renderList(wrapId, dataGroups, isSake) {
   wrap.innerHTML = html;
 }
 
-/* ============ 初期化 ============ */
 renderList('ourSakeList', sakeItems, true);
 renderList('ourShochuList', shochuGroups, false);
 renderList('ourWhiskyList', whiskyGroups, false);
 goScreen('top');
 
-/* ============ クイズ機能 ============ */
 function answerQuiz(answer) {
   const options = document.getElementById('quizOptions').querySelectorAll('.quiz-btn');
   options.forEach(btn => btn.disabled = true); 

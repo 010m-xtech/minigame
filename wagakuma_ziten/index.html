@@ -159,7 +159,41 @@
     margin-bottom: 0 !important;
   }
 
-  /* --- カテゴリ選択(トップ) --- */
+  /* --- トップ画面：浮遊するアイコンカテゴリ --- */
+  .top-categories-wrap {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 16px; margin-top: 10px; margin-bottom: 40px;
+  }
+  .top-categories-row {
+    display: flex; justify-content: center; gap: 40px; width: 100%;
+  }
+  .top-category-item {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+    animation: floatAnim 3.5s ease-in-out infinite;
+  }
+  /* 個別にアニメーションのタイミングをずらしてランダムな浮遊感を出す */
+  .top-category-top { animation-duration: 3.8s; animation-delay: 0s; }
+  .top-category-left { animation-duration: 3.2s; animation-delay: 0.5s; }
+  .top-category-right { animation-duration: 4.1s; animation-delay: 1.2s; }
+
+  .top-category-icon {
+    width: 100px; height: 100px;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .top-category-item:hover .top-category-icon { transform: scale(1.15); }
+  .top-category-icon img {
+    width: 100%; height: 100%; object-fit: contain;
+    filter: drop-shadow(0 6px 10px rgba(0,0,0,0.25)); /* 画像の下に影を落として浮いているように見せる */
+  }
+  .top-category-label {
+    font-family: var(--font-mincho); font-weight: 700; font-size: 16px;
+    color: #fff; letter-spacing: 0.05em;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.5); /* 背景に溶け込まないよう文字に影をつける */
+  }
+
+  /* --- カテゴリ選択(トップ) 旧カードレイアウト --- */
   .cat-card{
     width:100%; display:flex; align-items:center; gap:16px;
     background: rgba(255, 255, 255, 0.75);
@@ -602,14 +636,14 @@
   <header>
     <div class="header-inner">
       <div class="brand">
-        <img src="ashi.png" alt="吾熊ロゴ" class="header-logo">
+        <img src="ashi.webp" alt="吾熊ロゴ" class="header-logo">
         <div class="brand-title-wrap">
           <h1>酒肴家 吾熊</h1>
           <div class="paw-prints">
-            <img src="ashi.png" class="paw paw-up" alt="">
-            <img src="ashi.png" class="paw paw-down" alt="">
-            <img src="ashi.png" class="paw paw-up" alt="">
-            <img src="ashi.png" class="paw paw-down" alt="">
+            <img src="ashi.webp" class="paw paw-up" alt="">
+            <img src="ashi.webp" class="paw paw-down" alt="">
+            <img src="ashi.webp" class="paw paw-up" alt="">
+            <img src="ashi.webp" class="paw paw-down" alt="">
           </div>
         </div>
       </div>
@@ -629,29 +663,26 @@
         <p class="lead" style="margin-bottom:0;">ラベルの言葉や造り方の秘密を少し知るだけで、いつものお酒が違った表情を見せてくれます。<br>気になるお酒をタップして、今夜の気分にぴったりの一杯を探してみませんか？</p>
       </div>
 
-      <button class="cat-card" onclick="openCategory('sake')">
-        <div class="icon"><img src="ashi.png" alt=""></div>
-        <div class="info">
-          <div class="name">日本酒</div>
-          <div class="desc">種類や味わいの秘密</div>
+      <div class="top-categories-wrap">
+        <!-- 1段目（上） -->
+        <div class="top-categories-row">
+          <div class="top-category-item top-category-top" onclick="openCategory('sake')">
+            <div class="top-category-icon"><img src="sake.webp" alt="日本酒"></div>
+            <div class="top-category-label">日本酒</div>
+          </div>
         </div>
-      </button>
-
-      <button class="cat-card" onclick="openCategory('shochu')">
-        <div class="icon"><img src="ashi.png" alt=""></div>
-        <div class="info">
-          <div class="name">焼酎</div>
-          <div class="desc">原料ごとに変わる魅力</div>
+        <!-- 2段目（下左右） -->
+        <div class="top-categories-row">
+          <div class="top-category-item top-category-left" onclick="openCategory('shochu')">
+            <div class="top-category-icon"><img src="syotyu.webp" alt="焼酎"></div>
+            <div class="top-category-label">焼酎</div>
+          </div>
+          <div class="top-category-item top-category-right" onclick="openCategory('whisky')">
+            <div class="top-category-icon"><img src="whisky.webp" alt="ウイスキー"></div>
+            <div class="top-category-label">ウイスキー</div>
+          </div>
         </div>
-      </button>
-
-      <button class="cat-card" onclick="openCategory('whisky')">
-        <div class="icon"><img src="ashi.png" alt=""></div>
-        <div class="info">
-          <div class="name">ウイスキー</div>
-          <div class="desc">樽と時間が生み出すロマン</div>
-        </div>
-      </button>
+      </div>
     </section>
 
     <!-- Screen: カテゴリ詳細(共通テンプレート) -->
@@ -673,8 +704,8 @@
         <div class="flip-card" onclick="this.classList.toggle('is-flipped')">
           <div class="flip-card-inner">
             <div class="flip-card-front">
-              <img src="komeo6.png" class="komeo-char komeo-pos3" alt="">
-              <img src="komeo5.png" class="komeo-char komeo-pos4" alt="">
+              <img src="komeo6.webp" class="komeo-char komeo-pos3" alt="">
+              <img src="komeo5.webp" class="komeo-char komeo-pos4" alt="">
               <h3>「甘口・辛口」って<br>どう決まるの？</h3>
               <div class="tap-hint">
                 <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
@@ -756,10 +787,10 @@
       <div class="flip-card" onclick="this.classList.toggle('is-flipped')">
         <div class="flip-card-inner">
           <div class="flip-card-front">
-            <img src="komeo3.png" class="komeo-char komeo-pos1" alt="">
-            <img src="komeo1.png" class="komeo-char komeo-pos2" alt="">
-            <img src="komeo2.png" class="komeo-char komeo-pos3" alt="">
-            <img src="komeo4.png" class="komeo-char komeo-pos4" alt="">
+            <img src="komeo3.webp" class="komeo-char komeo-pos1" alt="">
+            <img src="komeo1.webp" class="komeo-char komeo-pos2" alt="">
+            <img src="komeo2.webp" class="komeo-char komeo-pos3" alt="">
+            <img src="komeo4.webp" class="komeo-char komeo-pos4" alt="">
             <h3>そもそも<br>「精米歩合」とは？</h3>
             <div class="tap-hint">
               <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
@@ -1065,42 +1096,42 @@
       <div class="floating-wrap">
         <div class="floating-item" onclick="showMaterialDetail('imo', this)">
           <div class="floating-icon-box">
-            <img src="satsumaimo.png" alt="芋">
+            <img src="satsumaimo.webp" alt="芋">
           </div>
           <div class="floating-label">芋</div>
         </div>
 
         <div class="floating-item" onclick="showMaterialDetail('mugi', this)">
           <div class="floating-icon-box">
-            <img src="mugi.png" alt="麦">
+            <img src="mugi.webp" alt="麦">
           </div>
           <div class="floating-label">麦</div>
         </div>
 
         <div class="floating-item" onclick="showMaterialDetail('kome', this)">
           <div class="floating-icon-box">
-            <img src="kome.png" alt="米">
+            <img src="kome.webp" alt="米">
           </div>
           <div class="floating-label">米</div>
         </div>
 
         <div class="floating-item" onclick="showMaterialDetail('kokuto', this)">
           <div class="floating-icon-box">
-            <img src="kokouto.png" alt="黒糖">
+            <img src="kokouto.webp" alt="黒糖">
           </div>
           <div class="floating-label">黒糖</div>
         </div>
 
         <div class="floating-item" onclick="showMaterialDetail('awamori', this)">
           <div class="floating-icon-box awamori-adjust">
-            <img src="awamori.png" alt="泡盛">
+            <img src="awamori.webp" alt="泡盛">
           </div>
           <div class="floating-label">泡盛</div>
         </div>
 
         <div class="floating-item" onclick="showMaterialDetail('soba', this)">
           <div class="floating-icon-box">
-            <img src="soba.png" alt="そば">
+            <img src="soba.webp" alt="そば">
           </div>
           <div class="floating-label">そば</div>
         </div>
@@ -1119,20 +1150,32 @@
       </div>
 
       <button class="primary-btn" onclick="goScreen('shochu-labels')">
-        ラベルの正体を知ろう
+        ラベルの正体
         <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
 
     </section>
 
-    <!-- Screen: ラベルの正体を知ろう(焼酎) -->
+    <!-- Screen: ラベルの正体(焼酎) -->
     <section class="screen" data-screen="shochu-labels">
-      <h2 class="title">ラベルの正体を知ろう</h2>
+      <h2 class="title">ラベルの正体</h2>
       
       <div class="glass-box">
-        <p class="article-text">
-          お店で焼酎のボトルを眺めると、「本格焼酎」や「黒麹」、「常圧蒸留」といった見慣れない言葉が並んでいます。これらの言葉の意味が少しわかるだけで、飲む前からどんな味かがイメージできるようになり、お酒選びがもっと楽しくなります。
-        </p>
+      <div id="whiskyContent" style="display:none;">
+        <h3 class="section-title">ウイスキーってどんなお酒？</h3>
+        <div class="glass-box">
+          <p class="article-text">
+            グラスの中で琥珀色に輝くウイスキー。実は、造りたての原酒は<strong>無色透明な蒸留酒（焼酎に近い状態）</strong>だってご存知でしたか？<br><br>
+            あの美しい色合いと、バニラやカラメルのような甘く芳醇な香りは、すべて<strong>「木で作られた樽」の中で10年、12年と長い年月を眠り続けること</strong>で初めて生まれるものなのです。<br><br>
+            職人が丹精込めて造り上げた原酒を樽に詰め、あとは静かに時が経つのを待つ。ウイスキーは、人間が造る部分が半分、あとの半分は<strong>『木（樽）が過ごした時間と自然の魔法』</strong>が造り出す、なんともロマンチックなお酒です。<br><br>
+            爽やかなハイボールで喉を潤すも良し、氷が溶けるごとに少しずつ表情を変えるロックを静かに楽しむも良し。グラスに込められた「時間」を味わう、大人の世界へようこそ。
+          </p>
+        </div>
+
+        <button class="primary-btn" onclick="goScreen('whisky-types')">
+          ラベルの正体
+          <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
       </div>
 
       <div style="font-weight:700; color:var(--shu); margin:24px 0 12px; padding-left:8px; border-left:3px solid var(--shu); font-family:var(--font-mincho);">
@@ -1240,9 +1283,9 @@
       </button>
     </section>
 
-    <!-- Screen: ラベルの正体を知ろう(ウイスキー) -->
+    <!-- Screen: ラベルの正体(ウイスキー) -->
     <section class="screen" data-screen="whisky-types">
-      <h2 class="title">ラベルの正体を知ろう</h2>
+      <h2 class="title">ラベルの正体</h2>
       
       <div class="glass-box">
         <p class="article-text">
@@ -1297,15 +1340,15 @@
       </div>
 
       <button class="primary-btn" onclick="goScreen('world-whisky')">
-        世界のウイスキーを知ろう
+        世界のウイスキー
         <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
 
     </section>
 
-    <!-- Screen: 世界のウイスキーを知ろう -->
+    <!-- Screen: 世界のウイスキー -->
     <section class="screen" data-screen="world-whisky">
-      <h2 class="title">世界のウイスキーを知ろう</h2>
+      <h2 class="title">世界のウイスキー</h2>
       
       <div class="glass-box">
         <p class="article-text">

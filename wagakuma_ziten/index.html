@@ -57,6 +57,7 @@
     transition: opacity 1.5s ease;
     cursor: pointer;
   }
+  
   #openingVideo {
     position: absolute;
     top: 0; left: 0;
@@ -372,6 +373,7 @@
     font-family: var(--font-mincho);
     color: var(--ai);
   }
+  
   .accordion-header > div {
     word-break: break-word;
     padding-right: 12px;
@@ -413,6 +415,7 @@
     cursor: pointer; transition: all 0.2s ease; font-size: 14px;
     word-break: break-word; white-space: normal; line-height: 1.4;
   }
+  
   .quiz-btn:last-child { margin-bottom: 0; }
   .quiz-btn:hover:not(:disabled) { background: var(--ai-pale); }
   .quiz-btn:disabled { cursor: default; opacity: 0.8; }
@@ -449,6 +452,7 @@
     border: 1px solid rgba(189, 70, 48, 0.4); border-left: 4px solid var(--shu); 
     overflow-y: auto;
   }
+  
   .flip-card-front h3 { font-family: var(--font-mincho); font-size: 19px; color: var(--ai); margin: 0 0 12px; line-height: 1.5; }
   .flip-card-front .tap-hint { margin-top: 16px; font-size: 11px; font-weight: 700; color: var(--ai-light); display: flex; align-items: center; gap: 6px; background: #fff; padding: 6px 14px; border-radius: 20px; border: 1px solid var(--line); }
   .flip-card-back h4 { font-family: var(--font-mincho); font-size: 15.5px; color: var(--shu); margin: 0 0 12px; border-bottom: 1px solid var(--shu-pale); padding-bottom: 8px; width: 100%; }
@@ -633,7 +637,7 @@
       </div>
 
       <button class="primary-btn" onclick="goScreen('shochu-materials')">
-        何からできている？
+        どんな原料があるかな？
         <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </section>
@@ -960,7 +964,7 @@
 
     <!-- Screen: 焼酎・何からできている？ -->
     <section class="screen" data-screen="shochu-materials">
-      <h2 class="title" style="font-size: 14px; letter-spacing: -0.03em;">何からできている？（原材料による「味」の違い）</h2>
+      <h2 class="title" style="font-size: clamp(17px, 5vw, 20px);">原材料による「味」の違い</h2>
       
       <div class="glass-box">
         <p class="article-text">
@@ -1049,7 +1053,7 @@
           <div>本格焼酎（乙類）</div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-        <div class="accordion-body">昔ながらの伝統的な方法で造られた焼酎のこと。「乙類（おつるい）」とも呼ばれます。原料の風味がしっかり残り、香りや味わいの個性を楽しむならこちらがおすすめです。</div>
+        <div class="accordion-body">昔ながらの伝統的な方法で造られた焼酎のこと。「乙類（おつるい）」とも呼ばれます。原料の風味がしっかり残り、香りや味わの個性を楽しむならこちらがおすすめです。</div>
       </div>
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
@@ -1411,6 +1415,7 @@ function toggleAccordion(element) {
   element.classList.toggle('open');
 }
 
+/* ============ 原料データ ============ */
 const materialData = {
   imo: { title: "芋（いも）", desc: "「まるで焼き芋みたい！」なホクホクとした甘い香りがたまりません。お湯割りにすると香りがふわりと開き、1日の疲れを癒やしてくれるホッと落ち着く一杯に。" },
   mugi: { title: "麦（むぎ）", desc: "香ばしい「麦チョコ」のような風味がふわり。クセが少なくスッキリ爽快なので、炭酸で割る「麦ソーダ」や、揚げ物などの脂っこい料理を流すのにぴったりな万能選手です。" },

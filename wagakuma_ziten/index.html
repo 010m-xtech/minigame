@@ -45,7 +45,6 @@
 
   body{ min-height:100vh; display:flex; justify-content:center; }
 
-  /* --- オープニング画面設定 --- */
   #openingScreen {
     position: fixed;
     top: 0; left: 0;
@@ -187,10 +186,22 @@
   @keyframes fadeUp{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
   @media (prefers-reduced-motion: reduce){ .screen{ animation:none; } }
 
+  /* --- トップ画面専用のフレックスレイアウト --- */
+  .screen[data-screen="top"].active { 
+    display: flex; 
+    flex-direction: column;
+    /* ヘッダー(85px)と上下のpadding(24+44=68px)を引いた高さにし、スクロール無しで収める */
+    min-height: calc(100dvh - 85px - 68px); 
+  }
+  .screen[data-screen="top"] .glass-box {
+    flex: 0 0 auto; /* リード文エリアは縮めない */
+    margin-bottom: 16px;
+  }
+
   h2.title{ font-family:var(--font-mincho); font-size:19px; line-height:1.5; margin:0 0 14px; color:#fff; }
   .lead{ font-size:15px; color:#fff; line-height:1.85; margin:0 0 32px; }
 
-  /* --- トップ画面・各画面のリード文エリア（すりガラス枠） --- */
+  /* --- リード文エリア（すりガラス枠） --- */
   .glass-box {
     background: rgba(255, 255, 255, 0.75);
     backdrop-filter: blur(6px);
@@ -204,49 +215,48 @@
     margin-bottom: 0 !important;
   }
 
-  /* --- トップ画面：横並びの浮遊アイコン --- */
+  /* --- トップ画面：大きく配置するお酒アイコン --- */
   .top-categories-wrap {
+    flex: 1; /* 残りの高さをすべて使う */
     display: flex; 
-    flex-direction: row; 
-    justify-content: space-between; 
-    align-items: center;
-    gap: 12px; 
-    margin-top: 16px; 
-    margin-bottom: 16px;
+    flex-wrap: wrap; /* 画面幅に応じて折り返す（2列を想定） */
+    justify-content: center; /* 横方向中央 */
+    align-content: center; /* 縦方向も中央にまとめる */
+    gap: 20px 24px; /* 上下20px、左右24pxの余白 */
+    margin: 0;
   }
+  
   .top-category-item {
     display: flex; flex-direction: column; align-items: center; gap: 8px;
     cursor: pointer; -webkit-tap-highlight-color: transparent;
-    animation: floatAnim 3.5s ease-in-out infinite;
-    flex: 1; /* 横幅を3つで均等に分ける */
+    /* 2列になるように幅を約50%に。見切れないように最大幅を設定 */
+    width: calc(50% - 16px); 
+    max-width: 170px; 
   }
-  /* それぞれのアイコンの浮遊タイミングをずらす */
-  .top-category-item:nth-child(1) { animation-duration: 3.8s; animation-delay: 0s; }
-  .top-category-item:nth-child(2) { animation-duration: 3.2s; animation-delay: 0.5s; }
-  .top-category-item:nth-child(3) { animation-duration: 4.1s; animation-delay: 1.2s; }
   
   .top-category-icon {
-    width: 22vw; /* スマホ画面の幅に合わせて自動調整 */
-    max-width: 100px; /* ただし最大100pxまで */
-    height: 22vw;
-    max-height: 100px; 
+    width: 100%; 
+    aspect-ratio: 1 / 1; /* 高さを幅と同じにして正方形を保つ */
+    /* 縦方向にはみ出さないよう、画面の高さに制限をかける */
+    max-height: 22vh; 
     display: flex; align-items: center; justify-content: center;
     transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
-  .top-category-item:hover .top-category-icon { transform: scale(1.15); }
+  .top-category-item:hover .top-category-icon { transform: scale(1.10); }
   .top-category-icon img {
-    width: 100%; height: 100%; object-fit: contain;
+    width: 100%; height: 100%; 
+    object-fit: contain; /* はみ出さずに枠内に収める */
     filter: drop-shadow(0 6px 10px rgba(0,0,0,0.25));
   }
   
   .top-category-label {
     font-family: var(--font-mincho); 
     font-weight: 700; 
-    font-size: 15px;
+    font-size: 16px; 
     color: #fff; 
     letter-spacing: 0.05em;
-    text-shadow: 0 2px 6px rgba(0,0,0,0.5);
-    white-space: nowrap; /* 文字が折り返さないようにする */
+    text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    white-space: nowrap; 
   }
 
   .term-chip-wrap{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:26px; }
@@ -308,7 +318,6 @@
     background:var(--ai-pale); padding:3px 10px; border-radius:20px; margin-bottom:12px;
   }
 
-  /* フォントサイズ拡大対応 */
   .article-text{ font-size: 15px; color: var(--sumi); line-height: 1.8; margin-bottom: 24px; }
   .article-text strong{ color: var(--shu); font-weight: 700; }
 
@@ -424,7 +433,7 @@
 
   /* --- フリップカード(豆知識) --- */
   .flip-card {
-    background-color: transparent; width: 100%; height: 280px;  /* 枠からはみ出ないように拡大 */
+    background-color: transparent; width: 100%; height: 280px; 
     perspective: 1000px; margin-bottom: 24px; cursor: pointer;
   }
   .flip-card-inner {
@@ -526,15 +535,14 @@
   </header>
 
   <main>
-
     <!-- Screen: トップ(カテゴリ選択) -->
     <section class="screen active" data-screen="top">
-      <div class="glass-box" style="margin-bottom: 24px;">
+      <div class="glass-box">
         <h2 class="title">今夜の一杯を、もっと美味しく。</h2>
         <p class="lead" style="margin-bottom:0;">ラベルの言葉や造り方の秘密を少し知るだけで、いつものお酒が違った表情を見せてくれます。<br>気になるお酒をタップして、今夜の気分にぴったりの一杯を探してみませんか？</p>
       </div>
 
-      <!-- 横並びのアイコン -->
+      <!-- 大きく見切れずに配置するアイコン -->
       <div class="top-categories-wrap">
         <div class="top-category-item" onclick="openCategory('sake')">
           <div class="top-category-icon"><img src="sake.webp" alt="日本酒"></div>

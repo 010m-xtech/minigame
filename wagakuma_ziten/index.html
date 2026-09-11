@@ -45,6 +45,54 @@
 
   body{ min-height:100vh; display:flex; justify-content:center; }
 
+  /* --- オープニング画面設定 --- */
+  #openingScreen {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 9999;
+    background-color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 1.5s ease;
+    cursor: pointer;
+  }
+  #openingVideo {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    z-index: 1000;
+  }
+  #openingLogo {
+    position: relative;
+    z-index: 1001;
+    width: 180px;
+    max-width: 60%;
+    opacity: 0; /* 最初は非表示 */
+    transition: opacity 1.5s ease;
+    filter: brightness(0) invert(1); /* 画像を真っ白にする */
+  }
+  #skipText {
+    position: absolute;
+    bottom: 12%;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+    z-index: 1002;
+    animation: skipAnim 2.5s ease-in-out infinite;
+  }
+  @keyframes skipAnim {
+    0%, 100% { opacity: 0.3; transform: translate(-50%, 0); }
+    50% { opacity: 1; transform: translate(-50%, -8px); }
+  }
+
   .app{
     width:100%; max-width:460px; min-height:100vh;
     background-color: transparent; /* 背景色は下のレイヤーに任せるため透明に */
@@ -636,6 +684,13 @@
 </style>
 </head>
 <body>
+
+<!-- オープニング動画・ロゴ画面 -->
+<div id="openingScreen">
+  <video id="openingVideo" src="title2.mp4" autoplay muted playsinline></video>
+  <img id="openingLogo" src="wagakuma.webp" alt="吾熊">
+  <div id="skipText">画面をタップしてスキップ</div>
+</div>
 
 <div class="app">
   <header>
@@ -1516,6 +1571,50 @@
 </div>
 
 <script>
+/* ============ オープニング制御 ============ */
+const openingScreen = document.getElementById('openingScreen');
+const openingVideo = document.getElementById('openingVideo');
+const openingLogo = document.getElementById('openingLogo');
+let hasSkipped = false;
+
+// オープニングを終了してメイン画面へ切り替える関数
+function endOpening() {
+  if (hasSkipped) return;
+  hasSkipped = true;
+  openingScreen.style.opacity = '0'; // 1.5秒かけてフェードアウト
+  setTimeout(() => {
+    openingScreen.style.display = 'none'; // フェードアウト後に完全に非表示
+  }, 1500);
+}
+
+// 画面をタップ（クリック）したら即座にスキップ
+openingScreen.addEventListener('click', endOpening);
+
+// 動画の再生時間に応じてアニメーションを制御
+openingVideo.addEventListener('timeupdate', () => {
+  if (hasSkipped) return;
+  const time = openingVideo.currentTime;
+  
+  // 5秒経過でロゴを白くフワッと表示
+  if (time >= 5 && openingLogo.style.opacity === '0') {
+    openingLogo.style.opacity = '1';
+  }
+  
+  // 8秒経過（ロゴ表示から3秒後）でオープニング終了
+  if (time >= 8) {
+    endOpening();
+  }
+});
+
+// 万が一、ブラウザの仕様等で動画が自動再生されなかった場合のバックアップ（スキップ処理）
+const playPromise = openingVideo.play();
+if (playPromise !== undefined) {
+  playPromise.catch(error => {
+    // 自動再生がブロックされた場合は、オープニングを待たずに即終了
+    endOpening();
+  });
+}
+
 /* ============ 用語辞典データ(カテゴリ横断・共通) ============ */
 const glossaryData = {
   "純米酒": { category:"日本酒", def:"米・米麹・水のみを原料として造られた日本酒です。醸造アルコールを加えていません。" },

@@ -367,7 +367,7 @@
     gap: 6px;
   }
   .info-box p {
-    font-size: 14.5px;
+    font-size: 13.5px;
     color: var(--sumi);
     line-height: 1.75;
     margin: 0;
@@ -376,17 +376,63 @@
     color: var(--shu);
   }
 
+  /* --- アニメーション定義 --- */
+  @keyframes pulse-btn {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(189, 70, 48, 0.7); }
+    70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(189, 70, 48, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(189, 70, 48, 0); }
+  }
+
+  @keyframes shiny {
+    0% { left: -100%; }
+    100% { left: 100%; }
+  }
+
   /* --- ボタン --- */
   .primary-btn{
     display: flex; align-items: center; justify-content: center; gap: 8px;
     width: 100%; padding: 16px; margin-top: 16px;
-    background: var(--ai); color: #fff;
+    background: var(--shu); color: #fff;
     border: none; border-radius: var(--radius);
     font-family: var(--font-mincho); font-size: 15px; font-weight: 700; letter-spacing: 0.04em;
     cursor: pointer; transition: transform .15s ease, box-shadow .15s ease;
+    
+    /* アニメーションを追加 */
+    animation: pulse-btn 2s infinite;
+    position: relative;
+    overflow: hidden;
   }
-  .primary-btn:hover{ transform: translateY(-2px); box-shadow: 0 6px 16px rgba(34,56,92,0.2); }
-  .primary-btn svg{ width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; }
+  
+  /* キラッと光るエフェクト */
+  .primary-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
+    transform: skewX(-25deg);
+    animation: shiny 3s infinite;
+  }
+  
+  .primary-btn:hover{ transform: translateY(-2px) scale(1.02); box-shadow: 0 6px 16px rgba(189, 70, 48, 0.4); animation-play-state: paused; }
+  .primary-btn:hover::before { animation-play-state: paused; }
+  
+  .primary-btn svg{ width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; position: relative; z-index: 1;}
+
+  /* 最初の画面に戻るボタン(藍色)は特別扱い */
+  .primary-btn.back-home-btn {
+      background: var(--ai);
+      animation: none; /* アニメーションなし */
+  }
+  .primary-btn.back-home-btn::before {
+      display: none; /* 光るエフェクトもなし */
+  }
+  .primary-btn.back-home-btn:hover {
+      box-shadow: 0 6px 16px rgba(34, 56, 92, 0.4);
+      transform: translateY(-2px);
+  }
 
   .secondary-btn{
     display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -1149,7 +1195,7 @@
 
       <div id="ourSakeList"></div>
 
-      <button class="primary-btn" onclick="goScreen('top')" style="margin-top: 32px; background: var(--ai); border: none; color: #fff;">
+      <button class="primary-btn back-home-btn" onclick="goScreen('top')" style="margin-top: 32px; border: none; color: #fff;">
         <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke-linecap="round" stroke-linejoin="round"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         最初の画面に戻る
       </button>
@@ -1338,7 +1384,7 @@
 
       <div id="ourShochuList"></div>
 
-      <button class="primary-btn" onclick="goScreen('top')" style="margin-top: 32px; background: var(--ai); border: none; color: #fff;">
+      <button class="primary-btn back-home-btn" onclick="goScreen('top')" style="margin-top: 32px; border: none; color: #fff;">
         <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke-linecap="round" stroke-linejoin="round"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         最初の画面に戻る
       </button>
@@ -1560,7 +1606,7 @@
 
       <div id="ourWhiskyList"></div>
 
-      <button class="primary-btn" onclick="goScreen('top')" style="margin-top: 32px; background: var(--ai); border: none; color: #fff;">
+      <button class="primary-btn back-home-btn" onclick="goScreen('top')" style="margin-top: 32px; border: none; color: #fff;">
         <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke-linecap="round" stroke-linejoin="round"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         最初の画面に戻る
       </button>

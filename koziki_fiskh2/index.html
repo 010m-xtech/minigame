@@ -662,19 +662,16 @@ const fishList = [
     interaction: {
       type: "flip",
       front: "ヒラメとカレイの見分け方。<br>「左ヒラメに右〇〇〇」？",
-      back: "正解は「右カレイ」！<br>目を上にして置いた時に顔が左を向くのがヒラメ、右を向くのがカレイと見分けます。成長するにつれて右目が左側に移動します。"
-    },
-    trivia: "海底の砂に潜って身を隠すため、背中側の色は周りの環境に合わせて変化させることができます。",
-    illustration: `
-      <div>
-        <img src="hirame_kaisetsu2.png" alt="左ヒラメに右カレイ" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">
-        <div style="display: flex; justify-content: space-around; margin-top: 10px; font-size: 13px; font-weight: bold; color: var(--kinari);">
+      back: `正解は「右カレイ」！<br>目を上にして置いた時に顔が左を向くのがヒラメ、右を向くのがカレイと見分けます。
+      <div style="margin-top: 14px; background: rgba(0,0,0,0.15); padding: 10px; border-radius: 8px;">
+        <img src="hirame_kaisetsu2.png" alt="左ヒラメに右カレイ" style="width: 100%; height: auto; border-radius: 4px; display: block; margin: 0 auto;">
+        <div style="display: flex; justify-content: space-around; margin-top: 8px; font-size: 11px; font-weight: bold; color: #fff;">
           <span>左ヒラメ</span>
           <span>右カレイ</span>
         </div>
-      </div>
-    `,
-    illCaption: "目の位置でヒラメとカレイを見分ける図解",
+      </div>`
+    },
+    trivia: "生まれたばかりのヒラメは普通の魚のように目が両側にありますが、成長するにつれて右目が左側に移動します。また、海底の砂に潜って身を隠すため、背中側の色は周りの環境に合わせて変化させることができます。",
     menuItems: [], recommendedSake: "hakkaisan"
   },
   {

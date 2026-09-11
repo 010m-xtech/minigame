@@ -36,7 +36,6 @@
 
   body { min-height:100vh; display:flex; justify-content:center; }
 
-  /* ============ 背景動画 ============ */
   .bg-video-wrap {
     position: fixed; inset: 0; z-index: 0;
     overflow: hidden; background: #0d1b2a;
@@ -63,10 +62,9 @@
     display:flex; flex-direction:column;
   }
 
-  /* --- ヘッダー (スクロール時のかぶり防止) --- */
   header {
     position:sticky; top:0; z-index:20;
-    background: rgba(13, 27, 42, 0.85); /* 透過背景を追加 */
+    background: rgba(13, 27, 42, 0.85); /* 透過背景でかぶり防止 */
     backdrop-filter: blur(8px); /* すりガラス効果 */
     -webkit-backdrop-filter: blur(8px);
     border-bottom:1px solid rgba(255,255,255,0.15);
@@ -93,7 +91,6 @@
   h2.title { font-family:var(--font-mincho); font-size:24px; line-height:1.6; margin:0 0 16px; color:var(--kinari); }
   .lead { font-size:15px; color:#FFFFFF; line-height:1.9; margin:0 0 22px; }
 
-  /* --- OP画面 --- */
   .op-wrapper {
     position: fixed; inset: 0; z-index: 100;
     display: flex; align-items: center; justify-content: center;
@@ -114,7 +111,6 @@
     50% { transform: translate(-50%, -10px); opacity: 1; }
   }
 
-  /* --- 魚選択（グリッド） --- */
   .fish-grid {
     display: grid; grid-template-columns: repeat(2, 1fr);
     gap: 12px; margin-top: 24px;
@@ -154,7 +150,6 @@
   }
   .story-taste p { font-size: 14px; line-height: 1.8; margin: 0; }
 
-  /* --- クイズUI --- */
   .quiz-container {
     background: rgba(34,56,92,0.4); border: 1px solid rgba(76,106,148,0.3);
     border-radius: var(--radius); padding: 18px 20px; margin-bottom: 8px;
@@ -175,7 +170,6 @@
   .quiz-btn.correct { background: rgba(46, 139, 87, 0.4); border-color: #55a878; color: #fff; }
   .quiz-btn.incorrect { background: rgba(189, 70, 48, 0.4); border-color: var(--shu); opacity: 0.7; }
 
-  /* --- フリップカードUI --- */
   .flip-card-container {
     perspective: 1000px; width: 100%; margin-bottom: 8px;
     cursor: pointer; -webkit-tap-highlight-color: transparent;
@@ -203,7 +197,10 @@
     transform: rotateY(180deg);
   }
 
-  /* --- 解説・豆知識表示エリア (インタラクション後に表示される部分) --- */
+  .story-explanation {
+    background: rgba(189,70,48,0.15); border-radius: 8px;
+    padding: 14px 16px; border: 1px dashed rgba(189,70,48,0.4);
+  }
   .story-trivia {
     background: rgba(34,56,92,0.2); border-radius: 8px;
     padding: 14px 16px; border: 1px dashed rgba(76,106,148,0.4);
@@ -212,7 +209,7 @@
     font-size: 11px; color: #FFFFFF; font-weight: 700;
     letter-spacing: 0.1em; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;
   }
-  .story-trivia p { font-size: 13px; line-height: 1.7; margin: 0; }
+  .story-explanation p, .story-trivia p { font-size: 13px; line-height: 1.7; margin: 0; white-space: pre-wrap; }
   
   .trivia-illustration-wrap { margin-top: 16px; text-align: center; }
   .trivia-illustration-wrap img {
@@ -292,7 +289,6 @@
 
   .profile-group { margin-bottom:24px; }
   .profile-group > label { display:block; font-size:12.5px; font-weight:700; color: var(--kinari); margin-bottom:10px; }
-
   .note { font-size:10.5px; color: #FFFFFF; margin-top:10px; line-height:1.6; text-align:center; }
   .center-text { text-align:center; }
 </style>
@@ -323,7 +319,6 @@
   </header>
   <main>
 
-    <!-- Screen: オープニング -->
     <section class="screen active" data-screen="op" onclick="goScreen('select')">
       <div class="op-wrapper">
         <img src="koziki_title.png" id="op-logo" class="op-logo-img" alt="居酒屋 乞食" onerror="this.src='https://placehold.co/400x200/transparent/FFFFFF?text=居酒屋+乞食'">
@@ -331,7 +326,6 @@
       </div>
     </section>
 
-    <!-- Screen: サカナ選択 -->
     <section class="screen" data-screen="select">
       <h2 class="title" style="font-size: 26px;">気になる魚を選んでください</h2>
       <p class="lead" style="font-size: 16px;">
@@ -343,7 +337,6 @@
       <div class="fish-grid" id="fishGrid"></div>
     </section>
 
-    <!-- Screen: 魚詳細 -->
     <section class="screen" data-screen="detail">
       <div class="fish-header">
         <span class="name" id="detailName"></span>
@@ -360,13 +353,22 @@
         <!-- インタラクティブUIエリア (クイズ または フリップカード) -->
         <div id="interactiveArea"></div>
         
-        <!-- 解説・豆知識表示エリア (インタラクション後に表示) -->
-        <div class="story-trivia" id="explanationArea" style="display: none; margin-top: 24px;">
-          <div class="trivia-label">
+        <!-- 解説エリア (インタラクション後に表示) -->
+        <div class="story-explanation" id="explanationArea" style="display: none; margin-top: 16px;">
+          <div class="trivia-label" style="color: var(--shu-pale);">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-            さらに詳しく
+            解説
           </div>
           <p id="detailExplanation"></p>
+        </div>
+
+        <!-- 豆知識エリア (インタラクション後に表示) -->
+        <div class="story-trivia" id="triviaArea" style="display: none; margin-top: 16px;">
+          <div class="trivia-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+            豆知識
+          </div>
+          <p id="detailTrivia"></p>
           
           <div class="trivia-illustration-wrap" id="detailIllWrap" style="display:none;">
             <div id="detailIllSvg"></div>
@@ -383,7 +385,6 @@
       </div>
     </section>
 
-    <!-- Screen: メニュー一覧 -->
     <section class="screen" data-screen="menu">
       <h2 class="title"><span id="menuScreenName"></span> を使用した料理と相性良いお酒</h2>
       <div id="menuScreenList"></div>
@@ -392,7 +393,6 @@
       </div>
     </section>
 
-    <!-- Screen: アンケート -->
     <section class="screen" data-screen="survey">
       <p class="eyebrow">LAST STEP</p>
       <h2 class="title">最後にお聞かせください</h2>
@@ -443,7 +443,6 @@ if (!fishDeviceId) {
   localStorage.setItem('fish_device_id', fishDeviceId);
 }
 
-/* ============ 魚データ (クイズ・フリップ設定追加) ============ */
 const fishList = [
   {
     id: "aji", name: "真鯵", kana: "まあじ", img: "maaji.png",
@@ -456,8 +455,9 @@ const fishList = [
         { text: '「味が良い」ことから。', isCorrect: true },
         { text: 'アジア周辺で獲れるから。', isCorrect: false }
       ],
-      explanation: '側線（そくせん）と呼ばれる体の横の線にある「ゼイゴ」という硬いウロコは、アジ科の魚特有のものです。'
+      explanation: '「アジ」という名前は「味が良い」ことから名付けられたという説が有力で、古くから日本人に愛されてきました。'
     },
+    trivia: "側線（そくせん）と呼ばれる体の横の線にある「ゼイゴ」という硬いウロコは、アジ科の魚特有のものです。",
     illustration: `<img src="maaji_kaisetsu.png" alt="アジのゼイゴ" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
     illCaption: "尾の方にある硬いウロコ「ゼイゴ」",
     menuItems: [], recommendedSake: "hakkaisan"
@@ -473,8 +473,9 @@ const fishList = [
         { text: '泳ぎを止めるとエラ呼吸ができず窒息してしまうため。', isCorrect: true },
         { text: '常に獲物を探し続けるため。', isCorrect: false }
       ],
-      explanation: '鰹節（かつおぶし）は世界一硬い食品としてギネス認定されており、日本料理の出汁に欠かせない存在です。'
+      explanation: '泳ぎを止めるとエラ呼吸ができず窒息してしまうため、一生休むことなく高速で泳ぎ続けています。'
     },
+    trivia: "鰹節（かつおぶし）は世界一硬い食品としてギネス認定されており、日本料理の出汁に欠かせない存在です。",
     menuItems: [], recommendedSake: "tateyama"
   },
   {
@@ -488,8 +489,9 @@ const fishList = [
         { text: '腐りやすいとして捨てられたり、畑の肥料にされていた。', isCorrect: true },
         { text: '将軍家への高級献上品として扱われていた。', isCorrect: false }
       ],
-      explanation: 'マグロもカツオと同様に、泳ぎ続けないと呼吸ができない回遊魚で、寝ている間もゆっくり泳いでいます。'
+      explanation: '江戸時代、脂の多いトロの部分は「腐りやすい」として捨てられたり、畑の肥料にされたりしていました。'
     },
+    trivia: "マグロもカツオと同様に、泳ぎ続けないと呼吸ができない回遊魚で、寝ている間もゆっくり泳いでいます。",
     menuItems: [], recommendedSake: "zaku"
   },
   {
@@ -503,8 +505,9 @@ const fishList = [
         { text: 'エサである甲殻類の色素（アスタキサンチン）が蓄積しているから。', isCorrect: true },
         { text: '加熱すると身が白く変化するから。', isCorrect: false }
       ],
-      explanation: '生食用の「サーモン」は基本的に寄生虫対策がされた養殖物で、天然の「鮭」は加熱調理が基本です。'
+      explanation: '身がオレンジ色をしていますが、実は「白身魚」に分類されます。餌の甲殻類の色素（アスタキサンチン）が蓄積してこの色になります。'
     },
+    trivia: "ちなみに、生食用の「サーモン」は基本的に寄生虫対策がされた養殖物で、天然の「鮭」は加熱調理が基本です。",
     menuItems: [], recommendedSake: "oze"
   },
   {
@@ -515,8 +518,9 @@ const fishList = [
       type: 'flip',
       front: 'ヒラメとカレイの見分け方は？',
       back: '「左ヒラメに右カレイ」。目を上にして置いた時に顔が左を向くのがヒラメ、右を向くのがカレイ。',
-      explanation: '生まれたばかりのヒラメは普通の魚のように目が両側にありますが、成長するにつれて右目が左側に移動します。'
+      explanation: '「左ヒラメに右カレイ」と言われ、目を上にして置いた時に顔が左を向くのがヒラメ、右を向くのがカレイと見分けます。'
     },
+    trivia: "生まれたばかりのヒラメは普通の魚のように目が両側にありますが、成長するにつれて右目が左側に移動します。",
     illustration: `
       <div>
         <img src="hirame_kaisetsu2.png" alt="左ヒラメに右カレイ" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">
@@ -540,8 +544,9 @@ const fishList = [
         { text: '体の側面に鮮やかな黄色の縦線（シマ）が入っているから。', isCorrect: true },
         { text: '特定の暖かい島周辺でしか獲れないから。', isCorrect: false }
       ],
-      explanation: '天然物は非常に漁獲量が少なく「幻の魚」とも呼ばれますが、養殖技術の進歩により安定して流通するようになりました。'
+      explanation: '体の側面に鮮やかな黄色の縦線（シマ）が入っていることが、「シマアジ」という名前の由来の一つです。'
     },
+    trivia: "天然物は非常に漁獲量が少なく「幻の魚」とも呼ばれますが、養殖技術の進歩により安定して流通するようになりました。",
     illustration: `<img src="shimaaji_kaisetsu.png" alt="シマアジの特徴" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
     illCaption: "体の側面に入る鮮やかな黄色の縦線（シマ）",
     menuItems: [], recommendedSake: "manozuru"
@@ -554,8 +559,9 @@ const fishList = [
       type: 'flip',
       front: '漢字で魚へんに「弱い（鰯）」と書く由来は？',
       back: '「弱し（よわし）」が訛ったと言われるほど鮮度落ちが早く、水揚げされるとすぐに死んでしまうため。',
-      explanation: '敵から身を守るために、何万匹という巨大な群れ（トルネード）を作って泳ぐ習性があります。'
+      explanation: '「弱し（よわし）」が名前の由来と言われるほど鮮度落ちが早く、水揚げされるとすぐに死んでしまいます。'
     },
+    trivia: "自然界では敵から身を守るために、何万匹という巨大な群れ（トルネード）を作って泳ぐ習性があります。",
     illustration: `<img src="iwashi_kaisetsu.jpg" alt="イワシの群れ（トルネード）" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
     illCaption: "巨大な群れ（トルネード）を作って泳ぐイワシ",
     menuItems: [], recommendedSake: "tateyama"
@@ -571,8 +577,9 @@ const fishList = [
         { text: '心臓が3つ、脳が9つ。', isCorrect: true },
         { text: '心臓が3つ、脳が6つ。', isCorrect: false }
       ],
-      explanation: '日本では茹でると赤くなりますが、生きている時は環境に合わせて一瞬で体の色や模様を変えることができます。'
+      explanation: 'タコは心臓を3つ、脳を9つ持っており、非常に高い知能を持っていると言われています。'
     },
+    trivia: "日本では茹でると赤くなりますが、生きている時は環境に合わせて一瞬で体の色や模様を変えることができます。",
     illustration: `<img src="tako_kaisetsu.png" alt="タコにある3つの心臓と9つの脳" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
     illCaption: "タコにある3つの心臓と9つの脳",
     menuItems: [], recommendedSake: "manozuru"
@@ -585,8 +592,9 @@ const fishList = [
       type: 'flip',
       front: 'ウナギを基本的に「生（刺身）」で食べない理由は？',
       back: 'ウナギの血には毒（イクチオトキシン）が含まれているため、加熱処理が必須だから。',
-      explanation: 'ウナギの生態は長年謎に包まれていましたが、近年になってようやくマリアナ諸島付近で産卵することが判明しました。'
+      explanation: 'ウナギの血には毒（イクチオトキシン）が含まれているため、加熱せずに生で食べることは基本的にできません。'
     },
+    trivia: "ウナギの生態は長年謎に包まれていましたが、近年になってようやくマリアナ諸島付近で産卵することが判明しました。",
     menuItems: [], recommendedSake: "zaku"
   },
   {
@@ -600,8 +608,9 @@ const fishList = [
         { text: 'わずか1年（秋に生まれ、翌春に産卵して一生を終える）。', isCorrect: true },
         { text: '約10年。', isCorrect: false }
       ],
-      explanation: '「ヤリイカ（槍烏賊）」という名前は、細長く先が尖った胴体の形が「槍の穂先」に似ていることに由来します。'
+      explanation: '寿命はわずか1年。秋に生まれて成長し、翌年の春に産卵を終えると一生を終えます。'
     },
+    trivia: "「ヤリイカ（槍烏賊）」という名前は、細長く先が尖った胴体の形が「槍の穂先」に似ていることに由来します。",
     illustration: `<img src="ika_kaisetsu.png" alt="ヤリイカのシルエット" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
     illCaption: "槍の穂先に似ているヤリイカのシルエット",
     menuItems: [], recommendedSake: "oze"
@@ -614,8 +623,9 @@ const fishList = [
       type: 'flip',
       front: '甘エビの不思議な生態とは？',
       back: '生まれた時はすべてオスで、4〜5年経つとメスに性転換する。',
-      explanation: '水揚げされてから少し時間が経つことで、自己消化によりアミノ酸が増え、より甘みが増します。'
+      explanation: '生まれた時はすべてオスで、4〜5年経つとメスに性転換するという不思議な生態を持っています。'
     },
+    trivia: "水揚げされてから少し時間が経つことで、自己消化によりアミノ酸が増え、より甘みが増します。",
     menuItems: [], recommendedSake: "oze"
   }
 ];
@@ -706,7 +716,7 @@ function selectFish(id){
   document.getElementById('detailBasic').textContent = f.basicInfo;
   document.getElementById('detailEatingPoint').textContent = f.eatingPoint;
 
-  // インタラクティブUIの構築
+  // インタラクティブUIの構築と表示エリアのリセット
   buildInteractiveUI(f);
 
   const finishBtn = document.getElementById('finishButton');
@@ -723,10 +733,12 @@ function selectFish(id){
 function buildInteractiveUI(fish) {
   const intArea = document.getElementById('interactiveArea');
   const expArea = document.getElementById('explanationArea');
+  const triviaArea = document.getElementById('triviaArea');
   
-  // 初期化：詳細画面を開いた直後は、解説エリアを非表示にする
+  // 初期化：詳細画面を開いた直後は、解説エリアと豆知識エリアを非表示にする
   intArea.innerHTML = '';
   expArea.style.display = 'none';
+  triviaArea.style.display = 'none';
   
   const interact = fish.interactive;
   if (!interact) return;
@@ -779,9 +791,11 @@ function buildInteractiveUI(fish) {
     `;
   }
 
-  // 解説文とイラストをセット（まだ表示はされない）
+  // クイズの解説文をセット
   document.getElementById('detailExplanation').textContent = interact.explanation || '';
   
+  // 豆知識文とイラストをセット
+  document.getElementById('detailTrivia').textContent = fish.trivia || '';
   const illWrap = document.getElementById('detailIllWrap');
   const illSvg = document.getElementById('detailIllSvg');
   const illCaption = document.getElementById('detailIllCaption');
@@ -794,6 +808,20 @@ function buildInteractiveUI(fish) {
     illWrap.style.display = 'none';
     illSvg.innerHTML = "";
   }
+}
+
+function showExplanations() {
+  const expArea = document.getElementById('explanationArea');
+  const triviaArea = document.getElementById('triviaArea');
+  
+  expArea.style.display = 'block';
+  expArea.style.animation = 'fadeUp 0.5s ease forwards';
+  
+  // 解説の少し後に豆知識を表示
+  setTimeout(() => {
+    triviaArea.style.display = 'block';
+    triviaArea.style.animation = 'fadeUp 0.5s ease forwards';
+  }, 200);
 }
 
 // クイズ回答時の処理
@@ -812,12 +840,8 @@ function answerQuiz(isCorrect, selectedIdx, correctIdx) {
     }
   });
 
-  // 少し遅れて解説・イラストエリアを表示
-  setTimeout(() => {
-    const expArea = document.getElementById('explanationArea');
-    expArea.style.display = 'block';
-    expArea.style.animation = 'fadeUp 0.5s ease forwards';
-  }, 400);
+  // 少し遅れて解説エリアと豆知識エリアを表示
+  setTimeout(showExplanations, 400);
 }
 
 // カードフリップ時の処理
@@ -825,12 +849,8 @@ function flipCard(cardEl) {
   if(cardEl.classList.contains('flipped')) return;
   cardEl.classList.add('flipped');
   
-  // 裏返った直後に解説・イラストエリアを表示
-  setTimeout(() => {
-    const expArea = document.getElementById('explanationArea');
-    expArea.style.display = 'block';
-    expArea.style.animation = 'fadeUp 0.5s ease forwards';
-  }, 500);
+  // 裏返った直後に解説エリアと豆知識エリアを表示
+  setTimeout(showExplanations, 500);
 }
 
 function goToMenu(){
@@ -908,7 +928,6 @@ function submitSurvey(){
   goScreen('select');
 }
 
-/* ============ 初期化 ============ */
 renderFishGrid();
 goScreen('op');
 

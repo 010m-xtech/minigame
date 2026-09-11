@@ -908,8 +908,9 @@ function startAquarium() {
       aquaFishes.push({
         id: f.id,
         el: img,
-        x: Math.random() * (window.innerWidth || 400),
-        y: Math.random() * ((window.innerHeight || 800) - 200) + 100,
+        // 初期配置が画面外にならないように調整
+        x: Math.random() * ((window.innerWidth || 400) - 120),
+        y: Math.random() * ((window.innerHeight || 800) - 250) + 120,
         vx: (Math.random() - 0.5) * 2,
         vy: (Math.random() - 0.5) * 1,
         targetVx: 0,
@@ -928,8 +929,14 @@ function startAquarium() {
 
     const w = window.innerWidth;
     const h = window.innerHeight;
-    const marginX = 150;
-    const marginY = 150;
+    
+    // 魚が画面外に行きすぎないように境界を画面サイズに合わせて設定
+    const fishW = 120; // 魚の画像の推定幅
+    const fishH = 80;  // 魚の画像の推定高さ
+    const minX = -30;
+    const maxX = w - fishW + 30;
+    const minY = 60; // 上部のテキストに被りすぎないよう余裕を持たせる
+    const maxY = h - fishH - 20;
 
     aquaFishes.forEach(f => {
       f.time += dt;
@@ -956,10 +963,11 @@ function startAquarium() {
       f.x += f.vx * dt;
       f.y += f.vy * dt;
 
-      if (f.x < -marginX) { f.x = -marginX; f.vx *= -1; f.targetVx *= -1; }
-      if (f.x > w + marginX) { f.x = w + marginX; f.vx *= -1; f.targetVx *= -1; }
-      if (f.y < -marginY) { f.y = -marginY; f.vy *= -1; f.targetVy *= -1; }
-      if (f.y > h + marginY) { f.y = h + marginY; f.vy *= -1; f.targetVy *= -1; }
+      // 画面外に少し出たところで跳ね返る
+      if (f.x < minX) { f.x = minX; f.vx *= -1; f.targetVx *= -1; }
+      if (f.x > maxX) { f.x = maxX; f.vx *= -1; f.targetVx *= -1; }
+      if (f.y < minY) { f.y = minY; f.vy *= -1; f.targetVy *= -1; }
+      if (f.y > maxY) { f.y = maxY; f.vy *= -1; f.targetVy *= -1; }
 
       const scaleX = f.vx > 0 ? -1 : 1;
       f.el.style.transform = `translate(${f.x}px, ${f.y}px) scaleX(${scaleX})`;

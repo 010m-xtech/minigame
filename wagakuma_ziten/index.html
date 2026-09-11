@@ -34,7 +34,6 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* --- 文字の自然な改行・折り返し設定 --- */
   p, .lead, .article-text, .desc, .accordion-body, .material-detail-desc, .quiz-result p {
     text-align: justify;
     text-justify: inter-ideograph;
@@ -69,9 +68,9 @@
     z-index: 1001;
     width: 180px;
     max-width: 60%;
-    opacity: 0; /* 最初は非表示 */
+    opacity: 0; 
     transition: opacity 1.5s ease;
-    filter: brightness(0) invert(1); /* 画像を真っ白にする */
+    filter: brightness(0) invert(1);
   }
   #skipText {
     position: absolute;
@@ -101,7 +100,6 @@
     display:flex; flex-direction:column;
   }
 
-  /* --- スマホ(iPhone)の背景バグを防ぐ、背景専用の固定レイヤー --- */
   .app::before {
     content: "";
     position: fixed;
@@ -183,25 +181,24 @@
 
   .screen{ display:none; animation: fadeUp .45s ease both; }
   .screen.active{ display:block; }
-  @keyframes fadeUp{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
-  @media (prefers-reduced-motion: reduce){ .screen{ animation:none; } }
-
-  /* --- トップ画面専用のフレックスレイアウト --- */
-  .screen[data-screen="top"].active { 
-    display: flex; 
+  
+  /* スクロールなしで画面に収めるためのトップ画面専用レイアウト */
+  .screen[data-screen="top"] {
+    min-height: calc(100dvh - 130px); /* ヘッダーや余白を引いた画面いっぱいの高さ */
+    display: flex;
     flex-direction: column;
-    /* ヘッダー(85px)と上下のpadding(24+44=68px)を引いた高さにし、スクロール無しで収める */
-    min-height: calc(100dvh - 85px - 68px); 
   }
   .screen[data-screen="top"] .glass-box {
-    flex: 0 0 auto; /* リード文エリアは縮めない */
-    margin-bottom: 16px;
+    margin-bottom: 0; 
+    flex: 0 0 auto;
   }
+  
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+  @media (prefers-reduced-motion: reduce){ .screen{ animation:none; } }
 
   h2.title{ font-family:var(--font-mincho); font-size:19px; line-height:1.5; margin:0 0 14px; color:#fff; }
   .lead{ font-size:15px; color:#fff; line-height:1.85; margin:0 0 32px; }
 
-  /* --- リード文エリア（すりガラス枠） --- */
   .glass-box {
     background: rgba(255, 255, 255, 0.75);
     backdrop-filter: blur(6px);
@@ -215,48 +212,49 @@
     margin-bottom: 0 !important;
   }
 
-  /* --- トップ画面：大きく配置するお酒アイコン --- */
+  /* --- トップ画面：浮遊するアイコンカテゴリ（画面フィット調整） --- */
   .top-categories-wrap {
-    flex: 1; /* 残りの高さをすべて使う */
-    display: flex; 
-    flex-wrap: wrap; /* 画面幅に応じて折り返す（2列を想定） */
-    justify-content: center; /* 横方向中央 */
-    align-content: center; /* 縦方向も中央にまとめる */
-    gap: 20px 24px; /* 上下20px、左右24pxの余白 */
-    margin: 0;
+    flex: 1; /* 余った縦の空間をすべて使う */
+    display: flex; flex-direction: column; align-items: center; justify-content: space-evenly;
+    gap: 2vh; 
+    padding: 2vh 0; /* 上下のバランス調整 */
   }
-  
+  .top-categories-row {
+    display: flex; justify-content: center; gap: 8vw; width: 100%;
+  }
   .top-category-item {
-    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    display: flex; flex-direction: column; align-items: center; gap: 1vh;
     cursor: pointer; -webkit-tap-highlight-color: transparent;
-    /* 2列になるように幅を約50%に。見切れないように最大幅を設定 */
-    width: calc(50% - 16px); 
-    max-width: 170px; 
+    animation: floatAnim 3.5s ease-in-out infinite;
   }
   
+  /* ウイスキーのアイコンだけ少し上にずらす */
+  .top-category-right {
+    margin-top: -4vh;
+  }
+  
+  /* 画面の高さ(vh)を使ってサイズを自動計算し、はみ出しを防ぐ */
   .top-category-icon {
-    width: 100%; 
-    aspect-ratio: 1 / 1; /* 高さを幅と同じにして正方形を保つ */
-    /* 縦方向にはみ出さないよう、画面の高さに制限をかける */
-    max-height: 22vh; 
+    width: 22vh; height: 22vh; 
+    max-width: 140px; max-height: 140px;
     display: flex; align-items: center; justify-content: center;
     transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
-  .top-category-item:hover .top-category-icon { transform: scale(1.10); }
+  .top-category-top .top-category-icon { 
+    width: 28vh; height: 28vh; 
+    max-width: 180px; max-height: 180px; 
+  }
+  .top-category-item:hover .top-category-icon { transform: scale(1.15); }
   .top-category-icon img {
-    width: 100%; height: 100%; 
-    object-fit: contain; /* はみ出さずに枠内に収める */
+    width: 100%; height: 100%; object-fit: contain;
     filter: drop-shadow(0 6px 10px rgba(0,0,0,0.25));
   }
   
   .top-category-label {
-    font-family: var(--font-mincho); 
-    font-weight: 700; 
-    font-size: 16px; 
-    color: #fff; 
-    letter-spacing: 0.05em;
-    text-shadow: 0 2px 6px rgba(0,0,0,0.6);
-    white-space: nowrap; 
+    font-family: var(--font-mincho); font-weight: 700; 
+    font-size: clamp(15px, 2.5vh, 19px); /* 画面サイズに合わせて文字サイズも自動調整 */
+    color: #fff; letter-spacing: 0.05em;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.5);
   }
 
   .term-chip-wrap{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:26px; }
@@ -337,7 +335,6 @@
   .primary-btn:hover{ transform: translateY(-2px); }
   .primary-btn svg{ width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; }
 
-  /* ボタンのキラッと光るエフェクト */
   .primary-btn::before {
     content: '';
     position: absolute;
@@ -348,7 +345,6 @@
     animation: shiny 3s infinite;
   }
   
-  /* ホームに戻るボタンはアニメーションさせないが、色は朱色にする */
   .back-home-btn {
     background: var(--shu) !important;
     animation: none !important;
@@ -403,7 +399,7 @@
     padding: 0 16px;
   }
   .accordion-item.open .accordion-body {
-    max-height: 600px; /* サイズ拡大に対応するため余裕を持たせる */
+    max-height: 600px; 
     padding: 14px 16px;
     border-top: 1px dashed var(--line);
   }
@@ -535,26 +531,33 @@
   </header>
 
   <main>
+
     <!-- Screen: トップ(カテゴリ選択) -->
     <section class="screen active" data-screen="top">
       <div class="glass-box">
         <h2 class="title">今夜の一杯を、もっと美味しく。</h2>
-        <p class="lead" style="margin-bottom:0;">ラベルの言葉や造り方の秘密を少し知るだけで、いつものお酒が違った表情を見せてくれます。<br>気になるお酒をタップして、今夜の気分にぴったりの一杯を探してみませんか？</p>
+        <p class="lead" style="margin-bottom:0;">ラベルの言葉や造り方の秘密を少し知るだけで、いつものお酒が違った表情を見せてくれます。<br><span style="color:var(--shu); font-weight:700;">気になるお酒をタップして</span>、今夜の気分にぴったりの一杯を探してみませんか？</p>
       </div>
 
-      <!-- 大きく見切れずに配置するアイコン -->
       <div class="top-categories-wrap">
-        <div class="top-category-item" onclick="openCategory('sake')">
-          <div class="top-category-icon"><img src="sake.webp" alt="日本酒"></div>
-          <div class="top-category-label">日本酒</div>
+        <!-- 1段目（上） -->
+        <div class="top-categories-row">
+          <div class="top-category-item top-category-top" onclick="openCategory('sake')">
+            <div class="top-category-icon"><img src="sake.webp" alt="日本酒"></div>
+            <div class="top-category-label">日本酒</div>
+          </div>
         </div>
-        <div class="top-category-item" onclick="openCategory('shochu')">
-          <div class="top-category-icon"><img src="syotyu.webp" alt="焼酎"></div>
-          <div class="top-category-label">焼酎</div>
-        </div>
-        <div class="top-category-item" onclick="openCategory('whisky')">
-          <div class="top-category-icon"><img src="whisky.webp" alt="ウイスキー"></div>
-          <div class="top-category-label">ウイスキー</div>
+        <!-- 2段目（下左右） -->
+        <div class="top-categories-row">
+          <div class="top-category-item top-category-left" onclick="openCategory('shochu')">
+            <div class="top-category-icon"><img src="syotyu.webp" alt="焼酎"></div>
+            <div class="top-category-label">焼酎</div>
+          </div>
+          <!-- ウイスキーだけを少し上にずらすクラスを適用 -->
+          <div class="top-category-item top-category-right" onclick="openCategory('whisky')">
+            <div class="top-category-icon"><img src="whisky.webp" alt="ウイスキー"></div>
+            <div class="top-category-label">ウイスキー</div>
+          </div>
         </div>
       </div>
     </section>

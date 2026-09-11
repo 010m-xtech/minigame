@@ -2,13 +2,13 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>居酒屋 乞食 のお魚たち</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  :root{
+  :root {
     --kinari: #FFFFFF;
     --kinari-deep: #E9E2CF;
     --ai: #22385C;
@@ -24,9 +24,9 @@
     --radius: 14px;
   }
 
-  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
-  html,body{
+  html, body {
     margin:0; padding:0;
     background: #0d1b2a;
     color: #FFFFFF;
@@ -34,65 +34,64 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  body{ min-height:100vh; display:flex; justify-content:center; }
+  body { min-height:100vh; display:flex; justify-content:center; }
 
   /* ============ 背景動画(全画面共通・ループ再生) ============ */
-  .bg-video-wrap{
+  .bg-video-wrap {
     position: fixed; inset: 0; z-index: 0;
     overflow: hidden; background: #0d1b2a;
   }
-  .bg-video-wrap video{
+  .bg-video-wrap video {
     position:absolute; top:50%; left:50%;
     min-width:100%; min-height:100%;
     width:auto; height:auto;
     transform: translate(-50%, -50%);
     object-fit: cover;
     opacity: 0;
-    transition: opacity 1.5s ease-in-out; /* 動画切り替え時のクロスフェード */
+    transition: opacity 1.5s ease-in-out;
   }
-  .bg-video-wrap video.show-bg {
-    opacity: 1; /* アクティブな背景動画を表示 */
-  }
-  #bg-video-op {
-    filter: brightness(2.5); /* オープニング動画の明るさをかなり明るく調整 */
-  }
-  .bg-video-overlay{
+  .bg-video-wrap video.show-bg { opacity: 1; }
+  #bg-video-op { filter: brightness(2.5); }
+  .bg-video-overlay {
     position:absolute; inset:0;
     background: linear-gradient(180deg, rgba(13,27,42,0.72), rgba(13,27,42,0.85));
   }
 
-  .app{
+  .app {
     width:100%; max-width:460px; min-height:100vh;
     position:relative; z-index:1;
     display:flex; flex-direction:column;
   }
 
-  header{
+  header {
     position:sticky; top:0; z-index:20;
-    background: transparent;
+    /* 背景色を少し透過させた暗い色にし、すりガラス効果を追加して文字被りを防ぐ */
+    background: rgba(13, 27, 42, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border-bottom:1px solid rgba(255,255,255,0.15);
     padding: 16px 20px 14px;
   }
-  .brand{ display:flex; align-items:center; gap:10px; }
-  .seal{ width:32px; height:32px; flex:0 0 auto; object-fit: contain; }
-  .brand h1{
+  .brand { display:flex; align-items:center; gap:10px; }
+  .seal { width:32px; height:32px; flex:0 0 auto; object-fit: contain; }
+  .brand h1 {
     font-family: var(--font-mincho); font-weight:700; font-size:18.5px;
     letter-spacing:0.04em; margin:0; color:var(--kinari);
     line-height: 1.4;
   }
-  .brand p{ margin:0; font-size:10px; color:rgba(255,255,255,0.7); letter-spacing:0.08em; }
+  .brand p { margin:0; font-size:10px; color:rgba(255,255,255,0.7); letter-spacing:0.08em; }
 
-  main{ flex:1; padding:26px 20px 48px; position:relative; }
+  main { flex:1; padding:26px 20px 48px; position:relative; }
 
-  .screen{ display:none; animation: fadeUp .5s ease both; }
-  .screen.active{ display:block; }
-  .screen[data-screen="op"]{ animation: none; }
-  @keyframes fadeUp{ from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:translateY(0);} }
+  .screen { display:none; animation: fadeUp .5s ease both; }
+  .screen.active { display:block; }
+  .screen[data-screen="op"] { animation: none; }
+  @keyframes fadeUp { from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:translateY(0);} }
   @media (prefers-reduced-motion: reduce){ .screen{ animation:none; } }
 
-  .eyebrow{ font-size:12px; letter-spacing:.14em; color:var(--shu-pale); font-weight:700; margin:0 0 8px; }
-  h2.title{ font-family:var(--font-mincho); font-size:24px; line-height:1.6; margin:0 0 16px; color:var(--kinari); }
-  .lead{ font-size:15px; color:#FFFFFF; line-height:1.9; margin:0 0 22px; }
+  .eyebrow { font-size:12px; letter-spacing:.14em; color:var(--shu-pale); font-weight:700; margin:0 0 8px; }
+  h2.title { font-family:var(--font-mincho); font-size:24px; line-height:1.6; margin:0 0 16px; color:var(--kinari); }
+  .lead { font-size:15px; color:#FFFFFF; line-height:1.9; margin:0 0 22px; }
 
   /* --- OP画面 --- */
   .op-wrapper {
@@ -105,297 +104,211 @@
     max-width: 250px; width: 60%; height: auto;
   }
   .skip-telop {
-    position: absolute;
-    bottom: 50px;
-    left: 50%;
-    color: rgba(255, 255, 255, 0.85);
-    font-size: 13px;
-    letter-spacing: 0.1em;
-    pointer-events: none;
-    white-space: nowrap;
-    animation: floatBlink 3s ease-in-out infinite;
+    position: absolute; bottom: 50px; left: 50%;
+    color: rgba(255, 255, 255, 0.85); font-size: 13px;
+    letter-spacing: 0.1em; pointer-events: none;
+    white-space: nowrap; animation: floatBlink 3s ease-in-out infinite;
   }
   @keyframes floatBlink {
-    0%, 100% {
-      transform: translate(-50%, 0);
-      opacity: 0.3;
-    }
-    50% {
-      transform: translate(-50%, -10px);
-      opacity: 1;
-    }
+    0%, 100% { transform: translate(-50%, 0); opacity: 0.3; }
+    50% { transform: translate(-50%, -10px); opacity: 1; }
   }
 
   /* --- 魚選択（グリッド） --- */
   .fish-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    margin-top: 24px;
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 12px; margin-top: 24px;
   }
   .fish-card {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.18);
-    border-radius: var(--radius);
-    padding: 20px 10px 16px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-align: center;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.18);
+    border-radius: var(--radius); padding: 20px 10px 16px;
+    display: flex; flex-direction: column; align-items: center;
+    cursor: pointer; transition: all 0.2s ease; text-align: center;
   }
   .fish-card:hover, .fish-card:active {
-    background: rgba(255,255,255,0.12);
-    transform: translateY(-2px);
+    background: rgba(255,255,255,0.12); transform: translateY(-2px);
   }
   .fish-card img {
-    width: auto;
-    height: auto;
-    max-width: 100px;
-    max-height: 70px;
-    object-fit: contain;
-    margin-bottom: 12px;
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+    width: auto; height: auto; max-width: 100px; max-height: 70px;
+    object-fit: contain; margin-bottom: 12px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
   }
-  .fish-card .name {
-    font-family: var(--font-mincho);
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--kinari);
-  }
+  .fish-card .name { font-family: var(--font-mincho); font-size: 16px; font-weight: 700; color: var(--kinari); }
 
   /* --- 魚詳細画面 --- */
-  .fish-header{
-    display:flex; align-items:baseline; gap:10px; margin-bottom:12px;
-  }
-  .fish-header .name{ font-family: var(--font-mincho); font-size:24px; font-weight:700; color: var(--kinari); }
+  .fish-header { display:flex; align-items:baseline; gap:10px; margin-bottom:12px; }
+  .fish-header .name { font-family: var(--font-mincho); font-size:24px; font-weight:700; color: var(--kinari); }
 
-  /* --- 魚のストーリー (読み物風) --- */
   .fish-story {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: var(--radius);
-    padding: 20px;
-    margin-bottom: 24px;
-    color: #FFFFFF;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.15);
+    border-radius: var(--radius); padding: 20px;
+    margin-bottom: 24px; color: #FFFFFF;
   }
-  .story-basic {
-    font-size: 14px;
-    line-height: 1.8;
-    margin: 0 0 20px;
-  }
+  .story-basic { font-size: 14px; line-height: 1.8; margin: 0 0 20px; }
   
-  .story-highlight {
-    margin: 0 -20px 20px;
-    padding: 16px 20px;
-    background: linear-gradient(135deg, rgba(189,70,48,0.15), transparent);
-    border-left: 4px solid var(--shu);
-  }
-  .highlight-title {
-    font-family: var(--font-mincho);
-    font-size: 16.5px;
-    color: var(--shu-pale);
-    margin: 0 0 8px;
-    font-weight: 700;
-  }
-  .story-highlight p {
-    font-size: 14px;
-    line-height: 1.7;
-    margin: 0;
-  }
-
-  /* --- 味わいと特徴 --- */
-  .story-taste {
-    margin: 0 0 24px;
-  }
+  .story-taste { margin: 0 0 24px; }
   .taste-title {
-    font-family: var(--font-mincho);
-    font-size: 15.5px;
-    color: var(--kinari);
-    margin: 0 0 8px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    font-family: var(--font-mincho); font-size: 15.5px; color: var(--kinari);
+    margin: 0 0 8px; display: flex; align-items: center; gap: 8px;
   }
   .taste-title::before {
-    content: '';
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    background: var(--shu);
-    transform: rotate(45deg);
+    content: ''; display: inline-block; width: 6px; height: 6px;
+    background: var(--shu); transform: rotate(45deg);
   }
-  .story-taste p {
-    font-size: 14px;
-    line-height: 1.8;
-    margin: 0;
+  .story-taste p { font-size: 14px; line-height: 1.8; margin: 0; }
+
+  /* --- クイズUI --- */
+  .quiz-container {
+    background: rgba(34,56,92,0.4); border: 1px solid rgba(76,106,148,0.3);
+    border-radius: var(--radius); padding: 18px 20px;
+    margin-bottom: 8px;
   }
-  
+  .quiz-question {
+    font-family: var(--font-mincho); font-size: 16.5px; font-weight: 700;
+    line-height: 1.6; margin-bottom: 16px; color: var(--kinari);
+  }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-btn {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.25);
+    padding: 14px 16px; border-radius: 8px; color: #fff;
+    font-family: var(--font-gothic); font-size: 14px; font-weight: 700;
+    text-align: left; cursor: pointer; transition: all 0.2s; line-height: 1.4;
+  }
+  .quiz-btn:hover:not(:disabled) { background: rgba(255,255,255,0.15); }
+  .quiz-btn:disabled { opacity: 0.9; cursor: default; }
+  .quiz-btn.correct { background: rgba(46, 139, 87, 0.4); border-color: #55a878; color: #fff; }
+  .quiz-btn.incorrect { background: rgba(189, 70, 48, 0.4); border-color: var(--shu); opacity: 0.7; }
+
+  /* --- フリップカードUI --- */
+  .flip-card-container {
+    perspective: 1000px; width: 100%; margin-bottom: 8px;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .flip-card {
+    position: relative; width: 100%;
+    transition: transform 0.65s cubic-bezier(0.4, 0.2, 0.2, 1);
+    transform-style: preserve-3d; -webkit-transform-style: preserve-3d;
+    display: grid;
+  }
+  .flip-card.flipped { transform: rotateY(180deg); }
+  .flip-card-front, .flip-card-back {
+    grid-area: 1 / 1; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    border-radius: var(--radius); padding: 24px 20px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+  }
+  .flip-card-front {
+    background: linear-gradient(135deg, rgba(34,56,92,0.9), rgba(13,27,42,0.9));
+    border: 1px solid rgba(76,106,148,0.5);
+  }
+  .flip-card-back {
+    background: linear-gradient(135deg, rgba(189,70,48,0.95), rgba(120,30,20,0.95));
+    border: 1px solid var(--shu-pale);
+    transform: rotateY(180deg);
+  }
+
+  /* --- 豆知識・解説エリア (共通) --- */
   .story-trivia {
-    background: rgba(34,56,92,0.4);
-    border-radius: 8px;
-    padding: 14px 16px;
-    border: 1px solid rgba(76,106,148,0.3);
+    background: rgba(34,56,92,0.2); border-radius: 8px;
+    padding: 14px 16px; border: 1px dashed rgba(76,106,148,0.4);
   }
   .trivia-label {
-    font-size: 11px;
-    color: #FFFFFF;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    margin-bottom: 6px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    font-size: 11px; color: #FFFFFF; font-weight: 700;
+    letter-spacing: 0.1em; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;
   }
-  .story-trivia p {
-    font-size: 13px;
-    line-height: 1.7;
-    margin: 0;
-  }
+  .story-trivia p { font-size: 13px; line-height: 1.7; margin: 0; }
   
-  /* --- 豆知識用 イラスト (コード描画) --- */
-  .trivia-illustration-wrap {
-    margin-top: 16px;
-    text-align: center;
-    display: none; /* JSで切り替え */
+  .trivia-illustration-wrap { margin-top: 16px; text-align: center; display: none; }
+  .trivia-illustration-wrap img {
+    width: 100%; max-width: 260px; height: auto; border-radius: 6px;
+    background: transparent; border: 1px solid rgba(220,227,236,0.15);
+    margin: 0 auto; display: block;
   }
-  .trivia-illustration-wrap img { /* SVGからimgに変更、スタイルを追加 */
-    width: 100%;
-    max-width: 260px;
-    height: auto;
-    border-radius: 6px;
-    background: transparent; /* 背景を透明に */
-    border: 1px solid rgba(220,227,236,0.15);
-    margin: 0 auto;
-    display: block;
-  }
+  .trivia-illustration-caption { font-size: 11px; color: #FFFFFF; margin-top: 8px; }
 
-  .trivia-illustration-caption {
-    font-size: 11px;
-    color: #FFFFFF;
-    margin-top: 8px;
-  }
-
-  h3.section-title{
+  h3.section-title {
     font-family: var(--font-mincho); font-size:15.5px; color: var(--kinari);
     margin: 30px 0 14px; display:flex; align-items:center; gap:8px;
   }
-  h3.section-title::before{
-    content:''; width:4px; height:14px; background: var(--shu); border-radius:2px; display:inline-block;
-  }
+  h3.section-title::before { content:''; width:4px; height:14px; background: var(--shu); border-radius:2px; display:inline-block; }
 
   /* --- メニューアイテム --- */
-  .menu-item{
-    background: rgba(255,255,255,0.06);
-    border:1px solid rgba(255,255,255,0.18);
-    border-radius: 10px;
-    padding: 16px;
-    margin-bottom:12px;
-    cursor: pointer;
-    transition: background 0.2s ease;
+  .menu-item {
+    background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.18);
+    border-radius: 10px; padding: 16px; margin-bottom:12px; cursor: pointer; transition: background 0.2s ease;
   }
-  .menu-item:hover{ background: rgba(255,255,255,0.1); }
-  .menu-item .name{ font-family: var(--font-mincho); font-weight:700; font-size:16px; color: var(--kinari); display: flex; justify-content: space-between; align-items: center; }
+  .menu-item:hover { background: rgba(255,255,255,0.1); }
+  .menu-item .name { font-family: var(--font-mincho); font-weight:700; font-size:16px; color: var(--kinari); display: flex; justify-content: space-between; align-items: center; }
   .menu-item .chevron { transition: transform 0.3s ease; opacity: 0.6; }
   .menu-item.open .chevron { transform: rotate(180deg); }
-  .menu-item .desc{ font-size:13px; color: #FFFFFF; margin-top:6px; line-height:1.6; }
+  .menu-item .desc { font-size:13px; color: #FFFFFF; margin-top:6px; line-height:1.6; }
   
-  .pairing-sake {
-    display: none;
-    margin-top: 14px;
-    padding-top: 14px;
-    border-top: 1px dashed rgba(255,255,255,0.2);
-  }
-  .menu-item.open .pairing-sake {
-    display: block;
-    animation: fadeInSake 0.3s ease both;
-  }
+  .pairing-sake { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px dashed rgba(255,255,255,0.2); }
+  .menu-item.open .pairing-sake { display: block; animation: fadeInSake 0.3s ease both; }
   @keyframes fadeInSake { from{opacity:0; transform:translateY(-4px);} to{opacity:1; transform:translateY(0);} }
 
   /* --- お酒の提案 --- */
-  .sake-group-label{
+  .sake-group-label {
     font-size:11.5px; font-weight:700; color: var(--shu-pale);
-    letter-spacing:.06em; margin: 18px 0 10px;
-    display:flex; align-items:center; gap:6px;
+    letter-spacing:.06em; margin: 18px 0 10px; display:flex; align-items:center; gap:6px;
   }
-  .sake-card{
-    background: rgba(255,255,255,0.08);
-    border:1px solid rgba(255,255,255,0.2);
-    border-radius: var(--radius);
-    padding: 14px 16px;
-    margin-bottom:12px;
+  .sake-card {
+    background: rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2);
+    border-radius: var(--radius); padding: 14px 16px; margin-bottom:12px;
   }
-  .sake-card .tag{
+  .sake-card .tag {
     display:inline-block; font-size:10.5px; font-weight:700;
-    background: var(--shu); color:#fff; padding:2px 9px; border-radius:20px;
-    margin-bottom:8px;
+    background: var(--shu); color:#fff; padding:2px 9px; border-radius:20px; margin-bottom:8px;
   }
-  .sake-card .name-row{ display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; margin-bottom:6px; }
-  .sake-card .name{ font-family: var(--font-mincho); font-weight:700; font-size:16px; color: var(--kinari); }
-  .sake-card .region{ font-size:11px; color: #FFFFFF; }
-  .sake-card .taste{ font-size:12.5px; color: #FFFFFF; line-height:1.75; margin:0; }
+  .sake-card .name-row { display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; margin-bottom:6px; }
+  .sake-card .name { font-family: var(--font-mincho); font-weight:700; font-size:16px; color: var(--kinari); }
+  .sake-card .region { font-size:11px; color: #FFFFFF; }
+  .sake-card .taste { font-size:12.5px; color: #FFFFFF; line-height:1.75; margin:0; }
 
-  .btn-row{ display:flex; gap:10px; margin-top:30px; }
-  button.btn{
+  .btn-row { display:flex; gap:10px; margin-top:30px; }
+  button.btn {
     font-family:var(--font-gothic); font-weight:700; font-size:14px;
     padding:14px 18px; border-radius:10px; border:none; cursor:pointer;
     letter-spacing:.03em; transition:opacity .15s ease, transform .1s ease;
   }
-  button.btn:active{ transform:scale(0.98); }
-  button.btn:focus-visible{ outline:2px solid var(--shu-pale); outline-offset:2px; }
-  .btn-primary{ flex:1; background:var(--shu); color:#fff; }
-  .btn-primary:hover{ opacity:.92; }
-  .btn-ghost{ background: rgba(255,255,255,0.08); color:var(--kinari); border:1px solid rgba(255,255,255,0.3); }
+  button.btn:active { transform:scale(0.98); }
+  button.btn:focus-visible { outline:2px solid var(--shu-pale); outline-offset:2px; }
+  .btn-primary { flex:1; background:var(--shu); color:#fff; }
+  .btn-primary:hover { opacity:.92; }
+  .btn-ghost { background: rgba(255,255,255,0.08); color:var(--kinari); border:1px solid rgba(255,255,255,0.3); }
 
   /* --- 汎用パーツ(プロフィール・アンケート) --- */
-  .radio-buttons{ display:flex; gap:8px; flex-wrap:wrap; }
-  .radio-btn-wrap{ flex:1; min-width:84px; cursor:pointer; }
-  .radio-btn-wrap input{ display:none; }
-  .radio-box{
+  .radio-buttons { display:flex; gap:8px; flex-wrap:wrap; }
+  .radio-btn-wrap { flex:1; min-width:84px; cursor:pointer; }
+  .radio-btn-wrap input { display:none; }
+  .radio-box {
     display:flex; align-items:center; justify-content:center; padding:12px 0;
     border:1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.05); border-radius:8px;
     font-size:13px; font-weight:700; color: #FFFFFF; transition:all .2s ease;
   }
-  .radio-box::before{
+  .radio-box::before {
     content:''; display:inline-block; width:14px; height:14px; border-radius:50%;
     border:1px solid rgba(255,255,255,0.4); margin-right:6px; transition:all .2s ease;
   }
-  .radio-btn-wrap input:checked + .radio-box{ background: var(--shu); border-color: var(--shu); color:#fff; }
-  .radio-btn-wrap input:checked + .radio-box::before{ border-width:4px; border-color:#fff; background: var(--shu); }
-  .radio-group-error{ color: var(--shu-pale); font-size:12.5px; font-weight:700; margin:-14px 0 20px; display:none; }
-  @keyframes shake{ 0%,100%{transform:translateX(0);} 20%,60%{transform:translateX(-4px);} 40%,80%{transform:translateX(4px);} }
-  .shake{ animation: shake .4s ease; }
-  .errhi .radio-box{ border-color: var(--shu-pale); background: rgba(189,70,48,0.25); }
+  .radio-btn-wrap input:checked + .radio-box { background: var(--shu); border-color: var(--shu); color:#fff; }
+  .radio-btn-wrap input:checked + .radio-box::before { border-width:4px; border-color:#fff; background: var(--shu); }
+  .radio-group-error { color: var(--shu-pale); font-size:12.5px; font-weight:700; margin:-14px 0 20px; display:none; }
+  @keyframes shake { 0%,100%{transform:translateX(0);} 20%,60%{transform:translateX(-4px);} 40%,80%{transform:translateX(4px);} }
+  .shake { animation: shake .4s ease; }
+  .errhi .radio-box { border-color: var(--shu-pale); background: rgba(189,70,48,0.25); }
 
-  .radio-buttons-col{ display:flex; flex-direction:column; gap:8px; }
-  .radio-buttons-col .radio-box{ justify-content:flex-start; padding:12px 16px; font-size:13.5px; text-align:left; }
+  .profile-group { margin-bottom:24px; }
+  .profile-group > label { display:block; font-size:12.5px; font-weight:700; color: var(--kinari); margin-bottom:10px; }
 
-  .profile-group{ margin-bottom:24px; }
-  .profile-group > label{ display:block; font-size:12.5px; font-weight:700; color: var(--kinari); margin-bottom:10px; }
-
-  .note{ font-size:10.5px; color: #FFFFFF; margin-top:10px; line-height:1.6; text-align:center; }
-
-  .stamp-wrap{ display:flex; justify-content:center; margin:14px 0 24px; }
-  .stamp{ width:96px; height:96px; animation: stampIn .6s cubic-bezier(.2,1.4,.4,1) both; }
-  @media (prefers-reduced-motion: reduce){ .stamp{ animation:none; } }
-  @keyframes stampIn{
-    0%{ opacity:0; transform:scale(2.2) rotate(-18deg); }
-    70%{ opacity:1; }
-    100%{ opacity:1; transform:scale(1) rotate(-8deg); }
-  }
-
-  .center-text{ text-align:center; }
+  .note { font-size:10.5px; color: #FFFFFF; margin-top:10px; line-height:1.6; text-align:center; }
+  .center-text { text-align:center; }
 </style>
 </head>
 <body>
 
 <div class="bg-video-wrap">
-  <!-- オープニング画面用背景動画 (初期表示で表示状態 class="show-bg") -->
   <video id="bg-video-op" class="show-bg" autoplay muted playsinline>
     <source src="title3.mp4" type="video/mp4">
   </video>
-  <!-- その他の画面用背景動画 (クロスフェードで擬似シームレスループ用) -->
   <video id="bg-video-main-1" muted playsinline>
     <source src="back.mp4" type="video/mp4">
   </video>
@@ -408,7 +321,8 @@
 <div class="app">
   <header id="main-header" style="display: none;">
     <div class="brand">
-      <img src="koziki_logo.png" class="seal" alt="居酒屋 乞食 ロゴ">
+      <!-- フォールバック用モックアップ画像 -->
+      <img src="https://placehold.co/64x64/22385C/FFFFFF?text=ロゴ" class="seal" alt="居酒屋 乞食 ロゴ" onerror="this.src='https://placehold.co/64x64/22385C/FFFFFF?text=ロゴ'">
       <div>
         <h1>居酒屋 乞食 のお魚たち</h1>
       </div>
@@ -419,7 +333,7 @@
     <!-- Screen: オープニング -->
     <section class="screen active" data-screen="op" onclick="goScreen('select')">
       <div class="op-wrapper">
-        <img src="koziki_title.png" id="op-logo" class="op-logo-img" alt="居酒屋 乞食">
+        <img src="https://placehold.co/400x200/transparent/FFFFFF?text=居酒屋+乞食" id="op-logo" class="op-logo-img" alt="居酒屋 乞食" onerror="this.src='https://placehold.co/400x200/transparent/FFFFFF?text=居酒屋+乞食'">
         <p class="skip-telop">画面をタップしてスキップ</p>
       </div>
     </section>
@@ -450,19 +364,17 @@
           <p id="detailEatingPoint"></p>
         </div>
 
-        <div class="story-highlight">
-          <h4 class="highlight-title">実は…</h4>
-          <p id="detailSurprising"></p>
-        </div>
+        <!-- インタラクティブUIエリア (クイズ または フリップカード) -->
+        <div id="interactiveArea"></div>
         
-        <div class="story-trivia">
+        <!-- 解説・豆知識表示エリア (インタラクション後に表示) -->
+        <div class="story-trivia" id="explanationArea" style="display: none; margin-top: 24px;">
           <div class="trivia-label">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-            豆知識
+            さらに詳しく
           </div>
-          <p id="detailTrivia"></p>
+          <p id="detailExplanation"></p>
           
-          <!-- イラスト(SVG)描画エリア -->
           <div class="trivia-illustration-wrap" id="detailIllWrap">
             <div id="detailIllSvg"></div>
             <div class="trivia-illustration-caption" id="detailIllCaption"></div>
@@ -481,27 +393,9 @@
     <!-- Screen: メニュー一覧 -->
     <section class="screen" data-screen="menu">
       <h2 class="title"><span id="menuScreenName"></span> を使用した料理と相性良いお酒</h2>
-      
-      <div id="menuScreenList">
-        <!-- JSでメニューが生成される -->
-      </div>
-
+      <div id="menuScreenList"></div>
       <div class="btn-row" style="margin-top: 32px;">
         <button class="btn btn-primary" style="width:100%" id="finishButton" onclick="handleFinishClick()"></button>
-      </div>
-    </section>
-
-    <!-- Screen: お酒一覧 -->
-    <section class="screen" data-screen="sake">
-      <p class="eyebrow">SAKE</p>
-      <h2 class="title"><span id="sakeScreenName"></span> に合うお酒</h2>
-      
-      <div id="sakeScreenList">
-        <!-- JSでお酒が生成される -->
-      </div>
-
-      <div class="btn-row" style="margin-top: 32px;">
-        <button class="btn btn-ghost" style="width:100%" onclick="goScreen('detail')">魚の詳細に戻る</button>
       </div>
     </section>
 
@@ -510,7 +404,6 @@
       <p class="eyebrow">LAST STEP</p>
       <h2 class="title">最後にお聞かせください</h2>
       <p class="lead">(初回のみ・次回からは表示されません)</p>
-
       <div class="profile-group" id="group-gender">
         <label>性別</label>
         <div class="radio-buttons">
@@ -519,7 +412,6 @@
           <label class="radio-btn-wrap"><input type="radio" name="s-gender" value="無回答" onchange="clearErr('group-gender')"><span class="radio-box" style="font-size:12px;">無回答</span></label>
         </div>
       </div>
-
       <div class="profile-group" id="group-age">
         <label>年齢</label>
         <div class="radio-buttons">
@@ -527,21 +419,17 @@
           <label class="radio-btn-wrap"><input type="radio" name="s-age" value="35歳以上" onchange="clearErr('group-age')"><span class="radio-box">35歳以上</span></label>
         </div>
       </div>
-
       <p class="radio-group-error" id="surveyError">すべての項目にご回答ください</p>
       <p class="note">※サービス改善のための参考にさせていただきます</p>
-
       <div class="btn-row">
         <button class="btn btn-primary" style="width:100%" onclick="submitSurvey()">終了する</button>
       </div>
     </section>
 
   </main>
-
 </div>
 
 <script>
-/* ============ ログ送信設定 ============ */
 const GAS_URL = 'YOUR_GAS_WEBHOOK_URL_HERE';
 
 function sendLog(action, extra) {
@@ -553,7 +441,7 @@ function sendLog(action, extra) {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify(payload)
-  }).catch(err => console.log('送信エラー:', err));
+  }).catch(err => console.log('Log Sync:', err));
 }
 
 let fishDeviceId = localStorage.getItem('fish_device_id');
@@ -562,152 +450,191 @@ if (!fishDeviceId) {
   localStorage.setItem('fish_device_id', fishDeviceId);
 }
 
-/* ============ 魚データ (イラストはSVGコードとして設定) ============ */
+/* ============ 魚データ (2択クイズ / フリップカード設定追加) ============ */
 const fishList = [
   {
-    id: "aji", name: "真鯵", kana: "まあじ", img: "maaji.png",
+    id: "aji", name: "真鯵", kana: "まあじ", img: "https://placehold.co/200x140/transparent/FFFFFF?text=真鯵",
     basicInfo: "通年出回るが、旬は初夏から夏。旨味成分が豊富で、刺身、塩焼き、フライなど万能な青魚です。",
     eatingPoint: "皮目の香ばしさと、身に感じる脂の甘みのバランスが絶妙です。生姜やネギなどの薬味と一緒に食べると、より一層旨味が引き立ちます。",
-    surprisingInfo: "「アジ」という名前は「味が良い」ことから名付けられたという説が有力で、古くから日本人に愛されてきました。",
-    trivia: "側線（そくせん）と呼ばれる体の横の線にある「ゼイゴ」という硬いウロコは、アジ科の魚特有のものです。",
-    illustration: `<img src="maaji_kaisetsu.png" alt="アジのゼイゴ" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
+    interactive: {
+      type: 'quiz',
+      question: '「アジ」という名前の由来として有力な説は？',
+      options: [
+        { text: '「味が良い」ことから', isCorrect: true },
+        { text: 'アジア周辺で獲れるから', isCorrect: false }
+      ],
+      explanation: '味が良いことから名付けられたという説が有力で、古くから日本人に愛されてきました。また、側線（そくせん）と呼ばれる体の横の線にある「ゼイゴ」という硬いウロコは、アジ科の魚特有のものです。'
+    },
+    illustration: `<img src="https://placehold.co/400x200/22385C/FFFFFF?text=ゼイゴの解説図" alt="アジのゼイゴ" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
     illCaption: "尾の方にある硬いウロコ「ゼイゴ」",
     menuItems: [], recommendedSake: "hakkaisan"
   },
   {
-    id: "katsuo", name: "カツオ", kana: "かつお", img: "katsuo.png",
+    id: "katsuo", name: "カツオ", kana: "かつお", img: "https://placehold.co/200x140/transparent/FFFFFF?text=カツオ",
     basicInfo: "春の「初鰹」と秋の「戻り鰹」で年に2回旬を迎える、赤身魚の代表格。鉄分を多く含みます。",
     eatingPoint: "藁焼きの香ばしさと、赤身ならではの濃い旨みが特徴です。ニンニクやポン酢と合わせることで、さっぱりとしつつも力強い味わいを楽しめます。",
-    surprisingInfo: "泳ぎを止めるとエラ呼吸ができず窒息してしまうため、一生休むことなく高速で泳ぎ続けています。",
-    trivia: "鰹節（かつおぶし）は世界一硬い食品としてギネス認定されており、日本料理の出汁に欠かせない存在です。",
+    interactive: {
+      type: 'quiz',
+      question: 'カツオが一生休むことなく高速で泳ぎ続ける理由は？',
+      options: [
+        { text: '泳ぎを止めると窒息するから', isCorrect: true },
+        { text: '常に獲物を探し続けるため', isCorrect: false }
+      ],
+      explanation: '泳ぎを止めるとエラ呼吸ができず窒息してしまうため、寝ている間も一生休むことなく高速で泳ぎ続けています。ちなみに、鰹節は世界一硬い食品としてギネス認定されています。'
+    },
     menuItems: [], recommendedSake: "tateyama"
   },
   {
-    id: "maguro", name: "まぐろ", kana: "まぐろ", img: "maguro.png",
+    id: "maguro", name: "まぐろ", kana: "まぐろ", img: "https://placehold.co/200x140/transparent/FFFFFF?text=まぐろ",
     basicInfo: "寿司や刺身の主役。赤身、中トロ、大トロと部位によって脂の乗り方と味わいが大きく異なります。",
     eatingPoint: "赤身はさっぱりとした酸味と旨味が、トロは口の中でとろける濃厚な脂の甘みが楽しめます。部位ごとの味わいの違いをぜひ食べ比べてみてください。",
-    surprisingInfo: "マグロもカツオと同様に、泳ぎ続けないと呼吸ができない回遊魚で、寝ている間もゆっくり泳いでいます。",
-    trivia: "江戸時代、脂の多いトロの部分は「腐りやすい」として捨てられたり、畑の肥料にされたりしていました。",
+    interactive: {
+      type: 'quiz',
+      question: '江戸時代、脂の多い「トロ」の部分はどう扱われていた？',
+      options: [
+        { text: '捨てられたり畑の肥料にされた', isCorrect: true },
+        { text: '将軍家への高級献上品とされた', isCorrect: false }
+      ],
+      explanation: '当時は保存技術がなく脂身は腐りやすかったため、捨てられたり畑の肥料にされたりしていました。なお、マグロもカツオと同様に、泳ぎ続けないと呼吸ができない回遊魚です。'
+    },
     menuItems: [], recommendedSake: "zaku"
   },
   {
-    id: "salmon", name: "サーモン", kana: "さーもん", img: "sa-mon.png",
+    id: "salmon", name: "サーモン", kana: "さーもん", img: "https://placehold.co/200x140/transparent/FFFFFF?text=サーモン",
     basicInfo: "脂がたっぷり乗り、とろけるような食感が特徴。子供から大人まで大人気の魚です。",
     eatingPoint: "豊かな脂の甘みと、なめらかな舌触りが最大の魅力です。炙ることで香ばしさが加わり、生とはまた違ったとろける食感を味わえます。",
-    surprisingInfo: "生食用の「サーモン」は基本的に寄生虫対策がされた養殖物で、天然の「鮭」は加熱調理が基本です。",
-    trivia: "身がオレンジ色をしていますが、実は「白身魚」に分類されます。餌の甲殻類の色素（アスタキサンチン）が蓄積してこの色になります。",
+    interactive: {
+      type: 'quiz',
+      question: '身がオレンジ色をしているのに「白身魚」に分類される理由は？',
+      options: [
+        { text: 'エサの色素が蓄積しているから', isCorrect: true },
+        { text: '加熱すると身が白く変化するから', isCorrect: false }
+      ],
+      explanation: 'エサである甲殻類の色素（アスタキサンチン）が蓄積してこの色になります。ちなみに生食用の「サーモン」は寄生虫対策がされた養殖物で、天然の「鮭」は加熱調理が基本です。'
+    },
     menuItems: [], recommendedSake: "oze"
   },
   {
-    id: "hirame", name: "ヒラメ", kana: "ひらめ", img: "hirame.png",
+    id: "hirame", name: "ヒラメ", kana: "ひらめ", img: "https://placehold.co/200x140/transparent/FFFFFF?text=ヒラメ",
     basicInfo: "上品な旨味とコリコリとした食感が特徴の高級白身魚。冬に脂が乗って「寒ビラメ」として美味しくなります。",
     eatingPoint: "淡白な中にも上品な旨みがあり、コリコリとした弾力のある食感が楽しめます。えんがわ部分は脂が乗っており、特有の甘みが口に広がります。",
-    surprisingInfo: "生まれたばかりのヒラメは普通の魚のように目が両側にありますが、成長するにつれて右目が左側に移動します。",
-    trivia: "「左ヒラメに右カレイ」と言われ、目を上にして置いた時に顔が左を向くのがヒラメ、右を向くのがカレイと見分けます。",
+    interactive: {
+      type: 'flip',
+      front: 'ヒラメとカレイの<br>見分け方は？',
+      back: '「左ヒラメに右カレイ」。<br><br>目を上にして置いた時に顔が左を向くのがヒラメ、右を向くのがカレイです。',
+      explanation: '生まれたばかりのヒラメは普通の魚のように目が両側にありますが、成長するにつれて右目が左側に移動します。'
+    },
     illustration: `
       <div>
-        <img src="hirame_kaisetsu2.png" alt="左ヒラメに右カレイ" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">
-        <div style="display: flex; justify-content: space-around; margin-top: 10px; font-size: 13px; font-weight: bold; color: var(--kinari);">
-          <span>左ヒラメ</span>
-          <span>右カレイ</span>
-        </div>
+        <img src="https://placehold.co/400x200/22385C/FFFFFF?text=左ヒラメ+右カレイ" alt="左ヒラメに右カレイ" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">
       </div>
     `,
     illCaption: "目の位置でヒラメとカレイを見分ける図解",
     menuItems: [], recommendedSake: "hakkaisan"
   },
   {
-    id: "shimaaji", name: "シマアジ", kana: "しまあじ", img: "shimaaji_kaisetsu.png",
+    id: "shimaaji", name: "シマアジ", kana: "しまあじ", img: "https://placehold.co/200x140/transparent/FFFFFF?text=シマアジ",
     basicInfo: "アジ類の中で最も味が良いとされ、高級魚として扱われます。身が締まり、上品な脂の甘みがあります。",
     eatingPoint: "青魚特有のクセがなく、白身魚のような上品な脂の甘さと、しっかりとした歯ごたえを同時に味わえるのが特徴です。",
-    surprisingInfo: "天然物は非常に漁獲量が少なく「幻の魚」とも呼ばれますが、養殖技術の進歩により安定して流通するようになりました。",
-    trivia: "体の側面に鮮やかな黄色の縦線（シマ）が入っていることが、「シマアジ」という名前の由来の一つです。",
-    illustration: `<img src="shimaaji_kaisetsu.png" alt="シマアジの特徴" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
+    interactive: {
+      type: 'quiz',
+      question: '「シマアジ」という名前の由来の一つは？',
+      options: [
+        { text: '体の側面に黄色の縦線があるから', isCorrect: true },
+        { text: '特定の暖かい島周辺でしか獲れないから', isCorrect: false }
+      ],
+      explanation: '体の側面に鮮やかな黄色の縦線（シマ）が入っていることが名前の由来の一つです。天然物は非常に漁獲量が少なく「幻の魚」とも呼ばれます。'
+    },
+    illustration: `<img src="https://placehold.co/400x200/22385C/FFFFFF?text=シマアジの縦線" alt="シマアジの特徴" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
     illCaption: "体の側面に入る鮮やかな黄色の縦線（シマ）",
     menuItems: [], recommendedSake: "manozuru"
   },
   {
-    id: "maiwashi", name: "真いわし", kana: "まいわし", img: "iwashi.png",
+    id: "maiwashi", name: "真いわし", kana: "まいわし", img: "https://placehold.co/200x140/transparent/FFFFFF?text=真いわし",
     basicInfo: "青魚の代表で、EPAやDHAなどの栄養素が豊富。新鮮なものは刺身でも絶品です。",
     eatingPoint: "青魚ならではの豊かな香りと、とろけるように脂ののった身の旨みがたまりません。生姜醤油でさっぱりといただくのがおすすめです。",
-    surprisingInfo: "「弱し（よわし）」が名前の由来と言われるほど鮮度落ちが早く、水揚げされるとすぐに死んでしまいます。",
-    trivia: "敵から身を守るために、何万匹という巨大な群れ（トルネード）を作って泳ぐ習性があります。",
-    illustration: `<img src="iwashi_kaisetsu.jpg" alt="イワシの群れ（トルネード）" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
+    interactive: {
+      type: 'flip',
+      front: '漢字で魚へんに<br>「弱い（鰯）」と書く由来は？',
+      back: '「弱し（よわし）」が訛ったと言われるほど鮮度落ちが早く、水揚げされるとすぐに死んでしまうため。',
+      explanation: 'また、敵から身を守るために、海中では何万匹という巨大な群れ（トルネード）を作って泳ぐ習性があります。'
+    },
+    illustration: `<img src="https://placehold.co/400x200/22385C/FFFFFF?text=イワシのトルネード" alt="イワシの群れ（トルネード）" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
     illCaption: "巨大な群れ（トルネード）を作って泳ぐイワシ",
     menuItems: [], recommendedSake: "tateyama"
   },
   {
-    id: "madako", name: "真だこ", kana: "まだこ", img: "tako.png",
+    id: "madako", name: "真だこ", kana: "まだこ", img: "https://placehold.co/200x140/transparent/FFFFFF?text=真だこ",
     basicInfo: "噛むほどに広がる濃厚な旨味と、しっかりとした弾力が特徴。日本で最も一般的に食べられるタコです。",
     eatingPoint: "噛めば噛むほどに広がる濃厚な旨みと、しっかりとした歯ごたえが特徴です。吸盤のコリコリとした食感も良いアクセントになります。",
-    surprisingInfo: "タコは心臓を3つ、脳を9つ持っており、非常に高い知能を持っていると言われています。",
-    trivia: "日本では茹でると赤くなりますが、生きている時は環境に合わせて一瞬で体の色や模様を変えることができます。",
-    illustration: `<img src="tako_kaisetsu.png" alt="タコにある3つの心臓と9つの脳" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
+    interactive: {
+      type: 'quiz',
+      question: 'タコが持っている心臓と脳の数は？',
+      options: [
+        { text: '心臓が3つ、脳が9つ', isCorrect: true },
+        { text: '心臓が1つ、脳が1つ', isCorrect: false }
+      ],
+      explanation: 'タコは心臓を3つ、脳を9つ持っており、非常に高い知能を持っていると言われています。また、日本では茹でると赤くなりますが、生きている時は環境に合わせて一瞬で体の色や模様を変えることができます。'
+    },
+    illustration: `<img src="https://placehold.co/400x200/22385C/FFFFFF?text=タコの心臓と脳" alt="タコにある3つの心臓と9つの脳" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
     illCaption: "タコにある3つの心臓と9つの脳",
     menuItems: [], recommendedSake: "manozuru"
   },
   {
-    id: "unagi", name: "うなぎ", kana: "うなぎ", img: "unagi.png",
+    id: "unagi", name: "うなぎ", kana: "うなぎ", img: "https://placehold.co/200x140/transparent/FFFFFF?text=うなぎ",
     basicInfo: "土用の丑の日に食べる習慣でおなじみ。ふっくらとした身と香ばしいタレの相性が抜群です。",
     eatingPoint: "皮目はパリッと香ばしく、身はふっくらと柔らかな食感。甘辛いタレと脂の旨味が絡み合い、ご飯やお酒がどんどん進む深い味わいです。",
-    surprisingInfo: "ウナギの生態は長年謎に包まれていましたが、近年になってようやくマリアナ諸島付近で産卵することが判明しました。",
-    trivia: "ウナギの血には毒（イクチオトキシン）が含まれているため、加熱せずに生で食べることは基本的にできません。",
+    interactive: {
+      type: 'flip',
+      front: 'ウナギを基本的に<br>「生（刺身）」で食べない理由は？',
+      back: 'ウナギの血には毒（イクチオトキシン）が含まれているため、加熱処理が必須だから。',
+      explanation: 'ちなみにウナギの生態は長年謎に包まれていましたが、近年になってようやくマリアナ諸島付近で産卵することが判明しました。'
+    },
     menuItems: [], recommendedSake: "zaku"
   },
   {
-    id: "yariika", name: "ヤリイカ", kana: "やりいか", img: "ika.png",
+    id: "yariika", name: "ヤリイカ", kana: "やりいか", img: "https://placehold.co/200x140/transparent/FFFFFF?text=ヤリイカ",
     basicInfo: "上品な甘みと、コリコリとした歯切れの良い食感が魅力。冬から春にかけてが旬です。",
     eatingPoint: "透き通るような身は、上品な甘みと柔らかくも歯切れの良い食感が魅力です。噛むほどにイカ本来の優しい旨味が口いっぱいに広がります。",
-    surprisingInfo: "寿命はわずか1年。秋に生まれて成長し、翌年の春に産卵を終えると一生を終えます。",
-    trivia: "「ヤリイカ（槍烏賊）」という名前は、細長く先が尖った胴体の形が「槍の穂先」に似ていることに由来します。",
-    illustration: `<img src="ika_kaisetsu.png" alt="ヤリイカのシルエット" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
+    interactive: {
+      type: 'quiz',
+      question: 'ヤリイカの寿命はどのくらい？',
+      options: [
+        { text: 'わずか1年', isCorrect: true },
+        { text: '約10年', isCorrect: false }
+      ],
+      explanation: '秋に生まれて成長し、翌年の春に産卵を終えると一生を終えます。「ヤリイカ（槍烏賊）」という名前は、細長く先が尖った胴体の形が「槍の穂先」に似ていることに由来します。'
+    },
+    illustration: `<img src="https://placehold.co/400x200/22385C/FFFFFF?text=ヤリイカのシルエット" alt="ヤリイカのシルエット" style="width: 100%; height: auto; border-radius: 6px; display: block; margin: 0 auto;">`,
     illCaption: "槍の穂先に似ているヤリイカのシルエット",
     menuItems: [], recommendedSake: "oze"
   },
   {
-    id: "amaebi", name: "甘エビ", kana: "あまえび", img: "ebi.png",
+    id: "amaebi", name: "甘エビ", kana: "あまえび", img: "https://placehold.co/200x140/transparent/FFFFFF?text=甘エビ",
     basicInfo: "その名の通り、とろけるような強い甘みが特徴。正式名称は「ホッコクアカエビ」といいます。",
     eatingPoint: "口に入れた瞬間にとろけるような強い甘みと、ねっとりとしたなめらかな口当たりが特徴です。頭の味噌も濃厚で、余すところなく楽しめます。",
-    surprisingInfo: "生まれた時はすべてオスで、4〜5年経つとメスに性転換するという不思議な生態を持っています。",
-    trivia: "水揚げされてから少し時間が経つことで、自己消化によりアミノ酸が増え、より甘みが増します。",
+    interactive: {
+      type: 'flip',
+      front: '甘エビの不思議な<br>生態とは？',
+      back: '生まれた時はすべてオスで、4〜5年経つとメスに性転換する。',
+      explanation: '水揚げされてから少し時間が経つことで、自己消化によりアミノ酸が増え、より甘みが増します。'
+    },
     menuItems: [], recommendedSake: "oze"
   }
 ];
 
 /* ============ お酒データ(マスタデータ) ============ */
 const sakeList = [
-  {
-    id: "oze", group: "冷や・常温で", tag: "辛口",
-    name: "尾瀬のゆきどけ", region: "群馬",
-    taste: "キレのある喉ごしと、澄んだ後味が特徴です。ほのかなフルーティーな香りがありつつも、後味はスッと切れるため、サーモンやヤリイカのような甘みのある魚の脂や旨味を綺麗に洗い流してくれます。お造りなどの生食と合わせるのが特におすすめです。"
-  },
-  {
-    id: "hakkaisan", group: "冷や・常温で", tag: "スッキリ",
-    name: "八海山", region: "新潟",
-    taste: "雑味のないクリアな味わいと、淡麗で軽やかな飲み口が魅力の銘酒。魚の繊細な風味を一切邪魔せず、むしろ引き立ててくれます。ヒラメのような上品な白身魚や、アジなどの青魚を塩焼きにした際の香ばしさとも見事に調和します。"
-  },
-  {
-    id: "zaku", group: "冷や・常温で", tag: "旨甘口",
-    name: "作", region: "三重",
-    taste: "やわらかな甘みと、ふくよかな米の旨みが口いっぱいに広がるリッチな味わい。マグロのトロやウナギのような、脂が乗っていて味の濃い魚と合わせると、お酒の甘みと魚の脂が口の中で溶け合い、極上のペアリングを生み出します。濃いめのタレや味噌を使った料理にもよく合います。"
-  },
-  {
-    id: "manozuru", group: "熱燗で", tag: "辛口",
-    name: "真野鶴", region: "新潟",
-    taste: "温めることで米本来のまろやかな旨味と、辛口ならではの輪郭がグッと引き立ちます。シマアジのようなしっかりとした旨味を持つ魚や、タコのように噛むほどに味が出る魚介と合わせると、燗酒の温かさが素材の甘みをより一層深めてくれます。"
-  },
-  {
-    id: "tateyama", group: "熱燗で", tag: "超辛口",
-    name: "立山", region: "富山",
-    taste: "熱燗にすることでキレ味と辛さがより一層際立つ、食中酒の王道。口の中をさっぱりとリセットしてくれるので、カツオのタタキやイワシなど、クセや香りが強めの青魚・赤身魚と相性抜群です。香ばしい炭火焼きの料理と合わせても負けない力強さがあります。"
-  }
+  { id: "oze", group: "冷や・常温で", tag: "辛口", name: "尾瀬のゆきどけ", region: "群馬", taste: "キレのある喉ごしと、澄んだ後味が特徴です。ほのかなフルーティーな香りがありつつも、後味はスッと切れるため、甘みのある魚の脂や旨味を綺麗に洗い流してくれます。" },
+  { id: "hakkaisan", group: "冷や・常温で", tag: "スッキリ", name: "八海山", region: "新潟", taste: "雑味のないクリアな味わいと、淡麗で軽やかな飲み口が魅力の銘酒。魚の繊細な風味を一切邪魔せず、むしろ引き立ててくれます。上品な白身魚や塩焼きとも見事に調和します。" },
+  { id: "zaku", group: "冷や・常温で", tag: "旨甘口", name: "作", region: "三重", taste: "やわらかな甘みと、ふくよかな米の旨みが口いっぱいに広がるリッチな味わい。脂が乗っていて味の濃い魚と合わせると、お酒の甘みと魚の脂が口の中で溶け合い、極上のペアリングを生み出します。" },
+  { id: "manozuru", group: "熱燗で", tag: "辛口", name: "真野鶴", region: "新潟", taste: "温めることで米本来のまろやかな旨味と、辛口ならではの輪郭がグッと引き立ちます。しっかりとした旨味を持つ魚介と合わせると、燗酒の温かさが素材の甘みをより一層深めてくれます。" },
+  { id: "tateyama", group: "熱燗で", tag: "超辛口", name: "立山", region: "富山", taste: "熱燗にすることでキレ味と辛さがより一層際立つ、食中酒の王道。口の中をさっぱりとリセットしてくれるので、クセや香りが強めの青魚・赤身魚と相性抜群です。" }
 ];
 
-/* ============ 状態管理 ============ */
+/* ============ 状態管理と画面遷移 ============ */
 let currentFishId = null;
 let surveyProfile = JSON.parse(localStorage.getItem('fish_survey')) || null;
-
-/* ============ 画面遷移と背景切り替え ============ */
 let isMainVideoPlaying = false;
 
 function startSeamlessLoop() {
@@ -716,26 +643,24 @@ function startSeamlessLoop() {
   
   const vid1 = document.getElementById('bg-video-main-1');
   const vid2 = document.getElementById('bg-video-main-2');
-  const fadeTime = 1.5; // 動画終了の何秒前にクロスフェードを開始するか
+  const fadeTime = 1.5;
 
   if (!vid1 || !vid2) return;
 
   vid1.currentTime = 0;
-  vid1.play().catch(e => console.log('Video play error:', e));
+  vid1.play().catch(e => console.log('Video error:', e));
   vid1.classList.add('show-bg');
 
   const checkTime = (currentVid, nextVid) => {
     if (currentVid.duration > 0 && currentVid.currentTime >= currentVid.duration - fadeTime) {
       if (nextVid.paused) {
         nextVid.currentTime = 0;
-        nextVid.play().catch(e => console.log('Video play error:', e));
+        nextVid.play().catch(e => console.log('Video error:', e));
         nextVid.classList.add('show-bg');
         currentVid.classList.remove('show-bg');
       }
     }
-    if (currentVid.currentTime >= currentVid.duration - 0.2) {
-      currentVid.pause();
-    }
+    if (currentVid.currentTime >= currentVid.duration - 0.2) { currentVid.pause(); }
   };
 
   vid1.addEventListener('timeupdate', () => checkTime(vid1, vid2));
@@ -766,19 +691,18 @@ function clearErr(groupId){
   if (el) el.classList.remove('errhi');
 }
 
-/* ============ 魚選択グリッドの描画 ============ */
+/* ============ グリッド・詳細画面の描画 ============ */
 function renderFishGrid() {
   const grid = document.getElementById('fishGrid');
   if (!grid) return;
   grid.innerHTML = fishList.map(f => `
     <div class="fish-card" onclick="selectFish('${f.id}')">
-      <img src="${f.img}" alt="${f.name}">
+      <img src="${f.img}" alt="${f.name}" onerror="this.src='https://placehold.co/200x140/transparent/FFFFFF?text=${f.name}'">
       <div class="name">${f.name}</div>
     </div>
   `).join('');
 }
 
-/* ============ 魚詳細の描画 ============ */
 function selectFish(id){
   currentFishId = id;
   const f = fishList.find(x=>x.id===id);
@@ -787,22 +711,9 @@ function selectFish(id){
   document.getElementById('detailName').textContent = f.name;
   document.getElementById('detailBasic').textContent = f.basicInfo;
   document.getElementById('detailEatingPoint').textContent = f.eatingPoint;
-  document.getElementById('detailSurprising').textContent = f.surprisingInfo;
-  document.getElementById('detailTrivia').textContent = f.trivia;
 
-  // イラスト(SVG)の表示切り替え
-  const illWrap = document.getElementById('detailIllWrap');
-  const illSvg = document.getElementById('detailIllSvg');
-  const illCaption = document.getElementById('detailIllCaption');
-  
-  if(f.illustration) {
-    illSvg.innerHTML = f.illustration;
-    illCaption.textContent = f.illCaption || "";
-    illWrap.style.display = 'block';
-  } else {
-    illWrap.style.display = 'none';
-    illSvg.innerHTML = "";
-  }
+  // インタラクティブUIの構築
+  buildInteractiveUI(f);
 
   const finishBtn = document.getElementById('finishButton');
   if (surveyProfile) {
@@ -811,19 +722,127 @@ function selectFish(id){
     finishBtn.textContent = '最後にお聞かせください';
   }
 
-  sendLog('魚を見た', { fishId: f.id, fishName: f.name });
-
+  sendLog('魚を見た', { fishId: f.id });
   goScreen('detail');
 }
 
-/* ============ メニュー画面へ遷移 ============ */
+/* ============ クイズ/フリップカード構築 ============ */
+function buildInteractiveUI(fish) {
+  const intArea = document.getElementById('interactiveArea');
+  const expArea = document.getElementById('explanationArea');
+  
+  // 初期化
+  intArea.innerHTML = '';
+  expArea.style.display = 'none';
+  
+  const interact = fish.interactive;
+  if (!interact) return;
+
+  if (interact.type === 'quiz') {
+    // 選択肢シャッフル
+    const options = [...interact.options].sort(() => Math.random() - 0.5);
+    const correctIndex = options.findIndex(o => o.isCorrect);
+
+    let btnsHtml = options.map((opt, i) => {
+      return `<button class="quiz-btn" onclick="answerQuiz(${opt.isCorrect}, ${i}, ${correctIndex})">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span>${opt.text}</span>
+                  <span class="quiz-icon" style="font-size:12px; font-weight:bold;"></span>
+                </div>
+              </button>`;
+    }).join('');
+
+    intArea.innerHTML = `
+      <div class="quiz-container">
+        <div class="trivia-label" style="color: var(--shu-pale); margin-bottom:8px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          2択クイズに挑戦！
+        </div>
+        <div class="quiz-question">${interact.question}</div>
+        <div class="quiz-options">${btnsHtml}</div>
+      </div>
+    `;
+  } else if (interact.type === 'flip') {
+    intArea.innerHTML = `
+      <div class="flip-card-container" onclick="flipCard(this.querySelector('.flip-card'))">
+        <div class="flip-card">
+          <div class="flip-card-front">
+            <div class="trivia-label" style="margin-bottom:14px; color: var(--ai-pale);">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+              タップして裏返す
+            </div>
+            <div style="font-size:16.5px; font-weight:700; line-height:1.6; font-family:var(--font-mincho);">${interact.front}</div>
+          </div>
+          <div class="flip-card-back">
+            <div class="trivia-label" style="margin-bottom:14px; color: var(--shu-pale);">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+              答え
+            </div>
+            <div style="font-size:15px; font-weight:700; line-height:1.6;">${interact.back}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // 解説文とイラストのセット
+  document.getElementById('detailExplanation').textContent = interact.explanation || '';
+  const illWrap = document.getElementById('detailIllWrap');
+  const illSvg = document.getElementById('detailIllSvg');
+  const illCaption = document.getElementById('detailIllCaption');
+  
+  if (fish.illustration) {
+    illSvg.innerHTML = fish.illustration;
+    illCaption.textContent = fish.illCaption || "";
+    illWrap.style.display = 'block';
+  } else {
+    illWrap.style.display = 'none';
+    illSvg.innerHTML = "";
+  }
+}
+
+/* ============ インタラクション操作時の処理 ============ */
+function answerQuiz(isCorrect, selectedIdx, correctIdx) {
+  const btns = document.querySelectorAll('.quiz-container .quiz-btn');
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    const iconSpan = btn.querySelector('.quiz-icon');
+    if (i === correctIdx) {
+      btn.classList.add('correct');
+      if (iconSpan) iconSpan.textContent = '⭕️ 正解';
+    } else if (i === selectedIdx && !isCorrect) {
+      btn.classList.add('incorrect');
+      if (iconSpan) iconSpan.textContent = '❌';
+    }
+  });
+
+  // 少し遅れて解説を表示
+  setTimeout(() => {
+    const expArea = document.getElementById('explanationArea');
+    expArea.style.display = 'block';
+    expArea.style.animation = 'fadeUp 0.5s ease forwards';
+  }, 400);
+}
+
+function flipCard(cardEl) {
+  if(cardEl.classList.contains('flipped')) return;
+  cardEl.classList.add('flipped');
+  
+  // 裏返った直後に解説を表示
+  setTimeout(() => {
+    const expArea = document.getElementById('explanationArea');
+    expArea.style.display = 'block';
+    expArea.style.animation = 'fadeUp 0.5s ease forwards';
+  }, 500);
+}
+
+/* ============ メニュー画面・アンケート ============ */
 function goToMenu(){
   const f = fishList.find(x=>x.id===currentFishId);
   if (!f) return;
   document.getElementById('menuScreenName').textContent = f.name;
 
   const wrap = document.getElementById('menuScreenList');
-  
   const items = f.menuItems && f.menuItems.length > 0 ? f.menuItems : [
     { name: `${f.name}のお造り`, description: "鮮度抜群。素材本来の味をお楽しみください。", recommendedSake: f.recommendedSake },
     { name: `${f.name}の特製なめろう`, description: "日本酒にぴったり。ちびちびとつまめる一品です。", recommendedSake: "zaku" },
@@ -848,7 +867,6 @@ function goToMenu(){
         </div>
       `;
     }
-
     return `
       <div class="menu-item" onclick="this.classList.toggle('open')">
         <div class="name">
@@ -864,7 +882,6 @@ function goToMenu(){
   goScreen('menu');
 }
 
-/* ============ アンケートへ進む、または直接終了する ============ */
 function handleFinishClick(){
   if (surveyProfile) {
     goScreen('select');
@@ -873,7 +890,6 @@ function handleFinishClick(){
   }
 }
 
-/* ============ アンケート送信 ============ */
 function submitSurvey(){
   const genderEl = document.querySelector('input[name="s-gender"]:checked');
   const ageEl = document.querySelector('input[name="s-age"]:checked');
@@ -892,33 +908,22 @@ function submitSurvey(){
 
   surveyProfile = { gender: genderEl.value, age: ageEl.value };
   localStorage.setItem('fish_survey', JSON.stringify(surveyProfile));
-
-  sendLog('アンケート回答', {
-    gender: genderEl.value,
-    age: ageEl.value,
-    fishId: currentFishId
-  });
-
+  sendLog('アンケート', { gender: genderEl.value, age: ageEl.value, fishId: currentFishId });
   goScreen('select');
 }
 
-/* ============ 初期化 ============ */
+/* ============ 初期化処理 ============ */
 renderFishGrid();
 goScreen('op');
-sendLog('アクセス');
 
-/* ============ OP動画終了イベント ============ */
 const opVid = document.getElementById('bg-video-op');
 const opLogo = document.getElementById('op-logo');
 if (opVid && opLogo) {
   opVid.addEventListener('ended', () => {
     opLogo.style.opacity = '1';
-    
     setTimeout(() => {
       const opScreen = document.querySelector('[data-screen="op"]');
-      if (opScreen.classList.contains('active')) {
-        goScreen('select');
-      }
+      if (opScreen.classList.contains('active')) { goScreen('select'); }
     }, 3000);
   });
 }

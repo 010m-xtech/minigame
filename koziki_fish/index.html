@@ -70,7 +70,7 @@
     border-bottom:1px solid rgba(255,255,255,0.15);
     padding: 16px 20px 14px;
   }
-  .brand { display:flex; align-items:center; gap:10px; }
+  .brand { display:flex; align-items:center; gap:10px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .seal { width:32px; height:32px; flex:0 0 auto; object-fit: contain; }
   .brand h1 {
     font-family: var(--font-mincho); font-weight:700; font-size:18.5px;
@@ -78,6 +78,16 @@
     line-height: 1.4;
   }
   .brand p { margin:0; font-size:10px; color:rgba(255,255,255,0.7); letter-spacing:0.08em; }
+
+  .header-inner { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+  .header-back-btn {
+    background: transparent; border: none; color: var(--kinari);
+    font-family: var(--font-gothic); font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; gap: 4px; cursor: pointer;
+    padding: 6px; border-radius: 6px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .header-back-btn:active { background: rgba(255,255,255,0.1); }
 
   main { flex:1; padding:26px 20px 48px; position:relative; }
 
@@ -310,11 +320,17 @@
 
 <div class="app">
   <header id="main-header" style="display: none;">
-    <div class="brand">
-      <img src="koziki_logo.webp" class="seal" alt="居酒屋 乞食 ロゴ" onerror="this.src='https://placehold.co/64x64/22385C/FFFFFF?text=ロゴ'">
-      <div>
-        <h1>居酒屋 乞食 のお魚たち</h1>
+    <div class="header-inner">
+      <div class="brand" onclick="goScreen('select')">
+        <img src="koziki_logo.webp" class="seal" alt="居酒屋 乞食 ロゴ" onerror="this.src='https://placehold.co/64x64/22385C/FFFFFF?text=ロゴ'">
+        <div>
+          <h1>居酒屋 乞食 のお魚たち</h1>
+        </div>
       </div>
+      <button id="header-back-btn" class="header-back-btn" onclick="goBack()" style="display:none;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        <span>戻る</span>
+      </button>
     </div>
   </header>
   <main>
@@ -387,6 +403,10 @@
 
     <section class="screen" data-screen="menu">
       <h2 class="title"><span id="menuScreenName"></span> を使用した料理と相性良いお酒</h2>
+      <div style="color: #ff6b6b; font-size: 13px; font-weight: 700; margin-bottom: 20px; line-height: 1.6;">
+        ※ご注文は、注文用QRもしくは口頭で承ります。<br>
+        ※仕入れの都合により、ご用意が無い場合がございます。
+      </div>
       <div id="menuScreenList"></div>
       <div class="btn-row" style="margin-top: 32px;">
         <button class="btn btn-primary" style="width:100%" id="finishButton" onclick="handleFinishClick()"></button>
@@ -575,7 +595,7 @@ const fishList = [
       question: 'タコが持っている心臓と脳の数は？',
       options: [
         { text: '心臓が3つ、脳が9つ。', isCorrect: true },
-        { text: '心臓が3つ、脳が6つ。', isCorrect: false }
+        { text: '心臓が1つ、脳が1つ。', isCorrect: false }
       ],
       explanation: 'タコは心臓を3つ、脳を9つ持っており、非常に高い知能を持っていると言われています。'
     },
@@ -641,6 +661,7 @@ const sakeList = [
 let currentFishId = null;
 let surveyProfile = JSON.parse(localStorage.getItem('fish_survey')) || null;
 let isMainVideoPlaying = false;
+let screenHistory = []; // 画面遷移の履歴管理用
 
 function startSeamlessLoop() {
   if (isMainVideoPlaying) return;
@@ -672,7 +693,15 @@ function startSeamlessLoop() {
   vid2.addEventListener('timeupdate', () => checkTime(vid2, vid1));
 }
 
-function goScreen(name){
+function goScreen(name, isBack = false){
+  const currentScreen = document.querySelector('.screen.active');
+  const currentName = currentScreen ? currentScreen.dataset.screen : null;
+
+  // 戻るボタンでの遷移でなく、かつ違う画面へ移動する場合に履歴を保存（OP画面は履歴に含めない）
+  if (!isBack && currentName && currentName !== name && currentName !== 'op') {
+    screenHistory.push(currentName);
+  }
+
   document.querySelectorAll('.screen').forEach(el=>{
     el.classList.toggle('active', el.dataset.screen === name);
   });
@@ -688,6 +717,27 @@ function goScreen(name){
     if(opVideo) opVideo.classList.remove('show-bg');
     startSeamlessLoop();
     if(header) header.style.display = 'block';
+  }
+
+  // 戻るボタンの表示・非表示の切り替え
+  const backBtn = document.getElementById('header-back-btn');
+  if (backBtn) {
+    if (name === 'select' || name === 'op') {
+      backBtn.style.display = 'none'; // 選択画面とOP画面では戻るボタンを非表示
+      screenHistory = []; // 選択画面に戻った場合は履歴をリセット
+    } else {
+      backBtn.style.display = 'flex';
+    }
+  }
+}
+
+// １つ前の画面に戻る処理
+function goBack() {
+  if (screenHistory.length > 0) {
+    const prevScreen = screenHistory.pop();
+    goScreen(prevScreen, true); // 戻るフラグ(isBack = true)を立てて遷移
+  } else {
+    goScreen('select'); // 履歴がない場合の保険として選択画面へ
   }
 }
 

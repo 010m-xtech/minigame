@@ -405,9 +405,12 @@
           <div class="telop left">カレイ</div>
           <div class="telop right">ヒラメ</div>
         </div>
+        <button class="big-btn" id="nextBtn" style="margin-top: 10px;" onclick="nextQuestion()">つぎへすすむ</button>
       </div>
     </section>
 
+    <!-- さいごの画面 -->
+    <section class="screen" data-screen="final">
     <!-- さいごの画面 -->
     <section class="screen" data-screen="final">
       <div class="final-wrap">
@@ -418,8 +421,6 @@
     </section>
 
   </main>
-
-  <footer class="hint">きょうも たのしい ごはんを どうぞ</footer>
 </div>
 
 <script>
@@ -563,17 +564,24 @@ function answer(userAnswer){
     feedbackImgWrap.style.display = 'none';
   }
 
-  goScreen('feedback');
+  const nextBtn = document.getElementById('nextBtn');
+  if (currentIndex === questions.length - 1) {
+    nextBtn.textContent = "けっかをみる";
+  } else {
+    nextBtn.textContent = "つぎへすすむ";
+  }
 
-  setTimeout(()=>{
-    currentIndex++;
-    if (currentIndex < questions.length){
-      renderQuestion();
-      goScreen('quiz');
-    } else {
-      showFinal();
-    }
-  }, 2200);
+  goScreen('feedback');
+}
+
+function nextQuestion(){
+  currentIndex++;
+  if (currentIndex < questions.length){
+    renderQuestion();
+    goScreen('quiz');
+  } else {
+    showFinal();
+  }
 }
 
 function showFinal(){

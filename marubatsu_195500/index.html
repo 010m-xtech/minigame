@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>さかな くいず</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Stick&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ai: #2C4A78;
+    --ai-light: #4C6A94;
+    --ai-pale: #DCE7F5;
+    --shu: #E8563E;
+    --shu-pale: #FFE3DA;
+    --maru: #2E86AB;
+    --batsu: #E8563E;
+    --sumi: #3A342C;
+    --line: #E7DCC4;
+    --font: 'Stick', sans-serif;
+  }
+
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  html,body{
+    margin:0; padding:0;
+    /* 背景色があるとz-indexがマイナスの動画が裏に隠れてしまうため transparent に変更 */
+    background: transparent; 
+    color: var(--sumi);
+    font-family: var(--font);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body{ min-height:100vh; display:flex; justify-content:center; }
+
+  /* --- 背景動画 --- */
+  .video-bg-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    /* -1だとブラウザによっては背景色に隠れるため 0 に変更 */
+    z-index: 0; 
+    overflow: hidden;
+    background: #FDECC8; /* 動画読み込み前の背景色 */
+  }
+  .video-bg-container video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: translate(-50%, -50%);
+    transition: opacity 1.5s linear; /* クロスフェードの秒数 */
+    opacity: 0;
+  }
+
+  /* コンテンツエリア */
+  .app{
+    width:100%; max-width:460px; min-height:100vh;
+    background: transparent; /* アプリ全体の背景色とすりガラスを削除して透明に */
+    position:relative;
+    /* コンテンツを動画より確実に手前に配置 */
+    z-index: 1; 
+    display:flex; flex-direction:column;
+  }
+
+  header{
+    padding: 18px 20px 12px;
+    text-align:center;
+  }
+  header h1{
+    font-size:20px; font-weight:900; color:var(--ai); margin:0;
+    letter-spacing:0.03em;
+    /* 切り絵風の背景を敷くため、元のテキストシャドウを削除しレイアウト調整 */
+    display: inline-block;
+    padding: 10px 28px;
+    position: relative;
+    filter: drop-shadow(3px 5px 0 rgba(0,0,0,0.15));
+  }
+  header h1::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: rgba(255, 255, 255, 0.85); /* 他のカードと同じく動画が少し透ける白 */
+    /* ハサミで切ったような少し歪んだ帯（タイトル用） */
+    clip-path: polygon(2% 8%, 35% 2%, 80% 5%, 97% 4%, 99% 45%, 96% 92%, 60% 98%, 20% 95%, 4% 97%, 0% 50%);
+  }
+
+  main{ flex:1; padding: 10px 20px 40px; display:flex; flex-direction:column; }
+
+  .screen{ display:none; flex:1; flex-direction:column; animation: pop .35s ease both; }
+  .screen.active{ display:flex; }
+  @keyframes pop{ from{opacity:0; transform:scale(0.96);} to{opacity:1; transform:scale(1);} }
+  @media (prefers-reduced-motion: reduce){ .screen{ animation:none; } }
+
+  /* --- スタート画面 --- */
+  .start-wrap{
+    width: 100%; margin: auto;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; gap:22px; padding: 60px 20px; /* 画像を配置するスペースを広げる */
+    min-height: 360px; /* 枠のサイズを大きめに確保 */
+    background: transparent;
+    filter: drop-shadow(3px 5px 0 rgba(0,0,0,0.15));
+    position: relative;
+  }
+  .start-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: rgba(255, 255, 255, 0.85); /* 動画を見せつつ文字を読みやすくするカード背景 */
+    /* 手作りの紙のような少し歪んだ多角形 */
+    clip-path: polygon(1% 2%, 35% 0%, 75% 2%, 98% 1%, 100% 35%, 98% 75%, 99% 98%, 65% 100%, 25% 98%, 2% 99%, 0% 65%, 1% 25%);
+  }
+  
+  /* 追加: スタート画面のテキスト等を魚画像の手前に出す */
+  .start-title, .start-lead, .start-wrap .big-btn {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* 追加: 配置する魚の画像 */
+  .start-fish-img {
+    position: absolute;
+    z-index: 0;
+    opacity: 0.75; /* テキストの邪魔にならないよう少し透かす */
+    pointer-events: none; /* 誤ってクリックしないようにする */
+  }
+  
+  .start-title{
+    font-size:26px; font-weight:900; color:var(--ai); line-height:1.5; margin:0;
+    word-break: keep-all; overflow-wrap: break-word;
+  }
+  .start-lead{
+    font-size:15px; color:#7a6f5c; line-height:1.9; margin:0; max-width:260px;
+    word-break: keep-all; overflow-wrap: break-word;
+  }
+
+  .big-btn{
+    font-family: var(--font); font-weight:900; font-size:19px;
+    color:#fff; background: transparent;
+    border:none;
+    padding: 18px 48px;
+    filter: drop-shadow(3px 5px 0 rgba(0,0,0,0.15));
+    cursor:pointer;
+    position: relative;
+    transition: transform .08s ease, filter .08s ease;
+  }
+  .big-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--shu);
+    /* ハサミで切ったような少し歪んだ多角形 */
+    clip-path: polygon(3% 5%, 45% 1%, 85% 6%, 98% 18%, 99% 65%, 94% 93%, 60% 98%, 15% 95%, 2% 80%, 0% 45%);
+  }
+  .big-btn:active{ 
+    transform: translateY(4px); 
+    filter: drop-shadow(0px 1px 0 rgba(0,0,0,0.15)); 
+  }
+
+  /* --- 出題画面 --- */
+  .q-progress{
+    display:flex; justify-content:center; gap:6px; margin: 8px auto 20px;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 8px 16px;
+    border-radius: 20px;
+    width: fit-content;
+  }
+  .q-dot{
+    width:9px; height:9px; border-radius:50%; background: var(--line);
+  }
+  .q-dot.done{ background: var(--ai-light); }
+  .q-dot.now{ background: var(--shu); transform:scale(1.3); }
+
+  .q-card{
+    background: transparent; padding: 28px 22px;
+    filter: drop-shadow(3px 5px 0 rgba(0,0,0,0.15));
+    text-align:center; margin-bottom: 26px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+  .q-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: rgba(255, 255, 255, 0.75); /* 背景の動画が透けて見える半透明の白 */
+    /* ハサミで切ったような少し歪んだ四角形 */
+    clip-path: polygon(2% 1%, 40% 0%, 80% 2%, 99% 1%, 100% 40%, 98% 80%, 97% 98%, 60% 100%, 20% 98%, 1% 99%, 0% 60%, 1% 20%);
+  }
+  .q-num{ font-size:13px; color: var(--ai-light); font-weight:700; margin-bottom:10px; }
+  .q-text{ font-size:20px; font-weight:700; color:var(--sumi); line-height:1.8; word-break: keep-all; overflow-wrap: break-word; }
+  
+  .q-img-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    width: 100%;
+  }
+
+  .q-img {
+    max-width: 100%;
+    max-height: 160px;
+    border-radius: 12px;
+    display: none; /* 初期状態は非表示 */
+    object-fit: contain;
+  }
+  .q-img.multi {
+    max-width: 30%; /* 3つ並ぶため少し小さくする */
+    max-height: 110px;
+  }
+  .q-img.silhouette {
+    filter: brightness(0);
+  }
+
+  .ans-row{
+    display:flex; gap:16px; justify-content:center; margin-top:auto;
+  }
+  .ans-btn{
+    flex:1; max-width:150px; aspect-ratio: 1 / 1;
+    border:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    /* 切り絵（色画用紙）を重ねたような、ぼかしのないくっきりした影 */
+    filter: drop-shadow(3px 5px 0 rgba(0,0,0,0.15));
+    transition: transform .08s ease, filter .08s ease;
+    background: transparent;
+    position: relative;
+  }
+  .ans-btn:active{ 
+    transform: translateY(4px); 
+    filter: drop-shadow(0px 1px 0 rgba(0,0,0,0.15)); 
+  }
+  /* 擬似要素を使って背景を作り、そこを切り抜くことでブラウザの表示バグを防ぐ */
+  .ans-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+  .ans-btn svg{ width:56%; height:56%; position: relative; z-index: 1; }
+  
+  .ans-maru::before { 
+    background: var(--ai-pale); 
+    /* ハサミで丸くチョキチョキ切ったような、少しカクカクした多角形 */
+    clip-path: polygon(18% 4%, 48% 0%, 78% 7%, 95% 22%, 100% 52%, 93% 82%, 76% 98%, 46% 100%, 15% 93%, 2% 70%, 0% 38%, 4% 15%);
+  }
+  .ans-maru svg{ stroke: var(--maru); }
+  
+  .ans-batsu::before { 
+    background: var(--shu-pale); 
+    /* 丸ボタンとは切り方が違う、いびつな多角形 */
+    clip-path: polygon(12% 10%, 38% 3%, 72% 9%, 92% 26%, 99% 58%, 87% 89%, 64% 99%, 30% 97%, 6% 83%, 0% 55%, 3% 28%);
+  }
+  .ans-batsu svg{ stroke: var(--batsu); }
+
+  /* --- こたえあわせ画面 --- */
+  .result-feedback{
+    width: 100%; margin: auto;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; gap:16px; padding: 40px 20px;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 24px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  }
+  .feedback-icon{ width:110px; height:110px; }
+  .feedback-word{
+    font-size:26px; font-weight:900;
+  }
+  .feedback-word.ok{ color: var(--maru); }
+  .feedback-word.ng{ color: var(--batsu); }
+  .feedback-text{
+    font-size:15px; color:#7a6f5c; line-height:1.9; max-width:280px; margin:0;
+    word-break: keep-all; overflow-wrap: break-word;
+  }
+
+  /* 追加: 解説画像とテロップのスタイル */
+  .feedback-img-wrap {
+    position: relative;
+    margin-top: 8px;
+    display: none; /* 初期状態は非表示 */
+    max-width: 100%;
+  }
+  .feedback-img {
+    max-width: 100%;
+    max-height: 140px;
+    border-radius: 12px;
+    display: block;
+    object-fit: contain;
+  }
+  .telop {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.65);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    top: 10px;
+    letter-spacing: 0.05em;
+  }
+  .telop.left { left: 10px; }
+  .telop.right { right: 10px; }
+
+  /* --- さいごの画面 --- */
+  .final-wrap{
+    width: 100%; margin: auto;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; gap:18px; padding: 60px 20px;
+    min-height: 360px;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 24px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+  }
+  .final-score, .final-msg, .final-wrap .big-btn {
+    position: relative;
+    z-index: 1;
+  }
+  .final-fish-img {
+    position: absolute;
+    z-index: 0;
+    opacity: 0.75;
+    pointer-events: none;
+  }
+  .final-score{
+    font-size:46px; font-weight:900; color:var(--ai);
+  }
+  .final-score span{ font-size:22px; color:#7a6f5c; }
+  .final-msg{
+    font-size:16px; color:var(--sumi); font-weight:700; line-height:1.8; max-width:260px;
+    word-break: keep-all; overflow-wrap: break-word;
+  }
+
+  footer.hint{
+    text-align:center; font-size:11px; color:var(--sumi); padding:10px 20px 18px;
+    text-shadow: 1px 1px 0 #FFF, -1px -1px 0 #FFF, 1px -1px 0 #FFF, -1px 1px 0 #FFF;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+<!-- 背景動画コンテナ -->
+<div class="video-bg-container">
+  <!-- 音声ミュート(muted)とplaysinlineに加え、autoplayを指定して自動再生を確実にします -->
+  <video id="bg-video-1" src="marubatsu_back.mp4" muted playsinline autoplay></video>
+  <video id="bg-video-2" src="marubatsu_back.mp4" muted playsinline></video>
+</div>
+
+<div class="app">
+  <header><h1>おさかな ○✕ くいず</h1></header>
+
+  <main>
+
+    <!-- スタート画面 -->
+    <section class="screen active" data-screen="start">
+      <div class="start-wrap">
+        <p class="start-title">おさかなの こと、<br>どれくらい しってるかな?</p>
+        <p class="start-lead">○か ✕で こたえてね。<br>ぜんぶで 8もん あるよ!</p>
+        <button class="big-btn" onclick="startQuiz()">はじめる</button>
+      </div>
+    </section>
+
+    <!-- 出題画面 -->
+    <section class="screen" data-screen="quiz">
+      <div class="q-progress" id="qProgress"></div>
+      <div class="q-card">
+        <div class="q-num" id="qNum">1 もんめ</div>
+        <div class="q-text" id="qText"></div>
+        <!-- 画像表示エリア（複数画像に対応） -->
+        <div id="qImgWrap" class="q-img-wrap"></div>
+      </div>
+      <div class="ans-row">
+        <button class="ans-btn ans-maru" onclick="answer(true)" aria-label="まる">
+          <svg viewBox="0 0 60 60" fill="none"><circle cx="30" cy="30" r="22" stroke-width="7"/></svg>
+        </button>
+        <button class="ans-btn ans-batsu" onclick="answer(false)" aria-label="ばつ">
+          <svg viewBox="0 0 60 60" fill="none"><path d="M14 14l32 32M46 14L14 46" stroke-width="7" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- こたえあわせ画面 -->
+    <section class="screen" data-screen="feedback">
+      <div class="result-feedback">
+        <svg class="feedback-icon" id="feedbackIcon" viewBox="0 0 100 100" fill="none"></svg>
+        <div class="feedback-word" id="feedbackWord"></div>
+        <p class="feedback-text" id="feedbackText"></p>
+        
+        <!-- 解説用画像とテロップ -->
+        <div id="feedbackImgWrap" class="feedback-img-wrap">
+          <img id="feedbackImg" class="feedback-img" src="" alt="かいせつ画像">
+          <div class="telop left">カレイ</div>
+          <div class="telop right">ヒラメ</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- さいごの画面 -->
+    <section class="screen" data-screen="final">
+      <div class="final-wrap">
+        <div class="final-score" id="finalScore">0<span> / 8 もん</span></div>
+        <p class="final-msg" id="finalMsg"></p>
+        <button class="big-btn" onclick="startQuiz()">もういちど あそぶ</button>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="hint">きょうも たのしい ごはんを どうぞ</footer>
+</div>
+
+<script>
+/* ============ もんだい ============ */
+const questions = [
+  { text: "たこの あしは 8ほん ある", correct: true,
+    image: "tako.webp",
+    okText: "そのとおり!たこの あしは 8ほんだよ。",
+    ngText: "ざんねん!たこの あしは 8ほん あるんだよ。" },
+  { text: "いわしは みずのなかで なかまと およぐ", correct: true,
+    image: "iwashi.webp",
+    multiImage: true,
+    showFeedbackImage: true,
+    feedbackImage: "iwashit.webp",
+    okText: "せいかい!いわしは なかまと いっしょに およぐよ。",
+    ngText: "ざんねん!いわしは なかまと むれで およぐんだよ。" },
+  { text: "あまえびは うまれたときから ずっと おんなのこ", correct: false,
+    image: "amaebi.webp",
+    okText: "せいかい!あまえびは さいしょ おとこのこで、あとから おんなのこに かわるんだよ。",
+    ngText: "ざんねん!あまえびは さいしょ おとこのこなんだよ。" },
+  { text: "うなぎの からだは へびみたいに ながい", correct: true,
+    image: "unagi.webp",
+    showFeedbackImage: true,
+    silhouette: true,
+    okText: "そのとおり! うなぎは にょろにょろと ながい かたちを しているよ。",
+    ngText: "ざんねん! うなぎは へびのように なが〜い さかななんだよ。" },
+  { text: "ひらめの めは からだの みぎがわに ある", correct: false,
+    image: "hiramekarei.webp",
+    showFeedbackImage: true,
+    showTelop: true,
+    okText: "せいかい!ひらめの めは ひだりがわに あるんだよ。",
+    ngText: "ざんねん!ひらめの めは ひだりがわに あるんだよ。" },
+  { text: "やりいかの からだは さんかくの かたち", correct: true,
+    image: "yariika.webp",
+    showFeedbackImage: true,
+    silhouette: true,
+    okText: "そのとおり!やりの ような かたちを しているね。",
+    ngText: "ざんねん!やりいかは さんかくの かたちを しているんだよ。" },
+  { text: "かつおは およぐのを やめても へいき", correct: false,
+    image: "katsuo.webp",
+    showFeedbackImage: true,
+    feedbackImage: "katsuo_batsu.webp",
+    okText: "せいかい!かつおは およぎつづけないと いきが できないんだよ。",
+    ngText: "ざんねん!かつおは およぎつづけないと いきが できないんだよ。" },
+  { text: "「あじ」という なまえは、たべて「あじが いい」から ついた", correct: true,
+    image: "aji.webp",
+    showFeedbackImage: true,
+    okText: "そのとおり!「あじが いい」から その なまえに なったと いわれているよ。",
+    ngText: "ざんねん!たべて「あじが いい」から その なまえに なったと いわれているんだよ。" }
+];
+
+/* ============ クイズのじょうたい ============ */
+let currentIndex = 0;
+let correctCount = 0;
+
+function goScreen(name){
+  document.querySelectorAll('.screen').forEach(el=>{
+    el.classList.toggle('active', el.dataset.screen === name);
+  });
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function startQuiz(){
+  currentIndex = 0;
+  correctCount = 0;
+  renderProgress();
+  renderQuestion();
+  goScreen('quiz');
+}
+
+function renderProgress(){
+  const wrap = document.getElementById('qProgress');
+  wrap.innerHTML = "";
+  questions.forEach((q, i)=>{
+    const dot = document.createElement('div');
+    dot.className = 'q-dot';
+    if (i < currentIndex) dot.classList.add('done');
+    if (i === currentIndex) dot.classList.add('now');
+    wrap.appendChild(dot);
+  });
+}
+
+function renderQuestion(){
+  const q = questions[currentIndex];
+  document.getElementById('qNum').textContent = (currentIndex + 1) + ' もんめ';
+  document.getElementById('qText').textContent = q.text;
+  
+  // 画像の表示切り替え処理
+  const qImgWrap = document.getElementById('qImgWrap');
+  qImgWrap.innerHTML = '';
+  
+  if (q.image) {
+    const imgCount = q.multiImage ? 3 : 1;
+    for (let i = 0; i < imgCount; i++) {
+      const img = document.createElement('img');
+      img.src = q.image;
+      img.className = 'q-img';
+      img.style.display = 'block';
+      if (q.multiImage) img.classList.add('multi');
+      if (q.silhouette) img.classList.add('silhouette');
+      img.alt = 'もんだいの画像';
+      qImgWrap.appendChild(img);
+    }
+  }
+
+  renderProgress();
+}
+
+function answer(userAnswer){
+  const q = questions[currentIndex];
+  const isCorrect = (userAnswer === q.correct);
+  if (isCorrect) correctCount++;
+
+  const icon = document.getElementById('feedbackIcon');
+  const word = document.getElementById('feedbackWord');
+  const text = document.getElementById('feedbackText');
+  const feedbackImgWrap = document.getElementById('feedbackImgWrap');
+  const feedbackImg = document.getElementById('feedbackImg');
+
+  if (isCorrect){
+    icon.innerHTML = '<circle cx="50" cy="50" r="36" stroke="#2E86AB" stroke-width="9"/>';
+    word.textContent = "せいかい!";
+    word.className = "feedback-word ok";
+    text.textContent = q.okText;
+  } else {
+    icon.innerHTML = '<path d="M25 25l50 50M75 25L25 75" stroke="#E8563E" stroke-width="9" stroke-linecap="round"/>';
+    word.textContent = "ざんねん!";
+    word.className = "feedback-word ng";
+    text.textContent = q.ngText;
+  }
+
+  // 設定がある場合のみ解説画像(テロップ付き)を表示
+  if (q.showFeedbackImage) {
+    feedbackImg.src = q.feedbackImage || q.image;
+    feedbackImgWrap.style.display = 'inline-block';
+    
+    // ヒラメ用のテロップ表示制御
+    const telops = feedbackImgWrap.querySelectorAll('.telop');
+    telops.forEach(t => t.style.display = q.showTelop ? 'block' : 'none');
+  } else {
+    feedbackImgWrap.style.display = 'none';
+  }
+
+  goScreen('feedback');
+
+  setTimeout(()=>{
+    currentIndex++;
+    if (currentIndex < questions.length){
+      renderQuestion();
+      goScreen('quiz');
+    } else {
+      showFinal();
+    }
+  }, 2200);
+}
+
+function showFinal(){
+  document.getElementById('finalScore').innerHTML = correctCount + '<span> / ' + questions.length + ' もん</span>';
+
+  let msg = "";
+  if (correctCount === questions.length){
+    msg = "すごい!ぜんもん せいかい!<br>さかなはかせだね!";
+  } else if (correctCount >= questions.length / 2){
+    msg = "よく できました!<br>また ちょうせんしてね。";
+  } else {
+    msg = "たのしんで もらえたかな?<br>また あそんでね。";
+  }
+  document.getElementById('finalMsg').innerHTML = msg;
+
+  goScreen('final');
+}
+
+
+/* ============ 背景動画の自然なクロスフェードループ処理 ============ */
+document.addEventListener("DOMContentLoaded", () => {
+  // --- スタート画面・結果画面に魚の画像を固定配置 ---
+  const fishData = [
+    { src: 'aji.webp', top: 5, left: 6, size: 100, rotate: -15 },       // 左上
+    { src: 'amaebi.webp', top: 8, right: 6, size: 95, rotate: 10 },     // 右上
+    { src: 'hirame.webp', top: 40, left: 2, size: 105, rotate: 5 },     // 左中
+    { src: 'iwashi.webp', top: 42, right: 2, size: 110, rotate: -10 },  // 右中
+    { src: 'katsuo2.webp', top: 75, left: 8, size: 100, rotate: 15 },   // 左下
+    { src: 'tako.webp', top: 75, right: 8, size: 95, rotate: -10 }      // 右下
+  ];
+
+  // 配置する画面とそれぞれに付与するクラス名の設定
+  const targets = [
+    { selector: '.start-wrap', className: 'start-fish-img' },
+    { selector: '.final-wrap', className: 'final-fish-img' }
+  ];
+
+  // 設定した画面ごとにループして魚を配置（共通処理）
+  targets.forEach(target => {
+    const wrap = document.querySelector(target.selector);
+    if (wrap) {
+      fishData.forEach(fish => {
+        const img = document.createElement('img');
+        img.src = fish.src;
+        img.className = target.className;
+        
+        img.style.width = fish.size + 'px';
+        img.style.top = fish.top + '%';
+        
+        if (fish.left !== undefined) {
+          img.style.left = fish.left + '%';
+        } else {
+          img.style.right = fish.right + '%';
+        }
+        
+        img.style.transform = `rotate(${fish.rotate}deg)`;
+        
+        wrap.appendChild(img);
+      });
+    }
+  });
+
+  const v1 = document.getElementById('bg-video-1');
+  const v2 = document.getElementById('bg-video-2');
+  if (!v1 || !v2) return;
+
+  const fadeDuration = 1.5; // フェードにかける時間（秒）
+  let activeVideo = v1;
+  let nextVideo = v2;
+  let isSwapping = false;
+
+  // 最初の動画を再生・表示
+  v1.style.opacity = 1;
+  v1.play().catch(e => console.log("Auto-play blocked:", e));
+
+  function handleTimeUpdate(e) {
+    const vid = e.target;
+    // 現在アクティブなビデオでのみ判定
+    if (vid !== activeVideo) return;
+    
+    // 動画の終わりが近づいたら次の動画の再生・フェードを開始
+    if (vid.duration > 0 && (vid.duration - vid.currentTime <= fadeDuration)) {
+      if (isSwapping) return; 
+      isSwapping = true;
+
+      // 次の動画を最初から再生
+      nextVideo.currentTime = 0;
+      nextVideo.play().catch(e => console.log("Play blocked:", e));
+      nextVideo.style.opacity = 1; // フェードイン
+      activeVideo.style.opacity = 0; // フェードアウト
+
+      // フェードが完了した頃に状態をリセット
+      setTimeout(() => {
+        let temp = activeVideo;
+        activeVideo = nextVideo;
+        nextVideo = temp;
+        isSwapping = false;
+      }, fadeDuration * 1000);
+    }
+  }
+
+  // 両方の動画の再生時間を監視
+  v1.addEventListener('timeupdate', handleTimeUpdate);
+  v2.addEventListener('timeupdate', handleTimeUpdate);
+});
+</script>
+
+</body>
+</html>

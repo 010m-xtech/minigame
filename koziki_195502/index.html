@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>おさかな クイズ コレクション</title>
+    <!-- Game 1用のTailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Stick&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ==============================================
+           共通・リセット設定
+        =============================================== */
+        :root{
+            --ai: #2C4A78;
+            --ai-light: #4C6A94;
+            --ai-pale: #DCE7F5;
+            --shu: #E8563E;
+            --shu-pale: #FFE3DA;
+            --maru: #2E86AB;
+            --batsu: #E8563E;
+            --sumi: #3A342C;
+            --line: #E7DCC4;
+            --font: 'Stick', sans-serif;
+        }
+
+        body {
+            font-family: var(--font);
+            background-color: transparent; 
+            color: #4a3b32;
+            word-break: keep-all;
+            overflow-wrap: break-word;
+            -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent;
+            margin: 0; padding: 0;
+            min-height: 100vh;
+        }
+
+        /* 背景動画コンテナ (共通) */
+        .video-bg-container {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: -10; 
+            overflow: hidden;
+            background: #FDECC8;
+        }
+        .video-bg-container video {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transform: translate(-50%, -50%);
+            transition: opacity 1.5s linear;
+        }
+
+        /* ==============================================
+           Game 1: シルエットクイズ用のCSS
+        =============================================== */
+        .kirie-box {
+            background-color: rgba(255, 255, 255, 0.85);
+            clip-path: polygon(2% 3%, 30% 1%, 75% 2%, 98% 4%, 99% 30%, 97% 75%, 96% 97%, 70% 99%, 25% 97%, 4% 96%, 1% 70%, 2% 25%);
+            filter: drop-shadow(6px 6px 0px rgba(74, 59, 50, 0.4));
+            transform: rotate(-1deg);
+        }
+
+        .kirie-btn {
+            clip-path: polygon(3% 4%, 25% 1%, 80% 3%, 97% 5%, 99% 50%, 96% 96%, 75% 98%, 20% 96%, 4% 97%, 1% 50%);
+            filter: drop-shadow(4px 4px 0px rgba(74, 59, 50, 0.4));
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .kirie-btn:nth-child(odd) { 
+            clip-path: polygon(1% 5%, 40% 1%, 98% 3%, 96% 50%, 99% 95%, 60% 98%, 3% 97%, 4% 50%);
+            transform: rotate(1deg); 
+        }
+        .kirie-btn:nth-child(even) { 
+            clip-path: polygon(4% 2%, 70% 3%, 96% 1%, 98% 60%, 95% 98%, 30% 96%, 1% 95%, 2% 40%);
+            transform: rotate(-1deg); 
+        }
+        .kirie-btn:active {
+            transform: translate(4px, 4px) rotate(0deg) !important;
+            filter: drop-shadow(0px 0px 0px rgba(74, 59, 50, 0.4)) !important;
+        }
+
+        .kirie-title { display: inline-block; transform: rotate(-2deg); }
+        .kirie-badge {
+            clip-path: polygon(4% 3%, 96% 5%, 98% 95%, 5% 96%);
+            filter: drop-shadow(3px 3px 0px rgba(74, 59, 50, 0.3));
+            transform: rotate(2deg);
+        }
+        .kirie-img-box {
+            background-color: #fdf6e3;
+            clip-path: polygon(2% 3%, 97% 2%, 96% 97%, 3% 96%);
+            filter: drop-shadow(4px 4px 0px rgba(74, 59, 50, 0.15));
+        }
+
+        .btn-orange { background-color: #ffb07c; }
+        .btn-blue { background-color: #93c5fd; }
+        .btn-green { background-color: #86efac; }
+        .btn-pink { background-color: #f9a8d4; }
+        .btn-yellow { background-color: #fde047; }
+        .btn-gray { background-color: #e5e7eb; }
+
+        .silhouette { filter: brightness(0); transition: filter 0.3s ease; }
+        .hint-mode { filter: brightness(0.3) grayscale(0.5); transition: filter 0.3s ease; }
+
+        .fade-in { animation: fadeIn 0.5s ease-in forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        .swim-in { animation: swimIn 2.5s ease-in-out forwards; }
+        @keyframes swimIn {
+            0% { opacity: 0; transform: translateX(60px) translateY(10px) rotate(-3deg); }
+            50% { opacity: 0.8; transform: translateX(20px) translateY(-5px) rotate(2deg); }
+            100% { opacity: 1; transform: translateX(0) translateY(0) rotate(0deg); }
+        }
+
+        @keyframes animSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes animFlip { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
+        @keyframes animShake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px) rotate(-3deg); }
+            20%, 40%, 60%, 80% { transform: translateX(5px) rotate(3deg); }
+        }
+        .anim-spin { animation: animSpin 0.6s ease; }
+        .anim-flip { animation: animFlip 0.6s ease; }
+        .anim-shake { animation: animShake 0.6s ease; }
+
+        /* ==============================================
+           Game 2: ○✕くいず用のCSS
+        =============================================== */
+        #game2-container .app {
+            width: 100%; max-width: 460px; min-height: 100vh;
+            background: transparent; position: relative;
+            display: flex; flex-direction: column; margin: auto;
+        }
+        #game2-container header { padding: 32px 20px 12px; text-align: center; }
+        #game2-container header h1 {
+            font-size: 20px; font-weight: 900; color: var(--ai); margin: 0;
+            letter-spacing: 0.03em; display: inline-block;
+            padding: 10px 28px; position: relative;
+            filter: drop-shadow(3px 5px 0 rgba(0,0,0,0.15));
+        }
+        #game2-container header h1::before {
+            content: ""; position: absolute; inset: 0; z-index: -1;
+            background: rgba(255, 255, 255, 0.85);
+            clip-path: polygon(2% 8%, 35% 2%, 80% 5%, 97% 4%, 99% 45%, 96% 92%, 60% 98%, 20% 95%, 4% 97%, 0% 50%);
+        }
+        #game2-container main { flex: 1; padding: 10px 20px 40px; display: flex; flex-direction: column; }
+        
+        #game2-container .screen { display: none; flex: 1; flex-direction: column; animation: pop .35s ease both; }
+        #game2-container .screen.active { display: flex; }
+        @keyframes pop { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+        
+        #game2-container .start-wrap {
+            width: 100%; margin: auto; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; gap: 22px; padding: 60px 20px; min-height: 360px;
+            background: transparent; filter: drop-shadow(3px 5px 0 rgba(0,0,0,0.15)); position: relative;
+        }
+        #game2-container .start-wrap::before {
+            content: ""; position: absolute; inset: 0; z-index: -1;
+            background: rgba(255, 255, 255, 0.85);
+            clip-path: polygon(1% 2%, 35% 0%, 75% 2%, 98% 1%, 100% 35%, 98% 75%, 99% 98%, 65% 100%, 25% 98%, 2% 99%, 0% 65%, 1% 25%);
+        }
+        
+        #game2-container .start-title, #game2-container .start-lead, #game2-container .start-wrap .big-btn {
+            position: relative; z-index: 1;
+        }
+        #game2-container .start-fish-img {
+            position: absolute; z-index: 0; opacity: 0.75;
+            pointer-events: auto; cursor: pointer;
+        }
+        
+        #game2-container .start-title { font-size: 26px; font-weight: 900; color: var(--ai); line-height: 1.5; margin: 0; }
+        #game2-container .start-lead { font-size: 15px; color: #000; line-height: 1.9; margin: 0; max-width: 260px; }
+        
+        #game2-container .big-btn {
+            font-family: var(--font); font-weight: 900; font-size: 19px; color: #fff;
+            background: transparent; border: none; padding: 18px 48px;
+            filter: drop-shadow(3px 5px 0 rgba(0,0,0,0.15));
+            cursor: pointer; position: relative;
+            transition: transform .08s ease, filter .08s ease;
+        }
+        #game2-container .big-btn::before {
+            content: ""; position: absolute; inset: 0; z-index: -1; background: var(--shu);
+            clip-path: polygon(3% 5%, 45% 1%, 85% 6%, 98% 18%, 99% 65%, 94% 93%, 60% 98%, 15% 95%, 2% 80%, 0% 45%);
+        }
+        #game2-container .big-btn:active { transform: translateY(4px); filter: drop-shadow(0px 1px 0 rgba(0,0,0,0.15)); }
+        #game2-container .big-btn.gray-btn { color: #333; font-size: 16px; padding: 12px 32px; margin-top: 10px; }
+        #game2-container .big-btn.gray-btn::before { background: #cbd5e1; }
+
+        #game2-container .q-progress {
+            width: 85%; max-width: 320px; height: 12px; margin: 4px auto 14px;
+            background: rgba(255, 255, 255, 0.8); border-radius: 10px; position: relative; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        #game2-container .q-progress-inner {
+            height: 100%; background: var(--ai-light); border-radius: 10px; width: 0%; transition: width 0.4s ease-out;
+        }
+        #game2-container .q-progress-fish {
+            position: absolute; top: -24px; width: 60px; height: auto;
+            transform: translateX(-50%) scaleX(-1); transition: left 0.4s ease-out; z-index: 2;
+        }
+        
+        #game2-container .q-card {
+            background: transparent; padding: 20px 22px; filter: drop-shadow(3px 5px 0 rgba(0,0,0,0.15));
+            text-align: center; margin-bottom: 12px; display: flex; flex-direction: column; align-items: center; position: relative;
+        }
+        #game2-container .q-card::before {
+            content: ""; position: absolute; inset: 0; z-index: -1; background: rgba(255, 255, 255, 0.75);
+            clip-path: polygon(2% 1%, 40% 0%, 80% 2%, 99% 1%, 100% 40%, 98% 80%, 97% 98%, 60% 100%, 20% 98%, 1% 99%, 0% 60%, 1% 20%);
+        }
+        #game2-container .q-num { font-size: 13px; color: var(--ai-light); font-weight: 700; margin-bottom: 8px; }
+        #game2-container .q-text { font-size: 19px; font-weight: 700; color: var(--sumi); line-height: 1.6; margin: 0; }
+        
+        #game2-container .q-img-wrap { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 10px; width: 100%; }
+        #game2-container .q-img { max-width: 100%; max-height: 160px; border-radius: 12px; display: none; object-fit: contain; cursor: pointer; }
+        #game2-container .q-img.multi { max-width: 30%; max-height: 110px; }
+        #game2-container .q-img.silhouette { filter: brightness(0); }
+        
+        #game2-container .ans-row { display: flex; gap: 16px; justify-content: center; margin-top: auto; margin-bottom: 56px; }
+        #game2-container .ans-btn {
+            flex: 1; max-width: 150px; aspect-ratio: 1 / 1; border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            filter: drop-shadow(3px 5px 0 rgba(0,0,0,0.15)); transition: transform .08s ease, filter .08s ease;
+            background: transparent; position: relative; padding: 0;
+        }
+        #game2-container .ans-btn:active { transform: translateY(4px); filter: drop-shadow(0px 1px 0 rgba(0,0,0,0.15)); }
+        #game2-container .ans-btn::before { content: ""; position: absolute; inset: 0; z-index: -1; }
+        #game2-container .ans-btn svg { width: 56%; height: 56%; position: relative; z-index: 1; display: block; margin: auto; }
+        
+        #game2-container .ans-maru::before { 
+            background: var(--ai-pale); 
+            clip-path: polygon(18% 4%, 48% 0%, 78% 7%, 95% 22%, 100% 52%, 93% 82%, 76% 98%, 46% 100%, 15% 93%, 2% 70%, 0% 38%, 4% 15%);
+        }
+        #game2-container .ans-maru svg { stroke: var(--maru); }
+        
+        #game2-container .ans-batsu::before { 
+            background: var(--shu-pale); 
+            clip-path: polygon(12% 10%, 38% 3%, 72% 9%, 92% 26%, 99% 58%, 87% 89%, 64% 99%, 30% 97%, 6% 83%, 0% 55%, 3% 28%);
+        }
+        #game2-container .ans-batsu svg { stroke: var(--batsu); }
+        
+        #game2-container .result-feedback {
+            width: 100%; margin: auto; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; gap: 12px; padding: 24px 20px; background: rgba(255, 255, 255, 0.85);
+            border-radius: 24px; box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        }
+        #game2-container .feedback-icon { width: 90px; height: 90px; }
+        #game2-container .feedback-word { font-size: 26px; font-weight: 900; }
+        #game2-container .feedback-word.ok { color: var(--maru); }
+        #game2-container .feedback-word.ng { color: var(--batsu); }
+        #game2-container .feedback-text { font-size: 15px; color: #000; line-height: 1.9; max-width: 280px; margin: 0; }
+        
+        #game2-container .feedback-img-wrap { position: relative; margin-top: 4px; display: none; max-width: 100%; }
+        #game2-container .feedback-img { max-width: 100%; max-height: 140px; border-radius: 12px; display: block; object-fit: contain; cursor: pointer; }
+        #game2-container .telop {
+            position: absolute; background: rgba(0, 0, 0, 0.65); color: #fff; padding: 2px 8px; border-radius: 6px;
+            font-size: 13px; font-weight: 700; top: 10px; letter-spacing: 0.05em;
+        }
+        #game2-container .telop.left { left: 10px; }
+        #game2-container .telop.right { right: 10px; }
+        
+        #game2-container .final-wrap {
+            width: 100%; margin: auto; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; gap: 18px; padding: 60px 20px; min-height: 360px; background: rgba(255, 255, 255, 0.85);
+            border-radius: 24px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); position: relative; overflow: hidden;
+        }
+        #game2-container .final-score, #game2-container .final-msg, #game2-container .final-wrap .big-btn { position: relative; z-index: 1; }
+        #game2-container .final-fish-img { position: absolute; z-index: 0; opacity: 0.75; pointer-events: auto; cursor: pointer; }
+        #game2-container .final-score { font-size: 46px; font-weight: 900; color: var(--ai); margin: 0; }
+        #game2-container .final-score span { font-size: 22px; color: #7a6f5c; }
+        #game2-container .final-msg { font-size: 16px; color: var(--sumi); font-weight: 700; line-height: 1.8; max-width: 260px; margin: 0; }
+        
+        @keyframes fishBounce {
+            0% { transform: translate(0, 0) rotate(var(--rot, 0deg)); }
+            25% { transform: translate(-3px, -15px) rotate(calc(var(--rot, 0deg) - 15deg)) scale(1.1); }
+            50% { transform: translate(0, -25px) rotate(calc(var(--rot, 0deg) + 15deg)) scale(1.2); }
+            75% { transform: translate(3px, -15px) rotate(calc(var(--rot, 0deg) - 15deg)) scale(1.1); }
+            100% { transform: translate(0, 0) rotate(var(--rot, 0deg)); }
+        }
+        .animate-bounce { animation: fishBounce 0.5s ease; }
+        @keyframes fishRotate {
+            0% { transform: translate(0, 0) rotate(var(--rot, 0deg)); }
+            100% { transform: translate(0, 0) rotate(calc(var(--rot, 0deg) + 360deg)); }
+        }
+        .animate-rotate { animation: fishRotate 0.6s ease-in-out; }
+    </style>
+</head>
+<body class="flex items-center justify-center">
+
+    <!-- ==============================================
+         共通: 背景動画
+    =============================================== -->
+    <div class="video-bg-container">
+        <video id="bg-video-1" src="marubatsu_back.mp4" autoplay muted playsinline style="opacity: 1;"></video>
+        <video id="bg-video-2" src="marubatsu_back.mp4" muted playsinline style="opacity: 0;"></video>
+    </div>
+
+    <!-- ==============================================
+         ゲーム選択（メニュー）画面
+    =============================================== -->
+    <div id="menu-screen" class="w-full max-w-md mx-auto relative overflow-hidden flex flex-col items-center justify-center min-h-screen p-4">
+        <div class="kirie-box p-8 text-center flex flex-col items-center justify-center w-full min-h-[400px]">
+            <h1 class="text-3xl font-bold mb-8 text-red-500 kirie-title leading-snug">
+                あそぶ ゲーム を<br>えらんでね！
+            </h1>
+            <button onclick="openGame1()" class="kirie-btn btn-orange text-xl font-bold py-5 px-4 w-full mb-6 flex flex-col items-center gap-1">
+                <span class="text-sm font-normal">🐟 どんな かたち かな？</span>
+                シルエット クイズ
+            </button>
+            <button onclick="openGame2()" class="kirie-btn btn-blue text-xl font-bold py-5 px-4 w-full flex flex-col items-center gap-1">
+                <span class="text-sm font-normal">⭕️❌ どっち が せいかい？</span>
+                おさかな ○✕ くいず
+            </button>
+        </div>
+    </div>
+
+    <!-- ==============================================
+         GAME 1: おさかな シルエット クイズ
+    =============================================== -->
+    <div id="game1-container" class="hidden w-full max-w-md mx-auto relative overflow-hidden p-4">
+        <!-- スタート画面 -->
+        <div id="screen-start" class="kirie-box p-8 text-center flex flex-col items-center justify-center min-h-[400px]">
+            <h1 class="text-4xl font-bold mb-8 leading-snug kirie-title text-orange-600">おさかな<br>シルエット<br>クイズ</h1>
+            <button onclick="g1_startGame()" class="kirie-btn btn-orange text-2xl font-bold py-4 px-10 mb-4 w-full">スタート！</button>
+            <button onclick="showMenu()" class="kirie-btn btn-gray text-lg font-bold py-2 px-6 w-full">ゲーム を えらぶ</button>
+        </div>
+
+        <!-- クイズ画面 -->
+        <div id="screen-quiz" class="hidden -mt-6">
+            <div class="kirie-box p-4 pt-5 flex flex-col items-center min-h-[400px]">
+                <h2 id="g1-question-number" class="text-2xl font-bold mb-2 btn-yellow inline-block px-6 py-2 kirie-badge">1 もんめ</h2>
+                <p class="mb-2 font-bold text-lg">これは なんの おさかな かな？</p>
+                <div class="w-48 h-48 mb-2 relative flex justify-center items-center kirie-img-box p-2">
+                    <img id="g1-fish-image" src="" alt="おさかな" class="max-w-full max-h-full object-contain">
+                </div>
+                <button onclick="g1_showHint()" id="g1-hint-btn" class="kirie-btn btn-green text-lg font-bold py-2 px-8 mb-4">ひんと</button>
+                <div id="g1-options-container" class="w-full flex flex-col gap-3"></div>
+            </div>
+        </div>
+
+        <!-- 結果ポップアップ -->
+        <div id="g1-popup-result" class="hidden fixed top-0 left-0 w-full h-full bg-black/40 flex items-center justify-center p-4 z-50">
+            <div class="kirie-box p-8 text-center bg-white w-full max-w-sm fade-in flex flex-col items-center">
+                <h2 id="g1-popup-title" class="text-4xl font-bold mb-4 text-red-500 kirie-title">せいかい！</h2>
+                <div class="w-40 h-40 mb-4 relative flex justify-center items-center kirie-img-box p-2">
+                    <img id="g1-result-image" src="" alt="こたえの おさかな" class="max-w-full max-h-full object-contain cursor-pointer" onclick="g1_playResultAnimation()">
+                </div>
+                <p id="g1-popup-text" class="text-xl mb-6 font-bold"></p>
+                <p id="g1-popup-trivia" class="text-base mb-6 font-bold text-gray-700 bg-yellow-100 p-3 rounded-lg kirie-box w-full"></p>
+                <button onclick="g1_nextQuestion()" class="kirie-btn btn-blue text-xl font-bold py-3 px-8 w-full">つぎの もんだい へ</button>
+            </div>
+        </div>
+
+        <!-- おわりの画面 -->
+        <div id="screen-end" class="hidden kirie-box p-8 text-center flex flex-col items-center justify-center min-h-[400px]">
+            <h2 class="text-4xl font-bold mb-6 kirie-title">おしまい！</h2>
+            <div class="mb-8">
+                <p class="text-xl font-bold mb-4">きみの せいかい かず は...</p>
+                <p id="g1-final-score" class="text-4xl font-bold btn-yellow inline-block px-8 py-4 kirie-badge">5 もん</p>
+            </div>
+            <button onclick="g1_showAquarium()" class="kirie-btn btn-blue text-xl font-bold py-4 px-10 mb-4 w-full">すいそう を みる！</button>
+            <button onclick="g1_resetGame()" class="kirie-btn btn-green text-xl font-bold py-4 px-10 mb-4 w-full">もういちど あそぶ</button>
+            <button onclick="showMenu()" class="kirie-btn btn-gray text-lg font-bold py-2 px-6 w-full">ゲーム を えらぶ</button>
+        </div>
+
+        <!-- すいそう画面 -->
+        <div id="screen-aquarium" class="hidden kirie-box p-6 flex flex-col items-center justify-center min-h-[500px] w-full">
+            <h2 class="text-2xl font-bold mb-4 kirie-badge btn-blue px-6 py-2">きみの すいそう</h2>
+            <div class="w-full h-[300px] relative overflow-hidden bg-cyan-100/60 mb-6 kirie-img-box">
+                <div id="g1-aquarium-fish-area" class="w-full h-full relative"></div>
+            </div>
+            <button onclick="g1_resetGame()" class="kirie-btn btn-green text-xl font-bold py-4 px-10 mb-4 w-full">もういちど あそぶ</button>
+            <button onclick="showMenu()" class="kirie-btn btn-gray text-lg font-bold py-2 px-6 w-full">ゲーム を えらぶ</button>
+        </div>
+    </div>
+
+
+    <!-- ==============================================
+         GAME 2: おさかな ○✕ くいず
+    =============================================== -->
+    <div id="game2-container" class="hidden w-full relative overflow-hidden">
+        <div class="app">
+            <header><h1>おさかな ○✕ くいず</h1></header>
+            <main>
+                <!-- スタート画面 -->
+                <section class="screen active" data-screen="start">
+                    <div class="start-wrap">
+                        <p class="start-title">おさかなの こと、<br>どれくらい しってるかな?</p>
+                        <p class="start-lead">○か ✕で こたえてね。<br>ぜんぶで 8もん あるよ!</p>
+                        <button class="big-btn" onclick="g2_startQuiz()">はじめる</button>
+                        <button class="big-btn gray-btn" onclick="showMenu()">ゲーム を えらぶ</button>
+                    </div>
+                </section>
+
+                <!-- 出題画面 -->
+                <section class="screen" data-screen="quiz">
+                    <div class="q-progress" id="g2-qProgress"></div>
+                    <div class="q-card">
+                        <div class="q-num" id="g2-qNum">1 もんめ</div>
+                        <div class="q-text" id="g2-qText"></div>
+                        <div id="g2-qImgWrap" class="q-img-wrap"></div>
+                    </div>
+                    <div class="ans-row">
+                        <button class="ans-btn ans-maru" onclick="g2_answer(true)" aria-label="まる">
+                            <svg viewBox="0 0 60 60" fill="none"><circle cx="30" cy="30" r="22" stroke-width="7"/></svg>
+                        </button>
+                        <button class="ans-btn ans-batsu" onclick="g2_answer(false)" aria-label="ばつ">
+                            <svg viewBox="0 0 60 60" fill="none"><path d="M14 14l32 32M46 14L14 46" stroke-width="7" stroke-linecap="round"/></svg>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- こたえあわせ画面 -->
+                <section class="screen" data-screen="feedback">
+                    <div class="result-feedback">
+                        <svg class="feedback-icon" id="g2-feedbackIcon" viewBox="0 0 100 100" fill="none"></svg>
+                        <div class="feedback-word" id="g2-feedbackWord"></div>
+                        <p class="feedback-text" id="g2-feedbackText"></p>
+                        <div id="g2-feedbackImgWrap" class="feedback-img-wrap">
+                            <img id="g2-feedbackImg" class="feedback-img" src="" alt="かいせつ画像">
+                            <div class="telop left">カレイ</div>
+                            <div class="telop right">ヒラメ</div>
+                        </div>
+                        <button class="big-btn" id="g2-nextBtn" style="margin-top: 4px;" onclick="g2_nextQuestion()">つぎへすすむ</button>
+                    </div>
+                </section>
+
+                <!-- さいごの画面 -->
+                <section class="screen" data-screen="final">
+                    <div class="final-wrap">
+                        <div class="final-score" id="g2-finalScore">0<span> / 8 もん</span></div>
+                        <p class="final-msg" id="g2-finalMsg"></p>
+                        <button class="big-btn" onclick="g2_startQuiz()">もういちど あそぶ</button>
+                        <button class="big-btn gray-btn" onclick="showMenu()">ゲーム を えらぶ</button>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+
+    <!-- ==============================================
+         JavaScript 処理
+    =============================================== -->
+    <script>
+        // ------------------------------------------------
+        // 共通: メニューの切り替え処理
+        // ------------------------------------------------
+        function showMenu() {
+            document.getElementById("menu-screen").classList.remove("hidden");
+            document.getElementById("game1-container").classList.add("hidden");
+            document.getElementById("game2-container").classList.add("hidden");
+            
+            // Game 1 のリセット（アニメーション停止のため）
+            document.getElementById("screen-aquarium").classList.add("hidden");
+            document.getElementById("screen-quiz").classList.add("hidden");
+            document.getElementById("screen-end").classList.add("hidden");
+            document.getElementById("screen-start").classList.remove("hidden");
+            
+            // Game 2 のリセット
+            g2_goScreen('start');
+        }
+
+        function openGame1() {
+            document.getElementById("menu-screen").classList.add("hidden");
+            document.getElementById("game1-container").classList.remove("hidden");
+        }
+
+        function openGame2() {
+            document.getElementById("menu-screen").classList.add("hidden");
+            document.getElementById("game2-container").classList.remove("hidden");
+            g2_goScreen('start');
+        }
+
+        // ------------------------------------------------
+        // 共通: 背景動画のループ（クロスフェード）
+        // ------------------------------------------------
+        document.addEventListener("DOMContentLoaded", () => {
+            const v1 = document.getElementById('bg-video-1');
+            const v2 = document.getElementById('bg-video-2');
+            if (!v1 || !v2) return;
+
+            const fadeDuration = 1.5; 
+            let activeVideo = v1;
+            let nextVideo = v2;
+            let isSwapping = false;
+
+            v1.play().catch(e => console.log("Auto-play blocked:", e));
+
+            function handleTimeUpdate(e) {
+                const vid = e.target;
+                if (vid !== activeVideo) return;
+                
+                if (vid.duration > 0 && (vid.duration - vid.currentTime <= fadeDuration)) {
+                    if (isSwapping) return; 
+                    isSwapping = true;
+                    
+                    nextVideo.currentTime = 0;
+                    nextVideo.play().catch(e => console.log("Play blocked:", e));
+                    nextVideo.style.opacity = 1; 
+                    activeVideo.style.opacity = 0; 
+
+                    setTimeout(() => {
+                        let temp = activeVideo;
+                        activeVideo = nextVideo;
+                        nextVideo = temp;
+                        isSwapping = false;
+                    }, fadeDuration * 1000);
+                }
+            }
+            v1.addEventListener('timeupdate', handleTimeUpdate);
+            v2.addEventListener('timeupdate', handleTimeUpdate);
+
+            // Game 2の装飾用の魚を配置
+            g2_initDecorativeFishes();
+        });
+
+
+        // ================================================
+        // GAME 1 の ロジック
+        // ================================================
+        const g1_isRandomMode = true; 
+        const g1_maxQuestions = 5;
+        const g1_allFishData = [
+            { name: "まぐろ", img: "maguro.webp", options: ["まぐろ", "じんべえざめ", "まんぼう"], trivia: "まぐろ は とっても はやく およぐよ！" },
+            { name: "じんべえざめ", img: "zinnbe.webp", options: ["くじら", "じんべえざめ", "えい"], trivia: "せかいで いちばん おおきい おさかな だよ！" },
+            { name: "まんぼう", img: "manbo.webp", options: ["えい", "たつのおとしご", "まんぼう"], trivia: "とっても おおきくて のんびりやさん だよ！" },
+            { name: "えい", img: "ei.webp", options: ["えい", "ひらめ", "とびうお"], trivia: "うみの そこを ひらひら とぶように およぐよ！" },
+            { name: "ひらめ", img: "hirame.webp", options: ["まぐろ", "ひらめ", "ちょうちんあんこう"], trivia: "すな に かくれて かくれんぼ が じょうず！" },
+            { name: "たつのおとしご", img: "tatsuoto.webp", options: ["たつのおとしご", "えい", "とびうお"], trivia: "くるくる の しっぽ で くさ を つかむんだよ！" },
+            { name: "とびうお", img: "tobiuo.webp", options: ["じんべえざめ", "とびうお", "まんぼう"], trivia: "むなびれ を ひろげて そら を とぶよ！" },
+            { name: "ちょうちんあんこう", img: "ankoo.webp", options: ["ちょうちんあんこう", "まぐろ", "ひらめ"], trivia: "あたま の ひかり で えもの を よぶよ！" }
+        ];
+
+        let g1_currentQuestions = []; 
+        let g1_currentIndex = 0;      
+        let g1_score = 0;             
+        let g1_correctFishes = [];    
+        const g1_btnColors = ["btn-orange", "btn-blue", "btn-pink"];
+
+        function g1_startGame() {
+            g1_score = 0;
+            g1_currentIndex = 0;
+            g1_correctFishes = []; 
+            if (g1_isRandomMode) {
+                let shuffled = [...g1_allFishData].sort(() => 0.5 - Math.random());
+                g1_currentQuestions = shuffled.slice(0, g1_maxQuestions);
+            } else {
+                g1_currentQuestions = g1_allFishData.slice(0, g1_maxQuestions);
+            }
+            document.getElementById("screen-start").classList.add("hidden");
+            document.getElementById("screen-quiz").classList.remove("hidden");
+            g1_setQuestion();
+        }
+
+        function g1_setQuestion() {
+            const q = g1_currentQuestions[g1_currentIndex];
+            document.getElementById("g1-question-number").textContent = `${g1_currentIndex + 1} もんめ`;
+            
+            const fishImage = document.getElementById("g1-fish-image");
+            fishImage.src = q.img;
+            fishImage.classList.remove("hint-mode");
+            fishImage.classList.add("silhouette");
+            document.getElementById("g1-hint-btn").style.display = "block";
+
+            fishImage.classList.remove("fade-in", "swim-in");
+            void fishImage.offsetWidth; 
+            fishImage.classList.add("swim-in"); 
+
+            const optionsContainer = document.getElementById("g1-options-container");
+            optionsContainer.innerHTML = "";
+            let shuffledOptions = [...q.options].sort(() => 0.5 - Math.random());
+
+            shuffledOptions.forEach((optionText, index) => {
+                const btn = document.createElement("button");
+                btn.textContent = optionText;
+                const colorClass = g1_btnColors[index % g1_btnColors.length];
+                btn.className = `kirie-btn ${colorClass} text-xl font-bold py-4 px-6 w-full`;
+                btn.onclick = () => g1_checkAnswer(optionText, q.name);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function g1_checkAnswer(selected, correct) {
+            document.getElementById("g1-popup-result").classList.remove("hidden");
+            const q = g1_currentQuestions[g1_currentIndex];
+            const resultImage = document.getElementById("g1-result-image");
+            resultImage.src = q.img;
+            
+            const fishImage = document.getElementById("g1-fish-image");
+            fishImage.classList.remove("silhouette", "hint-mode");
+            resultImage.className = "max-w-full max-h-full object-contain cursor-pointer";
+
+            const popupTitle = document.getElementById("g1-popup-title");
+            const popupText = document.getElementById("g1-popup-text");
+            if (selected === correct) {
+                g1_score++;
+                g1_correctFishes.push(q);
+                const msgs = ["すごいね！", "やったね！"];
+                popupTitle.textContent = msgs[Math.floor(Math.random() * msgs.length)];
+                popupTitle.className = "text-4xl font-bold mb-4 text-red-500 kirie-title";
+            } else {
+                popupTitle.textContent = "おしい！";
+                popupTitle.className = "text-4xl font-bold mb-4 text-blue-500 kirie-title";
+            }
+            popupText.innerHTML = `せいかい は<br>「${correct}」でした！`;
+            document.getElementById("g1-popup-trivia").innerHTML = `💡 まめちしき<br><span class="text-sm">${q.trivia}</span>`;
+        }
+
+        function g1_playResultAnimation() {
+            const resultImage = document.getElementById("g1-result-image");
+            const anims = ["anim-spin", "anim-flip", "anim-shake"];
+            const randomAnim = anims[Math.floor(Math.random() * anims.length)];
+            resultImage.classList.remove("anim-spin", "anim-flip", "anim-shake");
+            void resultImage.offsetWidth;
+            resultImage.classList.add(randomAnim);
+        }
+
+        function g1_showHint() {
+            const fishImage = document.getElementById("g1-fish-image");
+            fishImage.classList.remove("silhouette");
+            fishImage.classList.add("hint-mode");
+            document.getElementById("g1-hint-btn").style.display = "none";
+        }
+
+        function g1_nextQuestion() {
+            document.getElementById("g1-popup-result").classList.add("hidden");
+            g1_currentIndex++;
+            if (g1_currentIndex < g1_currentQuestions.length) {
+                g1_setQuestion();
+            } else {
+                g1_showEndScreen();
+            }
+        }
+
+        function g1_showEndScreen() {
+            document.getElementById("screen-quiz").classList.add("hidden");
+            document.getElementById("screen-end").classList.remove("hidden");
+            document.getElementById("g1-final-score").textContent = `${g1_score} もん`;
+        }
+
+        function g1_showAquarium() {
+            document.getElementById("screen-end").classList.add("hidden");
+            const screenAquarium = document.getElementById("screen-aquarium");
+            screenAquarium.classList.remove("hidden");
+            
+            const area = document.getElementById("g1-aquarium-fish-area");
+            area.innerHTML = "";
+            
+            if (g1_correctFishes.length === 0) {
+                area.innerHTML = '<p class="text-gray-500 text-center mt-20 font-bold">おさかな が いないみたい...</p>';
+                return;
+            }
+            
+            g1_correctFishes.forEach((fish) => {
+                const img = document.createElement("img");
+                img.src = fish.img; img.alt = fish.name;
+                img.className = "absolute object-contain cursor-pointer drop-shadow-md";
+                
+                const size = 60 + Math.random() * 50; 
+                img.style.width = `${size}px`; img.style.height = `${size}px`;
+                
+                let currentX = Math.random() * 80;
+                let currentY = Math.random() * 70;
+                let currentScaleX = 1; 
+                
+                img.style.left = `${currentX}%`; img.style.top = `${currentY}%`;
+                img.style.transform = `scaleX(${currentScaleX})`;
+                
+                let isDragging = false, swimTimer = null, startX = 0, startY = 0, lastDragX = 0, hasMoved = false;
+                
+                const swimFreely = () => {
+                    if (!screenAquarium.classList.contains("hidden") && !isDragging) {
+                        const nextX = Math.random() * 80;
+                        const nextY = Math.random() * 70;
+                        const nextRotate = -15 + Math.random() * 30;
+                        const duration = 4000 + Math.random() * 4000;
+                        
+                        if (nextX < currentX) currentScaleX = -1; 
+                        else if (nextX > currentX) currentScaleX = 1;
+                        currentX = nextX;
+                        
+                        img.style.transition = `all ${duration}ms ease-in-out`;
+                        img.style.left = `${nextX}%`; img.style.top = `${nextY}%`;
+                        img.style.transform = `rotate(${nextRotate}deg) scaleX(${currentScaleX})`;
+                        swimTimer = setTimeout(swimFreely, duration);
+                    }
+                };
+                
+                swimTimer = setTimeout(swimFreely, 100 + Math.random() * 1000);
+                
+                const startDrag = (e) => {
+                    isDragging = true; hasMoved = false; clearTimeout(swimTimer);
+                    img.style.transition = 'none';
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                    startX = clientX; startY = clientY; lastDragX = clientX;
+                    if(e.cancelable) e.preventDefault();
+                    document.addEventListener('mousemove', doDrag, {passive: false});
+                    document.addEventListener('touchmove', doDrag, {passive: false});
+                    document.addEventListener('mouseup', endDrag);
+                    document.addEventListener('touchend', endDrag);
+                };
+
+                const doDrag = (e) => {
+                    if (!isDragging) return;
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                    if (Math.abs(clientX - startX) > 5 || Math.abs(clientY - startY) > 5) hasMoved = true;
+                    
+                    const moveX = clientX - lastDragX;
+                    if (moveX < -2) currentScaleX = -1; 
+                    if (moveX > 2) currentScaleX = 1;
+                    img.style.transform = `scaleX(${currentScaleX})`;
+                    lastDragX = clientX;
+                    
+                    const rect = area.getBoundingClientRect();
+                    let x = clientX - rect.left - (size / 2);
+                    let y = clientY - rect.top - (size / 2);
+                    x = Math.max(0, Math.min(x, rect.width - size));
+                    y = Math.max(0, Math.min(y, rect.height - size));
+                    
+                    currentX = (x / rect.width) * 100;
+                    img.style.left = `${currentX}%`;
+                    img.style.top = `${(y / rect.height) * 100}%`;
+                    if(e.cancelable) e.preventDefault();
+                };
+
+                const endDrag = (e) => {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    document.removeEventListener('mousemove', doDrag);
+                    document.removeEventListener('touchmove', doDrag);
+                    document.removeEventListener('mouseup', endDrag);
+                    document.removeEventListener('touchend', endDrag);
+                    
+                    if (!hasMoved) {
+                        img.classList.remove("anim-spin"); void img.offsetWidth;
+                        img.classList.add("anim-spin"); 
+                        setTimeout(() => { img.classList.remove("anim-spin"); swimFreely(); }, 600);
+                    } else {
+                        swimFreely();
+                    }
+                };
+
+                img.addEventListener('mousedown', startDrag);
+                img.addEventListener('touchstart', startDrag, {passive: false});
+                area.appendChild(img);
+            });
+        }
+
+        function g1_resetGame() {
+            document.getElementById("screen-end").classList.add("hidden");
+            document.getElementById("screen-aquarium").classList.add("hidden");
+            document.getElementById("screen-start").classList.remove("hidden");
+        }
+
+
+        // ================================================
+        // GAME 2 の ロジック
+        // ================================================
+        const g2_questions = [
+            { text: "たこの あしは 8ほん ある", correct: true, image: "tako.webp", okText: "そのとおり!たこの あしは 8ほんだよ。", ngText: "おしい!たこの あしは 8ほん あるんだよ。" },
+            { text: "いわしは みずのなかで なかまと およぐ", correct: true, image: "iwashi.webp", multiImage: true, showFeedbackImage: true, feedbackImage: "iwashit.webp", okText: "やったね!おおきな さかなに たべられないように、たくさんのおともだちと くっついて およぐんだよ。", ngText: "おしい!おおきな さかなに たべられないように、たくさんのおともだちと くっついて およぐんだよ。" },
+            { text: "あまえびは うまれたときから ずっと おんなのこ", correct: false, image: "amaebi.webp", okText: "すごい!あまえびは さいしょ おとこのこで、あとから おんなのこに かわるんだよ。", ngText: "おしい!あまえびは さいしょ おとこのこなんだよ。" },
+            { text: "うなぎの からだは へびみたいに ながい", correct: true, image: "unagi.webp", showFeedbackImage: true, silhouette: true, okText: "そのとおり! うなぎは にょろにょろと ながい かたちを しているよ。", ngText: "おしい! うなぎは へびのように なが〜い さかななんだよ。" },
+            { text: "ひらめの めは からだの みぎがわに ある", correct: false, image: "hiramekarei.webp", showFeedbackImage: true, showTelop: true, okText: "やったね!めが ひだりに あるのが ひらめ、みぎに あるのが かれい だよ。", ngText: "おしい!めが ひだりに あるのが ひらめ、みぎに あるのが かれい だよ。" },
+            { text: "やりいかの からだは さんかくの かたち", correct: true, image: "yariika.webp", showFeedbackImage: true, feedbackImage: "yariika2.webp", silhouette: true, okText: "そのとおり!やりの ような かたちを しているね。", ngText: "おしい!やりいかは さんかくの かたちを しているんだよ。" },
+            { text: "かつおは およぐのを やめても へいき", correct: false, image: "katsuo.webp", showFeedbackImage: true, feedbackImage: "katsuo_batsu.webp", okText: "すごい!かつおは およぎつづけないと いきが できないんだよ。", ngText: "おしい!かつおは およぎつづけないと いきが できないんだよ。" },
+            { text: "「あじ」という なまえは、たべて「あじがいい」から ついた", correct: true, image: "aji.webp", showFeedbackImage: true, okText: "そのとおり!たべると とっても おいしい(あじがいい)から、「あじ」という なまえに なったんだよ。", ngText: "おしい!たべると とっても おいしい(あじがいい)から、「あじ」という なまえに なったんだよ。" }
+        ];
+
+        let g2_currentIndex = 0;
+        let g2_correctCount = 0;
+
+        function g2_addTapAnimation(el) {
+            el.addEventListener('click', function() {
+                const src = el.src || '';
+                const isRotate = src.includes('aji') || src.includes('hirame') || src.includes('katsuo') || src.includes('iwashi') || src.includes('unagi');
+                const animClass = isRotate ? 'animate-rotate' : 'animate-bounce';
+                el.classList.remove('animate-bounce', 'animate-rotate');
+                void el.offsetWidth; 
+                el.classList.add(animClass);
+            });
+        }
+        
+        document.addEventListener("DOMContentLoaded", () => {
+            g2_addTapAnimation(document.getElementById('g2-feedbackImg'));
+        });
+
+        function g2_goScreen(name){
+            document.querySelectorAll('#game2-container .screen').forEach(el=>{
+                el.classList.toggle('active', el.dataset.screen === name);
+            });
+            window.scrollTo({top:0, behavior:'smooth'});
+        }
+
+        function g2_startQuiz(){
+            g2_currentIndex = 0;
+            g2_correctCount = 0;
+            g2_renderProgress();
+            g2_renderQuestion();
+            g2_goScreen('quiz');
+        }
+
+        function g2_renderProgress(){
+            const wrap = document.getElementById('g2-qProgress');
+            if (!wrap.querySelector('.q-progress-inner')) {
+                wrap.innerHTML = "";
+                const inner = document.createElement('div');
+                inner.className = 'q-progress-inner';
+                wrap.appendChild(inner);
+                const fish = document.createElement('img');
+                fish.src = 'aji.webp'; fish.className = 'q-progress-fish';
+                wrap.appendChild(fish);
+            }
+            const inner = wrap.querySelector('.q-progress-inner');
+            const fish = wrap.querySelector('.q-progress-fish');
+            const percentage = ((g2_currentIndex + 1) / g2_questions.length) * 100;
+            inner.style.width = percentage + '%';
+            fish.style.left = percentage + '%';
+        }
+
+        function g2_renderQuestion(){
+            const q = g2_questions[g2_currentIndex];
+            document.getElementById('g2-qNum').textContent = (g2_currentIndex + 1) + ' もんめ';
+            document.getElementById('g2-qText').textContent = q.text;
+            
+            const qImgWrap = document.getElementById('g2-qImgWrap');
+            qImgWrap.innerHTML = '';
+            
+            if (q.image) {
+                const imgCount = q.multiImage ? 3 : 1;
+                for (let i = 0; i < imgCount; i++) {
+                    const img = document.createElement('img');
+                    img.src = q.image; img.className = 'q-img'; img.style.display = 'block';
+                    if (q.multiImage) img.classList.add('multi');
+                    if (q.silhouette) img.classList.add('silhouette');
+                    img.alt = 'もんだいの画像';
+                    img.style.setProperty('--rot', '0deg');
+                    g2_addTapAnimation(img);
+                    qImgWrap.appendChild(img);
+                }
+            }
+            g2_renderProgress();
+        }
+
+        function g2_answer(userAnswer){
+            const q = g2_questions[g2_currentIndex];
+            const isCorrect = (userAnswer === q.correct);
+            if (isCorrect) g2_correctCount++;
+
+            const icon = document.getElementById('g2-feedbackIcon');
+            const word = document.getElementById('g2-feedbackWord');
+            const text = document.getElementById('g2-feedbackText');
+            const feedbackImgWrap = document.getElementById('g2-feedbackImgWrap');
+            const feedbackImg = document.getElementById('g2-feedbackImg');
+
+            if (isCorrect){
+                icon.innerHTML = '<circle cx="50" cy="50" r="36" stroke="#2E86AB" stroke-width="9"/>';
+                const okWords = ["やったね!", "すごい!"];
+                word.textContent = okWords[Math.floor(Math.random() * okWords.length)];
+                word.className = "feedback-word ok";
+                text.textContent = q.okText;
+            } else {
+                icon.innerHTML = '<path d="M25 25l50 50M75 25L25 75" stroke="#E8563E" stroke-width="9" stroke-linecap="round"/>';
+                word.textContent = "おしい!";
+                word.className = "feedback-word ng";
+                text.textContent = q.ngText;
+            }
+
+            if (q.showFeedbackImage) {
+                feedbackImg.src = q.feedbackImage || q.image;
+                feedbackImgWrap.style.display = 'inline-block';
+                const telops = feedbackImgWrap.querySelectorAll('.telop');
+                telops.forEach(t => t.style.display = q.showTelop ? 'block' : 'none');
+            } else {
+                feedbackImgWrap.style.display = 'none';
+            }
+
+            const nextBtn = document.getElementById('g2-nextBtn');
+            if (g2_currentIndex === g2_questions.length - 1) {
+                nextBtn.textContent = "けっかをみる";
+            } else {
+                nextBtn.textContent = "つぎへすすむ";
+            }
+            g2_goScreen('feedback');
+        }
+
+        function g2_nextQuestion(){
+            g2_currentIndex++;
+            if (g2_currentIndex < g2_questions.length){
+                g2_renderQuestion();
+                g2_goScreen('quiz');
+            } else {
+                g2_showFinal();
+            }
+        }
+
+        function g2_showFinal(){
+            document.getElementById('g2-finalScore').innerHTML = g2_correctCount + '<span> / ' + g2_questions.length + ' もん</span>';
+            let msg = "";
+            if (g2_correctCount === g2_questions.length){
+                msg = "すごい!ぜんもん せいかい!<br>さかなはかせだね!";
+            } else if (g2_correctCount >= g2_questions.length / 2){
+                msg = "よく できました!<br>また ちょうせんしてね。";
+            } else {
+                msg = "たのしんで もらえたかな?<br>また あそんでね。";
+            }
+            document.getElementById('g2-finalMsg').innerHTML = msg;
+            g2_goScreen('final');
+        }
+
+        function g2_initDecorativeFishes() {
+            const fishDataStart = [
+                { src: 'aji.webp', top: -2, left: 6, size: 100, rotate: -15 },
+                { src: 'amaebi.webp', top: 8, right: 6, size: 95, rotate: 10 },
+                { src: 'hirame.webp', top: 51.5, left: 2, size: 105, rotate: 5 },
+                { src: 'iwashi.webp', top: 50, right: 2, size: 110, rotate: -10 },
+                { src: 'katsuo2.webp', top: 75, left: 8, size: 100, rotate: 15 },
+                { src: 'tako.webp', top: 84, right: 8, size: 95, rotate: -10 }
+            ];
+            const fishDataFinal = [
+                { src: 'aji.webp', top: 5, left: 6, size: 100, rotate: -15 },
+                { src: 'amaebi.webp', top: 8, right: 6, size: 135, rotate: 10 },
+                { src: 'hirame.webp', top: 46, left: 2, size: 105, rotate: 5 },
+                { src: 'iwashi.webp', top: 48, right: 2, size: 110, rotate: -10 },
+                { src: 'katsuo2.webp', top: 76, left: 8, size: 100, rotate: 15 },
+                { src: 'tako.webp', top: 86, right: 8, size: 95, rotate: -10 }
+            ];
+            const targets = [
+                { selector: '#game2-container .start-wrap', className: 'start-fish-img', data: fishDataStart },
+                { selector: '#game2-container .final-wrap', className: 'final-fish-img', data: fishDataFinal }
+            ];
+
+            targets.forEach(target => {
+                const wrap = document.querySelector(target.selector);
+                if (wrap) {
+                    target.data.forEach(fish => {
+                        const img = document.createElement('img');
+                        img.src = fish.src; img.className = target.className;
+                        img.style.width = fish.size + 'px'; img.style.top = fish.top + '%';
+                        if (fish.left !== undefined) img.style.left = fish.left + '%';
+                        else img.style.right = fish.right + '%';
+                        img.style.setProperty('--rot', fish.rotate + 'deg');
+                        img.style.transform = `rotate(var(--rot))`;
+                        g2_addTapAnimation(img);
+                        wrap.appendChild(img);
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>

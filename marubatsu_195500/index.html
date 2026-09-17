@@ -363,6 +363,13 @@
   .animate-bounce {
     animation: fishBounce 0.5s ease;
   }
+  @keyframes fishRotate {
+    0% { transform: translate(0, 0) rotate(var(--rot, 0deg)); }
+    100% { transform: translate(0, 0) rotate(calc(var(--rot, 0deg) + 360deg)); }
+  }
+  .animate-rotate {
+    animation: fishRotate 0.6s ease-in-out;
+  }
   .q-img, .feedback-img {
     cursor: pointer;
   }
@@ -495,12 +502,17 @@ const questions = [
 let currentIndex = 0;
 let correctCount = 0;
 
-/* ▼タップで跳ねるアニメーションを付与する関数▼ */
+/* ▼タップで跳ねる・回転するアニメーションを付与する関数▼ */
 function addTapAnimation(el) {
   el.addEventListener('click', function() {
-    el.classList.remove('animate-bounce');
+    const src = el.src || '';
+    // 指定された魚が含まれている場合は回転、それ以外は跳ねる
+    const isRotate = src.includes('aji') || src.includes('hirame') || src.includes('katsuo') || src.includes('iwashi') || src.includes('unagi');
+    const animClass = isRotate ? 'animate-rotate' : 'animate-bounce';
+
+    el.classList.remove('animate-bounce', 'animate-rotate');
     void el.offsetWidth; // アニメーションを連続で発火させるためのリセット処理
-    el.classList.add('animate-bounce');
+    el.classList.add(animClass);
   });
 }
 

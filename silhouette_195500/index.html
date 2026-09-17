@@ -525,13 +525,23 @@
                 // さいしょの ばしょ を ランダム に
                 let currentX = Math.random() * 80;
                 let currentY = Math.random() * 70;
+                let currentScaleX = 1; // 向き（1:右向き、-1:左向き）を追加
+                
                 img.style.left = `${currentX}%`;
                 img.style.top = `${currentY}%`;
+                img.style.transform = `scaleX(${currentScaleX})`; // 初期状態の向き
+                
+                let isDragging = false;
+                let swimTimer = null;
+                let startX = 0;
+                let startY = 0;
+                let lastDragX = 0; // ドラッグ中の向きを計算するための変数
+                let hasMoved = false;
                 
                 // 水槽のなかを じゆうに 泳ぎ回るロジック
                 const swimFreely = () => {
-                    // 水槽画面が表示されている時だけ動かす
-                    if (!screenAquarium.classList.contains("hidden")) {
+                    // 水槽画面が表示されている時で、ドラッグされていない時だけ動かす
+                    if (!screenAquarium.classList.contains("hidden") && !isDragging) {
                         // つぎの もくひょう ちてん（枠からはみ出さないように 0〜80% の間）
                         const nextX = Math.random() * 80;
                         const nextY = Math.random() * 70;
@@ -542,30 +552,118 @@
                         // つぎの場所まで泳ぐ 時間（4秒 〜 8秒）
                         const duration = 4000 + Math.random() * 4000;
                         
+                        // 移動方向によって向きを反転させる（進む方向を向く）
+                        if (nextX < currentX) {
+                            currentScaleX = -1; // 左へ移動
+                        } else if (nextX > currentX) {
+                            currentScaleX = 1;  // 右へ移動
+                        }
+                        currentX = nextX; // 次の移動の計算のために保存
+                        
                         // なめらかに 移動させる
                         img.style.transition = `all ${duration}ms ease-in-out`;
                         img.style.left = `${nextX}%`;
                         img.style.top = `${nextY}%`;
-                        img.style.transform = `rotate(${nextRotate}deg)`;
+                        // rotate(傾き) と scaleX(反転) を組み合わせて設定
+                        img.style.transform = `rotate(${nextRotate}deg) scaleX(${currentScaleX})`;
                         
                         // つぎの場所に つく頃に、また次の目標を決める
-                        setTimeout(swimFreely, duration);
+                        swimTimer = setTimeout(swimFreely, duration);
                     }
                 };
                 
                 // 画面に出たあと、すこし時間をずらして 泳ぎはじめる
-                setTimeout(swimFreely, 100 + Math.random() * 1000);
+                swimTimer = setTimeout(swimFreely, 100 + Math.random() * 1000);
                 
-                // タップ した とき に くるっと まわる アクション
-                img.onclick = () => {
-                    img.classList.remove("anim-spin");
-                    void img.offsetWidth; // リフロー
-                    img.classList.add("anim-spin"); 
-                    // アニメーション が おわったら もと に もどす
-                    setTimeout(() => {
-                        img.classList.remove("anim-spin");
-                    }, 600);
+                // 指（マウス）で好きに動かせる機能
+                const startDrag = (e) => {
+                    isDragging = true;
+                    hasMoved = false;
+                    clearTimeout(swimTimer); // 泳ぐのを一時停止
+                    
+                    // トランジションを切って指にすぐついてくるようにする
+                    img.style.transition = 'none';
+                    
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                    startX = clientX;
+                    startY = clientY;
+                    lastDragX = clientX; // 向き計算用
+                    
+                    if(e.cancelable) e.preventDefault(); // スクロール防止
+                    
+                    document.addEventListener('mousemove', doDrag, {passive: false});
+                    document.addEventListener('touchmove', doDrag, {passive: false});
+                    document.addEventListener('mouseup', endDrag);
+                    document.addEventListener('touchend', endDrag);
                 };
+
+                const doDrag = (e) => {
+                    if (!isDragging) return;
+                    
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                    
+                    const dx = clientX - startX;
+                    const dy = clientY - startY;
+                    
+                    // 少しでも動いたらドラッグとみなす
+                    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+                        hasMoved = true;
+                    }
+                    
+                    // ドラッグ中の指の移動方向によって向きを反転させる
+                    const moveX = clientX - lastDragX;
+                    if (moveX < -2) currentScaleX = -1; // 少しのブレで反転しすぎないように閾値を設定
+                    if (moveX > 2) currentScaleX = 1;
+                    img.style.transform = `scaleX(${currentScaleX})`;
+                    lastDragX = clientX; // 次の計算のために保存
+                    
+                    // 水槽の中での位置を計算
+                    const rect = aquariumFishArea.getBoundingClientRect();
+                    let x = clientX - rect.left - (size / 2);
+                    let y = clientY - rect.top - (size / 2);
+                    
+                    // 水槽からはみ出さないように制限
+                    x = Math.max(0, Math.min(x, rect.width - size));
+                    y = Math.max(0, Math.min(y, rect.height - size));
+                    
+                    currentX = (x / rect.width) * 100; // ドラッグ後も現在位置を追従させる
+                    
+                    img.style.left = `${currentX}%`;
+                    img.style.top = `${(y / rect.height) * 100}%`;
+                    
+                    if(e.cancelable) e.preventDefault();
+                };
+
+                const endDrag = (e) => {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    
+                    document.removeEventListener('mousemove', doDrag);
+                    document.removeEventListener('touchmove', doDrag);
+                    document.removeEventListener('mouseup', endDrag);
+                    document.removeEventListener('touchend', endDrag);
+                    
+                    // 動かさずに離した場合（タップしたと判定）はクルッと回す
+                    if (!hasMoved) {
+                        img.classList.remove("anim-spin");
+                        void img.offsetWidth; // リフロー
+                        img.classList.add("anim-spin"); 
+                        // アニメーションが終わったら泳ぎを再開
+                        setTimeout(() => {
+                            img.classList.remove("anim-spin");
+                            swimFreely();
+                        }, 600);
+                    } else {
+                        // ドラッグが終わったら再び泳ぎはじめる
+                        swimFreely();
+                    }
+                };
+
+                // タッチ・マウス操作の開始を検知
+                img.addEventListener('mousedown', startDrag);
+                img.addEventListener('touchstart', startDrag, {passive: false});
                 
                 aquariumFishArea.appendChild(img);
             });

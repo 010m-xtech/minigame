@@ -129,7 +129,8 @@
     position: absolute;
     z-index: 0;
     opacity: 0.75; /* テキストの邪魔にならないよう少し透かす */
-    pointer-events: none; /* 誤ってクリックしないようにする */
+    pointer-events: auto; /* タップできるように none から auto へ変更 */
+    cursor: pointer;
   }
   
   .start-title{
@@ -333,7 +334,8 @@
     position: absolute;
     z-index: 0;
     opacity: 0.75;
-    pointer-events: none;
+    pointer-events: auto; /* タップできるように none から auto へ変更 */
+    cursor: pointer;
   }
   .final-score{
     font-size:46px; font-weight:900; color:var(--ai);
@@ -348,6 +350,21 @@
     text-align:center; font-size:11px; color:var(--sumi); padding:10px 20px 18px;
     text-shadow: 1px 1px 0 #FFF, -1px -1px 0 #FFF, 1px -1px 0 #FFF, -1px 1px 0 #FFF;
     font-weight: bold;
+  }
+
+  /* ▼タップした時の魚アニメーション▼ */
+  @keyframes fishBounce {
+    0% { transform: translate(0, 0) rotate(var(--rot, 0deg)); }
+    25% { transform: translate(-3px, -15px) rotate(calc(var(--rot, 0deg) - 15deg)) scale(1.1); }
+    50% { transform: translate(0, -25px) rotate(calc(var(--rot, 0deg) + 15deg)) scale(1.2); }
+    75% { transform: translate(3px, -15px) rotate(calc(var(--rot, 0deg) - 15deg)) scale(1.1); }
+    100% { transform: translate(0, 0) rotate(var(--rot, 0deg)); }
+  }
+  .animate-bounce {
+    animation: fishBounce 0.5s ease;
+  }
+  .q-img, .feedback-img {
+    cursor: pointer;
   }
 </style>
 </head>
@@ -478,6 +495,21 @@ const questions = [
 let currentIndex = 0;
 let correctCount = 0;
 
+/* ▼タップで跳ねるアニメーションを付与する関数▼ */
+function addTapAnimation(el) {
+  el.addEventListener('click', function() {
+    el.classList.remove('animate-bounce');
+    void el.offsetWidth; // アニメーションを連続で発火させるためのリセット処理
+    el.classList.add('animate-bounce');
+  });
+}
+
+// 最初の読み込み時に、解説画面の画像にもタップアニメーションを付与しておく
+document.addEventListener("DOMContentLoaded", () => {
+  addTapAnimation(document.getElementById('feedbackImg'));
+});
+/* ▲ここまで▲ */
+
 function goScreen(name){
   document.querySelectorAll('.screen').forEach(el=>{
     el.classList.toggle('active', el.dataset.screen === name);
@@ -524,6 +556,11 @@ function renderQuestion(){
       if (q.multiImage) img.classList.add('multi');
       if (q.silhouette) img.classList.add('silhouette');
       img.alt = 'もんだいの画像';
+      
+      // 画像にタップアニメーションを追加
+      img.style.setProperty('--rot', '0deg');
+      addTapAnimation(img);
+
       qImgWrap.appendChild(img);
     }
   }
@@ -649,7 +686,12 @@ document.addEventListener("DOMContentLoaded", () => {
           img.style.right = fish.right + '%';
         }
         
-        img.style.transform = `rotate(${fish.rotate}deg)`;
+        // CSS変数で回転角度を保持（アニメーションで角度が崩れないようにするため）
+        img.style.setProperty('--rot', fish.rotate + 'deg');
+        img.style.transform = `rotate(var(--rot))`;
+        
+        // 画像にタップアニメーションを追加
+        addTapAnimation(img);
         
         wrap.appendChild(img);
       });

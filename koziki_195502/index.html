@@ -377,7 +377,6 @@
         </div>
     </div>
 
-
     <!-- ==============================================
          GAME 2: おさかな ○✕ くいず
     =============================================== -->
@@ -517,7 +516,6 @@
             // Game 2の装飾用の魚を配置
             g2_initDecorativeFishes();
         });
-
 
         // ================================================
         // GAME 1 の ロジック
@@ -758,7 +756,6 @@
             document.getElementById("screen-start").classList.remove("hidden");
         }
 
-
         // ================================================
         // GAME 2 の ロジック
         // ================================================
@@ -918,10 +915,10 @@
             const fishDataStart = [
                 { src: 'aji.webp', top: -2, left: 6, size: 100, rotate: -15 },
                 { src: 'amaebi.webp', top: 8, right: 6, size: 95, rotate: 10 },
-                { src: 'hirame.webp', top: 45.5, left: 2, size: 105, rotate: 5 }, // 51.5 から 6% 上 (-6) -> 45.5 (要望:4%上)
-                { src: 'iwashi.webp', top: 45, right: 2, size: 110, rotate: -10 }, // 50 から 5% 上 (-5) -> 45 (要望:3%上)
-                { src: 'katsuo2.webp', top: 80, left: 8, size: 100, rotate: 15 }, // 75 から 5% 下 (+5) -> 80 (要望:3%下)
-                { src: 'tako.webp', top: 88, right: 8, size: 95, rotate: -10 } // 84 から 4% 下 (+4) -> 88 (要望:2%下)
+                { src: 'hirame.webp', top: 39.5, left: 2, size: 105, rotate: 5 },
+                { src: 'iwashi.webp', top: 40, right: 2, size: 110, rotate: -10 },
+                { src: 'katsuo2.webp', top: 84, left: 8, size: 100, rotate: 15 },
+                { src: 'tako.webp', top: 90, right: 8, size: 95, rotate: -10 }
             ];
             const fishDataFinal = [
                 { src: 'aji.webp', top: 5, left: 6, size: 100, rotate: -15 },

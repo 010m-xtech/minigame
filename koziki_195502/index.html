@@ -588,20 +588,20 @@
                     introVideo.addEventListener('timeupdate', () => {
                         if (introSkipped || introPhaseTriggered) return;
                         
-                        // 再生時間が6秒を超えたら暗くなり出し、ロゴを表示
-                        if (introVideo.currentTime >= 6.0) {
+                        // 再生時間が5秒を超えたら暗くなり出し、ロゴを表示
+                        if (introVideo.currentTime >= 5.0) {
                             introPhaseTriggered = true;
                             introVideo.style.opacity = '0';
                             if (introLogo) introLogo.style.opacity = '1';
                             
-                            // その2秒後（計8秒後）に全体をフェードアウトしてコンテンツへ
+                            // その2秒後（計7秒後）に全体をフェードアウトしてコンテンツへ
                             introTimeouts.push(setTimeout(() => {
                                 endIntro();
                             }, 2000));
                         }
                     });
 
-                    // 万が一動画が6秒未満で終了した場合の予備処理
+                    // 万が一動画が5秒未満で終了した場合の予備処理
                     introVideo.addEventListener('ended', () => {
                         if (!introSkipped && !introPhaseTriggered) {
                             introPhaseTriggered = true;
@@ -615,11 +615,11 @@
                     introTimeouts.push(setTimeout(() => {
                         if (introSkipped) return;
                         if (introLogo) introLogo.style.opacity = '1';
-                    }, 6000));
+                    }, 5000));
                     
                     introTimeouts.push(setTimeout(() => {
                         endIntro();
-                    }, 8000));
+                    }, 7000));
                 }
             }
         });

@@ -198,7 +198,7 @@
         
         // あとから ランダムに したいときは、ここを true に します。
         // （いまは テストしやすいように false に しています）
-        const isRandomMode = false; 
+        const isRandomMode = true; 
 
         // しゅつだい する かず（ほんばんは 5 にします）
         const maxQuestions = 5;
@@ -357,12 +357,12 @@
                 
                 popupTitle.textContent = randomMessage;
                 popupTitle.className = "text-4xl font-bold mb-4 text-red-500 kirie-title";
-                popupText.textContent = `こたえは「${correct}」だよ！`;
+                popupText.innerHTML = `せいかい は<br>「${correct}」でした！`;
             } else {
                 // ざんねん -> おしい！に変更
                 popupTitle.textContent = "おしい！";
                 popupTitle.className = "text-4xl font-bold mb-4 text-blue-500 kirie-title";
-                popupText.textContent = `せいかい は「${correct}」でした！`;
+                popupText.innerHTML = `せいかい は<br>「${correct}」でした！`;
             }
         }
 

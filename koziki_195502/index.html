@@ -562,6 +562,7 @@
             const introLogo = document.getElementById('intro-logo');
             let introSkipped = false;
             let introTimeouts = [];
+            let introPhaseTriggered = false;
 
             const endIntro = () => {
                 if (introSkipped) return;
@@ -582,17 +583,44 @@
                 introContainer.addEventListener('click', endIntro);
                 introContainer.addEventListener('touchstart', endIntro, {passive: true});
 
-                // 5秒後に動画をフェードアウトして真っ暗にし、ロゴをフェードイン
-                introTimeouts.push(setTimeout(() => {
-                    if (introSkipped) return;
-                    if (introVideo) introVideo.style.opacity = '0';
-                    if (introLogo) introLogo.style.opacity = '1';
-                }, 5000));
+                // 動画の実際の再生時間を基準にしてタイミングを合わせる
+                if (introVideo) {
+                    introVideo.addEventListener('timeupdate', () => {
+                        if (introSkipped || introPhaseTriggered) return;
+                        
+                        // 再生時間が6秒を超えたら暗くなり出し、ロゴを表示
+                        if (introVideo.currentTime >= 6.0) {
+                            introPhaseTriggered = true;
+                            introVideo.style.opacity = '0';
+                            if (introLogo) introLogo.style.opacity = '1';
+                            
+                            // その2秒後（計8秒後）に全体をフェードアウトしてコンテンツへ
+                            introTimeouts.push(setTimeout(() => {
+                                endIntro();
+                            }, 2000));
+                        }
+                    });
 
-                // 5秒 + 2秒 = 7秒後に全体をフェードアウトしてコンテンツへ
-                introTimeouts.push(setTimeout(() => {
-                    endIntro();
-                }, 7000));
+                    // 万が一動画が6秒未満で終了した場合の予備処理
+                    introVideo.addEventListener('ended', () => {
+                        if (!introSkipped && !introPhaseTriggered) {
+                            introPhaseTriggered = true;
+                            introVideo.style.opacity = '0';
+                            if (introLogo) introLogo.style.opacity = '1';
+                            introTimeouts.push(setTimeout(endIntro, 2000));
+                        }
+                    });
+                } else {
+                    // 動画要素がない場合の予備処理
+                    introTimeouts.push(setTimeout(() => {
+                        if (introSkipped) return;
+                        if (introLogo) introLogo.style.opacity = '1';
+                    }, 6000));
+                    
+                    introTimeouts.push(setTimeout(() => {
+                        endIntro();
+                    }, 8000));
+                }
             }
         });
 

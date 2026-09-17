@@ -99,6 +99,24 @@
             from { opacity: 0; transform: scale(0.9); }
             to { opacity: 1; transform: scale(1); }
         }
+
+        /* 結果画像のタップアニメーション */
+        @keyframes animSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        @keyframes animFlip {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
+        @keyframes animShake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px) rotate(-3deg); }
+            20%, 40%, 60%, 80% { transform: translateX(5px) rotate(3deg); }
+        }
+        .anim-spin { animation: animSpin 0.6s ease; }
+        .anim-flip { animation: animFlip 0.6s ease; }
+        .anim-shake { animation: animShake 0.6s ease; }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
@@ -162,7 +180,7 @@
                 
                 <!-- 結果ポップアップ用の画像表示エリアを追加 -->
                 <div class="w-40 h-40 mb-4 relative flex justify-center items-center kirie-img-box p-2">
-                    <img id="result-image" src="" alt="こたえの おさかな" class="max-w-full max-h-full object-contain">
+                    <img id="result-image" src="" alt="こたえの おさかな" class="max-w-full max-h-full object-contain cursor-pointer" onclick="playResultAnimation()">
                 </div>
 
                 <p id="popup-text" class="text-xl mb-6 font-bold kirie-text">こたえは「まぐろ」です</p>
@@ -347,6 +365,9 @@
             
             // こたえあわせ で シルエット（真っ黒）を かいじょ して、いろ を だす
             fishImage.classList.remove("silhouette");
+            
+            // アニメーションのクラスをリセットしておく
+            resultImage.className = "max-w-full max-h-full object-contain cursor-pointer";
 
             if (selected === correct) {
                 // せいかい
@@ -364,6 +385,20 @@
                 popupTitle.className = "text-4xl font-bold mb-4 text-blue-500 kirie-title";
                 popupText.innerHTML = `せいかい は<br>「${correct}」でした！`;
             }
+        }
+
+        // ==========================================
+        // けっか がぞう を タップ したとき の アニメーション
+        // ==========================================
+        function playResultAnimation() {
+            const anims = ["anim-spin", "anim-flip", "anim-shake"];
+            const randomAnim = anims[Math.floor(Math.random() * anims.length)];
+            
+            // 連続でタップしてもアニメーションが再生されるように一度クラスを消す
+            resultImage.classList.remove("anim-spin", "anim-flip", "anim-shake");
+            void resultImage.offsetWidth; // リフロー
+            
+            resultImage.classList.add(randomAnim);
         }
 
         // ==========================================

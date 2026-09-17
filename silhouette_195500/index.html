@@ -156,8 +156,14 @@
              けっか（せいかい・ざんねん）の ポップアップ
         =============================================== -->
         <div id="popup-result" class="hidden absolute top-0 left-0 w-full h-full bg-black/40 flex items-center justify-center p-4 z-50">
-            <div class="kirie-box p-8 text-center bg-white w-full max-w-sm fade-in">
+            <div class="kirie-box p-8 text-center bg-white w-full max-w-sm fade-in flex flex-col items-center">
                 <h2 id="popup-title" class="text-4xl font-bold mb-4 text-red-500 kirie-title">せいかい！</h2>
+                
+                <!-- 結果ポップアップ用の画像表示エリアを追加 -->
+                <div class="w-40 h-40 mb-4 relative flex justify-center items-center kirie-img-box p-2">
+                    <img id="result-image" src="" alt="こたえの おさかな" class="max-w-full max-h-full object-contain">
+                </div>
+
                 <p id="popup-text" class="text-xl mb-6 font-bold kirie-text">こたえは「まぐろ」です</p>
                 
                 <button onclick="nextQuestion()" class="kirie-btn btn-blue text-xl font-bold py-3 px-8 w-full kirie-text">
@@ -260,6 +266,7 @@
         const popupTitle = document.getElementById("popup-title");
         const popupText = document.getElementById("popup-text");
         const finalScoreText = document.getElementById("final-score");
+        const resultImage = document.getElementById("result-image");
 
         // ボタンの 色（いろ）リスト（ランダムで わけるため）
         const btnColors = ["btn-orange", "btn-blue", "btn-pink"];
@@ -332,6 +339,10 @@
         // ==========================================
         function checkAnswer(selected, correct) {
             popupResult.classList.remove("hidden");
+            
+            // ポップアップ画面に本来のカラー画像を表示させる
+            const q = currentQuestions[currentIndex];
+            resultImage.src = q.img;
             
             // こたえあわせ で シルエット（真っ黒）を かいじょ して、いろ を だす
             fishImage.classList.remove("silhouette");

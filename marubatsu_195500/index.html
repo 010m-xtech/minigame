@@ -167,18 +167,33 @@
   }
 
   /* --- 出題画面 --- */
-  .q-progress{
-    display:flex; justify-content:center; gap:6px; margin: 4px auto 14px;
+  .q-progress {
+    width: 85%;
+    max-width: 320px;
+    height: 12px;
+    margin: 4px auto 14px;
     background: rgba(255, 255, 255, 0.8);
-    padding: 6px 16px;
-    border-radius: 20px;
-    width: fit-content;
+    border-radius: 10px;
+    position: relative;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
   }
-  .q-dot{
-    width:9px; height:9px; border-radius:50%; background: var(--line);
+  .q-progress-inner {
+    height: 100%;
+    background: var(--ai-light);
+    border-radius: 10px;
+    width: 0%;
+    transition: width 0.4s ease-out;
   }
-  .q-dot.done{ background: var(--ai-light); }
-  .q-dot.now{ background: var(--shu); transform:scale(1.3); }
+  .q-progress-fish {
+    position: absolute;
+    top: -14px;
+    width: 40px;
+    height: auto;
+    /* 進行度に合わせて魚の中心を合わせつつ、反転して右を向かせる */
+    transform: translateX(-50%) scaleX(-1);
+    transition: left 0.4s ease-out;
+    z-index: 2;
+  }
 
   .q-card{
     background: transparent; padding: 20px 22px;
@@ -539,14 +554,28 @@ function startQuiz(){
 
 function renderProgress(){
   const wrap = document.getElementById('qProgress');
-  wrap.innerHTML = "";
-  questions.forEach((q, i)=>{
-    const dot = document.createElement('div');
-    dot.className = 'q-dot';
-    if (i < currentIndex) dot.classList.add('done');
-    if (i === currentIndex) dot.classList.add('now');
-    wrap.appendChild(dot);
-  });
+  
+  // バーの中身と魚の画像がまだ作られていなければ作成する
+  if (!wrap.querySelector('.q-progress-inner')) {
+    wrap.innerHTML = "";
+    
+    const inner = document.createElement('div');
+    inner.className = 'q-progress-inner';
+    wrap.appendChild(inner);
+    
+    const fish = document.createElement('img');
+    fish.src = 'aji.webp';
+    fish.className = 'q-progress-fish';
+    wrap.appendChild(fish);
+  }
+
+  // 現在の問題数に応じてパーセンテージを計算して進める
+  const inner = wrap.querySelector('.q-progress-inner');
+  const fish = wrap.querySelector('.q-progress-fish');
+  const percentage = ((currentIndex + 1) / questions.length) * 100;
+  
+  inner.style.width = percentage + '%';
+  fish.style.left = percentage + '%';
 }
 
 function renderQuestion(){

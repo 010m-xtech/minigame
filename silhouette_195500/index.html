@@ -87,6 +87,12 @@
             transition: filter 0.3s ease;
         }
 
+        /* ヒント状態のクラス（うっすら見える） */
+        .hint-mode {
+            filter: brightness(0.3) grayscale(0.5);
+            transition: filter 0.3s ease;
+        }
+
         /* 画像がふわっと切り替わるアニメーション */
         .fade-in {
             animation: fadeIn 0.5s ease-in forwards;
@@ -147,20 +153,23 @@
         <div id="screen-quiz" class="hidden">
             <div class="kirie-box p-6 flex flex-col items-center min-h-[500px]">
                 
-                <!-- もんだい ばんごう -->
-                <div id="question-number" class="text-xl font-bold mb-4 btn-yellow px-6 py-2 kirie-badge kirie-text">
-                    1 もんめ
-                </div>
-
-                <p class="mb-4 font-bold text-lg kirie-text">これは なんの おさかな かな？</p>
+                <!-- 修正: ここに問題番号を表示する要素を追加しました -->
+                <h2 id="question-number" class="text-2xl font-bold mb-4 btn-yellow inline-block px-6 py-2 kirie-badge">1 もんめ</h2>
+                
+                <p class="mb-4 font-bold text-lg">これは なんの おさかな かな？</p>
 
                 <!-- 画像素材を入れるエリア -->
-                <div class="w-48 h-48 mb-6 relative flex justify-center items-center kirie-img-box p-2">
+                <div class="w-48 h-48 mb-4 relative flex justify-center items-center kirie-img-box p-2">
                     <img id="fish-image" src="" alt="おさかな" class="max-w-full max-h-full object-contain">
                 </div>
 
+                <!-- ひんと ボタン -->
+                <button onclick="showHint()" id="hint-btn" class="kirie-btn btn-green text-lg font-bold py-2 px-8 mb-6">
+                    ひんと
+                </button>
+
                 <!-- せんたくし ボタン エリア -->
-                <div id="options-container" class="w-full flex flex-col gap-4">
+                <div id="options-container" class="w-full flex flex-col gap-6">
                     <!-- ボタンは JavaScript で つくられます -->
                 </div>
 
@@ -179,10 +188,10 @@
                     <img id="result-image" src="" alt="こたえの おさかな" class="max-w-full max-h-full object-contain cursor-pointer" onclick="playResultAnimation()">
                 </div>
 
-                <p id="popup-text" class="text-xl mb-6 font-bold kirie-text">こたえは「まぐろ」です</p>
+                <p id="popup-text" class="text-xl mb-6 font-bold">こたえは「まぐろ」です</p>
                 
-                <button onclick="nextQuestion()" class="kirie-btn btn-blue text-xl font-bold py-3 px-8 w-full kirie-text">
-                    つぎへ
+                <button onclick="nextQuestion()" class="kirie-btn btn-blue text-xl font-bold py-3 px-8 w-full">
+                    つぎの もんだい へ
                 </button>
             </div>
         </div>
@@ -321,7 +330,11 @@
             
             // 画像をセットし、シルエット（真っ黒）にする
             fishImage.src = q.img;
+            fishImage.classList.remove("hint-mode");
             fishImage.classList.add("silhouette");
+
+            // ひんとボタンを表示状態に戻す
+            document.getElementById("hint-btn").style.display = "block";
 
             // アニメーションを リセット
             fishImage.classList.remove("fade-in");
@@ -359,8 +372,8 @@
             const q = currentQuestions[currentIndex];
             resultImage.src = q.img;
             
-            // こたえあわせ で シルエット（真っ黒）を かいじょ して、いろ を だす
-            fishImage.classList.remove("silhouette");
+            // こたえあわせ で シルエット（真っ黒）や ヒント を かいじょ して、いろ を だす
+            fishImage.classList.remove("silhouette", "hint-mode");
             
             // アニメーションのクラスをリセットしておく
             resultImage.className = "max-w-full max-h-full object-contain cursor-pointer";
@@ -395,6 +408,16 @@
             void resultImage.offsetWidth; // リフロー
             
             resultImage.classList.add(randomAnim);
+        }
+
+        // ==========================================
+        // ひんと を だす
+        // ==========================================
+        function showHint() {
+            fishImage.classList.remove("silhouette");
+            fishImage.classList.add("hint-mode");
+            // ひんとボタンを消す（1回だけ使えるようにする）
+            document.getElementById("hint-btn").style.display = "none";
         }
 
         // ==========================================

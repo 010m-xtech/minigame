@@ -112,19 +112,6 @@
             100% { opacity: 1; transform: translateX(0) translateY(0) rotate(0deg); }
         }
 
-        /* 水槽のおさかながフワフワするアニメーション */
-        .float-anim {
-            animation: floatAnim 15s ease-in-out infinite alternate;
-        }
-        @keyframes floatAnim {
-            0% { transform: translate(0px, 0px) rotate(-2deg); }
-            20% { transform: translate(50px, -30px) rotate(3deg); }
-            40% { transform: translate(-40px, -50px) rotate(-2deg); }
-            60% { transform: translate(-60px, 20px) rotate(4deg); }
-            80% { transform: translate(30px, 40px) rotate(-3deg); }
-            100% { transform: translate(-50px, -10px) rotate(2deg); }
-        }
-
         /* 結果画像のタップアニメーション */
         @keyframes animSpin {
             from { transform: rotate(0deg); }
@@ -526,32 +513,57 @@
                 const img = document.createElement("img");
                 img.src = fish.img;
                 img.alt = fish.name;
-                // フワフワ アニメーション を つける
-                img.className = "absolute object-contain float-anim cursor-pointer drop-shadow-md";
+                
+                // CSSの固定アニメーションではなく、JSで動かすための準備
+                img.className = "absolute object-contain cursor-pointer drop-shadow-md";
                 
                 // おおきさ を ランダム に（60px 〜 110px）
                 const size = 60 + Math.random() * 50; 
                 img.style.width = `${size}px`;
                 img.style.height = `${size}px`;
                 
-                // ばしょ を ランダム に（すいそう の わく の なか で はみださないように）
-                const posX = 5 + Math.random() * 65; // 5% 〜 70%
-                const posY = 5 + Math.random() * 65; // 5% 〜 70%
-                img.style.left = `${posX}%`;
-                img.style.top = `${posY}%`;
+                // さいしょの ばしょ を ランダム に
+                let currentX = Math.random() * 80;
+                let currentY = Math.random() * 70;
+                img.style.left = `${currentX}%`;
+                img.style.top = `${currentY}%`;
                 
-                // アニメーション の タイミング を ずらす
-                img.style.animationDelay = `${Math.random() * 2}s`;
+                // 水槽のなかを じゆうに 泳ぎ回るロジック
+                const swimFreely = () => {
+                    // 水槽画面が表示されている時だけ動かす
+                    if (!screenAquarium.classList.contains("hidden")) {
+                        // つぎの もくひょう ちてん（枠からはみ出さないように 0〜80% の間）
+                        const nextX = Math.random() * 80;
+                        const nextY = Math.random() * 70;
+                        
+                        // すこし 傾ける（-15度 〜 15度）
+                        const nextRotate = -15 + Math.random() * 30;
+                        
+                        // つぎの場所まで泳ぐ 時間（4秒 〜 8秒）
+                        const duration = 4000 + Math.random() * 4000;
+                        
+                        // なめらかに 移動させる
+                        img.style.transition = `all ${duration}ms ease-in-out`;
+                        img.style.left = `${nextX}%`;
+                        img.style.top = `${nextY}%`;
+                        img.style.transform = `rotate(${nextRotate}deg)`;
+                        
+                        // つぎの場所に つく頃に、また次の目標を決める
+                        setTimeout(swimFreely, duration);
+                    }
+                };
+                
+                // 画面に出たあと、すこし時間をずらして 泳ぎはじめる
+                setTimeout(swimFreely, 100 + Math.random() * 1000);
                 
                 // タップ した とき に くるっと まわる アクション
                 img.onclick = () => {
-                    img.classList.remove("float-anim");
+                    img.classList.remove("anim-spin");
                     void img.offsetWidth; // リフロー
                     img.classList.add("anim-spin"); 
                     // アニメーション が おわったら もと に もどす
                     setTimeout(() => {
                         img.classList.remove("anim-spin");
-                        img.classList.add("float-anim");
                     }, 600);
                 };
                 

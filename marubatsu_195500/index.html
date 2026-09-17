@@ -447,48 +447,48 @@ const questions = [
   { text: "たこの あしは 8ほん ある", correct: true,
     image: "tako.webp",
     okText: "そのとおり!たこの あしは 8ほんだよ。",
-    ngText: "ざんねん!たこの あしは 8ほん あるんだよ。" },
+    ngText: "おしい!たこの あしは 8ほん あるんだよ。" },
   { text: "いわしは みずのなかで なかまと およぐ", correct: true,
     image: "iwashi.webp",
     multiImage: true,
     showFeedbackImage: true,
     feedbackImage: "iwashit.webp",
-    okText: "せいかい!おおきな さかなに たべられないように、たくさんのおともだちと くっついて およぐんだよ。",
-    ngText: "ざんねん!おおきな さかなに たべられないように、たくさんのおともだちと くっついて およぐんだよ。" },
+    okText: "やったね!おおきな さかなに たべられないように、たくさんのおともだちと くっついて およぐんだよ。",
+    ngText: "おしい!おおきな さかなに たべられないように、たくさんのおともだちと くっついて およぐんだよ。" },
   { text: "あまえびは うまれたときから ずっと おんなのこ", correct: false,
     image: "amaebi.webp",
-    okText: "せいかい!あまえびは さいしょ おとこのこで、あとから おんなのこに かわるんだよ。",
-    ngText: "ざんねん!あまえびは さいしょ おとこのこなんだよ。" },
+    okText: "すごい!あまえびは さいしょ おとこのこで、あとから おんなのこに かわるんだよ。",
+    ngText: "おしい!あまえびは さいしょ おとこのこなんだよ。" },
   { text: "うなぎの からだは へびみたいに ながい", correct: true,
     image: "unagi.webp",
     showFeedbackImage: true,
     silhouette: true,
     okText: "そのとおり! うなぎは にょろにょろと ながい かたちを しているよ。",
-    ngText: "ざんねん! うなぎは へびのように なが〜い さかななんだよ。" },
+    ngText: "おしい! うなぎは へびのように なが〜い さかななんだよ。" },
   { text: "ひらめの めは からだの みぎがわに ある", correct: false,
     image: "hiramekarei.webp",
     showFeedbackImage: true,
     showTelop: true,
-    okText: "せいかい!めが ひだりに あるのが ひらめ、みぎに あるのが かれい だよ。",
-    ngText: "ざんねん!めが ひだりに あるのが ひらめ、みぎに あるのが かれい だよ。" },
+    okText: "やったね!めが ひだりに あるのが ひらめ、みぎに あるのが かれい だよ。",
+    ngText: "おしい!めが ひだりに あるのが ひらめ、みぎに あるのが かれい だよ。" },
   { text: "やりいかの からだは さんかくの かたち", correct: true,
     image: "yariika.webp",
     showFeedbackImage: true,
     feedbackImage: "yariika2.webp",
     silhouette: true,
     okText: "そのとおり!やりの ような かたちを しているね。",
-    ngText: "ざんねん!やりいかは さんかくの かたちを しているんだよ。" },
+    ngText: "おしい!やりいかは さんかくの かたちを しているんだよ。" },
   { text: "かつおは およぐのを やめても へいき", correct: false,
     image: "katsuo.webp",
     showFeedbackImage: true,
     feedbackImage: "katsuo_batsu.webp",
-    okText: "せいかい!かつおは およぎつづけないと いきが できないんだよ。",
-    ngText: "ざんねん!かつおは およぎつづけないと いきが できないんだよ。" },
+    okText: "すごい!かつおは およぎつづけないと いきが できないんだよ。",
+    ngText: "おしい!かつおは およぎつづけないと いきが できないんだよ。" },
   { text: "「あじ」という なまえは、たべて「あじがいい」から ついた", correct: true,
     image: "aji.webp",
     showFeedbackImage: true,
     okText: "そのとおり!たべると とっても おいしい(あじがいい)から、「あじ」という なまえに なったんだよ。",
-    ngText: "ざんねん!たべると とっても おいしい(あじがいい)から、「あじ」という なまえに なったんだよ。" }
+    ngText: "おしい!たべると とっても おいしい(あじがいい)から、「あじ」という なまえに なったんだよ。" }
 ];
 
 /* ============ クイズのじょうたい ============ */
@@ -581,12 +581,14 @@ function answer(userAnswer){
 
   if (isCorrect){
     icon.innerHTML = '<circle cx="50" cy="50" r="36" stroke="#2E86AB" stroke-width="9"/>';
-    word.textContent = "せいかい!";
+    // 正解の時は「やったね！」か「すごい！」をランダムで表示
+    const okWords = ["やったね!", "すごい!"];
+    word.textContent = okWords[Math.floor(Math.random() * okWords.length)];
     word.className = "feedback-word ok";
     text.textContent = q.okText;
   } else {
     icon.innerHTML = '<path d="M25 25l50 50M75 25L25 75" stroke="#E8563E" stroke-width="9" stroke-linecap="round"/>';
-    word.textContent = "ざんねん!";
+    word.textContent = "おしい!";
     word.className = "feedback-word ng";
     text.textContent = q.ngText;
   }

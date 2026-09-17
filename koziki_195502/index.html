@@ -769,7 +769,7 @@
             { text: "ひらめの めは からだの みぎがわに ある", correct: false, image: "hiramekarei.webp", showFeedbackImage: true, showTelop: true, okText: "やったね!めが ひだりに あるのが ひらめ、みぎに あるのが かれい だよ。", ngText: "おしい!めが ひだりに あるのが ひらめ、みぎに あるのが かれい だよ。" },
             { text: "やりいかの からだは さんかくの かたち", correct: true, image: "yariika.webp", showFeedbackImage: true, feedbackImage: "yariika2.webp", silhouette: true, okText: "そのとおり!やりの ような かたちを しているね。", ngText: "おしい!やりいかは さんかくの かたちを しているんだよ。" },
             { text: "かつおは およぐのを やめても へいき", correct: false, image: "katsuo.webp", showFeedbackImage: true, feedbackImage: "katsuo_batsu.webp", okText: "すごい!かつおは およぎつづけないと いきが できないんだよ。", ngText: "おしい!かつおは およぎつづけないと いきが できないんだよ。" },
-            { text: "「あじ」という なまえは、たべて「あじがいい」から ついた", correct: true, image: "aji.webp", showFeedbackImage: true, okText: "そのとおり!たべると とっても おいしい(あじがいい)から、「あじ」という なまえに なったんだよ。", ngText: "おしい!たべると とっても おいしい(あじがいい)から、「あじ」という なまえに なったんだよ。" }
+            { text: "「あじ」というなまえは、<br>たべて「あじがいい」からついた", correct: true, image: "aji.webp", showFeedbackImage: true, okText: "そのとおり!たべると とっても おいしい(あじがいい)から、「あじ」という なまえに なったんだよ。", ngText: "おしい!たべると とっても おいしい(あじがいい)から、「あじ」という なまえに なったんだよ。" }
         ];
 
         let g2_questions = [];
@@ -841,7 +841,7 @@
         function g2_renderQuestion(){
             const q = g2_questions[g2_currentIndex];
             document.getElementById('g2-qNum').textContent = (g2_currentIndex + 1) + ' もんめ';
-            document.getElementById('g2-qText').textContent = q.text;
+            document.getElementById('g2-qText').innerHTML = q.text;
             
             const qImgWrap = document.getElementById('g2-qImgWrap');
             qImgWrap.innerHTML = '';

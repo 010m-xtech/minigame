@@ -11,6 +11,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Stick&display=swap" rel="stylesheet">
     
     <style>
+        /* ==============================================
+           共通・リセット設定
+        =============================================== */
         :root{
             --ai: #2C4A78;
             --ai-light: #4C6A94;
@@ -36,6 +39,7 @@
             min-height: 100vh;
         }
 
+        /* 背景動画コンテナ (共通) */
         .video-bg-container {
             position: fixed;
             top: 0; left: 0;
@@ -53,6 +57,9 @@
             transition: opacity 1.5s linear;
         }
 
+        /* ==============================================
+           Game 1: シルエットクイズ用のCSS
+        =============================================== */
         .kirie-box {
             background-color: rgba(255, 255, 255, 0.85);
             clip-path: polygon(2% 3%, 30% 1%, 75% 2%, 98% 4%, 99% 30%, 97% 75%, 96% 97%, 70% 99%, 25% 97%, 4% 96%, 1% 70%, 2% 25%);
@@ -121,6 +128,9 @@
         .anim-flip { animation: animFlip 0.6s ease; }
         .anim-shake { animation: animShake 0.6s ease; }
 
+        /* ==============================================
+           Game 2: ○✕くいず用のCSS
+        =============================================== */
         #game2-container .app {
             width: 100%; max-width: 460px; min-height: 100vh;
             background: transparent; position: relative;
@@ -367,6 +377,7 @@
         </div>
     </div>
 
+
     <!-- ==============================================
          GAME 2: おさかな ○✕ くいず
     =============================================== -->
@@ -429,6 +440,7 @@
             </main>
         </div>
     </div>
+
 
     <!-- ==============================================
          JavaScript 処理
@@ -505,6 +517,7 @@
             // Game 2の装飾用の魚を配置
             g2_initDecorativeFishes();
         });
+
 
         // ================================================
         // GAME 1 の ロジック
@@ -745,6 +758,7 @@
             document.getElementById("screen-start").classList.remove("hidden");
         }
 
+
         // ================================================
         // GAME 2 の ロジック
         // ================================================
@@ -901,13 +915,17 @@
         }
 
         function g2_initDecorativeFishes() {
+            // ヒラメ: 51.5 -> 49.5 (2%上へ)
+            // いわし: 50 -> 47 (3%上へ)
+            // カツオ: 75 -> 76 (1%下へ)
+            // タコ: 84 -> 85 (1%下へ)
             const fishDataStart = [
                 { src: 'aji.webp', top: -2, left: 6, size: 100, rotate: -15 },
                 { src: 'amaebi.webp', top: 8, right: 6, size: 95, rotate: 10 },
-                { src: 'hirame.webp', top: 48.5, left: 2, size: 105, rotate: 5 },  // ヒラメを3%上へ (51.5 -> 48.5)
-                { src: 'iwashi.webp', top: 47, right: 2, size: 110, rotate: -10 }, // イワシを3%上へ (50 -> 47)
-                { src: 'katsuo2.webp', top: 77, left: 8, size: 100, rotate: 15 },   // カツオを2%下へ (75 -> 77)
-                { src: 'tako.webp', top: 85, right: 8, size: 95, rotate: -10 }     // タコを1%下へ (84 -> 85)
+                { src: 'hirame.webp', top: 49.5, left: 2, size: 105, rotate: 5 },
+                { src: 'iwashi.webp', top: 47, right: 2, size: 110, rotate: -10 },
+                { src: 'katsuo2.webp', top: 76, left: 8, size: 100, rotate: 15 },
+                { src: 'tako.webp', top: 85, right: 8, size: 95, rotate: -10 }
             ];
             const fishDataFinal = [
                 { src: 'aji.webp', top: 5, left: 6, size: 100, rotate: -15 },

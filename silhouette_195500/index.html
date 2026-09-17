@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>おさかな シルエット クイズ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Stick&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Stick', sans-serif;
+            /* 背景の素材を入れる場合は、ここの background-image などを変更してください */
+            background-color: #fdf6e3; 
+            color: #4a3b32;
+        }
+
+        /* カクカクの枠（直線でザクザク切ったような形） */
+        .kirie-box {
+            background-color: #ffffff;
+            clip-path: polygon(
+                2% 3%, 30% 1%, 75% 2%, 98% 4%, 
+                99% 30%, 97% 75%, 96% 97%, 
+                70% 99%, 25% 97%, 4% 96%, 
+                1% 70%, 2% 25%
+            );
+            filter: drop-shadow(6px 6px 0px rgba(74, 59, 50, 0.4));
+            transform: rotate(-1deg);
+        }
+
+        /* カクカクのボタン */
+        .kirie-btn {
+            clip-path: polygon(
+                3% 4%, 25% 1%, 80% 3%, 97% 5%, 
+                99% 50%, 96% 96%, 75% 98%, 
+                20% 96%, 4% 97%, 1% 50%
+            );
+            filter: drop-shadow(4px 4px 0px rgba(74, 59, 50, 0.4));
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        /* ボタンを交互に少しだけ違う形・傾きにする */
+        .kirie-btn:nth-child(odd) { 
+            clip-path: polygon( 1% 5%, 40% 1%, 98% 3%, 96% 50%, 99% 95%, 60% 98%, 3% 97%, 4% 50% );
+            transform: rotate(1deg); 
+        }
+        .kirie-btn:nth-child(even) { 
+            clip-path: polygon( 4% 2%, 70% 3%, 96% 1%, 98% 60%, 95% 98%, 30% 96%, 1% 95%, 2% 40% );
+            transform: rotate(-1deg); 
+        }
+        
+        .kirie-btn:active {
+            transform: translate(4px, 4px) rotate(0deg) !important;
+            filter: drop-shadow(0px 0px 0px rgba(74, 59, 50, 0.4)) !important;
+        }
+
+        /* 切り絵風の文字（色紙を切って貼ったような影） */
+        .kirie-text {
+            text-shadow: 2px 2px 0px rgba(74, 59, 50, 0.15);
+        }
+        .kirie-title {
+            text-shadow: 3px 3px 0px rgba(74, 59, 50, 0.2);
+            display: inline-block;
+            transform: rotate(-2deg);
+        }
+
+        /* バッジ（もんだい ばんごう など） */
+        .kirie-badge {
+            clip-path: polygon( 4% 3%, 96% 5%, 98% 95%, 5% 96% );
+            filter: drop-shadow(3px 3px 0px rgba(74, 59, 50, 0.3));
+            transform: rotate(2deg);
+        }
+
+        /* 画像をいれる枠（カクカクに切り抜いた窓） */
+        .kirie-img-box {
+            background-color: #fdf6e3;
+            clip-path: polygon( 2% 3%, 97% 2%, 96% 97%, 3% 96% );
+            filter: drop-shadow(4px 4px 0px rgba(74, 59, 50, 0.15));
+        }
+
+        .btn-orange { background-color: #ffb07c; }
+        .btn-blue { background-color: #93c5fd; }
+        .btn-green { background-color: #86efac; }
+        .btn-pink { background-color: #f9a8d4; }
+        .btn-yellow { background-color: #fde047; }
+
+        /* シルエット化するためのクラス（真っ黒にする） */
+        .silhouette {
+            filter: brightness(0);
+            transition: filter 0.3s ease;
+        }
+
+        /* 画像がふわっと切り替わるアニメーション */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <!-- ==============================================
+         はいけい どうが（クロスフェードで しぜんに ループ）
+    =============================================== -->
+    <div class="fixed inset-0 w-full h-full -z-10">
+        <!-- 1つめの どうが -->
+        <video id="bg-video-1" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000" style="opacity: 1;" src="marubatsu_back.mp4" autoplay muted playsinline></video>
+        <!-- 2つめの どうが（うしろに かくしておく） -->
+        <video id="bg-video-2" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000" style="opacity: 0;" src="marubatsu_back.mp4" muted playsinline></video>
+    </div>
+
+    <div id="app-container" class="w-full max-w-md mx-auto relative overflow-hidden">
+        
+        <!-- ==============================================
+             スタート がめん
+        =============================================== -->
+        <div id="screen-start" class="kirie-box p-8 text-center flex flex-col items-center justify-center min-h-[400px]">
+            <h1 class="text-4xl font-bold mb-8 leading-snug kirie-title">
+                おさかな<br>シルエット<br>クイズ
+            </h1>
+            <button onclick="startGame()" class="kirie-btn btn-orange text-2xl font-bold py-4 px-10 kirie-text">
+                スタート！
+            </button>
+        </div>
+
+        <!-- ==============================================
+             クイズ がめん
+        =============================================== -->
+        <div id="screen-quiz" class="hidden">
+            <div class="kirie-box p-6 flex flex-col items-center min-h-[500px]">
+                
+                <!-- もんだい ばんごう -->
+                <div id="question-number" class="text-xl font-bold mb-4 btn-yellow px-6 py-2 kirie-badge kirie-text">
+                    だい 1 もん
+                </div>
+
+                <p class="mb-4 font-bold text-lg kirie-text">これは なんの おさかな かな？</p>
+
+                <!-- 画像素材を入れるエリア -->
+                <div class="w-48 h-48 mb-6 relative flex justify-center items-center kirie-img-box p-2">
+                    <img id="fish-image" src="" alt="おさかな" class="max-w-full max-h-full object-contain">
+                </div>
+
+                <!-- せんたくし ボタン エリア -->
+                <div id="options-container" class="w-full flex flex-col gap-4">
+                    <!-- ボタンは JavaScript で つくられます -->
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ==============================================
+             けっか（せいかい・ざんねん）の ポップアップ
+        =============================================== -->
+        <div id="popup-result" class="hidden absolute top-0 left-0 w-full h-full bg-black/40 flex items-center justify-center p-4 z-50">
+            <div class="kirie-box p-8 text-center bg-white w-full max-w-sm fade-in">
+                <h2 id="popup-title" class="text-4xl font-bold mb-4 text-red-500 kirie-title">せいかい！</h2>
+                <p id="popup-text" class="text-xl mb-6 font-bold kirie-text">こたえは「まぐろ」です</p>
+                
+                <button onclick="nextQuestion()" class="kirie-btn btn-blue text-xl font-bold py-3 px-8 w-full kirie-text">
+                    つぎへ
+                </button>
+            </div>
+        </div>
+
+        <!-- ==============================================
+             おわり の がめん
+        =============================================== -->
+        <div id="screen-end" class="hidden kirie-box p-8 text-center flex flex-col items-center justify-center min-h-[400px]">
+            <h2 class="text-4xl font-bold mb-6 kirie-title">おしまい！</h2>
+            <div class="mb-8">
+                <p class="text-xl font-bold mb-4 kirie-text">きみの せいかい かず は...</p>
+                <p id="final-score" class="text-4xl font-bold btn-yellow inline-block px-8 py-4 kirie-badge kirie-text">
+                    5 もん
+                </p>
+            </div>
+            <button onclick="resetGame()" class="kirie-btn btn-green text-xl font-bold py-4 px-10 kirie-text">
+                もういちど あそぶ
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // ==========================================
+        // ★ クイズの せってい（ここを かえられます）
+        // ==========================================
+        
+        // あとから ランダムに したいときは、ここを true に します。
+        // （いまは テストしやすいように false に しています）
+        const isRandomMode = false; 
+
+        // しゅつだい する かず（ほんばんは 5 にします）
+        const maxQuestions = 5;
+
+
+        // ==========================================
+        // ★ おさかな の データ（8パターン）
+        // ==========================================
+        
+        const allFishData = [
+            {
+                name: "まぐろ",
+                img: "maguro.webp",
+                options: ["まぐろ", "じんべえざめ", "まんぼう"]
+            },
+            {
+                name: "じんべえざめ",
+                img: "zinnbe.webp",
+                options: ["くじら", "じんべえざめ", "えい"]
+            },
+            {
+                name: "まんぼう",
+                img: "manbo.webp",
+                options: ["えい", "たつのおとしご", "まんぼう"]
+            },
+            {
+                name: "えい",
+                img: "ei.webp",
+                options: ["えい", "ひらめ", "とびうお"]
+            },
+            {
+                name: "ひらめ",
+                img: "hirame.webp",
+                options: ["まぐろ", "ひらめ", "ちょうちんあんこう"]
+            },
+            {
+                name: "たつのおとしご",
+                img: "tatsuoto.webp",
+                options: ["たつのおとしご", "えい", "とびうお"]
+            },
+            {
+                name: "とびうお",
+                img: "tobiuo.webp",
+                options: ["じんべえざめ", "とびうお", "まんぼう"]
+            },
+            {
+                name: "ちょうちんあんこう",
+                img: "ankoo.webp",
+                options: ["ちょうちんあんこう", "まぐろ", "ひらめ"]
+            }
+        ];
+
+        let currentQuestions = []; // 今回 出題する 問題のリスト
+        let currentIndex = 0;      // いま 何問目か（0からスタート）
+        let score = 0;             // せいかい した かず
+
+        // 画面の 要素（ようそ）を 取得（しゅとく）
+        const screenStart = document.getElementById("screen-start");
+        const screenQuiz = document.getElementById("screen-quiz");
+        const screenEnd = document.getElementById("screen-end");
+        const popupResult = document.getElementById("popup-result");
+        
+        const questionNumberText = document.getElementById("question-number");
+        const fishImage = document.getElementById("fish-image");
+        const optionsContainer = document.getElementById("options-container");
+        const popupTitle = document.getElementById("popup-title");
+        const popupText = document.getElementById("popup-text");
+        const finalScoreText = document.getElementById("final-score");
+
+        // ボタンの 色（いろ）リスト（ランダムで わけるため）
+        const btnColors = ["btn-orange", "btn-blue", "btn-pink"];
+
+        // ==========================================
+        // ゲーム スタート
+        // ==========================================
+        function startGame() {
+            score = 0;
+            currentIndex = 0;
+
+            // 問題を じゅんび する
+            if (isRandomMode) {
+                // ランダム の ばあい（シャッフルして 5個 えらぶ）
+                let shuffled = [...allFishData].sort(() => 0.5 - Math.random());
+                currentQuestions = shuffled.slice(0, maxQuestions);
+            } else {
+                // じゅんばん どおり の ばあい（はじめから 5個）
+                currentQuestions = allFishData.slice(0, maxQuestions);
+            }
+
+            // 画面を きりかえる
+            screenStart.classList.add("hidden");
+            screenQuiz.classList.remove("hidden");
+
+            setQuestion();
+        }
+
+        // ==========================================
+        // もんだい を だす
+        // ==========================================
+        function setQuestion() {
+            const q = currentQuestions[currentIndex];
+            
+            // もんだい ばんごう
+            questionNumberText.textContent = `だい ${currentIndex + 1} もん`;
+            
+            // 画像をセットし、シルエット（真っ黒）にする
+            fishImage.src = q.img;
+            fishImage.classList.add("silhouette");
+
+            // アニメーションを リセット
+            fishImage.classList.remove("fade-in");
+            void fishImage.offsetWidth; // リフロー（アニメーションさいせい の ため）
+            fishImage.classList.add("fade-in");
+
+            // せんたくし を クリア
+            optionsContainer.innerHTML = "";
+
+            // せんたくし を シャッフル（ボタンの場所を毎回かえるため）
+            let shuffledOptions = [...q.options].sort(() => 0.5 - Math.random());
+
+            // ボタン を つくる
+            shuffledOptions.forEach((optionText, index) => {
+                const btn = document.createElement("button");
+                btn.textContent = optionText;
+                // ボタンの 色を 順番に かえる
+                const colorClass = btnColors[index % btnColors.length];
+                btn.className = `kirie-btn ${colorClass} text-xl font-bold py-4 px-6 w-full kirie-text`;
+                
+                // クリック したときの 処理
+                btn.onclick = () => checkAnswer(optionText, q.name);
+                
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        // ==========================================
+        // こたえあわせ
+        // ==========================================
+        function checkAnswer(selected, correct) {
+            popupResult.classList.remove("hidden");
+            
+            // こたえあわせ で シルエット（真っ黒）を かいじょ して、いろ を だす
+            fishImage.classList.remove("silhouette");
+
+            if (selected === correct) {
+                // せいかい
+                score++;
+                popupTitle.textContent = "だいせいかい！";
+                popupTitle.className = "text-4xl font-bold mb-4 text-red-500 kirie-title";
+                popupText.textContent = `こたえは「${correct}」だよ！`;
+            } else {
+                // ざんねん
+                popupTitle.textContent = "ざんねん！";
+                popupTitle.className = "text-4xl font-bold mb-4 text-blue-500 kirie-title";
+                popupText.textContent = `せいかい は「${correct}」でした！`;
+            }
+        }
+
+        // ==========================================
+        // つぎの もんだい へ
+        // ==========================================
+        function nextQuestion() {
+            popupResult.classList.add("hidden");
+            currentIndex++;
+
+            if (currentIndex < currentQuestions.length) {
+                // まだ もんだい が ある
+                setQuestion();
+            } else {
+                // ぜんぶ おわった
+                showEndScreen();
+            }
+        }
+
+        // ==========================================
+        // おわり の がめん
+        // ==========================================
+        function showEndScreen() {
+            screenQuiz.classList.add("hidden");
+            screenEnd.classList.remove("hidden");
+            finalScoreText.textContent = `${score} もん`;
+        }
+
+        // ==========================================
+        // もういちど あそぶ
+        // ==========================================
+        function resetGame() {
+            screenEnd.classList.add("hidden");
+            screenStart.classList.remove("hidden");
+        }
+
+        // ==========================================
+        // はいけい どうが の しぜんな ループ（クロスフェード）
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', () => {
+            const vid1 = document.getElementById('bg-video-1');
+            const vid2 = document.getElementById('bg-video-2');
+            let activeVid = vid1;
+            let inactiveVid = vid2;
+
+            // どうが が よみこまれたら さいせい
+            vid1.play().catch(() => {
+                console.log("じどう さいせい が ブロック されました");
+            });
+
+            // 0.1びょう ごとに さいせい じかん を チェック
+            setInterval(() => {
+                // どうが の おわり が 1びょういない に ちかづいたら
+                if (activeVid.duration && (activeVid.duration - activeVid.currentTime < 1.0)) {
+                    
+                    // まだ きりかえて いない ばあい
+                    if (inactiveVid.style.opacity === "0" || inactiveVid.style.opacity === "") {
+                        inactiveVid.currentTime = 0; // さいしょ から
+                        inactiveVid.play().catch(e => {});
+                        
+                        // クロスフェード（じわっと きりかえ）
+                        inactiveVid.style.opacity = "1";
+                        activeVid.style.opacity = "0";
+                        
+                        // やくわり を こうたい
+                        let temp = activeVid;
+                        activeVid = inactiveVid;
+                        inactiveVid = temp;
+                    }
+                }
+            }, 100);
+        });
+
+    </script>
+</body>
+</html>

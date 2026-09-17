@@ -128,8 +128,15 @@
   .start-fish-img {
     position: absolute;
     z-index: 0;
-    opacity: 0.75; /* テキストの邪魔にならないよう少し透かす */
-    pointer-events: none; /* 誤ってクリックしないようにする */
+    opacity: 0.75;
+    pointer-events: auto; /* タッチできるように変更 */
+    cursor: pointer; /* マウスポインタを指マークに */
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  
+  /* タッチ（クリック）時のジャンプアニメーション */
+  .start-fish-img:active {
+    transform: translateY(-20px) scale(1.1) rotate(15deg) !important;
   }
   
   .start-title{
@@ -319,13 +326,7 @@
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     text-align:center; gap:18px; padding: 60px 20px;
     min-height: 360px;
-    background: rgba(255, 255, 255, 0.85);
-    border-radius: 24px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-    position: relative;
-    overflow: hidden;
-  }
-  .final-score, .final-msg, .final-wrap .big-btn {
+  .final-msg, .final-wrap .big-btn {
     position: relative;
     z-index: 1;
   }
@@ -333,7 +334,13 @@
     position: absolute;
     z-index: 0;
     opacity: 0.75;
-    pointer-events: none;
+    pointer-events: auto; /* タッチできるように変更 */
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  /* タッチ（クリック）時のジャンプアニメーション */
+  .final-fish-img:active {
+    transform: translateY(-20px) scale(1.1) rotate(-15deg) !important;
   }
   .final-score{
     font-size:46px; font-weight:900; color:var(--ai);
@@ -349,6 +356,48 @@
     text-shadow: 1px 1px 0 #FFF, -1px -1px 0 #FFF, 1px -1px 0 #FFF, -1px 1px 0 #FFF;
     font-weight: bold;
   }
+  
+  /* --- 泳ぐ魚の進行度バー --- */
+  .q-progress-bar-wrap {
+    width: 80%;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    margin: 10px auto 20px;
+    position: relative;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .q-progress-bar-inner {
+    height: 100%;
+    background: var(--maru);
+    border-radius: 10px;
+    width: 0%;
+    transition: width 0.5s ease-in-out;
+  }
+  .q-progress-fish-icon {
+    position: absolute;
+    top: -14px; /* バーの上に少しはみ出すように */
+    left: 0%;
+    width: 40px;
+    height: auto;
+    /* カツオを右向きにするために反転し、位置を調整 */
+    transform: translateX(-50%) scaleX(-1);
+    transition: left 0.5s ease-in-out;
+    z-index: 2;
+  }
+  
+  /* --- 誉め言葉のスタイル --- */
+  .praise-text {
+    font-size: 20px;
+    font-weight: 900;
+    margin: 0 0 8px 0;
+    animation: popPraise 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+  }
+  @keyframes popPraise {
+    from { opacity: 0; transform: scale(0.8) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  
 </style>
 </head>
 <body>
@@ -376,7 +425,11 @@
 
     <!-- 出題画面 -->
     <section class="screen" data-screen="quiz">
-      <div class="q-progress" id="qProgress"></div>
+      <!-- 進行度バー（ドットから変更） -->
+      <div class="q-progress-bar-wrap" id="qProgressWrap">
+        <div class="q-progress-bar-inner" id="qProgressBar"></div>
+        <img src="katsuo2.webp" alt="カツオのアイコン" class="q-progress-fish-icon" id="qProgressFish">
+      </div>
       <div class="q-card">
         <div class="q-num" id="qNum">1 もんめ</div>
         <div class="q-text" id="qText"></div>
@@ -398,6 +451,7 @@
       <div class="result-feedback">
         <svg class="feedback-icon" id="feedbackIcon" viewBox="0 0 100 100" fill="none"></svg>
         <div class="feedback-word" id="feedbackWord"></div>
+        <div id="praiseWord" class="praise-text"></div> <!-- 誉め言葉を追加 -->
         <p class="feedback-text" id="feedbackText"></p>
         
         <!-- 解説用画像とテロップ -->
@@ -478,6 +532,12 @@ const questions = [
 let currentIndex = 0;
 let correctCount = 0;
 
+// 誉め言葉のバリエーション
+const praiseWords = {
+  ok: ["やったね！", "すごい！", "そのとおり！", "ばっちりだね！", "さすがおさかなはかせ！"],
+  ng: ["おしい！", "どんまい！", "つぎはがんばろう！", "ざんねん！", "むずかしかったね！"]
+};
+
 function goScreen(name){
   document.querySelectorAll('.screen').forEach(el=>{
     el.classList.toggle('active', el.dataset.screen === name);
@@ -494,15 +554,18 @@ function startQuiz(){
 }
 
 function renderProgress(){
-  const wrap = document.getElementById('qProgress');
-  wrap.innerHTML = "";
-  questions.forEach((q, i)=>{
-    const dot = document.createElement('div');
-    dot.className = 'q-dot';
-    if (i < currentIndex) dot.classList.add('done');
-    if (i === currentIndex) dot.classList.add('now');
-    wrap.appendChild(dot);
-  });
+  const total = questions.length;
+  // 進捗率の計算 (0問目は0%、1問目は1/8...)
+  // ※1問目の出題時にカツオが0%の位置、回答ごとに進むように
+  const percentage = (currentIndex / total) * 100;
+  
+  const bar = document.getElementById('qProgressBar');
+  const fish = document.getElementById('qProgressFish');
+  
+  if (bar && fish) {
+    bar.style.width = percentage + '%';
+    fish.style.left = percentage + '%';
+  }
 }
 
 function renderQuestion(){
@@ -541,17 +604,28 @@ function answer(userAnswer){
   const text = document.getElementById('feedbackText');
   const feedbackImgWrap = document.getElementById('feedbackImgWrap');
   const feedbackImg = document.getElementById('feedbackImg');
+  const praiseWordEl = document.getElementById('praiseWord'); // 誉め言葉の要素
 
   if (isCorrect){
     icon.innerHTML = '<circle cx="50" cy="50" r="36" stroke="#2E86AB" stroke-width="9"/>';
     word.textContent = "せいかい!";
     word.className = "feedback-word ok";
     text.textContent = q.okText;
+    
+    // ランダムな誉め言葉（正解）
+    const randomOk = praiseWords.ok[Math.floor(Math.random() * praiseWords.ok.length)];
+    praiseWordEl.textContent = randomOk;
+    praiseWordEl.style.color = "var(--maru)";
   } else {
     icon.innerHTML = '<path d="M25 25l50 50M75 25L25 75" stroke="#E8563E" stroke-width="9" stroke-linecap="round"/>';
     word.textContent = "ざんねん!";
     word.className = "feedback-word ng";
     text.textContent = q.ngText;
+    
+    // ランダムな誉め言葉（不正解）
+    const randomNg = praiseWords.ng[Math.floor(Math.random() * praiseWords.ng.length)];
+    praiseWordEl.textContent = randomNg;
+    praiseWordEl.style.color = "var(--batsu)";
   }
 
   // 設定がある場合のみ解説画像(テロップ付き)を表示
@@ -650,6 +724,23 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         
         img.style.transform = `rotate(${fish.rotate}deg)`;
+        
+        // 元のtransformの値をdata属性に保存しておく（アニメーション復帰用）
+        img.dataset.baseTransform = `rotate(${fish.rotate}deg)`;
+        
+        // アニメーション終了時に元の角度に戻す処理
+        img.addEventListener('transitionend', function(e) {
+            if (e.propertyName === 'transform') {
+                // :activeが外れた時の処理（通常状態に戻る）
+                // ただし、マウスを押した瞬間のtransitionendも拾ってしまう可能性があるので簡易的な制御
+                if (!this.matches(':active')) {
+                     this.style.transform = this.dataset.baseTransform;
+                }
+            }
+        });
+
+        // スマホで:activeを反応させるための空のtouchstartイベント
+        img.addEventListener('touchstart', function() {}, {passive: true});
         
         wrap.appendChild(img);
       });

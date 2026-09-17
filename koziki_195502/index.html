@@ -781,9 +781,16 @@
                 const src = el.src || '';
                 const isRotate = src.includes('aji') || src.includes('hirame') || src.includes('katsuo') || src.includes('iwashi') || src.includes('unagi');
                 const animClass = isRotate ? 'animate-rotate' : 'animate-bounce';
+                
+                // クラスを一度削除してリフローさせることで、連続タップに対応
                 el.classList.remove('animate-bounce', 'animate-rotate');
                 void el.offsetWidth; 
                 el.classList.add(animClass);
+            });
+
+            // アニメーションが終了したらクラスを外す（勝手にループするのを防ぐ）
+            el.addEventListener('animationend', function() {
+                el.classList.remove('animate-bounce', 'animate-rotate');
             });
         }
         
@@ -926,8 +933,8 @@
             const fishDataFinal = [
                 { src: 'aji.webp', top: 5, left: 6, size: 100, rotate: -15 },
                 { src: 'hirame.webp', top: 8, right: 6, size: 105, rotate: 5 },
-                { src: 'amaebi.webp', top: 42, left: 4, size: 135, rotate: 10 },
-                { src: 'iwashi.webp', top: 45, right: 4, size: 110, rotate: -10 },
+                { src: 'amaebi.webp', top: 28, left: 4, size: 135, rotate: 10 },
+                { src: 'iwashi.webp', top: 32, right: 4, size: 110, rotate: -10 },
                 { src: 'katsuo2.webp', top: 79, left: 8, size: 100, rotate: 15 },
                 { src: 'tako.webp', top: 86, right: 8, size: 95, rotate: -10 }
             ];

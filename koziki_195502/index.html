@@ -389,7 +389,7 @@
                 <section class="screen active" data-screen="start">
                     <div class="start-wrap">
                         <p class="start-title">おさかなの こと、<br>どれくらい しってるかな?</p>
-                        <p class="start-lead">○か ✕で こたえてね。<br>ぜんぶで 8もん あるよ!</p>
+                        <p class="start-lead">○か ✕で こたえてね。<br>ぜんぶで 5もん あるよ!</p>
                         <button class="big-btn" onclick="g2_startQuiz()">はじめる</button>
                         <button class="big-btn gray-btn" onclick="showMenu()">ゲーム を えらぶ</button>
                     </div>
@@ -762,7 +762,7 @@
         // ================================================
         // GAME 2 の ロジック
         // ================================================
-        const g2_questions = [
+        const g2_allQuestions = [
             { text: "たこの あしは 8ほん ある", correct: true, image: "tako.webp", okText: "そのとおり!たこの あしは 8ほんだよ。", ngText: "おしい!たこの あしは 8ほん あるんだよ。" },
             { text: "いわしは みずのなかで なかまと およぐ", correct: true, image: "iwashi.webp", multiImage: true, showFeedbackImage: true, feedbackImage: "iwashit.webp", okText: "やったね!おおきな さかなに たべられないように、たくさんのおともだちと くっついて およぐんだよ。", ngText: "おしい!おおきな さかなに たべられないように、たくさんのおともだちと くっついて およぐんだよ。" },
             { text: "あまえびは うまれたときから ずっと おんなのこ", correct: false, image: "amaebi.webp", okText: "すごい!あまえびは さいしょ おとこのこで、あとから おんなのこに かわるんだよ。", ngText: "おしい!あまえびは さいしょ おとこのこなんだよ。" },
@@ -772,6 +772,9 @@
             { text: "かつおは およぐのを やめても へいき", correct: false, image: "katsuo.webp", showFeedbackImage: true, feedbackImage: "katsuo_batsu.webp", okText: "すごい!かつおは およぎつづけないと いきが できないんだよ。", ngText: "おしい!かつおは およぎつづけないと いきが できないんだよ。" },
             { text: "「あじ」という なまえは、たべて「あじがいい」から ついた", correct: true, image: "aji.webp", showFeedbackImage: true, okText: "そのとおり!たべると とっても おいしい(あじがいい)から、「あじ」という なまえに なったんだよ。", ngText: "おしい!たべると とっても おいしい(あじがいい)から、「あじ」という なまえに なったんだよ。" }
         ];
+
+        let g2_questions = [];
+        const g2_maxQuestions = 5;
 
         let g2_currentIndex = 0;
         let g2_correctCount = 0;
@@ -808,6 +811,11 @@
         function g2_startQuiz(){
             g2_currentIndex = 0;
             g2_correctCount = 0;
+            
+            // 8問の中からランダムに5問を選ぶ
+            let shuffled = [...g2_allQuestions].sort(() => 0.5 - Math.random());
+            g2_questions = shuffled.slice(0, g2_maxQuestions);
+            
             g2_renderProgress();
             g2_renderQuestion();
             g2_goScreen('quiz');

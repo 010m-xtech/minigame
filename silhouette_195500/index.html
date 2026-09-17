@@ -12,6 +12,8 @@
             /* 背景の素材を入れる場合は、ここの background-image などを変更してください */
             background-color: #fdf6e3; 
             color: #4a3b32;
+            word-break: keep-all; /* 単語の途中で改行されないようにする */
+            overflow-wrap: break-word; /* 画面幅を超える長い単語は改行を許可 */
         }
 
         /* カクカクの枠（直線でザクザク切ったような形） */
@@ -349,12 +351,16 @@
             if (selected === correct) {
                 // せいかい
                 score++;
-                popupTitle.textContent = "だいせいかい！";
+                // 「すごいね！」か「やったね！」をランダムに選ぶ
+                const successMessages = ["すごいね！", "やったね！"];
+                const randomMessage = successMessages[Math.floor(Math.random() * successMessages.length)];
+                
+                popupTitle.textContent = randomMessage;
                 popupTitle.className = "text-4xl font-bold mb-4 text-red-500 kirie-title";
                 popupText.textContent = `こたえは「${correct}」だよ！`;
             } else {
-                // ざんねん
-                popupTitle.textContent = "ざんねん！";
+                // ざんねん -> おしい！に変更
+                popupTitle.textContent = "おしい！";
                 popupTitle.className = "text-4xl font-bold mb-4 text-blue-500 kirie-title";
                 popupText.textContent = `せいかい は「${correct}」でした！`;
             }

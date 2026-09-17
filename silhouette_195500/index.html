@@ -102,6 +102,24 @@
             to { opacity: 1; transform: scale(1); }
         }
 
+        /* シルエットが泳いで登場するアニメーション */
+        .swim-in {
+            animation: swimIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+        @keyframes swimIn {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* 水槽のおさかながフワフワするアニメーション */
+        .float-anim {
+            animation: floatAnim 3s ease-in-out infinite alternate;
+        }
+        @keyframes floatAnim {
+            0% { transform: translateY(0px) rotate(-2deg); }
+            100% { transform: translateY(-10px) rotate(2deg); }
+        }
+
         /* 結果画像のタップアニメーション */
         @keyframes animSpin {
             from { transform: rotate(0deg); }
@@ -190,6 +208,9 @@
 
                 <p id="popup-text" class="text-xl mb-6 font-bold">こたえは「まぐろ」です</p>
                 
+                <!-- まめちしき -->
+                <p id="popup-trivia" class="text-base mb-6 font-bold text-gray-700 bg-yellow-100 p-3 rounded-lg kirie-box w-full"></p>
+                
                 <button onclick="nextQuestion()" class="kirie-btn btn-blue text-xl font-bold py-3 px-8 w-full">
                     つぎの もんだい へ
                 </button>
@@ -207,7 +228,26 @@
                     5 もん
                 </p>
             </div>
-            <button onclick="resetGame()" class="kirie-btn btn-green text-xl font-bold py-4 px-10 kirie-text">
+            
+            <button onclick="showAquarium()" class="kirie-btn btn-blue text-xl font-bold py-4 px-10 mb-4 w-full">
+                すいそう を みる！
+            </button>
+            <button onclick="resetGame()" class="kirie-btn btn-green text-xl font-bold py-4 px-10 w-full">
+                もういちど あそぶ
+            </button>
+        </div>
+
+        <!-- ==============================================
+             おさかな すいそう がめん
+        =============================================== -->
+        <div id="screen-aquarium" class="hidden kirie-box p-6 flex flex-col items-center justify-center min-h-[500px] w-full">
+            <h2 class="text-2xl font-bold mb-4 kirie-badge btn-blue px-6 py-2">きみの すいそう</h2>
+            
+            <div class="w-full h-[300px] relative overflow-hidden bg-cyan-100/60 mb-6 kirie-img-box">
+                <div id="aquarium-fish-area" class="w-full h-full relative"></div>
+            </div>
+            
+            <button onclick="resetGame()" class="kirie-btn btn-green text-xl font-bold py-4 px-10 w-full">
                 もういちど あそぶ
             </button>
         </div>
@@ -235,48 +275,57 @@
             {
                 name: "まぐろ",
                 img: "maguro.webp",
-                options: ["まぐろ", "じんべえざめ", "まんぼう"]
+                options: ["まぐろ", "じんべえざめ", "まんぼう"],
+                trivia: "まぐろ は とっても はやく およぐよ！"
             },
             {
                 name: "じんべえざめ",
                 img: "zinnbe.webp",
-                options: ["くじら", "じんべえざめ", "えい"]
+                options: ["くじら", "じんべえざめ", "えい"],
+                trivia: "せかいで いちばん おおきい おさかな だよ！"
             },
             {
                 name: "まんぼう",
                 img: "manbo.webp",
-                options: ["えい", "たつのおとしご", "まんぼう"]
+                options: ["えい", "たつのおとしご", "まんぼう"],
+                trivia: "とっても おおきくて のんびりやさん だよ！"
             },
             {
                 name: "えい",
                 img: "ei.webp",
-                options: ["えい", "ひらめ", "とびうお"]
+                options: ["えい", "ひらめ", "とびうお"],
+                trivia: "うみの そこを ひらひら とぶように およぐよ！"
             },
             {
                 name: "ひらめ",
                 img: "hirame.webp",
-                options: ["まぐろ", "ひらめ", "ちょうちんあんこう"]
+                options: ["まぐろ", "ひらめ", "ちょうちんあんこう"],
+                trivia: "すな に かくれて かくれんぼ が じょうず！"
             },
             {
                 name: "たつのおとしご",
                 img: "tatsuoto.webp",
-                options: ["たつのおとしご", "えい", "とびうお"]
+                options: ["たつのおとしご", "えい", "とびうお"],
+                trivia: "くるくる の しっぽ で くさ を つかむんだよ！"
             },
             {
                 name: "とびうお",
                 img: "tobiuo.webp",
-                options: ["じんべえざめ", "とびうお", "まんぼう"]
+                options: ["じんべえざめ", "とびうお", "まんぼう"],
+                trivia: "むなびれ を ひろげて そら を とぶよ！"
             },
             {
                 name: "ちょうちんあんこう",
                 img: "ankoo.webp",
-                options: ["ちょうちんあんこう", "まぐろ", "ひらめ"]
+                options: ["ちょうちんあんこう", "まぐろ", "ひらめ"],
+                trivia: "あたま の ひかり で えもの を よぶよ！"
             }
         ];
 
         let currentQuestions = []; // 今回 出題する 問題のリスト
         let currentIndex = 0;      // いま 何問目か（0からスタート）
         let score = 0;             // せいかい した かず
+        let correctFishes = [];    // せいかい した おさかな を いれる はこ
 
         // 画面の 要素（ようそ）を 取得（しゅとく）
         const screenStart = document.getElementById("screen-start");
@@ -289,8 +338,11 @@
         const optionsContainer = document.getElementById("options-container");
         const popupTitle = document.getElementById("popup-title");
         const popupText = document.getElementById("popup-text");
+        const popupTrivia = document.getElementById("popup-trivia"); // まめちしき よう
         const finalScoreText = document.getElementById("final-score");
         const resultImage = document.getElementById("result-image");
+        const screenAquarium = document.getElementById("screen-aquarium"); // すいそう がめん
+        const aquariumFishArea = document.getElementById("aquarium-fish-area"); // すいそう の なか
 
         // ボタンの 色（いろ）リスト（ランダムで わけるため）
         const btnColors = ["btn-orange", "btn-blue", "btn-pink"];
@@ -301,6 +353,7 @@
         function startGame() {
             score = 0;
             currentIndex = 0;
+            correctFishes = []; // すいそう を からっぽ に する
 
             // 問題を じゅんび する
             if (isRandomMode) {
@@ -337,9 +390,9 @@
             document.getElementById("hint-btn").style.display = "block";
 
             // アニメーションを リセット
-            fishImage.classList.remove("fade-in");
+            fishImage.classList.remove("fade-in", "swim-in");
             void fishImage.offsetWidth; // リフロー（アニメーションさいせい の ため）
-            fishImage.classList.add("fade-in");
+            fishImage.classList.add("swim-in"); // スィーッと 登場 する クラス に 変更
 
             // せんたくし を クリア
             optionsContainer.innerHTML = "";
@@ -381,6 +434,7 @@
             if (selected === correct) {
                 // せいかい
                 score++;
+                correctFishes.push(q); // せいかい した おさかな を ほぞん
                 // 「すごいね！」か「やったね！」をランダムに選ぶ
                 const successMessages = ["すごいね！", "やったね！"];
                 const randomMessage = successMessages[Math.floor(Math.random() * successMessages.length)];
@@ -394,6 +448,9 @@
                 popupTitle.className = "text-4xl font-bold mb-4 text-blue-500 kirie-title";
                 popupText.innerHTML = `せいかい は<br>「${correct}」でした！`;
             }
+
+            // まめちしき を ひょうじ
+            popupTrivia.innerHTML = `💡 まめちしき<br><span class="text-sm">${q.trivia}</span>`;
         }
 
         // ==========================================
@@ -446,10 +503,63 @@
         }
 
         // ==========================================
+        // すいそう を みる
+        // ==========================================
+        function showAquarium() {
+            screenEnd.classList.add("hidden");
+            screenAquarium.classList.remove("hidden");
+            
+            aquariumFishArea.innerHTML = ""; // すいそう を いったん クリア
+            
+            if (correctFishes.length === 0) {
+                aquariumFishArea.innerHTML = '<p class="text-gray-500 text-center mt-20 font-bold">おさかな が いないみたい...</p>';
+                return;
+            }
+            
+            // せいかい した おさかな を はいち
+            correctFishes.forEach((fish) => {
+                const img = document.createElement("img");
+                img.src = fish.img;
+                img.alt = fish.name;
+                // フワフワ アニメーション を つける
+                img.className = "absolute object-contain float-anim cursor-pointer drop-shadow-md";
+                
+                // おおきさ を ランダム に（60px 〜 110px）
+                const size = 60 + Math.random() * 50; 
+                img.style.width = `${size}px`;
+                img.style.height = `${size}px`;
+                
+                // ばしょ を ランダム に（すいそう の わく の なか で はみださないように）
+                const posX = 5 + Math.random() * 65; // 5% 〜 70%
+                const posY = 5 + Math.random() * 65; // 5% 〜 70%
+                img.style.left = `${posX}%`;
+                img.style.top = `${posY}%`;
+                
+                // アニメーション の タイミング を ずらす
+                img.style.animationDelay = `${Math.random() * 2}s`;
+                
+                // タップ した とき に くるっと まわる アクション
+                img.onclick = () => {
+                    img.classList.remove("float-anim");
+                    void img.offsetWidth; // リフロー
+                    img.classList.add("anim-spin"); 
+                    // アニメーション が おわったら もと に もどす
+                    setTimeout(() => {
+                        img.classList.remove("anim-spin");
+                        img.classList.add("float-anim");
+                    }, 600);
+                };
+                
+                aquariumFishArea.appendChild(img);
+            });
+        }
+
+        // ==========================================
         // もういちど あそぶ
         // ==========================================
         function resetGame() {
             screenEnd.classList.add("hidden");
+            screenAquarium.classList.add("hidden"); // すいそう がめん も かくす
             screenStart.classList.remove("hidden");
         }
 

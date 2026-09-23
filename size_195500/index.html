@@ -536,9 +536,10 @@ function renderRound(){
   let fishDisplayPercent = fishPercent;
 
   if (r.id === 'buri') {
-    // 画像の縦横比に関わらず、確実に画像の上辺（口）を人間の頭の先と合わせるため、
-    // 人間の表示高さ（childPercent）と全く同じ高さを直接指定します。
-    extraFishStyle = `height: ${childPercent}% !important; width: auto !important;`;
+    // 画像の縦横比に関わらず、上辺を人間の頭の先よりほんの僅かに下にするため、
+    // 人間の表示高さ（childPercent）の96%の高さを直接指定します。
+    const buriHeightPercent = childPercent * 0.96;
+    extraFishStyle = `height: ${buriHeightPercent}% !important; width: auto !important;`;
   } else if (r.id === 'ryugu') {
     // リュウグウノツカイは枠いっぱい(100%)のままで配置し、枠から飛び出ないようにします
     fishDisplayPercent = fishPercent; 

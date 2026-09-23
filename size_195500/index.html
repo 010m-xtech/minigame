@@ -500,70 +500,27 @@ function renderRound(){
   const r = rounds[currentIndex];
   renderProgress();
 
-  /* 自分と魚のうち、大きい方を100%とした時の割合を計算して縮尺を自動調整 */
-  // 視覚的なボリュームの差（人間は細い線画、魚は太い画像）を補正するため、
-  // 魚の長さに係数をかけて、直感的な「同じくらい」の大きさに感じられるよう調整します。
-  let FISH_SCALE = 0.55;
+  /* どんな身長を選んでも、どんなお魚でも「実際のサイズ(cm)の比率」で正確に表示するための計算 */
+  const maxCm = Math.max(CHILD_CM, r.cm);
   
-  // 巨大な魚（リュウグウノツカイ、ジンベエザメ）は補正を外し、枠いっぱいに表示して人間を小さくします
-  if (r.id === 'ryugu' || r.id === 'zinbee') {
-    FISH_SCALE = 1.0;
-  }
-  
-  // タラは100cmの人間の頭の先と高さがピタリと揃うように縮尺を調整します
-  if (r.id === 'tara') {
-    FISH_SCALE = 0.65;
-  }
-  
-  // ブリは100cmの人間の頭の先と高さがピタリと揃うように縮尺を調整します
-  // 横幅ベースではなく、後ほどCSSで高さを直接人間に合わせるため、基準スケールは1.0とします
-  if (r.id === 'buri') {
-    FISH_SCALE = 1.0;
-  }
-  
-  // サケは1m(100cm)の人間の頭よりほんの僅かに下になるように、基準スケールは1.0とします
-  if (r.id === 'sake') {
-    FISH_SCALE = 1.0;
-  }
-  
-  // マンボウとマグロも正確な比率で高さを合わせるために基準スケールを1.0とします
-  if (r.id === 'manbo' || r.id === 'maguro') {
-    FISH_SCALE = 1.0;
-  }
-
-  const visualFishCm = r.cm * FISH_SCALE;
-  const maxCm = Math.max(CHILD_CM, visualFishCm);
-  
-  // バーの長さを割合(%)で計算。圧倒的な差を伝えるため、人間が豆粒サイズになるように下限値を0.5%まで下げます
+  // 割合(%)を計算。圧倒的な差を伝えるため、人間が豆粒サイズになるように下限値を0.5%まで下げます
   const childPercent = Math.max(0.5, (CHILD_CM / maxCm) * 100);
-  const fishPercent = Math.max(0.5, (visualFishCm / maxCm) * 100);
+  const baseFishPercent = Math.max(0.5, (r.cm / maxCm) * 100);
 
   let extraFishStyle = "";
-  let fishDisplayPercent = fishPercent;
+  let fishDisplayPercent = 100; // 横幅ベースの場合の初期値
 
-  if (r.id === 'buri') {
-    // 1mのとき人間の高さ(100%)とピッタリ同じになるよう、基準値を基に比率計算します
-    const buriHeightPercent = (r.cm / Math.max(CHILD_CM, r.cm)) * 100;
-    extraFishStyle = `height: ${buriHeightPercent}% !important; width: auto !important;`;
-  } else if (r.id === 'tara') {
-    // 1mのとき人間の高さ(100%)とピッタリ同じになるよう、基準値を基に比率計算します
-    const taraHeightPercent = (r.cm / Math.max(CHILD_CM, r.cm)) * 100;
-    extraFishStyle = `height: ${taraHeightPercent}% !important; width: auto !important;`;
-  } else if (r.id === 'sake') {
-    // 1mのとき人間の高さの94%となるよう、(94 / 90)の比率計算を行います
-    const sakeHeightPercent = (r.cm / Math.max(CHILD_CM, r.cm)) * 100 * (94 / 90);
-    extraFishStyle = `height: ${sakeHeightPercent}% !important; width: auto !important;`;
-  } else if (r.id === 'manbo' || r.id === 'maguro') {
-    // マンボウとマグロも正確な比率(300cm想定)で高さを表示します
-    const hugeHeightPercent = (r.cm / Math.max(CHILD_CM, r.cm)) * 100;
-    extraFishStyle = `height: ${hugeHeightPercent}% !important; width: auto !important;`;
-  } else if (r.id === 'ryugu') {
-    // リュウグウノツカイは枠いっぱい(100%)のままで配置し、枠から飛び出ないようにします
-    fishDisplayPercent = fishPercent; 
+  if (r.id === 'ryugu') {
+    // リュウグウノツカイは枠いっぱい(100%)の横幅を基準に比率計算します
+    fishDisplayPercent = baseFishPercent; 
   } else if (r.id === 'zinbee') {
-    // ジンベエザメは大きさは2.2倍を維持しつつ、画像自体をさらに右へずらして中央（人間）に被らないようにします
-    fishDisplayPercent = fishPercent * 2.2;
+    // ジンベエザメは大きさは2.2倍を維持しつつ、画像自体を右へずらして中央（人間）に被らないようにします
+    fishDisplayPercent = baseFishPercent * 2.2;
     extraFishStyle = "position: absolute; right: -60%; bottom: 0; max-width: none; object-position: bottom right !important;";
+  } else {
+    // サケ、タラ、ブリ、マンボウ、マグロ、カクレクマノミ、サンマ
+    // これらは全て、縦幅（高さ）を基準にして「人間の身長とお魚のサイズ」の正確な比率で表示します。
+    extraFishStyle = `height: ${baseFishPercent}% !important; width: auto !important;`;
   }
 
   const inner = document.getElementById('compareInner');

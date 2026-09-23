@@ -77,6 +77,18 @@
     75% { transform: rotate(1deg); }
   }
 
+  /* おわり画面の魚用アニメーション（基準が-90度回転していることに合わせる） */
+  @keyframes fish-jump {
+    0% { transform: rotate(-90deg) scale(1); }
+    25% { transform: rotate(-100deg) scale(1.1); }
+    50% { transform: rotate(-80deg) scale(1.1); }
+    75% { transform: rotate(-100deg) scale(1.1); }
+    100% { transform: rotate(-90deg) scale(1); }
+  }
+  .animate-fish {
+    animation: fish-jump 0.4s ease;
+  }
+
   .screen{ display:none; flex:1; flex-direction:column; animation: pop .35s ease both; }
   .screen.active{ display:flex; }
   @keyframes pop{ from{opacity:0; transform:scale(0.96) rotate(-2deg);} to{opacity:1; transform:scale(1) rotate(0deg);} }
@@ -368,7 +380,7 @@
     <!-- おわり画面 -->
     <section class="screen" data-screen="end">
       <div class="center-wrap">
-        <img id="endMascot" class="mascot" src="" alt="おさかな" style="transform: rotate(-90deg); object-fit: contain;">
+        <img id="endMascot" class="mascot" src="" alt="おさかな" style="transform: rotate(-90deg); object-fit: contain; cursor: pointer;" onclick="animateEndMascot()">
         <p class="center-title">たのしんで もらえたかな?</p>
         <p class="center-lead">おおきい いきものも、<br>ちいさい いきものも、みんな すごいね。</p>
         <button class="big-btn" onclick="goScreen('start')">もういちど みる</button>
@@ -619,6 +631,15 @@ function nextRound(){
     
     goScreen('end');
   }
+}
+
+function animateEndMascot() {
+  const mascot = document.getElementById('endMascot');
+  if(!mascot) return;
+  // アニメーションのクラスを一度外してリセットし、再度つけることで連続でタップしても動くようにする
+  mascot.classList.remove('animate-fish');
+  void mascot.offsetWidth;
+  mascot.classList.add('animate-fish');
 }
 </script>
 

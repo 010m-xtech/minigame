@@ -509,9 +509,10 @@ function renderRound(){
     FISH_SCALE = 1.0;
   }
   
-  // サケ、タラ、ブリは、実際の身長差がそのまま伝わるように補正を外します
+  // サケ、タラ、ブリは、視覚的な面積の違いで人間より大きく見えてしまう錯覚を防ぐため、
+  // 少しだけ補正（0.85）をかけて「同じくらい」のボリューム感に合わせます。
   if (r.id === 'sake' || r.id === 'tara' || r.id === 'buri') {
-    FISH_SCALE = 1.0;
+    FISH_SCALE = 0.85;
   }
 
   const visualFishCm = r.cm * FISH_SCALE;
@@ -537,7 +538,8 @@ function renderRound(){
   inner.innerHTML = `
     <div class="bar-col">
       <div style="width: 100%; aspect-ratio: 1 / 1; position: relative; display: flex; align-items: flex-end; justify-content: center;">
-        <svg style="height:${childPercent}%; width:auto; display: block;" viewBox="0 0 100 198" preserveAspectRatio="xMidYMax meet">
+        <!-- viewBoxを "0 5 100 193" に変更し、上下の余白を完全に取り除いて人を大きく見せます -->
+        <svg style="height:${childPercent}%; width:auto; display: block;" viewBox="0 5 100 193" preserveAspectRatio="xMidYMax meet">
           <!-- 顔 -->
           <circle cx="50" cy="30" r="22" fill="#E4EDF7" stroke="var(--sumi)" stroke-width="6"/>
           <!-- 胴体 -->

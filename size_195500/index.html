@@ -537,13 +537,12 @@ function renderRound(){
   let fishDisplayPercent = fishPercent;
 
   if (r.id === 'buri') {
-    // 1m(100cm)のときの表示（人間の高さの1.06倍）を基準の補正係数とし、
-    // 魚の実際の大きさ(r.cm)と、選んだ身長に基づいた割合で高さを計算します。
-    const buriHeightPercent = (r.cm / maxCm) * 100 * 1.06;
+    // 1m(100cm)のときの表示が点線(人間)とピッタリ揃うように補正を外し、(r.cm / maxCm)の割合で高さを計算します。
+    const buriHeightPercent = (r.cm / maxCm) * 100;
     extraFishStyle = `height: ${buriHeightPercent}% !important; width: auto !important;`;
   } else if (r.id === 'tara') {
-    // 1mのときの表示（人間の高さの1.04倍）を基準の補正係数とします。
-    const taraHeightPercent = (r.cm / maxCm) * 100 * 1.04;
+    // 1mのときの表示が点線とピッタリ揃うように補正を外します。
+    const taraHeightPercent = (r.cm / maxCm) * 100;
     extraFishStyle = `height: ${taraHeightPercent}% !important; width: auto !important;`;
   } else if (r.id === 'sake') {
     // 1mのときの表示（人間の高さの0.94倍）となるよう、(94 / 90)を補正係数とします。

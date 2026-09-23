@@ -508,6 +508,11 @@ function renderRound(){
   if (r.id === 'ryugu' || r.id === 'zinbee') {
     FISH_SCALE = 1.0;
   }
+  
+  // サケ、タラ、ブリは、実際の身長差がそのまま伝わるように補正を外します
+  if (r.id === 'sake' || r.id === 'tara' || r.id === 'buri') {
+    FISH_SCALE = 1.0;
+  }
 
   const visualFishCm = r.cm * FISH_SCALE;
   const maxCm = Math.max(CHILD_CM, visualFishCm);

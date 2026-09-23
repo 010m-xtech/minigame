@@ -504,8 +504,8 @@ function renderRound(){
   const inner = document.getElementById('compareInner');
   inner.innerHTML = `
     <div class="bar-col">
-      <div class="bar-wrap">
-        <svg style="height:${childPercent}%; width:100%; max-width:80px;" viewBox="0 0 100 200" preserveAspectRatio="xMidYMax meet">
+      <div class="bar-wrap" style="position: relative;">
+        <svg style="height:${childPercent}%; width:100%; max-width:80px; display: block;" viewBox="0 0 100 200" preserveAspectRatio="xMidYMax meet">
           <!-- 顔 -->
           <circle cx="50" cy="30" r="22" fill="#E4EDF7" stroke="var(--sumi)" stroke-width="6"/>
           <!-- 胴体 -->
@@ -514,8 +514,8 @@ function renderRound(){
           <line x1="50" y1="70" x2="15" y2="50" stroke="var(--sumi)" stroke-width="6" stroke-linecap="round"/>
           <line x1="50" y1="70" x2="85" y2="50" stroke="var(--sumi)" stroke-width="6" stroke-linecap="round"/>
           <!-- 脚 -->
-          <line x1="50" y1="115" x2="20" y2="190" stroke="var(--sumi)" stroke-width="8" stroke-linecap="round"/>
-          <line x1="50" y1="115" x2="80" y2="190" stroke="var(--sumi)" stroke-width="8" stroke-linecap="round"/>
+          <line x1="50" y1="115" x2="20" y2="196" stroke="var(--sumi)" stroke-width="8" stroke-linecap="round"/>
+          <line x1="50" y1="115" x2="80" y2="196" stroke="var(--sumi)" stroke-width="8" stroke-linecap="round"/>
           <!-- 顔パーツ -->
           <circle cx="42" cy="25" r="3" fill="var(--sumi)"/>
           <circle cx="58" cy="25" r="3" fill="var(--sumi)"/>
@@ -541,7 +541,7 @@ function renderRound(){
         ">
           <!-- 魚画像の幅(width)が、回転後の「高さ」になります -->
           <!-- 画像が見切れないよう max-height (回転後の横幅) を制限します -->
-          <img src="${r.img}" alt="${r.name}" style="width:${fishPercent}%; max-height:100px; object-fit: contain; filter: drop-shadow(5px -4px 0 rgba(0,0,0,0.15));" />
+          <img src="${r.img}" alt="${r.name}" style="width:${fishPercent}%; max-height:100px; object-fit: contain; filter: drop-shadow(5px -4px 0 rgba(0,0,0,0.15)); display: block;" />
         </div>
       </div>
       <div class="bar-label">${r.name}</div>

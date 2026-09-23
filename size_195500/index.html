@@ -509,10 +509,9 @@ function renderRound(){
     FISH_SCALE = 1.0;
   }
   
-  // サケ、タラ、ブリは、視覚的な面積の違いで人間より大きく見えてしまう錯覚を防ぐため、
-  // 少しだけ補正（0.85）をかけて「同じくらい」のボリューム感に合わせます。
+  // サケ、タラ、ブリは、人間の頭の先と画像の上辺をピッタリ揃えるため、補正を解除（1.0）します。
   if (r.id === 'sake' || r.id === 'tara' || r.id === 'buri') {
-    FISH_SCALE = 0.85;
+    FISH_SCALE = 1.0;
   }
 
   const visualFishCm = r.cm * FISH_SCALE;

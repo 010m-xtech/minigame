@@ -558,10 +558,11 @@ function renderRound(){
   const inner = document.getElementById('compareInner');
   inner.innerHTML = `
     <!-- 人間の頭の高さを示す点線 -->
-    <div style="position: absolute; bottom: ${childPercent}%; left: 0; width: 100%; border-bottom: 3px dashed var(--ai-light); opacity: 0.6; z-index: 0;"></div>
+    <div style="position: absolute; bottom: ${childPercent}%; left: 0; width: 100%; border-bottom: 3px dashed var(--ai-light); opacity: 0.8; z-index: 0;"></div>
     
     <div class="bar-col" style="z-index: 1;">
-      <div style="width: 100%; aspect-ratio: 1 / 1; position: relative; display: flex; align-items: flex-end; justify-content: center;">
+      <!-- aspect-ratioを解除し、height: 100%に変更して点線の座標と一致させます -->
+      <div style="width: 100%; height: 100%; position: relative; display: flex; align-items: flex-end; justify-content: center;">
         <!-- viewBoxを "0 5 100 193" に変更し、上下の余白を完全に取り除いて人を大きく見せます -->
         <svg style="height:${childPercent}%; width:auto; display: block;" viewBox="0 5 100 193" preserveAspectRatio="xMidYMax meet">
           <!-- 顔 -->
@@ -582,7 +583,8 @@ function renderRound(){
       </div>
     </div>
     <div class="bar-col" style="z-index: 1;">
-      <div style="width: 100%; aspect-ratio: 1 / 1; position: relative; display: flex; align-items: flex-end; justify-content: center;">
+      <!-- こちらも height: 100% に変更 -->
+      <div style="width: 100%; height: 100%; position: relative; display: flex; align-items: flex-end; justify-content: center;">
         <img src="${r.img}" alt="${r.name}" style="width:${fishDisplayPercent}%; height:auto; object-fit: contain; object-position: bottom center; filter: drop-shadow(5px -4px 0 rgba(0,0,0,0.15)); display: block; ${extraFishStyle}" />
       </div>
     </div>

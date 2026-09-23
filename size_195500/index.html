@@ -516,6 +516,16 @@ function renderRound(){
   const childPercent = Math.max(0.5, (CHILD_CM / maxCm) * 100);
   const fishPercent = Math.max(0.5, (visualFishCm / maxCm) * 100);
 
+  let extraFishStyle = "";
+  let fishDisplayPercent = fishPercent;
+
+  if (r.id === 'ryugu' || r.id === 'zinbee') {
+    // 巨大な魚は、右側の枠を超えてグラフ全体(約2.2倍)に広がるように拡大表示します。
+    // 右端を固定することで、右枠にはみ出さずに左側（人間側）にドーンと巨大化させます。
+    fishDisplayPercent = fishPercent * 2.2;
+    extraFishStyle = "position: absolute; right: 0; bottom: 0; max-width: none;";
+  }
+
   const inner = document.getElementById('compareInner');
   inner.innerHTML = `
     <div class="bar-col">
@@ -540,7 +550,7 @@ function renderRound(){
     </div>
     <div class="bar-col">
       <div style="width: 100%; aspect-ratio: 1 / 1; position: relative; display: flex; align-items: flex-end; justify-content: center;">
-        <img src="${r.img}" alt="${r.name}" style="width:${fishPercent}%; height:auto; object-fit: contain; object-position: bottom center; filter: drop-shadow(5px -4px 0 rgba(0,0,0,0.15)); display: block;" />
+        <img src="${r.img}" alt="${r.name}" style="width:${fishDisplayPercent}%; height:auto; object-fit: contain; object-position: bottom center; filter: drop-shadow(5px -4px 0 rgba(0,0,0,0.15)); display: block; ${extraFishStyle}" />
       </div>
     </div>
   `;

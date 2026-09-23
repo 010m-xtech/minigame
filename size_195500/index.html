@@ -435,21 +435,21 @@ const PX_PER_CM = 1.5;
 /* ============ くらべる いきもの(だいたいの おおきさです) ============ */
 const fishData = {
   same: [
-    { id:"buri", name:"ぶり", cm:90, displaySize:"80せんち から 100せんち くらい", img:"buri.webp", info:"1メートルくらい おおきくなると「ぶり」と よばれるよ。おおきくなるに つれて なまえが かわる ふしぎな おさかななんだ！" },
-    { id:"sake", name:"サケ", cm:80, displaySize:"70せんち から 90せんち くらい", img:"sake.webp", info:"まるまる ふとった からだで、うまれた かわを めざして おおきな うみを たくさん およぐ、力もちな おさかなだよ。" },
-    { id:"tara", name:"タラ", cm:100, displaySize:"100せんち くらい", img:"tara.webp", info:"とっても おおきな くちと、ぽっこり でた おなかが とくちょう。じぶんより ちいさな おさかなや エビを 丸のみに しちゃうよ！" }
+    { id:"sake", name:"サケ", cm:90, displaySize:"70せんち から 90せんち くらい", img:"sake.webp", info:"まるまる ふとった からだで、うまれた かわを めざして おおきな うみを たくさん およぐ、力もちな おさかなだよ。" },
+    { id:"tara", name:"タラ", cm:100, displaySize:"100せんち くらい", img:"tara.webp", info:"とっても おおきな くちと、ぽっこり でた おなかが とくちょう。じぶんより ちいさな おさかなや エビを 丸のみに しちゃうよ！" },
+    { id:"buri", name:"ぶり", cm:100, displaySize:"80せんち から 100せんち くらい", img:"buri.webp", info:"1メートルくらい おおきくなると「ぶり」と よばれるよ。おおきくなるに つれて なまえが かわる ふしぎな おさかななんだ！" }
   ],
   adult: [
-    { id:"maguro", name:"まぐろ", cm:250, displaySize:"200せんち から 300せんち くらい", img:"maguro.webp", info:"パパやママより ずっと おおきくて、くるま みたいに スピードを だして およぐんだ。たいじゅうも 200キロ いじょう あるよ！" },
-    { id:"manbo", name:"マンボウ", cm:250, displaySize:"200せんち から 300せんち くらい", img:"manbo.webp", info:"ぺしゃんこな かたちを しているけど、たてにも よこにも 3メートルくらいに なる、とっても おおきな おさかな なんだ。" }
+    { id:"manbo", name:"マンボウ", cm:300, displaySize:"200せんち から 300せんち くらい", img:"manbo.webp", info:"ぺしゃんこな かたちを しているけど、たてにも よこにも 3メートルくらいに なる、とっても おおきな おさかな なんだ。" },
+    { id:"maguro", name:"まぐろ", cm:300, displaySize:"200せんち から 300せんち くらい", img:"maguro.webp", info:"パパやママより ずっと おおきくて、くるま みたいに スピードを だして およぐんだ。たいじゅうも 200キロ いじょう あるよ！" }
   ],
   huge: [
-    { id:"ryugu", name:"リュウグウノツカイ", cm:300, displaySize:"300せんち から 1100せんち くらい", img:"ryugu.webp", info:"うみの ずっと ふかい ところに すんでいる、ふしぎな おさかな。ぎんいろの ながーい からだと、あかい ヒレが とくちょう だよ！" },
-    { id:"zinbee", name:"ジンベエザメ", cm:3000, displaySize:"1000せんち から 5000せんち くらい", img:"zinbee.webp", info:"せかいで いちばん おおきな おさかな だよ！<br>ビルみたいに おおきな からだ なのに、<br>たべるのは ちいさな プランクトンなんだ。" }
+    { id:"ryugu", name:"リュウグウノツカイ", cm:1100, displaySize:"300せんち から 1100せんち くらい", img:"ryugu.webp", info:"うみの ずっと ふかい ところに すんでいる、ふしぎな おさかな。ぎんいろの ながーい からだと、あかい ヒレが とくちょう だよ！" },
+    { id:"zinbee", name:"ジンベエザメ", cm:5000, displaySize:"1000せんち から 5000せんち くらい", img:"zinbee.webp", info:"せかいで いちばん おおきな おさかな だよ！<br>ビルみたいに おおきな からだ なのに、<br>たべるのは ちいさな プランクトンなんだ。" }
   ],
   tiny: [
-    { id:"sanma", name:"さんま", cm:30, displaySize:"30せんち くらい", img:"sanma.webp", info:"ほそながくて、えんぴつを おおきくした ような かたち。あきに なると おおきな むれに なって たくさん およいで くるよ。" },
-    { id:"kakure", name:"カクレクマノミ", cm:15, displaySize:"10せんち から 15せんち くらい", img:"kakure.webp", info:"オレンジと しろの しましま もようが とっても かわいいね。イソギンチャクの なかに かくれて くらして いるよ。" }
+    { id:"kakure", name:"カクレクマノミ", cm:15, displaySize:"10せんち から 15せんち くらい", img:"kakure.webp", info:"オレンジと しろの しましま もようが とっても かわいいね。イソギンチャクの なかに かくれて くらして いるよ。" },
+    { id:"sanma", name:"さんま", cm:30, displaySize:"30せんち くらい", img:"sanma.webp", info:"ほそながくて、えんぴつを おおきくした ような かたち。あきに なると おおきな むれに なって たくさん およいで くるよ。" }
   ]
 };
 
@@ -502,13 +502,19 @@ function renderRound(){
   /* 自分と魚のうち、大きい方を100%とした時の割合を計算して縮尺を自動調整 */
   // 視覚的なボリュームの差（人間は細い線画、魚は太い画像）を補正するため、
   // 魚の長さに係数をかけて、直感的な「同じくらい」の大きさに感じられるよう調整します。
-  const FISH_SCALE = 0.55;
+  let FISH_SCALE = 0.55;
+  
+  // 巨大な魚（リュウグウノツカイ、ジンベエザメ）は補正を外し、枠いっぱいに表示して人間を小さくします
+  if (r.id === 'ryugu' || r.id === 'zinbee') {
+    FISH_SCALE = 1.0;
+  }
+
   const visualFishCm = r.cm * FISH_SCALE;
   const maxCm = Math.max(CHILD_CM, visualFishCm);
   
-  // バーの長さを割合(%)で計算。人と魚の圧倒的な差を伝えるため、下限値を1.5%まで下げます
-  const childPercent = Math.max(1.5, (CHILD_CM / maxCm) * 100);
-  const fishPercent = Math.max(1.5, (visualFishCm / maxCm) * 100);
+  // バーの長さを割合(%)で計算。圧倒的な差を伝えるため、人間が豆粒サイズになるように下限値を0.5%まで下げます
+  const childPercent = Math.max(0.5, (CHILD_CM / maxCm) * 100);
+  const fishPercent = Math.max(0.5, (visualFishCm / maxCm) * 100);
 
   const inner = document.getElementById('compareInner');
   inner.innerHTML = `

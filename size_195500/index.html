@@ -537,10 +537,14 @@ function renderRound(){
   let fishDisplayPercent = fishPercent;
 
   if (r.id === 'buri') {
-    // 画像の縦横比に関わらず、上辺を人間の頭の先よりほんの僅かに下にするため、
-    // 人間の表示高さ（childPercent）の96%の高さを直接指定します。
-    const buriHeightPercent = childPercent * 0.96;
+    // 画像の上辺（口先）を点線（人間の頭の先端）にピッタリ合わせるため、
+    // 人間の表示高さ（childPercent）と全く同じ高さを直接指定します。
+    const buriHeightPercent = childPercent;
     extraFishStyle = `height: ${buriHeightPercent}% !important; width: auto !important;`;
+  } else if (r.id === 'tara') {
+    // タラも同様に、画像の上辺（口先）を点線にピッタリ合わせるため高さを直接指定します。
+    const taraHeightPercent = childPercent;
+    extraFishStyle = `height: ${taraHeightPercent}% !important; width: auto !important;`;
   } else if (r.id === 'sake') {
     // 画像の上辺（サケの口）が人間の頭の先よりほんの僅かに下になるように、
     // 人間の表示高さの94%の高さを直接指定します。

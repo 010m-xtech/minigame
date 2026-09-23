@@ -525,6 +525,11 @@ function renderRound(){
   if (r.id === 'sake') {
     FISH_SCALE = 1.0;
   }
+  
+  // マンボウとマグロも正確な比率で高さを合わせるために基準スケールを1.0とします
+  if (r.id === 'manbo' || r.id === 'maguro') {
+    FISH_SCALE = 1.0;
+  }
 
   const visualFishCm = r.cm * FISH_SCALE;
   const maxCm = Math.max(CHILD_CM, visualFishCm);
@@ -537,17 +542,21 @@ function renderRound(){
   let fishDisplayPercent = fishPercent;
 
   if (r.id === 'buri') {
-    // 1m(100cm)のときの表示が点線(人間)とピッタリ揃うように補正を外し、(r.cm / maxCm)の割合で高さを計算します。
-    const buriHeightPercent = (r.cm / maxCm) * 100;
+    // 1mのとき人間の高さ(100%)とピッタリ同じになるよう、基準値を基に比率計算します
+    const buriHeightPercent = (r.cm / Math.max(CHILD_CM, r.cm)) * 100;
     extraFishStyle = `height: ${buriHeightPercent}% !important; width: auto !important;`;
   } else if (r.id === 'tara') {
-    // 1mのときの表示が点線とピッタリ揃うように補正を外します。
-    const taraHeightPercent = (r.cm / maxCm) * 100;
+    // 1mのとき人間の高さ(100%)とピッタリ同じになるよう、基準値を基に比率計算します
+    const taraHeightPercent = (r.cm / Math.max(CHILD_CM, r.cm)) * 100;
     extraFishStyle = `height: ${taraHeightPercent}% !important; width: auto !important;`;
   } else if (r.id === 'sake') {
-    // 1mのときの表示（人間の高さの0.94倍）となるよう、(94 / 90)を補正係数とします。
-    const sakeHeightPercent = (r.cm / maxCm) * 100 * (94 / 90);
+    // 1mのとき人間の高さの94%となるよう、(94 / 90)の比率計算を行います
+    const sakeHeightPercent = (r.cm / Math.max(CHILD_CM, r.cm)) * 100 * (94 / 90);
     extraFishStyle = `height: ${sakeHeightPercent}% !important; width: auto !important;`;
+  } else if (r.id === 'manbo' || r.id === 'maguro') {
+    // マンボウとマグロも正確な比率(300cm想定)で高さを表示します
+    const hugeHeightPercent = (r.cm / Math.max(CHILD_CM, r.cm)) * 100;
+    extraFishStyle = `height: ${hugeHeightPercent}% !important; width: auto !important;`;
   } else if (r.id === 'ryugu') {
     // リュウグウノツカイは枠いっぱい(100%)のままで配置し、枠から飛び出ないようにします
     fishDisplayPercent = fishPercent; 

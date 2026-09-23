@@ -523,9 +523,9 @@ function renderRound(){
     // リュウグウノツカイは枠いっぱい(100%)のままで配置し、枠から飛び出ないようにします
     fishDisplayPercent = fishPercent; 
   } else if (r.id === 'zinbee') {
-    // ジンベエザメは大きさは2.2倍を維持しつつ、画像の中身を右端（尻尾側）に寄せて中央に被らないようにします
+    // ジンベエザメは大きさは2.2倍を維持しつつ、画像自体をさらに右へずらして中央（人間）に被らないようにします
     fishDisplayPercent = fishPercent * 2.2;
-    extraFishStyle = "position: absolute; right: 0; bottom: 0; max-width: none; object-position: bottom right !important;";
+    extraFishStyle = "position: absolute; right: -60%; bottom: 0; max-width: none; object-position: bottom right !important;";
   }
 
   const inner = document.getElementById('compareInner');

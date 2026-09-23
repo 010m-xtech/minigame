@@ -182,18 +182,18 @@
 
   .compare-stage{
     position:relative;
-    height: 330px; /* バーを縦に伸ばすための高さを確保 */
+    height: 330px;
     padding: 10px 4px 10px;
-    /* はみ出した巨大な魚を枠内で切り取る設定を解除し、すべて見えるようにします */
     overflow: visible; 
   }
   .compare-inner{
     display:flex;
-    flex-direction: row; /* 横並びに変更 */
+    flex-direction: row; 
     justify-content: space-evenly;
     align-items: flex-end; /* 下端を揃える */
     height: 100%;
     gap: 16px;
+    padding-bottom: 20px; /* 下部に少し余裕を持たせる */
   }
 
   .bar-col {
@@ -202,11 +202,15 @@
   .bar-label {
     font-size: 15px; font-weight: 900; color: var(--sumi); line-height: 1.3; text-align: center;
     height: 44px; display: flex; align-items: center; justify-content: center;
-    position: relative; z-index: 2; /* 魚が大きくて被っても文字が見えるように */
+    position: relative; z-index: 2; 
   }
+  
+  /* 比較エリアの土台（水面のようなライン）を追加して揃っていることを強調 */
   .bar-wrap { 
-    height: 270px; /* バーが伸びる最大エリア */
+    height: 270px;
     display: flex; align-items: flex-end; justify-content: center; width: 100%; 
+    border-bottom: 3px solid var(--line); /* ここに揃える線を追加 */
+    padding-bottom: 4px; /* 線から少しだけ浮かせる */
   }
 
   .paper-bar {
@@ -497,14 +501,15 @@ function renderRound(){
   /* 自分と魚のうち、大きい方を100%とした時の割合を計算して縮尺を自動調整 */
   const maxCm = Math.max(CHILD_CM, r.cm);
   
-  // バーの長さを割合(%)で計算。人と魚の圧倒的な差を伝えるため、下限値を1.5%まで下げます
+  // バーの長さを割合(%)で計算。
   const childPercent = Math.max(1.5, (CHILD_CM / maxCm) * 100);
   const fishPercent = Math.max(1.5, (r.cm / maxCm) * 100);
 
   const inner = document.getElementById('compareInner');
   inner.innerHTML = `
     <div class="bar-col">
-      <div class="bar-wrap" style="position: relative;">
+      <div class="bar-wrap">
+        <!-- SVGの高さを childPercent% で制御し、viewBox を足元が下端にぴったり合うように調整 -->
         <svg style="height:${childPercent}%; width:100%; max-width:80px; display: block;" viewBox="0 0 100 200" preserveAspectRatio="xMidYMax meet">
           <!-- 顔 -->
           <circle cx="50" cy="30" r="22" fill="#E4EDF7" stroke="var(--sumi)" stroke-width="6"/>
@@ -513,7 +518,7 @@ function renderRound(){
           <!-- 腕 -->
           <line x1="50" y1="70" x2="15" y2="50" stroke="var(--sumi)" stroke-width="6" stroke-linecap="round"/>
           <line x1="50" y1="70" x2="85" y2="50" stroke="var(--sumi)" stroke-width="6" stroke-linecap="round"/>
-          <!-- 脚 -->
+          <!-- 脚 (y2=196 を下端ギリギリに) -->
           <line x1="50" y1="115" x2="20" y2="196" stroke="var(--sumi)" stroke-width="8" stroke-linecap="round"/>
           <line x1="50" y1="115" x2="80" y2="196" stroke="var(--sumi)" stroke-width="8" stroke-linecap="round"/>
           <!-- 顔パーツ -->
@@ -525,23 +530,39 @@ function renderRound(){
       <div class="bar-label">じぶん<br>(${formatCm(CHILD_CM)})</div>
     </div>
     <div class="bar-col">
-      <div class="bar-wrap" style="position: relative;">
-        <!-- 魚の画像を縦向きにするための回転コンテナ -->
+      <div class="bar-wrap" style="position: relative; display: flex; align-items: flex-end; justify-content: center;">
+        <!-- 
+          回転を制御するためのコンテナ。
+          魚の長さを % で表現するため、コンテナ自体の高さを fishPercent% にします。
+        -->
         <div style="
-          position: absolute;
-          width: 270px;
-          height: 270px;
-          bottom: 0;
-          left: 50%;
-          margin-left: -135px; /* 中央揃え */
-          transform: rotate(90deg); /* 90度回転させて縦向きにします */
-          display: flex;
-          align-items: center;
-          justify-content: flex-end; /* 右端(回転後の下端)に揃えて、下から伸びるようにします */
+          height: ${fishPercent}%; 
+          width: 100%; 
+          position: relative;
         ">
-          <!-- 魚画像の幅(width)が、回転後の「高さ」になります -->
-          <!-- 画像が見切れないよう max-height (回転後の横幅) を制限します -->
-          <img src="${r.img}" alt="${r.name}" style="width:${fishPercent}%; max-height:100px; object-fit: contain; filter: drop-shadow(5px -4px 0 rgba(0,0,0,0.15)); display: block;" />
+          <!-- 
+            画像を90度回転。
+            transform-origin を利用して、画像の左端（回転後の下端）が
+            コンテナの左下隅を軸に回転するように設定。
+          -->
+          <img src="${r.img}" alt="${r.name}" style="
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            /* 画像の幅(長辺)が、親コンテナの高さ(魚の長さ)と同じになるように */
+            width: 270px; /* bar-wrap の最大の高さに合わせる */
+            max-height: 100px; /* 魚の太さ(幅)を制限 */
+            /* 
+               回転軸の設定。画像の左下を軸にする。
+               画像自体は絶対配置で中央付近に置くため、transform で位置を微調整。
+            */
+            transform-origin: left bottom;
+            transform: rotate(90deg) translate(-100%, 0);
+            object-fit: contain; 
+            filter: drop-shadow(5px -4px 0 rgba(0,0,0,0.15));
+            display: block;
+            pointer-events: none; /* ドラッグなどで崩れるのを防ぐ */
+          " />
         </div>
       </div>
       <div class="bar-label">${r.name}</div>

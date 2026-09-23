@@ -515,8 +515,9 @@ function renderRound(){
   }
   
   // ブリは100cmの人間の頭の先と高さがピタリと揃うように縮尺を調整します
+  // 横幅ベースではなく、後ほどCSSで高さを直接人間に合わせるため、基準スケールは1.0とします
   if (r.id === 'buri') {
-    FISH_SCALE = 0.65;
+    FISH_SCALE = 1.0;
   }
   
   // サケは1m(100cm)の人間と上辺がピッタリ揃うようにスケールを調整します（90cmの画像を100cm相当に拡大）
@@ -534,7 +535,11 @@ function renderRound(){
   let extraFishStyle = "";
   let fishDisplayPercent = fishPercent;
 
-  if (r.id === 'ryugu') {
+  if (r.id === 'buri') {
+    // 画像の縦横比に関わらず、確実に画像の上辺（口）を人間の頭の先と合わせるため、
+    // 人間の表示高さ（childPercent）と全く同じ高さを直接指定します。
+    extraFishStyle = `height: ${childPercent}% !important; width: auto !important;`;
+  } else if (r.id === 'ryugu') {
     // リュウグウノツカイは枠いっぱい(100%)のままで配置し、枠から飛び出ないようにします
     fishDisplayPercent = fishPercent; 
   } else if (r.id === 'zinbee') {

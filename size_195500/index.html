@@ -500,11 +500,15 @@ function renderRound(){
   renderProgress();
 
   /* 自分と魚のうち、大きい方を100%とした時の割合を計算して縮尺を自動調整 */
-  const maxCm = Math.max(CHILD_CM, r.cm);
+  // 視覚的なボリュームの差（人間は細い線画、魚は太い画像）を補正するため、
+  // 魚の長さに係数をかけて、直感的な「同じくらい」の大きさに感じられるよう調整します。
+  const FISH_SCALE = 0.55;
+  const visualFishCm = r.cm * FISH_SCALE;
+  const maxCm = Math.max(CHILD_CM, visualFishCm);
   
   // バーの長さを割合(%)で計算。人と魚の圧倒的な差を伝えるため、下限値を1.5%まで下げます
   const childPercent = Math.max(1.5, (CHILD_CM / maxCm) * 100);
-  const fishPercent = Math.max(1.5, (r.cm / maxCm) * 100);
+  const fishPercent = Math.max(1.5, (visualFishCm / maxCm) * 100);
 
   const inner = document.getElementById('compareInner');
   inner.innerHTML = `

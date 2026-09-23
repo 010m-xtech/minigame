@@ -544,8 +544,8 @@ function renderRound(){
           justify-content: flex-end; /* 右端(回転後の下端)に揃えて、下から伸びるようにします */
         ">
           <!-- 魚画像の幅(width)が、回転後の「高さ」になります -->
-          <!-- 画像が見切れないよう max-height (回転後の横幅) を制限します -->
-          <img src="${r.img}" alt="${r.name}" style="width:${fishPercent}%; max-height:100px; object-fit: contain; filter: drop-shadow(5px -4px 0 rgba(0,0,0,0.15)); display: block;" />
+          <!-- 画像が見切れないよう max-height (回転後の横幅) を制限し、object-positionで右端(尻尾側)に固定します -->
+          <img src="${r.img}" alt="${r.name}" style="width:${fishPercent}%; max-height:100px; object-fit: contain; object-position: right center; filter: drop-shadow(5px -4px 0 rgba(0,0,0,0.15)); display: block;" />
         </div>
       </div>
     </div>

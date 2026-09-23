@@ -509,8 +509,8 @@ function renderRound(){
   const inner = document.getElementById('compareInner');
   inner.innerHTML = `
     <div class="bar-col">
-      <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: flex-end; justify-content: center;">
-        <svg style="height:${childPercent}%; width:100%; max-width:80px; display: block;" viewBox="0 0 100 198" preserveAspectRatio="xMidYMax meet">
+      <div style="width: 100%; aspect-ratio: 1 / 1; position: relative; display: flex; align-items: flex-end; justify-content: center;">
+        <svg style="height:${childPercent}%; width:auto; display: block;" viewBox="0 0 100 198" preserveAspectRatio="xMidYMax meet">
           <!-- 顔 -->
           <circle cx="50" cy="30" r="22" fill="#E4EDF7" stroke="var(--sumi)" stroke-width="6"/>
           <!-- 胴体 -->
@@ -529,22 +529,8 @@ function renderRound(){
       </div>
     </div>
     <div class="bar-col">
-      <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: flex-end; justify-content: center;">
-        <!-- 魚の画像をそのままの向きで配置するコンテナ -->
-        <div style="
-          position: absolute;
-          width: 270px;
-          height: 270px;
-          bottom: 0;
-          left: 50%;
-          margin-left: -135px; /* 中央揃え */
-          display: flex;
-          align-items: flex-end; /* 直線（下端）に揃えます */
-          justify-content: center; /* 左右中央揃え */
-        ">
-          <!-- そのままの向きで幅をサイズとし、下端が確実に接するように指定 -->
-          <img src="${r.img}" alt="${r.name}" style="width:${fishPercent}%; object-fit: contain; object-position: bottom center; filter: drop-shadow(5px -4px 0 rgba(0,0,0,0.15)); display: block;" />
-        </div>
+      <div style="width: 100%; aspect-ratio: 1 / 1; position: relative; display: flex; align-items: flex-end; justify-content: center;">
+        <img src="${r.img}" alt="${r.name}" style="width:${fishPercent}%; height:auto; object-fit: contain; object-position: bottom center; filter: drop-shadow(5px -4px 0 rgba(0,0,0,0.15)); display: block;" />
       </div>
     </div>
   `;

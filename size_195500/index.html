@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>おおきさくらべ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Yomogi&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* 背景動画がうっすら透けるように、少しだけ透過させます */
+    --kinari: rgba(253, 248, 240, 0.94);
+    --ai: #30547A;
+    --ai-light: #52759E;
+    --ai-pale: #E4EDF7;
+    --shu: #E25B45;
+    --shu-pale: #FCE7E3;
+    --sumi: #3A3228;
+    --line: #E0D3BC;
+    --font: 'Yomogi', cursive;
+  }
+
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  html,body{
+    margin:0; padding:0;
+    color: var(--sumi);
+    font-family: var(--font);
+    -webkit-font-smoothing: antialiased;
+    /* 単語の途中での改行を防ぎ、スペース部分で改行させる設定 */
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  body{ min-height:100vh; display:flex; justify-content:center; }
+
+  /* --- 背景動画用スタイル --- */
+  .video-bg-wrap {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    z-index: -1;
+    background: #FDECC8; /* 動画読み込み前のフォールバック色 */
+    overflow: hidden;
+  }
+  .video-bg-wrap video {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    /* クロスフェードの時間を設定。切れ目を目立たなくします */
+    transition: opacity 0.6s ease-in-out;
+  }
+  .video-bg-wrap video.active {
+    opacity: 1;
+  }
+
+  /* --- アプリケーションUIのスタイル --- */
+  .app{
+    width:100%; max-width:460px; min-height:100vh;
+    background: var(--kinari);
+    position:relative;
+    box-shadow: 0 0 40px rgba(0,0,0,0.1);
+    display:flex; flex-direction:column;
+  }
+
+  header{ padding: 18px 20px 12px; text-align:center; }
+  header h1{ font-size:20px; font-weight:900; color:var(--ai); margin:0; letter-spacing:0.03em; }
+
+  main{ flex:1; padding: 10px 20px 40px; display:flex; flex-direction:column; }
+  
+  @keyframes wobble {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-1deg); }
+    75% { transform: rotate(1deg); }
+  }
+
+  .screen{ display:none; flex:1; flex-direction:column; animation: pop .35s ease both; }
+  .screen.active{ display:flex; }
+  @keyframes pop{ from{opacity:0; transform:scale(0.96) rotate(-2deg);} to{opacity:1; transform:scale(1) rotate(0deg);} }
+  @media (prefers-reduced-motion: reduce){ .screen{ animation:none; } }
+
+  /* --- スタート・おわり画面 --- */
+  .center-wrap{
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; gap:20px; padding: 10px 0 30px;
+  }
+  .mascot{ width:120px; height:120px; }
+  .center-title{ font-size:24px; font-weight:900; color:var(--ai); line-height:1.5; margin:0; }
+  .center-lead{ font-size:15px; color:#7a6f5c; line-height:1.9; margin:0; max-width:270px; }
+
+  .big-btn{
+    font-family: var(--font); font-weight:900; font-size:22px;
+    color:#fff; background: var(--shu);
+    border: 3px solid var(--sumi);
+    /* チョキチョキ切ったような不規則な丸み */
+    border-radius: 40px 15px 50px 25px / 20px 40px 15px 45px;
+    padding: 16px 40px;
+    box-shadow: 4px 6px 0 var(--sumi);
+    cursor:pointer;
+    transition: all 0.15s;
+    position: relative;
+    z-index: 1;
+  }
+  .big-btn:hover {
+    animation: wobble 1s ease-in-out infinite;
+  }
+  .big-btn:active{ box-shadow: 0px 2px 0 var(--sumi); transform: translateY(4px) translateX(2px); animation: none;}
+
+  /* --- しんちょう えらぶ がめん --- */
+  .height-options {
+    display: flex; flex-direction: column; gap: 14px;
+    width: 100%; max-width: 260px; margin: 0 auto;
+  }
+  .height-btn {
+    font-family: var(--font); background: #fff;
+    border: 3px solid var(--sumi);
+    padding: 12px 20px;
+    box-shadow: 3px 4px 0 rgba(58,52,44,0.15);
+    cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .height-btn:hover { transform: scale(1.02) rotate(-1deg); }
+  .height-btn:active { box-shadow: 0px 1px 0 rgba(58,52,44,0.15); transform: translateY(2px) translateX(1px); }
+  
+  /* 切り絵風の不規則な丸みをそれぞれ変える */
+  .height-btn:nth-child(1) { border-radius: 15px 25px 10px 20px / 20px 10px 25px 15px; }
+  .height-btn:nth-child(2) { border-radius: 25px 10px 20px 15px / 15px 20px 10px 25px; }
+  .height-btn:nth-child(3) { border-radius: 10px 20px 15px 25px / 25px 15px 20px 10px; }
+  .height-btn:nth-child(4) { border-radius: 20px 15px 25px 10px / 10px 25px 15px 20px; }
+
+  .height-btn .cm { font-size: 22px; font-weight: 900; color: var(--ai); }
+  .height-btn .unit { font-size: 14px; font-weight: 900; color: var(--ai); margin-left: 2px; }
+  .height-btn .age { font-size: 12.5px; color: #7a6f5c; font-weight: 700; }
+
+  /* --- テーマ えらぶ がめん --- */
+  .theme-options {
+    display: flex; flex-direction: column; gap: 14px;
+    width: 100%; max-width: 320px; margin: 0 auto;
+  }
+  .theme-btn {
+    font-family: var(--font); background: #fff;
+    border: 3px solid var(--sumi);
+    padding: 16px 20px;
+    box-shadow: 3px 4px 0 rgba(58,52,44,0.15);
+    cursor: pointer; transition: all 0.15s;
+    font-size: 16.5px; font-weight: 900; color: var(--ai);
+    text-align: left; line-height: 1.4;
+  }
+  .theme-btn:hover { transform: scale(1.02) rotate(-1deg); }
+  .theme-btn:active { box-shadow: 0px 1px 0 rgba(58,52,44,0.15); transform: translateY(2px) translateX(1px); }
+  
+  .theme-btn:nth-child(1) { border-radius: 15px 25px 10px 20px / 20px 10px 25px 15px; }
+  .theme-btn:nth-child(2) { border-radius: 25px 10px 20px 15px / 15px 20px 10px 25px; }
+  .theme-btn:nth-child(3) { border-radius: 10px 20px 15px 25px / 25px 15px 20px 10px; }
+  .theme-btn:nth-child(4) { border-radius: 20px 15px 25px 10px / 10px 25px 15px 20px; }
+
+  .theme-btn .highlight { color: var(--shu); }
+
+  /* --- くらべる がめん --- */
+  .q-progress{ display:flex; justify-content:center; gap:8px; margin: 4px 0 18px; }
+  .q-dot{ 
+    width:14px; height:14px; 
+    border-radius: 45% 65% 50% 55% / 55% 45% 60% 40%; 
+    border: 2px solid var(--sumi); 
+    background: var(--line); 
+    transition: all 0.3s;
+  }
+  .q-dot.done{ background: var(--ai-light); border-color: var(--sumi); }
+  .q-dot.now{ background: var(--shu); transform:scale(1.4) rotate(10deg); }
+
+  .compare-card{
+    background:#fff; padding: 18px 16px 14px;
+    /* 大きな要素も不規則な切り抜き風に */
+    border-radius: 8px 30px 12px 25px / 25px 10px 30px 15px;
+    border: 3px solid var(--sumi);
+    box-shadow: 5px 7px 0 rgba(58,52,44,0.15);
+    margin-bottom: 18px;
+  }
+
+  .compare-stage{
+    position:relative;
+    height: 330px; /* バーを縦に伸ばすための高さを確保 */
+    padding: 10px 4px 10px;
+    /* はみ出した巨大な魚を枠内で切り取る設定を解除し、すべて見えるようにします */
+    overflow: visible; 
+  }
+  .compare-inner{
+    display:flex;
+    flex-direction: row; /* 横並びに変更 */
+    justify-content: space-evenly;
+    align-items: flex-end; /* 下端を揃える */
+    height: 100%;
+    gap: 16px;
+  }
+
+  .bar-col {
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 12px; height: 100%; width: 45%;
+  }
+  .bar-label {
+    font-size: 15px; font-weight: 900; color: var(--sumi); line-height: 1.3; text-align: center;
+    height: 44px; display: flex; align-items: center; justify-content: center;
+    position: relative; z-index: 2; /* 魚が大きくて被っても文字が見えるように */
+  }
+  .bar-wrap { 
+    height: 270px; /* バーが伸びる最大エリア */
+    display: flex; align-items: flex-end; justify-content: center; width: 100%; 
+  }
+
+  .paper-bar {
+    /* 細長い紙を切ったような形（縦長用） */
+    border-radius: 20px 25px 15px 10px / 15px 10px 25px 20px;
+    border: 3px solid var(--sumi);
+    box-shadow: 4px 5px 0 rgba(0,0,0,0.15);
+    width: 50px;
+    position: relative;
+    box-sizing: border-box;
+  }
+  .paper-bar .face { 
+    position:absolute; 
+    top: 10px; 
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+  }
+
+  .sentence-card{
+    text-align:center; margin-top: 4px;
+  }
+  .sentence-main{ font-size:19px; font-weight:900; color:var(--sumi); line-height:1.7; }
+  .sentence-main .name{ color: var(--shu); }
+  .sentence-sub{ font-size:13.5px; color:#7a6f5c; margin-top:6px; }
+
+  .sentence-info {
+    font-size: 13.5px; color: var(--sumi); font-weight: 700;
+    margin-top: 14px; padding: 12px;
+    background: var(--kinari);
+    border-radius: 12px 15px 10px 18px / 18px 10px 15px 12px;
+    border: 2px dashed #D4C5AC;
+    line-height: 1.6; text-align: left;
+  }
+
+  .nav-row{ display:flex; gap:12px; margin-top:auto; padding-top:20px; }
+  .nav-btn{
+    flex:1; font-family:var(--font); font-weight:900; font-size:18px;
+    padding: 12px 10px; 
+    /* 左右で少し違う切り抜き方に */
+    border-radius: 20px 10px 25px 15px / 15px 25px 10px 20px;
+    border: 3px solid var(--sumi);
+    background:#fff; color:var(--sumi); cursor:pointer;
+    box-shadow: 3px 4px 0 var(--sumi);
+    transition: all 0.15s;
+  }
+  .nav-btn:active:not(:disabled){ box-shadow: 0px 1px 0 var(--sumi); transform: translateY(3px) translateX(1px); }
+  .nav-btn:disabled{ opacity:0.5; box-shadow: 1px 2px 0 var(--sumi); transform: translateY(2px); cursor:default; border-style: dashed;}
+  .nav-btn.primary{ background:var(--ai); color:#fff; border-radius: 15px 25px 10px 20px / 20px 10px 25px 15px; }
+</style>
+</head>
+<body>
+
+<div class="video-bg-wrap">
+  <!-- スマホでも自動再生されるように muted と playsinline を付与しています -->
+  <video id="bg-vid-1" src="marubatsu_back.mp4" muted playsinline></video>
+  <video id="bg-vid-2" src="marubatsu_back.mp4" muted playsinline></video>
+</div>
+
+<div class="app">
+  <header><h1>おおきさ くらべ</h1></header>
+
+  <main>
+    <!-- スタート画面 -->
+    <section class="screen active" data-screen="start">
+      <div class="center-wrap">
+        <svg class="mascot" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="46" cy="44" r="20" fill="#E4EDF7" stroke="#3A3228" stroke-width="4"/>
+          <path d="M46 64v30M46 74l-16 14M46 74l16 14M46 94l-10 20M46 94l10 20" stroke="#3A3228" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M78 70c16-6 26 0 26 8s-10 14-26 8" fill="#FCE7E3" stroke="#3A3228" stroke-width="4" stroke-linejoin="round"/>
+        </svg>
+        <p class="center-title">さかなって、<br>どれくらい おおきいかな?</p>
+        <p class="center-lead">じぶんの しんちょうと<br>くらべて みてみよう!</p>
+        <button class="big-btn" onclick="goScreen('height-select')">はじめる</button>
+      </div>
+    </section>
+
+    <!-- しんちょうをえらぶ画面 -->
+    <section class="screen" data-screen="height-select">
+      <div class="center-wrap">
+        <p class="center-title">じぶんの しんちょうは<br>どれくらいかな？</p>
+        <p class="center-lead">だいたいの おおきさを<br>えらんでね！</p>
+        
+        <div class="height-options">
+          <button class="height-btn" onclick="setHeight(100)">
+            <div><span class="cm">100</span><span class="unit">cm</span></div>
+            <span class="age">(4〜5さい くらい)</span>
+          </button>
+          <button class="height-btn" onclick="setHeight(110)">
+            <div><span class="cm">110</span><span class="unit">cm</span></div>
+            <span class="age">(5〜6さい くらい)</span>
+          </button>
+          <button class="height-btn" onclick="setHeight(120)">
+            <div><span class="cm">120</span><span class="unit">cm</span></div>
+            <span class="age">(7〜8さい くらい)</span>
+          </button>
+          <button class="height-btn" onclick="setHeight(130)">
+            <div><span class="cm">130</span><span class="unit">cm</span></div>
+            <span class="age">(8〜9さい くらい)</span>
+          </button>
+          <button class="height-btn" onclick="setHeight(160)">
+            <div><span class="cm">160</span><span class="unit">cm</span></div>
+            <span class="age">(ママ くらい)</span>
+          </button>
+          <button class="height-btn" onclick="setHeight(170)">
+            <div><span class="cm">170</span><span class="unit">cm</span></div>
+            <span class="age">(パパ くらい)</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- テーマをえらぶ画面 -->
+    <section class="screen" data-screen="theme-select">
+      <div class="center-wrap">
+        <p class="center-title">どんな おさかなを<br>みてみる？</p>
+        
+        <div class="theme-options">
+          <button class="theme-btn" onclick="startTheme('same')">
+            ぼく・わたしと<br>「<span class="highlight">おなじくらい</span>」のおさかな
+          </button>
+          <button class="theme-btn" onclick="startTheme('adult')">
+            パパ・ママより<br>「<span class="highlight">おおきい</span>」おさかな
+          </button>
+          <button class="theme-btn" onclick="startTheme('huge')">
+            バスやおうちみたいに<br>「<span class="highlight">とてつもなくおおきい</span>」おさかな
+          </button>
+          <button class="theme-btn" onclick="startTheme('tiny')">
+            「<span class="highlight">てのひら くらい</span>」の<br>ちいさな おさかな
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- くらべる画面 -->
+    <section class="screen" data-screen="compare">
+      <div class="q-progress" id="qProgress"></div>
+
+      <div class="compare-card">
+        <div class="compare-stage" id="compareStage">
+          <div class="compare-inner" id="compareInner"></div>
+        </div>
+      </div>
+
+      <div class="sentence-card">
+        <p class="sentence-main" id="sentenceMain"></p>
+        <p class="sentence-sub" id="sentenceSub"></p>
+        <div class="sentence-info" id="sentenceInfo"></div>
+      </div>
+
+      <div class="nav-row">
+        <button class="nav-btn" id="prevBtn" onclick="prevRound()">まえへ</button>
+        <button class="nav-btn primary" id="nextBtn" onclick="nextRound()">つぎへ</button>
+      </div>
+    </section>
+
+    <!-- おわり画面 -->
+    <section class="screen" data-screen="end">
+      <div class="center-wrap">
+        <svg class="mascot" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15 60c18-24 48-32 72-22-4 8-4 14 0 22-24 10-54 2-72-22z" fill="#FCE7E3" stroke="#3A3228" stroke-width="4" stroke-linejoin="round"/>
+          <path d="M80 40c10 6 16 14 16 20s-6 14-16 20" fill="#E4EDF7" stroke="#3A3228" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M28 54c2 4 8 4 10 0" stroke="#3A3228" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+        <p class="center-title">たのしんで もらえたかな?</p>
+        <p class="center-lead">おおきい いきものも、<br>ちいさい いきものも、みんな すごいね。</p>
+        <button class="big-btn" onclick="goScreen('start')">もういちど みる</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+/* ============ 背景動画のシームレスループ制御 ============ */
+function setupSeamlessVideoLoop() {
+  const v1 = document.getElementById('bg-vid-1');
+  const v2 = document.getElementById('bg-vid-2');
+  if(!v1 || !v2) return;
+
+  let activeVideo = 1;
+  const fadeDuration = 0.6; // クロスフェードする時間（秒）
+
+  // 初回再生
+  v1.play().catch(e => console.log("Auto-play prevented", e));
+  v1.classList.add('active');
+
+  const handleTimeUpdate = (e) => {
+    const vid = e.target;
+    if (!vid.duration) return;
+
+    // 再生位置が動画の終端からフェード時間以内に達したら、もう一方の動画を再生開始してクロスフェード
+    if (vid.duration - vid.currentTime <= fadeDuration) {
+      if (vid === v1 && activeVideo === 1) {
+        activeVideo = 2;
+        v2.currentTime = 0; // 頭出し
+        v2.play().catch(()=>{});
+        v2.classList.add('active'); // フェードイン
+        v1.classList.remove('active'); // フェードアウト
+      } else if (vid === v2 && activeVideo === 2) {
+        activeVideo = 1;
+        v1.currentTime = 0; // 頭出し
+        v1.play().catch(()=>{});
+        v1.classList.add('active'); // フェードイン
+        v2.classList.remove('active'); // フェードアウト
+      }
+    }
+  };
+
+  v1.addEventListener('timeupdate', handleTimeUpdate);
+  v2.addEventListener('timeupdate', handleTimeUpdate);
+}
+
+document.addEventListener('DOMContentLoaded', setupSeamlessVideoLoop);
+
+
+/* ============ こどもの めやす しんちょう(だいたいの めやすです) ============ */
+let CHILD_CM = 116; // 選択肢で変更できるように let に変更
+const PX_PER_CM = 1.5;
+
+/* ============ くらべる いきもの(だいたいの おおきさです) ============ */
+const fishData = {
+  same: [
+    { id:"buri", name:"ぶり", cm:90, displaySize:"80せんち から 100せんち くらい", img:"buri.webp", info:"1メートルくらい おおきくなると「ぶり」と よばれるよ。おおきくなるに つれて なまえが かわる ふしぎな おさかななんだ！" },
+    { id:"sake", name:"サケ", cm:80, displaySize:"70せんち から 90せんち くらい", img:"sake.webp", info:"まるまる ふとった からだで、うまれた かわを めざして おおきな うみを たくさん およぐ、力もちな おさかなだよ。" },
+    { id:"tara", name:"タラ", cm:100, displaySize:"100せんち くらい", img:"tara.webp", info:"とっても おおきな くちと、ぽっこり でた おなかが とくちょう。じぶんより ちいさな おさかなや エビを 丸のみに しちゃうよ！" }
+  ],
+  adult: [
+    { id:"maguro", name:"まぐろ", cm:250, displaySize:"200せんち から 300せんち くらい", img:"maguro.webp", info:"パパやママより ずっと おおきくて、くるま みたいに スピードを だして およぐんだ。たいじゅうも 200キロ いじょう あるよ！" },
+    { id:"manbo", name:"マンボウ", cm:250, displaySize:"200せんち から 300せんち くらい", img:"manbo.webp", info:"ぺしゃんこな かたちを しているけど、たてにも よこにも 3メートルくらいに なる、とっても おおきな おさかな なんだ。" },
+    { id:"ryugu", name:"リュウグウノツカイ", cm:300, displaySize:"300せんち から 1100せんち くらい", img:"ryugu.webp", info:"うみの ずっと ふかい ところに すんでいる、ふしぎな おさかな。ぎんいろの ながーい からだと、あかい ヒレが とくちょう だよ！" }
+  ],
+  huge: [
+    { id:"zinbee", name:"ジンベエザメ", cm:3000, displaySize:"1000せんち から 5000せんち くらい", img:"zinbee.webp", info:"せかいで いちばん おおきな おさかな だよ！<br>ビルみたいに おおきな からだ なのに、<br>たべるのは ちいさな プランクトンなんだ。" }
+  ],
+  tiny: [
+    { id:"sanma", name:"さんま", cm:30, displaySize:"30せんち くらい", img:"sanma.webp", info:"ほそながくて、えんぴつを おおきくした ような かたち。あきに なると おおきな むれに なって たくさん およいで くるよ。" },
+    { id:"kakure", name:"カクレクマノミ", cm:15, displaySize:"10せんち から 15せんち くらい", img:"kakure.webp", info:"オレンジと しろの しましま もようが とっても かわいいね。イソギンチャクの なかに かくれて くらして いるよ。" }
+  ]
+};
+
+let rounds = [];
+let currentIndex = 0;
+
+function goScreen(name){
+  document.querySelectorAll('.screen').forEach(el=>{
+    el.classList.toggle('active', el.dataset.screen === name);
+  });
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function setHeight(cm){
+  CHILD_CM = cm;
+  goScreen('theme-select');
+}
+
+function startTheme(themeId){
+  rounds = fishData[themeId];
+  currentIndex = 0;
+  renderRound();
+  goScreen('compare');
+}
+
+function renderProgress(){
+  const wrap = document.getElementById('qProgress');
+  wrap.innerHTML = "";
+  rounds.forEach((r,i)=>{
+    const dot = document.createElement('div');
+    dot.className = 'q-dot';
+    if (i < currentIndex) dot.classList.add('done');
+    if (i === currentIndex) dot.classList.add('now');
+    wrap.appendChild(dot);
+  });
+}
+
+function formatCm(cm){
+  if (cm >= 100){
+    const m = (cm / 100).toFixed(cm % 100 === 0 ? 0 : 1);
+    return m + 'm';
+  }
+  return cm + 'cm';
+}
+
+function renderRound(){
+  const r = rounds[currentIndex];
+  renderProgress();
+
+  /* 自分と魚のうち、大きい方を100%とした時の割合を計算して縮尺を自動調整 */
+  const maxCm = Math.max(CHILD_CM, r.cm);
+  
+  // バーの長さを割合(%)で計算。人と魚の圧倒的な差を伝えるため、下限値を1.5%まで下げます
+  const childPercent = Math.max(1.5, (CHILD_CM / maxCm) * 100);
+  const fishPercent = Math.max(1.5, (r.cm / maxCm) * 100);
+
+  const inner = document.getElementById('compareInner');
+  inner.innerHTML = `
+    <div class="bar-col">
+      <div class="bar-wrap">
+        <svg style="height:${childPercent}%; width:100%; max-width:80px;" viewBox="0 0 100 200" preserveAspectRatio="xMidYMax meet">
+          <!-- 顔 -->
+          <circle cx="50" cy="30" r="22" fill="#E4EDF7" stroke="var(--sumi)" stroke-width="6"/>
+          <!-- 胴体 -->
+          <line x1="50" y1="52" x2="50" y2="120" stroke="var(--sumi)" stroke-width="8" stroke-linecap="round"/>
+          <!-- 腕 -->
+          <line x1="50" y1="70" x2="15" y2="50" stroke="var(--sumi)" stroke-width="6" stroke-linecap="round"/>
+          <line x1="50" y1="70" x2="85" y2="50" stroke="var(--sumi)" stroke-width="6" stroke-linecap="round"/>
+          <!-- 脚 -->
+          <line x1="50" y1="115" x2="20" y2="190" stroke="var(--sumi)" stroke-width="8" stroke-linecap="round"/>
+          <line x1="50" y1="115" x2="80" y2="190" stroke="var(--sumi)" stroke-width="8" stroke-linecap="round"/>
+          <!-- 顔パーツ -->
+          <circle cx="42" cy="25" r="3" fill="var(--sumi)"/>
+          <circle cx="58" cy="25" r="3" fill="var(--sumi)"/>
+          <path d="M42 38 Q50 45 58 38" stroke="var(--sumi)" stroke-width="3" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="bar-label">じぶん<br>(${formatCm(CHILD_CM)})</div>
+    </div>
+    <div class="bar-col">
+      <div class="bar-wrap" style="position: relative;">
+        <!-- 魚の画像を縦向きにするための回転コンテナ -->
+        <div style="
+          position: absolute;
+          width: 270px;
+          height: 270px;
+          bottom: 0;
+          left: 50%;
+          margin-left: -135px; /* 中央揃え */
+          transform: rotate(90deg); /* 90度回転させて縦向きにします */
+          display: flex;
+          align-items: center;
+          justify-content: flex-end; /* 右端(回転後の下端)に揃えて、下から伸びるようにします */
+        ">
+          <!-- 魚画像の幅(width)が、回転後の「高さ」になります -->
+          <!-- 画像が見切れないよう max-height (回転後の横幅) を制限します -->
+          <img src="${r.img}" alt="${r.name}" style="width:${fishPercent}%; max-height:100px; object-fit: contain; filter: drop-shadow(5px -4px 0 rgba(0,0,0,0.15));" />
+        </div>
+      </div>
+      <div class="bar-label">${r.name}</div>
+    </div>
+  `;
+
+  let mainSentence = "";
+  let subSentence = "";
+  const diffRatio = r.cm / CHILD_CM;
+  if (diffRatio > 1.15){
+    mainSentence = `<span class="name">${r.name}</span>は じぶんより ながいよ!`;
+  } else if (diffRatio < 0.85){
+    mainSentence = `<span class="name">${r.name}</span>は じぶんより ずっと ちいさいね。`;
+  } else {
+    mainSentence = `<span class="name">${r.name}</span>は じぶんと おなじくらいだよ!`;
+  }
+  subSentence = `おおきさは ${r.displaySize}だよ`;
+
+  document.getElementById('sentenceMain').innerHTML = mainSentence;
+  document.getElementById('sentenceSub').textContent = subSentence;
+  document.getElementById('sentenceInfo').innerHTML = r.info;
+
+  // 1匹目のときは「もどる」にしてテーマ選択画面へ戻れるようにし、ボタンを有効化します
+  document.getElementById('prevBtn').disabled = false;
+  document.getElementById('prevBtn').textContent = (currentIndex === 0) ? 'もどる' : 'まえへ';
+  document.getElementById('nextBtn').textContent = (currentIndex === rounds.length - 1) ? 'おわる' : 'つぎへ';
+}
+
+function prevRound(){
+  if (currentIndex > 0){
+    // 2匹目以降なら1つ前の魚へ
+    currentIndex--;
+    renderRound();
+  } else {
+    // 1匹目のときなら、テーマ選択画面へ戻る
+    goScreen('theme-select');
+  }
+}
+
+function nextRound(){
+  if (currentIndex < rounds.length - 1){
+    currentIndex++;
+    renderRound();
+  } else {
+    goScreen('end');
+  }
+}
+</script>
+
+</body>
+</html>

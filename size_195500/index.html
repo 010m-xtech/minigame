@@ -32,6 +32,9 @@
     /* 単語の途中での改行を防ぎ、スペース部分で改行させる設定 */
     word-break: keep-all;
     overflow-wrap: break-word;
+    /* フォント自体の細さを補い、すべての文字を強制的に太く見せる設定 */
+    -webkit-text-stroke: 0.6px currentColor;
+    text-shadow: 0.2px 0.2px 0 currentColor;
   }
 
   body{ min-height:100vh; display:flex; justify-content:center; }

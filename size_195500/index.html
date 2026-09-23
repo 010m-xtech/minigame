@@ -520,9 +520,9 @@ function renderRound(){
     FISH_SCALE = 1.0;
   }
   
-  // サケは1m(100cm)の人間と上辺がピッタリ揃うようにスケールを調整します（90cmの画像を100cm相当に拡大）
+  // サケは1m(100cm)の人間の頭よりほんの僅かに下になるように、基準スケールは1.0とします
   if (r.id === 'sake') {
-    FISH_SCALE = 100 / 90;
+    FISH_SCALE = 1.0;
   }
 
   const visualFishCm = r.cm * FISH_SCALE;
@@ -540,6 +540,11 @@ function renderRound(){
     // 人間の表示高さ（childPercent）の96%の高さを直接指定します。
     const buriHeightPercent = childPercent * 0.96;
     extraFishStyle = `height: ${buriHeightPercent}% !important; width: auto !important;`;
+  } else if (r.id === 'sake') {
+    // 画像の上辺（サケの口）が人間の頭の先よりほんの僅かに下になるように、
+    // 人間の表示高さの94%の高さを直接指定します。
+    const sakeHeightPercent = childPercent * 0.94;
+    extraFishStyle = `height: ${sakeHeightPercent}% !important; width: auto !important;`;
   } else if (r.id === 'ryugu') {
     // リュウグウノツカイは枠いっぱい(100%)のままで配置し、枠から飛び出ないようにします
     fishDisplayPercent = fishPercent; 

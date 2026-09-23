@@ -33,7 +33,6 @@
             --g3-shu: #E25B45;
             --g3-shu-pale: #FCE7E3;
             --g3-sumi: #3A3228;
-            --g3-line: #E0D3BC;
             --g3-font: 'Yomogi', cursive;
         }
 
@@ -68,6 +67,7 @@
             transition: opacity 1.5s linear;
         }
 
+        /* オープニング用のCSS */
         #intro-container {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background-color: #000; z-index: 9999;
@@ -90,6 +90,7 @@
             animation: blinkAndFloat 2s infinite ease-in-out;
             pointer-events: none; 
         }
+        
         @keyframes blinkAndFloat {
             0%, 100% { opacity: 0.3; transform: translate(-50%, 0); }
             50% { opacity: 1; transform: translate(-50%, -10px); }
@@ -119,6 +120,7 @@
             transform: translate(4px, 4px) rotate(0deg) !important;
             filter: drop-shadow(0px 0px 0px rgba(74, 59, 50, 0.4)) !important;
         }
+        
         .kirie-title { display: inline-block; transform: rotate(-2deg); }
         .kirie-badge {
             clip-path: polygon(4% 3%, 96% 5%, 98% 95%, 5% 96%);
@@ -709,7 +711,6 @@
         </div>
     </div>
 
-
     <script>
         // ------------------------------------------------
         // 共通: メニューの切り替え処理
@@ -720,7 +721,7 @@
             document.getElementById("game2-container").classList.add("hidden");
             document.getElementById("game3-container").classList.add("hidden");
             
-            // Game 1 のリセット（アニメーション停止のため）
+            // Game 1 のリセット
             document.getElementById("screen-aquarium").classList.add("hidden");
             document.getElementById("screen-quiz").classList.add("hidden");
             document.getElementById("screen-end").classList.add("hidden");
@@ -1377,8 +1378,8 @@
             if (r.id === 'ryugu') {
                 fishDisplayPercent = baseFishPercent; 
             } else if (r.id === 'zinbee') {
-                fishDisplayPercent = baseFishPercent * 2.2;
-                extraFishStyle = "position: absolute; right: -60%; bottom: 0; max-width: none; object-position: bottom right !important;";
+                fishDisplayPercent = baseFishPercent * 1.3;
+                extraFishStyle = "position: absolute; right: -15%; bottom: 0; max-width: none; object-position: bottom right !important;";
             } else {
                 extraFishStyle = `height: ${baseFishPercent}% !important; width: auto !important;`;
             }

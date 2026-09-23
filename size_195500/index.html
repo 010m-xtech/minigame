@@ -557,21 +557,36 @@ function renderRound(){
   `;
 
   const labels = document.getElementById('compareLabels');
+
+  // 選んだ身長に合わせて、グラフの名前と文章の主語を変える設定
+  let personLabel = "じぶん";
+  if (CHILD_CM === 160) personLabel = "ママ";
+  if (CHILD_CM === 170) personLabel = "パパ";
+
   labels.innerHTML = `
-    <div class="bar-label">じぶん<br>(${formatCm(CHILD_CM)})</div>
+    <div class="bar-label">${personLabel}<br>(${formatCm(CHILD_CM)})</div>
     <div class="bar-label">${r.name}</div>
   `;
 
   let mainSentence = "";
   let subSentence = "";
   const diffRatio = r.cm / CHILD_CM;
-  if (diffRatio > 1.15){
-    mainSentence = `<span class="name">${r.name}</span>は じぶんより ながいよ!`;
+  
+  // 実際の身長差（何倍あるか）に応じて、文章のバリエーションを豊かにする設定
+  if (diffRatio >= 5.0) {
+    mainSentence = `<span class="name">${r.name}</span>は とてつもなく おおきいね！`;
+  } else if (diffRatio >= 1.5) {
+    mainSentence = `<span class="name">${r.name}</span>は ${personLabel}より ずっと おおきい！`;
+  } else if (diffRatio > 1.15){
+    mainSentence = `<span class="name">${r.name}</span>は ${personLabel}より おおきいよ!`;
+  } else if (diffRatio < 0.3){
+    mainSentence = `<span class="name">${r.name}</span>は ${personLabel}より ずっと ちいさいよ!`;
   } else if (diffRatio < 0.85){
-    mainSentence = `<span class="name">${r.name}</span>は じぶんより ずっと ちいさいね。`;
+    mainSentence = `<span class="name">${r.name}</span>は ${personLabel}より ちいさいね。`;
   } else {
-    mainSentence = `<span class="name">${r.name}</span>は じぶんと おなじくらいだよ!`;
+    mainSentence = `<span class="name">${r.name}</span>は ${personLabel}と おなじくらいだよ!`;
   }
+  
   subSentence = `おおきさは ${r.displaySize}だよ`;
 
   document.getElementById('sentenceMain').innerHTML = mainSentence;

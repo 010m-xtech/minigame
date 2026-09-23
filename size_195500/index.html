@@ -89,7 +89,7 @@
   }
   .mascot{ width:120px; height:120px; }
   .center-title{ font-size:24px; font-weight:900; color:var(--ai); line-height:1.5; margin:0; }
-  .center-lead{ font-size:15px; color:#7a6f5c; line-height:1.9; margin:0; max-width:270px; }
+  .center-lead{ font-size:15px; color:#000; line-height:1.9; margin:0; max-width:270px; }
 
   .big-btn{
     font-family: var(--font); font-weight:900; font-size:22px;
@@ -133,7 +133,7 @@
 
   .height-btn .cm { font-size: 22px; font-weight: 900; color: var(--ai); }
   .height-btn .unit { font-size: 14px; font-weight: 900; color: var(--ai); margin-left: 2px; }
-  .height-btn .age { font-size: 12.5px; color: #7a6f5c; font-weight: 700; }
+  .height-btn .age { font-size: 12.5px; color: #000; font-weight: 700; }
 
   /* --- テーマ えらぶ がめん --- */
   .theme-options {
@@ -236,7 +236,7 @@
   }
   .sentence-main{ font-size:19px; font-weight:900; color:var(--sumi); line-height:1.7; }
   .sentence-main .name{ color: var(--shu); }
-  .sentence-sub{ font-size:13.5px; color:#7a6f5c; margin-top:6px; }
+  .sentence-sub{ font-size:13.5px; color:#000; margin-top:6px; }
 
   .sentence-info {
     font-size: 13.5px; color: var(--sumi); font-weight: 700;
@@ -368,11 +368,7 @@
     <!-- おわり画面 -->
     <section class="screen" data-screen="end">
       <div class="center-wrap">
-        <svg class="mascot" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M15 60c18-24 48-32 72-22-4 8-4 14 0 22-24 10-54 2-72-22z" fill="#FCE7E3" stroke="#3A3228" stroke-width="4" stroke-linejoin="round"/>
-          <path d="M80 40c10 6 16 14 16 20s-6 14-16 20" fill="#E4EDF7" stroke="#3A3228" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M28 54c2 4 8 4 10 0" stroke="#3A3228" stroke-width="4" stroke-linecap="round"/>
-        </svg>
+        <img id="endMascot" class="mascot" src="" alt="おさかな" style="transform: rotate(-90deg); object-fit: contain;">
         <p class="center-title">たのしんで もらえたかな?</p>
         <p class="center-lead">おおきい いきものも、<br>ちいさい いきものも、みんな すごいね。</p>
         <button class="big-btn" onclick="goScreen('start')">もういちど みる</button>
@@ -611,6 +607,16 @@ function nextRound(){
     currentIndex++;
     renderRound();
   } else {
+    // 登録されている全てのお魚をひとまとめにする
+    const allFishes = Object.values(fishData).flat();
+    // ランダムで1匹選ぶ
+    const randomFish = allFishes[Math.floor(Math.random() * allFishes.length)];
+    // おわり画面の画像に設定する
+    const endMascot = document.getElementById('endMascot');
+    if(endMascot) {
+      endMascot.src = randomFish.img;
+    }
+    
     goScreen('end');
   }
 }

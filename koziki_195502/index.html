@@ -6,12 +6,12 @@
     <title>おさかな クイズ コレクション</title>
     <!-- TailwindCSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Google Fonts (Game1,2用のStickとGame3用のYomogi) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Stick&family=Yomogi&display=swap" rel="stylesheet">
-    
+
     <style>
         :root {
             /* 共通・Game1・Game2用 */
@@ -24,7 +24,7 @@
             --batsu: #E8563E;
             --sumi: #3A342C;
             --font: 'Stick', sans-serif;
-            
+
             /* Game3 (おおきさくらべ)用 */
             --g3-kinari: rgba(253, 248, 240, 0.75);
             --g3-ai: #30547A;
@@ -33,6 +33,7 @@
             --g3-shu: #E25B45;
             --g3-shu-pale: #FCE7E3;
             --g3-sumi: #3A3228;
+            --g3-line: #D4C5AC; /* 【修正1】未定義だった変数を追加 */
             --g3-font: 'Yomogi', cursive;
         }
 
@@ -40,7 +41,7 @@
 
         body {
             font-family: var(--font);
-            background-color: transparent; 
+            background-color: transparent;
             color: #4a3b32;
             word-break: keep-all;
             overflow-wrap: break-word;
@@ -49,14 +50,17 @@
             min-height: 100vh;
         }
 
-        /* 共通背景動画 */
+        /* 共通背景（動画なし/読み込み失敗時は、この静止背景が表示される） */
         .video-bg-container {
             position: fixed;
             top: 0; left: 0;
             width: 100vw; height: 100vh;
-            z-index: -10; 
+            z-index: -10;
             overflow: hidden;
-            background: #FDECC8;
+            background:
+                radial-gradient(circle at 20% 15%, rgba(255, 255, 255, 0.55) 0, rgba(255, 255, 255, 0) 45%),
+                radial-gradient(circle at 85% 85%, rgba(255, 176, 124, 0.35) 0, rgba(255, 176, 124, 0) 50%),
+                #FDECC8;
         }
         .video-bg-container video {
             position: absolute;
@@ -66,6 +70,9 @@
             transform: translate(-50%, -50%);
             transition: opacity 1.5s linear;
         }
+        /* 【修正4】軽量モード・動画失敗時は動画を完全に非表示 */
+        body.lite .video-bg-container video,
+        .video-bg-container.no-video video { display: none; }
 
         /* オープニング用のCSS */
         #intro-container {
@@ -88,12 +95,43 @@
             white-space: nowrap; letter-spacing: 0.1em;
             text-shadow: 0 2px 4px rgba(0,0,0,0.8);
             animation: blinkAndFloat 2s infinite ease-in-out;
-            pointer-events: none; 
+            pointer-events: none;
         }
-        
+
         @keyframes blinkAndFloat {
             0%, 100% { opacity: 0.3; transform: translate(-50%, 0); }
             50% { opacity: 1; transform: translate(-50%, -10px); }
+        }
+
+        /* 【修正2】誤タップ防止：この間は押せない */
+        .tap-lock { pointer-events: none !important; }
+
+        /* 【修正3】「もどる」ボタン */
+        #back-btn {
+            position: fixed; top: 10px; left: 10px; z-index: 40;
+            display: none;
+            font-family: var(--font); font-weight: 900; font-size: 15px;
+            color: var(--sumi);
+            background: rgba(255, 255, 255, 0.92);
+            border: none; padding: 10px 16px; min-height: 44px; min-width: 44px;
+            clip-path: polygon(3% 5%, 45% 1%, 90% 4%, 98% 20%, 99% 70%, 94% 95%, 55% 99%, 12% 96%, 2% 80%, 0% 40%);
+            filter: drop-shadow(3px 3px 0 rgba(74, 59, 50, 0.35));
+            cursor: pointer;
+        }
+        #back-btn:active { transform: translate(2px, 2px); filter: drop-shadow(0 0 0 rgba(74, 59, 50, 0.35)); }
+        body.in-game #back-btn { display: block; }
+        /* もどるボタンと重ならないよう、ゲーム画面の上に余白をとる */
+        body.in-game #game1-container,
+        body.in-game #game2-container,
+        body.in-game #game3-container { padding-top: 56px; }
+        body.in-game #game2-container .app,
+        body.in-game #game3-container .app { min-height: calc(100vh - 56px); }
+
+        /* メニュー画面のお店ロゴ（タップ不可・加工しない） */
+        #menu-logo {
+            width: 76px; height: auto; margin-top: 18px;
+            pointer-events: none; user-select: none; -webkit-user-drag: none;
+            opacity: 0.95;
         }
 
         .kirie-box {
@@ -108,19 +146,19 @@
             transition: all 0.2s ease;
             position: relative;
         }
-        .kirie-btn:nth-child(odd) { 
+        .kirie-btn:nth-child(odd) {
             clip-path: polygon(1% 5%, 40% 1%, 98% 3%, 96% 50%, 99% 95%, 60% 98%, 3% 97%, 4% 50%);
-            transform: rotate(1deg); 
+            transform: rotate(1deg);
         }
-        .kirie-btn:nth-child(even) { 
+        .kirie-btn:nth-child(even) {
             clip-path: polygon(4% 2%, 70% 3%, 96% 1%, 98% 60%, 95% 98%, 30% 96%, 1% 95%, 2% 40%);
-            transform: rotate(-1deg); 
+            transform: rotate(-1deg);
         }
         .kirie-btn:active {
             transform: translate(4px, 4px) rotate(0deg) !important;
             filter: drop-shadow(0px 0px 0px rgba(74, 59, 50, 0.4)) !important;
         }
-        
+
         .kirie-title { display: inline-block; transform: rotate(-2deg); }
         .kirie-badge {
             clip-path: polygon(4% 3%, 96% 5%, 98% 95%, 5% 96%);
@@ -180,11 +218,11 @@
             clip-path: polygon(2% 8%, 35% 2%, 80% 5%, 97% 4%, 99% 45%, 96% 92%, 60% 98%, 20% 95%, 4% 97%, 0% 50%);
         }
         #game2-container main { flex: 1; padding: 10px 20px 40px; display: flex; flex-direction: column; }
-        
+
         #game2-container .screen { display: none; flex: 1; flex-direction: column; animation: pop .35s ease both; }
         #game2-container .screen.active { display: flex; }
         @keyframes pop { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
-        
+
         #game2-container .start-wrap {
             width: 100%; margin: auto; display: flex; flex-direction: column; align-items: center; justify-content: center;
             text-align: center; gap: 22px; padding: 60px 20px; min-height: 360px;
@@ -195,7 +233,7 @@
             background: rgba(255, 255, 255, 0.85);
             clip-path: polygon(1% 2%, 35% 0%, 75% 2%, 98% 1%, 100% 35%, 98% 75%, 99% 98%, 65% 100%, 25% 98%, 2% 99%, 0% 65%, 1% 25%);
         }
-        
+
         #game2-container .start-title, #game2-container .start-lead, #game2-container .start-wrap .big-btn {
             position: relative; z-index: 1;
         }
@@ -203,10 +241,10 @@
             position: absolute; z-index: 0; opacity: 0.75;
             pointer-events: auto; cursor: pointer;
         }
-        
+
         #game2-container .start-title { font-size: 26px; font-weight: 900; color: var(--ai); line-height: 1.5; margin: 0; }
         #game2-container .start-lead { font-size: 15px; color: #000; line-height: 1.9; margin: 0; max-width: 260px; }
-        
+
         #game2-container .big-btn {
             font-family: var(--font); font-weight: 900; font-size: 19px; color: #fff;
             background: transparent; border: none; padding: 18px 48px;
@@ -233,7 +271,7 @@
             position: absolute; top: -24px; width: 60px; height: auto;
             transform: translateX(-50%) scaleX(-1); transition: left 0.4s ease-out; z-index: 2;
         }
-        
+
         #game2-container .q-card {
             background: transparent; padding: 20px 22px; filter: drop-shadow(3px 5px 0 rgba(0,0,0,0.15));
             text-align: center; margin-bottom: 12px; display: flex; flex-direction: column; align-items: center; position: relative;
@@ -244,12 +282,12 @@
         }
         #game2-container .q-num { font-size: 13px; color: var(--ai-light); font-weight: 700; margin-bottom: 8px; }
         #game2-container .q-text { font-size: 19px; font-weight: 700; color: var(--sumi); line-height: 1.6; margin: 0; }
-        
+
         #game2-container .q-img-wrap { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 10px; width: 100%; }
         #game2-container .q-img { max-width: 100%; max-height: 160px; border-radius: 12px; display: none; object-fit: contain; cursor: pointer; }
         #game2-container .q-img.multi { max-width: 30%; max-height: 110px; }
         #game2-container .q-img.silhouette { filter: brightness(0); }
-        
+
         #game2-container .ans-row { display: flex; gap: 16px; justify-content: center; margin-top: auto; margin-bottom: 56px; }
         #game2-container .ans-btn {
             flex: 1; max-width: 150px; aspect-ratio: 1 / 1; border: none; cursor: pointer;
@@ -260,19 +298,19 @@
         #game2-container .ans-btn:active { transform: translateY(4px) scale(0.95); filter: drop-shadow(0px 1px 0 rgba(0,0,0,0.15)); }
         #game2-container .ans-btn::before { content: ""; position: absolute; inset: 0; z-index: -1; }
         #game2-container .ans-btn svg { width: 56%; height: 56%; position: relative; z-index: 1; }
-        
-        #game2-container .ans-maru::before { 
-            background: var(--ai-pale); 
+
+        #game2-container .ans-maru::before {
+            background: var(--ai-pale);
             clip-path: polygon(18% 4%, 48% 0%, 78% 7%, 95% 22%, 100% 52%, 93% 82%, 76% 98%, 46% 100%, 15% 93%, 2% 70%, 0% 38%, 4% 15%);
         }
         #game2-container .ans-maru svg { stroke: var(--maru); }
-        
-        #game2-container .ans-batsu::before { 
-            background: var(--shu-pale); 
+
+        #game2-container .ans-batsu::before {
+            background: var(--shu-pale);
             clip-path: polygon(12% 10%, 38% 3%, 72% 9%, 92% 26%, 99% 58%, 87% 89%, 64% 99%, 30% 97%, 6% 83%, 0% 55%, 3% 28%);
         }
         #game2-container .ans-batsu svg { stroke: var(--batsu); }
-        
+
         #game2-container .result-feedback {
             width: 100%; margin: auto; display: flex; flex-direction: column; align-items: center; justify-content: center;
             text-align: center; gap: 12px; padding: 24px 20px; background: rgba(255, 255, 255, 0.85);
@@ -283,7 +321,7 @@
         #game2-container .feedback-word.ok { color: var(--maru); }
         #game2-container .feedback-word.ng { color: var(--batsu); }
         #game2-container .feedback-text { font-size: 15px; color: #000; line-height: 1.9; max-width: 280px; margin: 0; }
-        
+
         #game2-container .feedback-img-wrap { position: relative; margin-top: 4px; display: none; max-width: 100%; }
         #game2-container .feedback-img { max-width: 100%; max-height: 140px; border-radius: 12px; display: block; object-fit: contain; cursor: pointer; }
         #game2-container .telop {
@@ -292,7 +330,7 @@
         }
         #game2-container .telop.left { left: 10px; }
         #game2-container .telop.right { right: 10px; }
-        
+
         #game2-container .final-wrap {
             width: 100%; margin: auto; display: flex; flex-direction: column; align-items: center; justify-content: center;
             text-align: center; gap: 18px; padding: 60px 20px; min-height: 360px; background: rgba(255, 255, 255, 0.85);
@@ -303,7 +341,7 @@
         #game2-container .final-score { font-size: 46px; font-weight: 900; color: var(--ai); margin: 0; }
         #game2-container .final-score span { font-size: 22px; color: #7a6f5c; }
         #game2-container .final-msg { font-size: 16px; color: var(--sumi); font-weight: 700; line-height: 1.8; max-width: 260px; margin: 0; }
-        
+
         @keyframes fishBounce {
             0% { transform: translate(0, 0) rotate(var(--rot, 0deg)); }
             25% { transform: translate(-3px, -15px) rotate(calc(var(--rot, 0deg) - 15deg)) scale(1.1); }
@@ -334,7 +372,7 @@
         #game3-container header { padding: 18px 20px 12px; text-align: center; }
         #game3-container header h1 { font-size: 20px; font-weight: 900; color: var(--g3-ai); margin: 0; letter-spacing: 0.03em; }
         #game3-container main { flex: 1; padding: 10px 20px 40px; display: flex; flex-direction: column; }
-        
+
         @keyframes g3-wobble {
             0%, 100% { transform: rotate(0deg); }
             25% { transform: rotate(-1deg); }
@@ -406,9 +444,9 @@
         #game3-container .theme-btn .highlight { color: var(--g3-shu); }
 
         #game3-container .q-progress { display: flex; justify-content: center; gap: 8px; margin: 4px 0 18px; }
-        #game3-container .q-dot { 
-            width: 14px; height: 14px; 
-            border-radius: 45% 65% 50% 55% / 55% 45% 60% 40%; 
+        #game3-container .q-dot {
+            width: 14px; height: 14px;
+            border-radius: 45% 65% 50% 55% / 55% 45% 60% 40%;
             border: 2px solid var(--g3-sumi); background: var(--g3-line); transition: all 0.3s;
         }
         #game3-container .q-dot.done { background: var(--g3-ai-light); border-color: var(--g3-sumi); }
@@ -441,7 +479,7 @@
 
         #game3-container .nav-row { display: flex; gap: 12px; margin-top: auto; padding-top: 20px; }
         #game3-container .nav-btn {
-            flex: 1; font-family: var(--g3-font); font-weight: 900; font-size: 18px; padding: 12px 10px; 
+            flex: 1; font-family: var(--g3-font); font-weight: 900; font-size: 18px; padding: 12px 10px;
             border-radius: 20px 10px 25px 15px / 15px 25px 10px 20px; border: 3px solid var(--g3-sumi);
             background: #fff; color: var(--g3-sumi); cursor: pointer; box-shadow: 3px 4px 0 var(--g3-sumi); transition: all 0.15s;
         }
@@ -453,18 +491,21 @@
 </head>
 <body class="flex items-center justify-center">
 
-    <!-- オープニング -->
+    <!-- オープニング（動画は src ではなく data-src。軽量モードでは読み込まない） -->
     <div id="intro-container">
-        <video id="intro-video" src="title3.mp4" autoplay muted playsinline></video>
-        <img id="intro-logo" src="koziki_title2.webp" alt="タイトル">
+        <video id="intro-video" data-src="title3.mp4" muted playsinline preload="auto"></video>
+        <img id="intro-logo" src="koziki_title2.webp" alt="NO FISH NO LIFE">
         <div id="intro-skip-text">画面をタップしてスキップ</div>
     </div>
 
-    <!-- 共通背景動画 -->
-    <div class="video-bg-container">
-        <video id="bg-video-1" src="marubatsu_back.mp4" autoplay muted playsinline style="opacity: 1;"></video>
-        <video id="bg-video-2" src="marubatsu_back.mp4" muted playsinline style="opacity: 0;"></video>
+    <!-- 共通背景動画（失敗・軽量モード時は .video-bg-container の静止背景が見える） -->
+    <div class="video-bg-container" id="bg-container">
+        <video id="bg-video-1" data-src="marubatsu_back.mp4" muted playsinline preload="auto" style="opacity: 1;"></video>
+        <video id="bg-video-2" data-src="marubatsu_back.mp4" muted playsinline preload="none" style="opacity: 0;"></video>
     </div>
+
+    <!-- 【修正3】もどるボタン（ゲーム中だけ表示） -->
+    <button id="back-btn" onclick="showMenu()" aria-label="ゲームをえらぶ にもどる">← もどる</button>
 
     <!-- ゲーム選択（メニュー）画面 -->
     <div id="menu-screen" class="w-full max-w-md mx-auto relative overflow-hidden flex flex-col items-center justify-center min-h-screen p-4">
@@ -485,6 +526,8 @@
                 おおきさ くらべ
             </button>
         </div>
+        <!-- お店のロゴ（小さく・タップ不可・加工なし） -->
+        <img id="menu-logo" src="koziki_mark.webp" alt="Koziki since 1983" onerror="this.style.display='none'">
     </div>
 
     <!-- GAME 1: おさかな シルエット クイズ -->
@@ -518,7 +561,7 @@
                 </div>
                 <p id="g1-popup-text" class="text-xl mb-6 font-bold"></p>
                 <p id="g1-popup-trivia" class="text-base mb-6 font-bold text-gray-700 bg-yellow-100 p-3 rounded-lg kirie-box w-full"></p>
-                <button onclick="g1_nextQuestion()" class="kirie-btn btn-blue text-xl font-bold py-3 px-8 w-full">つぎの もんだい へ</button>
+                <button id="g1-next-btn" onclick="g1_nextQuestion()" class="kirie-btn btn-blue text-xl font-bold py-3 px-8 w-full">つぎの もんだい へ</button>
             </div>
         </div>
 
@@ -614,7 +657,7 @@
                 <!-- スタート画面 -->
                 <section class="screen active" data-screen="start">
                     <div class="center-wrap">
-                        <img class="mascot" src="sokutei.webp" alt="おおきさくらべ">
+                        <img class="mascot" src="sokutei.webp" alt="おおきさくらべ" style="width:100px;height:200px;object-fit:contain;">
                         <p class="center-title">さかなって、<br>どれくらい おおきいかな?</p>
                         <p class="center-lead">じぶんの しんちょうと<br>くらべて みてみよう!</p>
                         <button class="big-btn" onclick="g3_goScreen('height-select')">はじめる</button>
@@ -713,71 +756,159 @@
 
     <script>
         // ------------------------------------------------
+        // 設定
+        // ------------------------------------------------
+        const IDLE_RETURN_MS = 60000; // 【修正3】操作がなければメニューへ戻るまでの時間（ミリ秒）
+        const TAP_LOCK_MS = 500;      // 【修正2】誤タップ防止の時間（ミリ秒）
+
+        // ------------------------------------------------
+        // 【修正2】誤タップ防止ヘルパー
+        // ------------------------------------------------
+        function lockTap(elements, ms) {
+            const list = Array.from(elements).filter(Boolean);
+            list.forEach(el => el.classList.add('tap-lock'));
+            setTimeout(() => list.forEach(el => el.classList.remove('tap-lock')), ms || TAP_LOCK_MS);
+        }
+
+        // ------------------------------------------------
+        // 【修正4】軽量モード判定
+        //   ?lite=1 で軽量モード（この端末に記憶）、?lite=0 で解除
+        //   端末の「データセーバー」設定でも自動で軽量モード
+        // ------------------------------------------------
+        let isLite = false;
+        (function detectLite() {
+            const params = new URLSearchParams(location.search);
+            const q = params.get('lite');
+            try {
+                if (q === '1') localStorage.setItem('fishQuizLite', '1');
+                if (q === '0') localStorage.removeItem('fishQuizLite');
+                isLite = localStorage.getItem('fishQuizLite') === '1';
+            } catch (e) {
+                isLite = (q === '1');
+            }
+            try {
+                if (navigator.connection && navigator.connection.saveData) isLite = true;
+                if (window.matchMedia && window.matchMedia('(prefers-reduced-data: reduce)').matches) isLite = true;
+            } catch (e) {}
+            if (isLite) document.body.classList.add('lite');
+        })();
+
+        // ------------------------------------------------
         // 共通: メニューの切り替え処理
         // ------------------------------------------------
+        function setInGame(flag) {
+            document.body.classList.toggle('in-game', flag);
+            if (flag) resetIdleTimer(); else clearTimeout(idleTimer);
+        }
+
         function showMenu() {
             document.getElementById("menu-screen").classList.remove("hidden");
             document.getElementById("game1-container").classList.add("hidden");
             document.getElementById("game2-container").classList.add("hidden");
             document.getElementById("game3-container").classList.add("hidden");
-            
+            setInGame(false);
+
             // Game 1 のリセット
+            document.getElementById("g1-popup-result").classList.add("hidden");
             document.getElementById("screen-aquarium").classList.add("hidden");
             document.getElementById("screen-quiz").classList.add("hidden");
             document.getElementById("screen-end").classList.add("hidden");
             document.getElementById("screen-start").classList.remove("hidden");
-            
+
             // Game 2 のリセット
             g2_goScreen('start');
 
             // Game 3 のリセット
             g3_goScreen('start');
+            window.scrollTo({top: 0});
         }
 
         function openGame1() {
             document.getElementById("menu-screen").classList.add("hidden");
             document.getElementById("game1-container").classList.remove("hidden");
+            setInGame(true);
         }
 
         function openGame2() {
             document.getElementById("menu-screen").classList.add("hidden");
             document.getElementById("game2-container").classList.remove("hidden");
             g2_goScreen('start');
+            setInGame(true);
         }
 
         function openGame3() {
             document.getElementById("menu-screen").classList.add("hidden");
             document.getElementById("game3-container").classList.remove("hidden");
             g3_goScreen('start');
+            setInGame(true);
         }
 
         // ------------------------------------------------
-        // 共通: 背景動画のループ（クロスフェード）とオープニング
+        // 【修正3】操作がなければ自動でメニューに戻る
         // ------------------------------------------------
-        document.addEventListener("DOMContentLoaded", () => {
+        let idleTimer = null;
+        function resetIdleTimer() {
+            clearTimeout(idleTimer);
+            if (!document.body.classList.contains('in-game')) return;
+            idleTimer = setTimeout(showMenu, IDLE_RETURN_MS);
+        }
+        ['pointerdown', 'touchstart', 'mousedown', 'keydown', 'scroll'].forEach(evt => {
+            window.addEventListener(evt, resetIdleTimer, { passive: true });
+        });
+
+        // ------------------------------------------------
+        // 共通: 背景動画（クロスフェードループ）とオープニング
+        // 【修正4】軽量モード／再生失敗時は静止背景にフォールバック
+        // ------------------------------------------------
+        function disableBgVideo() {
+            const box = document.getElementById('bg-container');
+            if (box) box.classList.add('no-video');
+            ['bg-video-1', 'bg-video-2'].forEach(id => {
+                const v = document.getElementById(id);
+                if (v) { try { v.pause(); } catch (e) {} v.removeAttribute('src'); v.load(); }
+            });
+        }
+
+        function initBackgroundVideo() {
             const v1 = document.getElementById('bg-video-1');
             const v2 = document.getElementById('bg-video-2');
             if (!v1 || !v2) return;
 
-            const fadeDuration = 1.5; 
+            if (isLite) { disableBgVideo(); return; }
+
+            v1.src = v1.dataset.src;
+            v2.src = v2.dataset.src;
+            v2.preload = 'auto';
+
+            const fadeDuration = 1.5;
             let activeVideo = v1;
             let nextVideo = v2;
             let isSwapping = false;
+            let failed = false;
 
-            v1.play().catch(e => console.log("Auto-play blocked:", e));
+            const fail = () => { if (failed) return; failed = true; disableBgVideo(); };
+
+            v1.addEventListener('error', fail);
+            v2.addEventListener('error', fail);
+            v1.play().catch(fail);
+
+            // 4秒たっても再生が始まらなければ静止背景にする（iOS Safariの自動再生制限など）
+            setTimeout(() => {
+                if (!failed && (v1.paused || v1.readyState < 2 || v1.currentTime === 0)) fail();
+            }, 4000);
 
             function handleTimeUpdate(e) {
                 const vid = e.target;
                 if (vid !== activeVideo) return;
-                
+
                 if (vid.duration > 0 && (vid.duration - vid.currentTime <= fadeDuration)) {
-                    if (isSwapping) return; 
+                    if (isSwapping) return;
                     isSwapping = true;
-                    
+
                     nextVideo.currentTime = 0;
-                    nextVideo.play().catch(e => console.log("Play blocked:", e));
-                    nextVideo.style.opacity = 1; 
-                    activeVideo.style.opacity = 0; 
+                    nextVideo.play().catch(() => {});
+                    nextVideo.style.opacity = 1;
+                    activeVideo.style.opacity = 0;
 
                     setTimeout(() => {
                         let temp = activeVideo;
@@ -790,16 +921,20 @@
             v1.addEventListener('timeupdate', handleTimeUpdate);
             v2.addEventListener('timeupdate', handleTimeUpdate);
 
-            // Game 2の装飾用の魚を配置
-            g2_initDecorativeFishes();
-            g2_addTapAnimation(document.getElementById('g2-feedbackImg'));
+            // タブが隠れたときは動画を止めて電池を節約
+            document.addEventListener('visibilitychange', () => {
+                if (failed) return;
+                if (document.hidden) { v1.pause(); v2.pause(); }
+                else { activeVideo.play().catch(() => {}); }
+            });
+        }
 
-            // ==============================================
-            // オープニング処理 (5秒後暗転)
-            // ==============================================
+        function initIntro() {
             const introContainer = document.getElementById('intro-container');
             const introVideo = document.getElementById('intro-video');
             const introLogo = document.getElementById('intro-logo');
+            if (!introContainer) return;
+
             let introSkipped = false;
             let introTimeouts = [];
             let introPhaseTriggered = false;
@@ -811,55 +946,73 @@
                 introContainer.style.opacity = '0';
                 setTimeout(() => {
                     introContainer.style.display = 'none';
-                    if (introVideo) introVideo.pause(); // 動画の再生を停止
-                }, 1000); // 1秒かけてフェードアウト
+                    if (introVideo) { try { introVideo.pause(); } catch (e) {} }
+                }, 1000);
             };
 
-            if (introContainer) {
-                if (introVideo) introVideo.play().catch(e => console.log("Intro video blocked:", e));
-                introContainer.addEventListener('click', endIntro);
-                introContainer.addEventListener('touchstart', endIntro, {passive: true});
+            // 動画なしでロゴだけ見せて終了する
+            const logoOnly = () => {
+                if (introSkipped || introPhaseTriggered) return;
+                introPhaseTriggered = true;
+                if (introVideo) { try { introVideo.pause(); } catch (e) {} introVideo.style.display = 'none'; }
+                if (introLogo) introLogo.style.opacity = '1';
+                introTimeouts.push(setTimeout(endIntro, 2800));
+            };
 
-                if (introVideo) {
-                    introVideo.addEventListener('timeupdate', () => {
-                        if (introSkipped || introPhaseTriggered) return;
-                        
-                        // 5秒経過で暗くなりロゴ表示
-                        if (introVideo.currentTime >= 5.0) {
-                            introPhaseTriggered = true;
-                            introVideo.style.opacity = '0';
-                            if (introLogo) introLogo.style.opacity = '1';
-                            
-                            // 5秒+2秒=7秒後に終了
-                            introTimeouts.push(setTimeout(() => {
-                                endIntro();
-                            }, 2000));
-                        }
-                    });
-                    introVideo.addEventListener('ended', () => {
-                        if (!introSkipped && !introPhaseTriggered) {
-                            introPhaseTriggered = true;
-                            introVideo.style.opacity = '0';
-                            if (introLogo) introLogo.style.opacity = '1';
-                            introTimeouts.push(setTimeout(endIntro, 2000));
-                        }
-                    });
-                } else {
-                    introTimeouts.push(setTimeout(() => {
-                        if (introSkipped) return;
-                        if (introLogo) introLogo.style.opacity = '1';
-                    }, 5000));
-                    introTimeouts.push(setTimeout(() => {
-                        endIntro();
-                    }, 7000));
-                }
+            introContainer.addEventListener('click', endIntro);
+            introContainer.addEventListener('touchstart', endIntro, {passive: true});
+
+            if (isLite || !introVideo) {
+                logoOnly();
+                return;
             }
+
+            introVideo.src = introVideo.dataset.src;
+            introVideo.addEventListener('error', logoOnly);
+            introVideo.play().catch(logoOnly);
+
+            // 3.5秒たっても動画が動かなければロゴだけにする
+            introTimeouts.push(setTimeout(() => {
+                if (!introPhaseTriggered && (introVideo.paused || introVideo.currentTime === 0)) logoOnly();
+            }, 3500));
+
+            introVideo.addEventListener('timeupdate', () => {
+                if (introSkipped || introPhaseTriggered) return;
+
+                // 5秒経過で暗くなりロゴ表示
+                if (introVideo.currentTime >= 5.0) {
+                    introPhaseTriggered = true;
+                    introVideo.style.opacity = '0';
+                    if (introLogo) introLogo.style.opacity = '1';
+
+                    // 5秒+2秒=7秒後に終了
+                    introTimeouts.push(setTimeout(endIntro, 2000));
+                }
+            });
+            introVideo.addEventListener('ended', () => {
+                if (!introSkipped && !introPhaseTriggered) {
+                    introPhaseTriggered = true;
+                    introVideo.style.opacity = '0';
+                    if (introLogo) introLogo.style.opacity = '1';
+                    introTimeouts.push(setTimeout(endIntro, 2000));
+                }
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            initBackgroundVideo();
+
+            // Game 2の装飾用の魚を配置
+            g2_initDecorativeFishes();
+            g2_addTapAnimation(document.getElementById('g2-feedbackImg'));
+
+            initIntro();
         });
 
         // ================================================
         // GAME 1 の ロジック
         // ================================================
-        const g1_isRandomMode = true; 
+        const g1_isRandomMode = true;
         const g1_maxQuestions = 5;
         const g1_allFishData = [
             { name: "まぐろ", img: "maguro.webp", options: ["まぐろ", "じんべえざめ", "まんぼう"], trivia: "まぐろ は とっても はやく およぐよ！" },
@@ -872,16 +1025,16 @@
             { name: "ちょうちんあんこう", img: "ankoo.webp", options: ["ちょうちんあんこう", "まぐろ", "ひらめ"], trivia: "あたま の ひかり で えもの を よぶよ！" }
         ];
 
-        let g1_currentQuestions = []; 
-        let g1_currentIndex = 0;      
-        let g1_score = 0;             
-        let g1_correctFishes = [];    
+        let g1_currentQuestions = [];
+        let g1_currentIndex = 0;
+        let g1_score = 0;
+        let g1_correctFishes = [];
         const g1_btnColors = ["btn-orange", "btn-blue", "btn-pink"];
 
         function g1_startGame() {
             g1_score = 0;
             g1_currentIndex = 0;
-            g1_correctFishes = []; 
+            g1_correctFishes = [];
             if (g1_isRandomMode) {
                 let shuffled = [...g1_allFishData].sort(() => 0.5 - Math.random());
                 g1_currentQuestions = shuffled.slice(0, g1_maxQuestions);
@@ -896,7 +1049,7 @@
         function g1_setQuestion() {
             const q = g1_currentQuestions[g1_currentIndex];
             document.getElementById("g1-question-number").textContent = `${g1_currentIndex + 1} もんめ`;
-            
+
             const fishImage = document.getElementById("g1-fish-image");
             fishImage.src = q.img;
             fishImage.classList.remove("hint-mode");
@@ -904,8 +1057,8 @@
             document.getElementById("g1-hint-btn").style.display = "block";
 
             fishImage.classList.remove("fade-in", "swim-in");
-            void fishImage.offsetWidth; 
-            fishImage.classList.add("swim-in"); 
+            void fishImage.offsetWidth;
+            fishImage.classList.add("swim-in");
 
             const optionsContainer = document.getElementById("g1-options-container");
             optionsContainer.innerHTML = "";
@@ -919,14 +1072,20 @@
                 btn.onclick = () => g1_checkAnswer(optionText, q.name);
                 optionsContainer.appendChild(btn);
             });
+
+            // 【修正2】前のポップアップの「つぎへ」連打で、次の問題を誤って答えないようにする
+            lockTap(optionsContainer.children);
         }
 
         function g1_checkAnswer(selected, correct) {
             document.getElementById("g1-popup-result").classList.remove("hidden");
+            // 【修正2】ポップアップが出た直後は「つぎへ」を押せない
+            lockTap([document.getElementById("g1-next-btn")]);
+
             const q = g1_currentQuestions[g1_currentIndex];
             const resultImage = document.getElementById("g1-result-image");
             resultImage.src = q.img;
-            
+
             const fishImage = document.getElementById("g1-fish-image");
             fishImage.classList.remove("silhouette", "hint-mode");
             resultImage.className = "max-w-full max-h-full object-contain cursor-pointer";
@@ -977,58 +1136,60 @@
             document.getElementById("screen-quiz").classList.add("hidden");
             document.getElementById("screen-end").classList.remove("hidden");
             document.getElementById("g1-final-score").textContent = `${g1_score} もん`;
+            // 【修正2】終了画面でも直後の誤タップを防ぐ
+            lockTap(document.querySelectorAll('#screen-end button'));
         }
 
         function g1_showAquarium() {
             document.getElementById("screen-end").classList.add("hidden");
             const screenAquarium = document.getElementById("screen-aquarium");
             screenAquarium.classList.remove("hidden");
-            
+
             const area = document.getElementById("g1-aquarium-fish-area");
             area.innerHTML = "";
-            
+
             if (g1_correctFishes.length === 0) {
                 area.innerHTML = '<p class="text-gray-500 text-center mt-20 font-bold">おさかな が いないみたい...</p>';
                 return;
             }
-            
+
             g1_correctFishes.forEach((fish) => {
                 const img = document.createElement("img");
                 img.src = fish.img; img.alt = fish.name;
                 img.className = "absolute object-contain cursor-pointer drop-shadow-md";
-                
-                const size = 60 + Math.random() * 50; 
+
+                const size = 60 + Math.random() * 50;
                 img.style.width = `${size}px`; img.style.height = `${size}px`;
-                
+
                 let currentX = Math.random() * 80;
                 let currentY = Math.random() * 70;
-                let currentScaleX = 1; 
-                
+                let currentScaleX = 1;
+
                 img.style.left = `${currentX}%`; img.style.top = `${currentY}%`;
                 img.style.transform = `scaleX(${currentScaleX})`;
-                
+
                 let isDragging = false, swimTimer = null, startX = 0, startY = 0, lastDragX = 0, hasMoved = false;
-                
+
                 const swimFreely = () => {
                     if (!screenAquarium.classList.contains("hidden") && !isDragging) {
                         const nextX = Math.random() * 80;
                         const nextY = Math.random() * 70;
                         const nextRotate = -15 + Math.random() * 30;
                         const duration = 4000 + Math.random() * 4000;
-                        
-                        if (nextX < currentX) currentScaleX = -1; 
+
+                        if (nextX < currentX) currentScaleX = -1;
                         else if (nextX > currentX) currentScaleX = 1;
                         currentX = nextX;
-                        
+
                         img.style.transition = `all ${duration}ms ease-in-out`;
                         img.style.left = `${nextX}%`; img.style.top = `${nextY}%`;
                         img.style.transform = `rotate(${nextRotate}deg) scaleX(${currentScaleX})`;
                         swimTimer = setTimeout(swimFreely, duration);
                     }
                 };
-                
+
                 swimTimer = setTimeout(swimFreely, 100 + Math.random() * 1000);
-                
+
                 const startDrag = (e) => {
                     isDragging = true; hasMoved = false; clearTimeout(swimTimer);
                     img.style.transition = 'none';
@@ -1047,19 +1208,19 @@
                     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
                     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
                     if (Math.abs(clientX - startX) > 5 || Math.abs(clientY - startY) > 5) hasMoved = true;
-                    
+
                     const moveX = clientX - lastDragX;
-                    if (moveX < -2) currentScaleX = -1; 
+                    if (moveX < -2) currentScaleX = -1;
                     if (moveX > 2) currentScaleX = 1;
                     img.style.transform = `scaleX(${currentScaleX})`;
                     lastDragX = clientX;
-                    
+
                     const rect = area.getBoundingClientRect();
                     let x = clientX - rect.left - (size / 2);
                     let y = clientY - rect.top - (size / 2);
                     x = Math.max(0, Math.min(x, rect.width - size));
                     y = Math.max(0, Math.min(y, rect.height - size));
-                    
+
                     currentX = (x / rect.width) * 100;
                     img.style.left = `${currentX}%`;
                     img.style.top = `${(y / rect.height) * 100}%`;
@@ -1073,10 +1234,10 @@
                     document.removeEventListener('touchmove', doDrag);
                     document.removeEventListener('mouseup', endDrag);
                     document.removeEventListener('touchend', endDrag);
-                    
+
                     if (!hasMoved) {
                         img.classList.remove("anim-spin"); void img.offsetWidth;
-                        img.classList.add("anim-spin"); 
+                        img.classList.add("anim-spin");
                         setTimeout(() => { img.classList.remove("anim-spin"); swimFreely(); }, 600);
                     } else {
                         swimFreely();
@@ -1122,14 +1283,14 @@
                 const isRotate = src.includes('aji') || src.includes('hirame') || src.includes('katsuo') || src.includes('iwashi') || src.includes('unagi');
                 const animClass = isRotate ? 'animate-rotate' : 'animate-bounce';
                 el.classList.remove('animate-bounce', 'animate-rotate');
-                void el.offsetWidth; 
+                void el.offsetWidth;
                 el.classList.add(animClass);
             });
             el.addEventListener('animationend', function() {
                 el.classList.remove('animate-bounce', 'animate-rotate');
             });
         }
-        
+
         function g2_goScreen(name){
             document.querySelectorAll('#game2-container .screen').forEach(el=>{
                 el.classList.toggle('active', el.dataset.screen === name);
@@ -1142,7 +1303,7 @@
             g2_correctCount = 0;
             let shuffled = [...g2_allQuestions].sort(() => 0.5 - Math.random());
             g2_questions = shuffled.slice(0, g2_maxQuestions);
-            
+
             g2_renderProgress();
             g2_renderQuestion();
             g2_goScreen('quiz');
@@ -1170,10 +1331,10 @@
             const q = g2_questions[g2_currentIndex];
             document.getElementById('g2-qNum').textContent = (g2_currentIndex + 1) + ' もんめ';
             document.getElementById('g2-qText').innerHTML = q.text;
-            
+
             const qImgWrap = document.getElementById('g2-qImgWrap');
             qImgWrap.innerHTML = '';
-            
+
             if (q.image) {
                 const imgCount = q.multiImage ? 3 : 1;
                 for (let i = 0; i < imgCount; i++) {
@@ -1188,6 +1349,9 @@
                 }
             }
             g2_renderProgress();
+
+            // 【修正2】「つぎへ」連打で次の問題を誤って答えないよう、○✕を一瞬ロック
+            lockTap(document.querySelectorAll('#game2-container .ans-btn'));
         }
 
         function g2_answer(userAnswer){
@@ -1229,6 +1393,8 @@
             } else {
                 nextBtn.textContent = "つぎへすすむ";
             }
+            // 【修正2】こたえあわせ画面が出た直後は「つぎへ」を押せない
+            lockTap([nextBtn]);
             g2_goScreen('feedback');
         }
 
@@ -1254,6 +1420,8 @@
             }
             document.getElementById('g2-finalMsg').innerHTML = msg;
             g2_goScreen('final');
+            // 【修正2】結果画面でも直後の誤タップを防ぐ
+            lockTap(document.querySelectorAll('#game2-container .final-wrap .big-btn'));
         }
 
         function g2_initDecorativeFishes() {
@@ -1268,7 +1436,7 @@
             const fishDataFinal = [
                 { src: 'aji.webp', top: 5, left: 6, size: 100, rotate: -15 },
                 { src: 'hirame.webp', top: 8, right: 6, size: 105, rotate: 5 },
-                { src: 'amaebi.webp', top: 42, left: -7, size: 85, rotate: 10 }, 
+                { src: 'amaebi.webp', top: 42, left: -7, size: 85, rotate: 10 },
                 { src: 'iwashi.webp', top: 32, right: 4, size: 80, rotate: -10 },
                 { src: 'katsuo2.webp', top: 79, left: 8, size: 100, rotate: 15 },
                 { src: 'tako.webp', top: 86, right: 8, size: 95, rotate: -10 }
@@ -1299,7 +1467,7 @@
         // ================================================
         // GAME 3 の ロジック (おおきさくらべ)
         // ================================================
-        let g3_CHILD_CM = 116; 
+        let g3_CHILD_CM = 116;
         const g3_PX_PER_CM = 1.5;
 
         const g3_fishData = {
@@ -1310,7 +1478,7 @@
             ],
             adult: [
                 { id:"manbo", name:"マンボウ", cm:300, displaySize:"200せんち から 300せんち くらい", img:"manbo.webp", info:"ぺしゃんこな かたちを しているけど、たてにも よこにも 3メートルくらいに なる、とっても おおきな おさかな なんだ。" },
-                { id:"maguro", name:"まぐろ", cm:300, displaySize:"200せんち から 300せんち くらい", img:"maguro.webp", info:"パパやママより ずっと おおきくて、くるま みたいに スピードを だして およぐんだ。たいじゅうも 200キロ いじょう あるよ！" }
+                { id:"maguro", name:"まぐろ", cm:300, displaySize:"200せんち から 300せんち くらい", img:"g3_maguro.webp", info:"パパやママより ずっと おおきくて、くるま みたいに スピードを だして およぐんだ。たいじゅうも 200キロ いじょう あるよ！" }
             ],
             huge: [
                 { id:"ryugu", name:"リュウグウノツカイ", cm:1100, displaySize:"300せんち から 1100せんち くらい", img:"ryugu.webp", info:"うみの ずっと ふかい ところに すんでいる、ふしぎな おさかな。ぎんいろの ながーい からだと、あかい ヒレが とくちょう だよ！" },
@@ -1372,24 +1540,16 @@
             const childPercent = Math.max(0.5, (g3_CHILD_CM / maxCm) * 100);
             const baseFishPercent = Math.max(0.5, (r.cm / maxCm) * 100);
 
-            let extraFishStyle = "";
-            let fishDisplayPercent = 100; 
-
-            if (r.id === 'ryugu') {
-                fishDisplayPercent = baseFishPercent; 
-            } else if (r.id === 'zinbee') {
-                fishDisplayPercent = baseFishPercent * 1.3;
-                extraFishStyle = "position: absolute; right: -15%; bottom: 0; max-width: none; object-position: bottom right !important;";
-            } else {
-                extraFishStyle = `height: ${baseFishPercent}% !important; width: auto !important;`;
-            }
+            // 画像を魚の外周でトリミング済みなので、全ての魚を「長さ＝高さ」で同じルールで描く
+            const extraFishStyle = `height: ${baseFishPercent}% !important; width: auto !important; max-width: none;`;
+            const fishDisplayPercent = 100;
 
             const inner = document.getElementById('g3-compareInner');
             inner.innerHTML = `
                 <div class="bar-col" style="z-index: 1;">
                     <div style="width: 100%; aspect-ratio: 1 / 1; position: relative; display: flex; align-items: flex-end; justify-content: center;">
                         <div style="position: absolute; bottom: ${childPercent}%; left: 0%; width: 220%; border-bottom: 3px dashed var(--g3-ai-light); opacity: 0.6; z-index: 0; pointer-events: none;"></div>
-                        
+
                         <svg style="height:${childPercent}%; width:auto; display: block; position: relative; z-index: 1;" viewBox="0 5 100 193" preserveAspectRatio="xMidYMax meet">
                             <circle cx="50" cy="30" r="22" fill="var(--g3-ai-pale)" stroke="var(--g3-sumi)" stroke-width="6"/>
                             <line x1="50" y1="52" x2="50" y2="120" stroke="var(--g3-sumi)" stroke-width="8" stroke-linecap="round"/>
@@ -1423,7 +1583,7 @@
             let mainSentence = "";
             let subSentence = "";
             const diffRatio = r.cm / g3_CHILD_CM;
-            
+
             if (diffRatio >= 5.0) {
                 mainSentence = `<span class="name">${r.name}</span>は とてつもなく おおきいね！`;
             } else if (diffRatio >= 1.5) {
@@ -1437,7 +1597,7 @@
             } else {
                 mainSentence = `<span class="name">${r.name}</span>は ${personLabel}と おなじくらいだよ!`;
             }
-            
+
             subSentence = `おおきさは ${r.displaySize}だよ`;
 
             document.getElementById('g3-sentenceMain').innerHTML = mainSentence;
@@ -1447,6 +1607,9 @@
             document.getElementById('g3-prevBtn').disabled = false;
             document.getElementById('g3-prevBtn').textContent = (g3_currentIndex === 0) ? 'もどる' : 'まえへ';
             document.getElementById('g3-nextBtn').textContent = (g3_currentIndex === g3_rounds.length - 1) ? 'おわる' : 'つぎへ';
+
+            // 【修正2】ページ切り替え直後の連打を防ぐ
+            lockTap([document.getElementById('g3-prevBtn'), document.getElementById('g3-nextBtn')], 400);
         }
 
         function g3_prevRound(){
@@ -1467,7 +1630,7 @@
                 const randomFish = allFishes[Math.floor(Math.random() * allFishes.length)];
                 const endMascot = document.getElementById('g3-endMascot');
                 if(endMascot) endMascot.src = randomFish.img;
-                
+
                 g3_goScreen('end');
             }
         }

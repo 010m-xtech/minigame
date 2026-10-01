@@ -116,9 +116,9 @@
     background-image: 
       linear-gradient(rgba(20, 20, 20, 0.70), rgba(20, 20, 20, 0.70)), 
       url('wagakuma_back.webp');
-    background-size: 100% auto; 
-    background-repeat: repeat; 
-    background-position: top center;
+    background-size: cover; 
+    background-repeat: no-repeat; 
+    background-position: center top;
   }
 
   header{
@@ -238,7 +238,6 @@
   .region-label { font-size: 12px; color: var(--ai-light); font-weight: normal; margin-right: 4px; }
   .rare-label { font-size: 13px; color: var(--shu); font-weight: 700; margin-right: 4px; }
 
-  .quiz-title { margin: 0 0 16px; font-family: var(--font-mincho); font-size: 19px; color: var(--ai); line-height: 1.5; }
   .quiz-result-title { font-family: var(--font-mincho); font-size: 16.5px; margin: 0 0 12px; border-bottom: 1px solid var(--shu-pale); padding-bottom: 8px; }
   /* -------------------------------------- */
 
@@ -403,28 +402,238 @@
 
   .flag-icon { width: 24px; height: 16px; object-fit: cover; border-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); flex: 0 0 auto; }
 
-  /* クイズ */
+  /* ===== クイズ（共通） ===== */
   .quiz-box {
     background: rgba(255, 255, 255, 0.75);
     backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-    border: 2px dashed rgba(76, 106, 148, 0.6); border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: center;
+    border: 2px dashed rgba(76, 106, 148, 0.6); border-radius: 12px; padding: 20px; margin: 20px 0 24px; text-align: center;
+  }
+  .quiz-head {
+    display: flex; align-items: flex-end; gap: 12px;
+    margin-bottom: 16px; text-align: left;
+  }
+  .quiz-komeo {
+    width: 62px; height: 88px; object-fit: contain; object-position: bottom;
+    flex: 0 0 auto; transform-origin: 50% 100%;
+  }
+  .quiz-q {
+    font-family: var(--font-mincho); font-weight: 700;
+    font-size: 16.5px; line-height: 1.6; color: var(--ai);
+    padding-bottom: 6px;
   }
   .quiz-btn {
     display: block; width: 100%; padding: 12px; margin-bottom: 10px; background: #fff;
     border: 1px solid var(--ai-light); color: var(--ai); font-weight: 700; border-radius: 8px;
-    cursor: pointer; transition: all 0.2s ease; font-size: 14px;
-    word-break: break-word; white-space: normal; line-height: 1.4;
+    cursor: pointer; transition: all 0.2s ease; font-size: 14px; font-family: var(--font-gothic);
+    word-break: break-word; white-space: normal; line-height: 1.4; text-align: left;
   }
-  
   .quiz-btn:last-child { margin-bottom: 0; }
   .quiz-btn:hover:not(:disabled) { background: var(--ai-pale); }
   .quiz-btn:disabled { cursor: default; opacity: 0.8; }
-  .quiz-btn.correct { background: var(--shu); color: #fff; border-color: var(--shu); }
+  .quiz-btn.correct { background: var(--shu); color: #fff; border-color: var(--shu); opacity: 1; }
   .quiz-btn.incorrect { background: var(--ai-pale); color: var(--ai-light); border-color: var(--line); }
-  .quiz-result { text-align: left; }
+  .quiz-btn:focus-visible, .quiz-retry:focus-visible, .polish-range:focus-visible { outline: 2px solid var(--shu); outline-offset: 2px; }
+  .quiz-result { text-align: left; margin-top: 20px; padding-top: 16px; border-top: 1px dashed var(--ai-light); animation: fadeUp .4s ease; }
+  .quiz-result[hidden] { display: none; }
   .quiz-result h4.correct-text { color: var(--shu); }
   .quiz-result h4.incorrect-text { color: var(--ai-light); }
+  .quiz-result p { font-size: 15px; line-height: 1.7; color: var(--sumi); margin: 0; }
   .quiz-result p strong { color: var(--shu); }
+  .quiz-retry {
+    display: inline-block; margin-top: 14px; background: none; cursor: pointer;
+    border: 1px solid var(--ai-light); color: var(--ai); font-family: var(--font-gothic);
+    font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 20px;
+  }
+  .quiz-retry:hover { background: var(--ai-pale); }
+
+  @keyframes komeoHop {
+    0% { transform: translateY(0) scale(1); }
+    30% { transform: translateY(-16px) scale(1.06); }
+    55% { transform: translateY(0) scale(0.97); }
+    75% { transform: translateY(-6px); }
+    100% { transform: translateY(0) scale(1); }
+  }
+  @keyframes komeoWobble {
+    0%, 100% { transform: rotate(0); }
+    20% { transform: rotate(-9deg); }
+    45% { transform: rotate(8deg); }
+    70% { transform: rotate(-4deg); }
+  }
+  .komeo-hop { animation: komeoHop .7s ease; }
+  .komeo-wobble { animation: komeoWobble .6s ease; }
+  @media (prefers-reduced-motion: reduce){ .komeo-hop, .komeo-wobble, .quiz-result { animation: none; } }
+
+  /* ===== 精米歩合スライダー ===== */
+  .polish-box { padding: 20px; }
+  .polish-stage { display: flex; justify-content: center; margin: 4px 0 4px; }
+  .polish-stage svg { width: 170px; height: auto; overflow: visible; }
+  .polish-legend {
+    display: flex; justify-content: center; gap: 16px; margin: 0 0 14px;
+    font-size: 12px; font-weight: 700; color: var(--ai);
+  }
+  .polish-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .polish-legend i { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  .polish-legend .l-cut { background: #E4D2AC; border: 1.5px dashed #B9A57C; }
+  .polish-legend .l-keep { background: #FFFDF6; border: 1.5px solid #6B5F55; }
+
+  .polish-readout { display: flex; gap: 10px; margin: 0 0 16px; }
+  .polish-stat {
+    flex: 1; background: #fff; border: 1px solid var(--line);
+    border-radius: 10px; padding: 10px 8px; text-align: center;
+  }
+  .polish-stat .label { font-size: 12px; color: var(--ai-light); font-weight: 700; }
+  .polish-stat .num { font-family: var(--font-mincho); font-size: 30px; font-weight: 700; color: var(--ai); line-height: 1.25; }
+  .polish-stat .num small { font-size: 15px; }
+  .polish-stat.keep { border-color: rgba(189,70,48,0.5); }
+  .polish-stat.keep .num { color: var(--shu); }
+
+  input[type=range].polish-range {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 28px; margin: 0; background: transparent; cursor: pointer;
+  }
+  .polish-range::-webkit-slider-runnable-track {
+    height: 8px; border-radius: 4px;
+    background: linear-gradient(to right, var(--shu) 0, var(--shu) var(--p, 0%), var(--line) var(--p, 0%), var(--line) 100%);
+  }
+  .polish-range::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 28px; height: 28px; margin-top: -10px; border-radius: 50%;
+    background: #fff; border: 3px solid var(--shu); box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  }
+  .polish-range::-moz-range-track { height: 8px; border-radius: 4px; background: var(--line); }
+  .polish-range::-moz-range-progress { height: 8px; border-radius: 4px; background: var(--shu); }
+  .polish-range::-moz-range-thumb {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #fff; border: 3px solid var(--shu); box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  }
+  .polish-ticks { position: relative; height: 40px; margin: 0 0 10px; }
+  .polish-ticks span {
+    position: absolute; top: 0; transform: translateX(-50%);
+    left: calc(14px + (100% - 28px) * var(--f));
+    font-size: 11px; font-weight: 700; color: var(--ai); text-align: center; line-height: 1.35; white-space: nowrap;
+  }
+  .polish-ticks span::before {
+    content: ''; display: block; width: 1px; height: 7px; background: var(--ai-light); margin: 0 auto 2px;
+  }
+  .polish-names { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; min-height: 30px; }
+  .polish-chip {
+    background: var(--shu-pale); color: var(--shu); font-weight: 700; font-size: 13px;
+    padding: 4px 11px; border-radius: 14px; font-family: var(--font-mincho);
+  }
+  .polish-say {
+    display: flex; align-items: flex-end; gap: 10px;
+    background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--shu);
+    border-radius: 8px; padding: 12px;
+  }
+  .polish-say img { width: 54px; height: 78px; object-fit: contain; object-position: bottom; flex: 0 0 auto; transform-origin: 50% 100%; }
+  .polish-say p { margin: 0; font-size: 14.5px; line-height: 1.7; color: var(--sumi); text-align: left; }
+  .polish-note { font-size: 12px; line-height: 1.7; color: #6e6657; margin: 12px 0 0; text-align: left; }
+
+
+  /* ===== アコーディオンの「ひとこと」 ===== */
+  .acc-hint {
+    display: block; margin-top: 3px;
+    font-family: var(--font-gothic); font-weight: 500; font-size: 12.5px;
+    line-height: 1.5; color: var(--ai-light);
+  }
+
+  /* ===== コメオのひとこと ===== */
+  .komeo-tip { display: flex; align-items: flex-end; gap: 10px; margin: 22px 0 6px; }
+  .komeo-tip img { width: 58px; height: 80px; object-fit: contain; object-position: bottom; flex: 0 0 auto; }
+  .komeo-tip .bubble {
+    position: relative; background: rgba(255,255,255,0.92); border: 1px solid var(--line);
+    border-radius: 14px 14px 14px 3px; padding: 10px 14px;
+    font-size: 13.5px; line-height: 1.7; color: var(--sumi); text-align: left; margin-bottom: 8px;
+  }
+  .komeo-tip .bubble strong { color: var(--shu); }
+
+
+  /* ===== 図解（共通） ===== */
+  .diagram .section-title { margin-bottom: 10px; }
+  .diagram-text { font-size: 14.5px; line-height: 1.75; color: var(--sumi); margin: 12px 0 0; text-align: left; min-height: 5.2em; }
+  .diagram-note { font-size: 12px; line-height: 1.7; color: #6e6657; margin: 10px 0 0; text-align: left; }
+  .seg { display: flex; gap: 6px; margin: 0 0 14px; }
+  .seg.grid { display: grid; grid-template-columns: 1fr 1fr; }
+  .seg button {
+    flex: 1; min-width: 0; padding: 10px 6px; border: 1px solid var(--ai-light); background: #fff; color: var(--ai);
+    font-family: var(--font-gothic); font-weight: 700; font-size: 13.5px; border-radius: 10px; cursor: pointer; line-height: 1.3;
+    transition: background .2s ease, color .2s ease;
+  }
+  .seg button.on { background: var(--shu); border-color: var(--shu); color: #fff; }
+  .seg button:focus-visible { outline: 2px solid var(--shu); outline-offset: 2px; }
+
+  /* 醸造と蒸留 */
+  .flow { display: flex; flex-direction: column; align-items: stretch; }
+  .flow-node {
+    display: flex; align-items: center; gap: 14px; background: #fff; border: 1px solid var(--line);
+    border-radius: 10px; padding: 10px 14px;
+  }
+  .flow-node.accent { border-color: rgba(189,70,48,0.55); background: #fff8f5; }
+  .flow-imgs { display: flex; align-items: center; justify-content: center; gap: 4px; min-width: 84px; }
+  .flow-imgs img { height: 58px; width: auto; max-width: 44px; object-fit: contain; }
+  .flow-node:first-child .flow-imgs img { width: 38px; height: 38px; max-width: none; }
+  .flow-name { font-family: var(--font-mincho); font-weight: 700; font-size: 16px; color: var(--ai); }
+  .flow-sub { font-size: 12.5px; color: var(--ai-light); font-weight: 500; margin-top: 2px; }
+  .flow-arrow {
+    display: flex; flex-direction: column; align-items: center; padding: 6px 0 4px;
+    font-size: 12.5px; font-weight: 700; color: var(--ai-light); text-align: center; line-height: 1.5;
+  }
+  .flow-arrow::after {
+    content: ''; margin-top: 3px; border: 8px solid transparent; border-top: 10px solid var(--shu); border-bottom: 0;
+  }
+
+  /* メーター（常圧・減圧） */
+  .meter { margin: 0 0 12px; }
+  .meter-label { display: block; font-size: 12.5px; font-weight: 700; color: var(--ai); margin-bottom: 4px; }
+  .meter-track { height: 12px; background: #fff; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+  .meter-fill { height: 100%; width: 0; border-radius: 6px; transition: width .6s cubic-bezier(.4,.2,.2,1); }
+  .meter-fill.heat { background: var(--shu); }
+  .meter-fill.koku { background: #A8561C; }
+  .meter-fill.clear { background: var(--ai-light); }
+
+  /* 火入れタイムライン */
+  .timeline { display: flex; align-items: center; margin: 50px 0 12px; }
+  .tl-node {
+    flex: 0 0 auto; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 6px 5px;
+    font-size: 11.5px; font-weight: 700; color: var(--ai); text-align: center; line-height: 1.35; min-width: 0; white-space: nowrap;
+  }
+  .tl-gap { position: relative; flex: 1; height: 0; border-top: 2px dashed var(--ai-light); margin: 0 3px; }
+  .tl-gap .flame {
+    position: absolute; left: 50%; top: -34px; width: 26px; height: 26px; transform: translateX(-50%);
+    fill: #D9CFB8; transition: fill .3s ease; overflow: visible;
+  }
+  .tl-gap .flame.on { fill: var(--shu); animation: flick .9s ease-in-out infinite; transform-origin: 50% 100%; }
+  .tl-gap .tl-label { position: absolute; left: 50%; top: 6px; transform: translateX(-50%); font-size: 11px; font-weight: 700; color: var(--muted); white-space: nowrap; transition: color .3s ease; }
+  .tl-gap .flame.on + .tl-label { color: var(--shu); }
+  @keyframes flick { 0%,100% { transform: translateX(-50%) scale(1); } 50% { transform: translateX(-50%) scale(1.12, 1.18); } }
+  @media (prefers-reduced-motion: reduce){ .tl-gap .flame.on { animation: none; } .meter-fill { transition: none; } }
+
+  /* ブレンドのグラス */
+  .blend-stage { display: flex; align-items: center; gap: 16px; margin: 4px 0 8px; }
+  .blend-glass { width: 112px; height: auto; flex: 0 0 auto; }
+  .blend-info { flex: 1; text-align: left; }
+  .blend-name { display: inline-block; background: var(--shu-pale); color: var(--shu); font-family: var(--font-mincho); font-weight: 700; font-size: 15px; padding: 4px 12px; border-radius: 14px; margin-bottom: 10px; }
+  .blend-ratio { font-size: 13.5px; font-weight: 700; color: var(--ai); line-height: 1.9; }
+  .blend-ratio i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  .blend-ends { display: flex; justify-content: space-between; font-size: 11.5px; font-weight: 700; color: var(--ai-light); line-height: 1.4; margin-top: 2px; }
+
+  /* ===== 進み具合（足跡） ===== */
+  .progress {
+    position: sticky; top: var(--hdr, 85px); z-index: 15;
+    display: flex; align-items: center; gap: 10px; margin: 0 0 14px; padding: 7px 14px;
+    background: rgba(255,255,255,0.9); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(214,204,180,0.9); border-radius: 20px;
+  }
+  .progress-track { position: relative; flex: 1; height: 8px; background: var(--line); border-radius: 4px; }
+  .progress-fill { height: 100%; width: 0; background: var(--shu); border-radius: 4px; transition: width .5s ease; }
+  .progress-walker {
+    position: absolute; top: 50%; left: 0; width: 20px; height: 20px; object-fit: contain;
+    transform: translate(-50%, -50%) rotate(90deg); transition: left .5s ease;
+  }
+  .progress.complete { border-color: var(--shu); }
+  @media (prefers-reduced-motion: reduce){ .progress-fill, .progress-walker { transition: none; } }
+
+
 
   /* フリップカード */
   .flip-card {
@@ -500,7 +709,6 @@
   }
   .floating-item:hover .floating-icon-box, .floating-item.active .floating-icon-box { transform: scale(1.15); }
   .floating-icon-box svg, .floating-icon-box img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 6px 8px rgba(0,0,0,0.1)); }
-  .awamori-adjust img { transform: translateX(8px); }
   .floating-label { font-size: 13px; font-weight: 700; color: #fff; font-family: var(--font-gothic); transition: color 0.2s ease; }
   .floating-item.active .floating-label { color: var(--shu); }
   
@@ -636,6 +844,27 @@
         </p>
       </div>
 
+      <div class="glass-box diagram">
+        <h3 class="section-title">「醸造」と「蒸留」のちがい</h3>
+        <div class="flow">
+          <div class="flow-node">
+            <div class="flow-imgs"><img src="kome.webp" alt="米"><img src="mugi.webp" alt="麦"><img src="satsumaimo.webp" alt="芋"></div>
+            <div><div class="flow-name">原料</div><div class="flow-sub">米・麦・芋など</div></div>
+          </div>
+          <div class="flow-arrow">発酵させる</div>
+          <div class="flow-node">
+            <div class="flow-imgs"><img src="sake.webp" alt="日本酒"></div>
+            <div><div class="flow-name">醸造酒</div><div class="flow-sub">日本酒・ワイン・ビール</div></div>
+          </div>
+          <div class="flow-arrow">熱して、出てきた蒸気を冷やして集める<br>（これが「蒸留」）</div>
+          <div class="flow-node accent">
+            <div class="flow-imgs"><img src="syotyu.webp" alt="焼酎"><img src="whisky.webp" alt="ウイスキー"></div>
+            <div><div class="flow-name">蒸留酒</div><div class="flow-sub">焼酎・ウイスキー</div></div>
+          </div>
+        </div>
+        <p class="diagram-note">蒸留すると、アルコール分と香りの成分が濃く集まります。</p>
+      </div>
+
       <button class="primary-btn" onclick="goScreen('shochu-materials')">
         どんな原料があるかな？
         <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -703,11 +932,62 @@
         </div>
       </div>
 
+      <!-- 精米歩合スライダー -->
+      <div class="glass-box polish-box trk" id="polishBox">
+        <h3 class="section-title">お米を削ってみましょう</h3>
+        <p class="article-text" style="margin-bottom: 8px; font-size: 15px; line-height: 1.7;">
+          つまみを右へ動かすと、お米がどんどん削れていきます。削る量によって、名乗れるお酒の名前が変わります。
+        </p>
+
+        <div class="polish-stage">
+          <svg viewBox="0 0 200 240" role="img" aria-label="お米を削るイメージ図">
+            <ellipse cx="100" cy="120" rx="76" ry="102" fill="#E4D2AC" stroke="#B9A57C" stroke-width="2" stroke-dasharray="6 5"/>
+            <g id="polishCore" transform="translate(100 120) scale(1) translate(-100 -120)">
+              <ellipse cx="100" cy="120" rx="76" ry="102" fill="#FFFDF6" stroke="#6B5F55" stroke-width="3" vector-effect="non-scaling-stroke"/>
+              <circle cx="76" cy="108" r="5" fill="#5A5048"/>
+              <circle cx="124" cy="108" r="5" fill="#5A5048"/>
+              <circle cx="62" cy="132" r="11" fill="#F6CDB8" opacity="0.85"/>
+              <circle cx="138" cy="132" r="11" fill="#F6CDB8" opacity="0.85"/>
+              <path d="M88 134 Q100 146 112 134" fill="none" stroke="#5A5048" stroke-width="3" stroke-linecap="round"/>
+            </g>
+          </svg>
+        </div>
+        <div class="polish-legend">
+          <span><i class="l-cut"></i>削り落とす外側</span>
+          <span><i class="l-keep"></i>お酒に使う中心</span>
+        </div>
+
+        <div class="polish-readout">
+          <div class="polish-stat"><div class="label">削った量</div><div class="num"><span id="polishCut">0</span><small>%</small></div></div>
+          <div class="polish-stat keep"><div class="label">精米歩合（残った量）</div><div class="num"><span id="polishKeep">100</span><small>%</small></div></div>
+        </div>
+
+        <input type="range" class="polish-range" id="polishRange" min="0" max="80" step="1" value="0" aria-label="お米を削る量（パーセント）">
+        <div class="polish-ticks" aria-hidden="true">
+          <span style="--f:.375">70%<br>本醸造</span>
+          <span style="--f:.5">60%<br>吟醸</span>
+          <span style="--f:.625">50%<br>大吟醸</span>
+        </div>
+
+        <div class="polish-names" id="polishNames"></div>
+
+        <div class="polish-say">
+          <img id="polishKomeo" src="komeo1.webp" alt="">
+          <p id="polishMsg"></p>
+        </div>
+
+        <p class="polish-note">※イメージ図です。「吟醸」「大吟醸」と名乗るには、精米歩合に加えて、低温でじっくり発酵させる「吟醸造り」などの条件も必要です。</p>
+      </div>
+
+      <div class="quiz-box" data-quiz="polishRatio"></div>
+
+      <div class="komeo-tip"><img src="komeo1.webp" alt=""><div class="bubble">名前の下の<strong>ひとこと</strong>だけでも、おおよそ把握できます。詳しく知りたいときは、タップしてご覧ください。</div></div>
+
       <div class="sub-heading mt-24">純米酒系（米・米麹・水のみ）</div>
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>純米大吟醸酒</div>
+          <div>純米大吟醸酒<small class="acc-hint">米と水だけ × 50%以下まで磨く</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">精米歩合50%以下まで磨いた米を使い、吟醸造りで仕込んだ純米酒です。日本酒の特定名称の中でも、最も磨かれた分類にあたります。</div>
@@ -715,7 +995,7 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>純米吟醸酒</div>
+          <div>純米吟醸酒<small class="acc-hint">米と水だけ × 60%以下まで磨く</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">精米歩合60%以下の米を使い、低温でじっくり発酵させる「吟醸造り」で仕込んだ純米酒です。フルーティーな香りが出やすいのが特徴です。</div>
@@ -723,7 +1003,7 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>特別純米酒</div>
+          <div>特別純米酒<small class="acc-hint">米と水だけ × 「特別」なこだわり付き</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">精米歩合60%以下、または特別な製法で造られた純米酒です。「特別」の内容はラベル等に表記されます。</div>
@@ -731,17 +1011,19 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>純米酒</div>
+          <div>純米酒<small class="acc-hint">お米と水だけで造る</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">米・米麹・水のみを原料として造られた日本酒です。醸造アルコールを加えていません。お米本来のふくよかな旨味が楽しめます。</div>
       </div>
 
+      <div class="quiz-box" data-quiz="junmai"></div>
+
       <div class="sub-heading">本醸造酒系（醸造アルコール添加）</div>
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>大吟醸酒</div>
+          <div>大吟醸酒<small class="acc-hint">50%以下まで磨く × アルコール添加</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">精米歩合50%以下まで磨いた米を、吟醸造りで仕込んだ日本酒です。醸造アルコールが加えられているため、香りが立ちやすくスッキリとした飲み口になります。</div>
@@ -749,7 +1031,7 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>吟醸酒</div>
+          <div>吟醸酒<small class="acc-hint">60%以下まで磨く × アルコール添加</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">精米歩合60%以下の米を、低温長期発酵させる「吟醸造り」で仕込んだ日本酒です。軽快でフルーティーな香りが特徴です。</div>
@@ -757,7 +1039,7 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>特別本醸造酒</div>
+          <div>特別本醸造酒<small class="acc-hint">本醸造酒のワンランク上</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">精米歩合60%以下、または特別な製法で造られた本醸造酒です。通常の本醸造酒よりもスッキリと洗練された味わいになることが多いです。</div>
@@ -765,7 +1047,7 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>本醸造酒</div>
+          <div>本醸造酒<small class="acc-hint">70%以下 × アルコールを少し添加</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">精米歩合70%以下の米に、規定量以下の醸造アルコールを加えて造られた日本酒です。すっきりとした軽い飲み口になりやすいとされます。</div>
@@ -775,7 +1057,7 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>普通酒</div>
+          <div>普通酒<small class="acc-hint">特定名称酒の基準に入らないお酒</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">特定名称酒の基準（精米歩合やアルコール添加量など）に当てはまらない日本酒です。手頃な価格帯のものが多く、日常の食中酒として親しまれている、いわゆる「レギュラー酒」の多くがこれに該当します。</div>
@@ -783,7 +1065,7 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>生酒</div>
+          <div>生酒<small class="acc-hint">加熱殺菌をしない、フレッシュなお酒</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">通常、お酒の品質を安定させるために行う「火入れ（加熱殺菌）」を一切行わないお酒です。しぼりたてのみずみずしさや、フレッシュで華やかな香りが楽しめますが、味が変化しやすいため要冷蔵となります。</div>
@@ -791,7 +1073,7 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>にごり酒</div>
+          <div>にごり酒<small class="acc-hint">お米の粒を残した、白く濁ったお酒</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">発酵が終わったお酒を搾る際に、目の粗い布などで漉すことで、お米の細かな粒をあえて残したお酒です。白く濁っており、とろりとした口当たりとお米本来の甘味や旨味をしっかりと感じられます。</div>
@@ -814,11 +1096,13 @@
         </p>
       </div>
 
+      <div class="komeo-tip"><img src="komeo2.webp" alt=""><div class="bubble">難しい言葉は、<strong>ひとことだけ</strong>読めば十分です。途中のクイズにも、ぜひ挑戦してみてください。</div></div>
+
       <div class="sub-heading mt-24">お米の削り方による違い（精米歩合）</div>
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div><ruby>普通<rt>ふつう</rt></ruby>造り</div>
+          <div><ruby>普通<rt>ふつう</rt></ruby>造り<small class="acc-hint">日常的に楽しむ、一般的な造り方</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">精米歩合に関する特別な規定を設けず、日常的に楽しめる日本酒を造る一般的な製法です。お米本来のしっかりとした旨味やコクが感じられることが多いです。</div>
@@ -826,7 +1110,7 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div><ruby>吟醸<rt>ぎんじょう</rt></ruby>造り</div>
+          <div><ruby>吟醸<rt>ぎんじょう</rt></ruby>造り<small class="acc-hint">60%以下まで磨いて、低温でじっくり発酵</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">精米歩合60%以下までお米を削って雑味を取り除き、低い温度でじっくりと時間をかけて発酵させる製法です。リンゴやメロンのようなフルーティーで華やかな「吟醸香」が引き出されます。</div>
@@ -834,7 +1118,7 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div><ruby>大吟醸<rt>だいぎんじょう</rt></ruby>造り</div>
+          <div><ruby>大吟醸<rt>だいぎんじょう</rt></ruby>造り<small class="acc-hint">50%以下まで磨いて、さらに低温で発酵</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">精米歩合50%以下までさらに贅沢にお米を削り、極めて低い温度で繊細に発酵させる製法です。雑味がなく、とてもクリアで香り高い仕上がりになります。</div>
@@ -844,7 +1128,7 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div><ruby>速醸<rt>そくじょう</rt></ruby>造り</div>
+          <div><ruby>速醸<rt>そくじょう</rt></ruby>造り<small class="acc-hint">乳酸を加えて、約2週間で酵母を育てる</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">お酒造りに必要な「乳酸」をはじめから加えて、約2週間という短期間で効率よく酵母（アルコールを生み出す微生物）を育てる現代の主流な製法です。すっきりとクセのない、きれいな味わいに仕上がりやすくなります。</div>
@@ -852,7 +1136,7 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div><ruby>生酛<rt>きもと</rt></ruby>造り</div>
+          <div><ruby>生酛<rt>きもと</rt></ruby>造り<small class="acc-hint">自然の乳酸菌で、約1ヶ月かけて育てる</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">蔵に住み着いている自然の乳酸菌を呼び込み、「山卸（やまおろし）」と呼ばれる、お米をすりつぶす大変な力仕事をしながら、約1ヶ月もかけてじっくり酵母を育てる昔ながらの製法です。奥深く複雑で、力強い酸味や旨味が生まれます。</div>
@@ -860,17 +1144,19 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div><ruby>山廃<rt>やまはい</rt></ruby>造り</div>
+          <div><ruby>山廃<rt>やまはい</rt></ruby>造り<small class="acc-hint">生酛から「山卸」をなくした造り方</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">「山卸廃止（やまおろしはいし）」の略。生酛造りで行うお米をすりつぶす重労働（山卸）をなくし、自然の力でお米を溶かす製法です。生酛と同じように自然の乳酸菌を使うため、コクのあるしっかりとした味わいになります。</div>
       </div>
 
+      <div class="quiz-box" data-quiz="yamahai"></div>
+
       <div class="sub-heading">もろみの発酵・仕込み方による違い</div>
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>三段仕込み</div>
+          <div>三段仕込み<small class="acc-hint">材料を3回に分けて、少しずつ足す</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">お酒の元となるタンクに、材料（お米・米麹・水）を一度に全部入れるのではなく、3回に分けて数日かけて少しずつ足していく日本酒ならではの方法です。こうすることで、微生物（酵母）がびっくりせずに元気なまま、安全に発酵を進めることができます。</div>
@@ -878,7 +1164,7 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>低温長期発酵</div>
+          <div>低温長期発酵<small class="acc-hint">低い温度で、ゆっくり発酵させる</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">通常より低い温度（10度前後やそれ以下）で、ゆっくりと時間をかけて発酵させる方法です。吟醸造りなどで用いられ、華やかな香りと雑味のないきれいな味わいを引き出します。</div>
@@ -886,7 +1172,7 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div><ruby>貴醸酒<rt>きじょうしゅ</rt></ruby>造り</div>
+          <div><ruby>貴醸酒<rt>きじょうしゅ</rt></ruby>造り<small class="acc-hint">水の代わりに日本酒で仕込む</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">お酒を仕込む工程の最後に、水の代わりに「日本酒」を注ぎ入れて造る、とっても贅沢な製法です。非常に甘口でコクがあり、とろりとしたデザートワインのような味わいになります。</div>
@@ -894,9 +1180,30 @@
 
       <div class="sub-heading">搾った後の処理による違い</div>
 
+      <div class="glass-box diagram trk" id="hiireDiagram">
+        <h3 class="section-title">「火入れ」は何回？</h3>
+        <p class="article-text" style="font-size: 14.5px; line-height: 1.7; margin-bottom: 12px;">お酒の種類を選ぶと、火入れ（加熱殺菌）のタイミングが光ります。</p>
+        <div class="seg grid">
+          <button type="button" data-k="nama">生酒</button>
+          <button type="button" data-k="namazume">生詰酒</button>
+          <button type="button" data-k="namachozo">生貯蔵酒</button>
+          <button type="button" class="on" data-k="futsu">ふつうの火入れ酒</button>
+        </div>
+        <div class="timeline" aria-hidden="true">
+          <div class="tl-node">搾る</div>
+          <div class="tl-gap"><svg class="flame" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C12 6 7 8.5 7 14a5 5 0 0 0 10 0c0-3-2-5-2.8-7.4C13.3 8.8 12.4 7.5 12 2z"/></svg><span class="tl-label">火入れ</span></div>
+          <div class="tl-node">貯蔵</div>
+          <div class="tl-gap"></div>
+          <div class="tl-node">瓶詰め</div>
+          <div class="tl-gap"><svg class="flame" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C12 6 7 8.5 7 14a5 5 0 0 0 10 0c0-3-2-5-2.8-7.4C13.3 8.8 12.4 7.5 12 2z"/></svg><span class="tl-label">火入れ</span></div>
+          <div class="tl-node">出荷</div>
+        </div>
+        <p class="diagram-text" id="hiireText"></p>
+      </div>
+
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div><ruby>生酒<rt>なまざけ</rt></ruby></div>
+          <div><ruby>生酒<rt>なまざけ</rt></ruby><small class="acc-hint">火入れ（加熱殺菌）を一度もしない</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">通常はお酒が傷まないように行う「火入れ（加熱殺菌）」を、一度も行わないお酒です。しぼりたてのみずみずしさや、フレッシュな香りが楽しめますが、味が変わりやすいため冷蔵庫での保管が必要です。</div>
@@ -904,7 +1211,7 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div><ruby>生詰酒<rt>なまづめしゅ</rt></ruby></div>
+          <div><ruby>生詰酒<rt>なまづめしゅ</rt></ruby><small class="acc-hint">火入れは、貯蔵前の1回だけ</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">通常2回行う「火入れ（加熱殺菌）」を、お酒をタンクで寝かせる前の1回だけ行うお酒です。秋に出回る「ひやおろし」などがこれにあたり、ひと夏を越してほどよく熟成されたまろやかな味わいが楽しめます。</div>
@@ -912,7 +1219,7 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div><ruby>生貯蔵酒<rt>なまちょぞうしゅ</rt></ruby></div>
+          <div><ruby>生貯蔵酒<rt>なまちょぞうしゅ</rt></ruby><small class="acc-hint">火入れは、出荷前の1回だけ</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">通常2回行う「火入れ（加熱殺菌）」を、瓶に詰めて出荷する直前の1回だけ行うお酒です。生酒のようなフレッシュな風味を残しつつ、品質を安定させています。</div>
@@ -920,7 +1227,7 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div><ruby>原酒<rt>げんしゅ</rt></ruby></div>
+          <div><ruby>原酒<rt>げんしゅ</rt></ruby><small class="acc-hint">水を加えない、濃いお酒</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">搾った後に、アルコール度数を調整するための水（割水）を加えないお酒です。アルコール度数が高く（18〜20度程度）、濃醇でパンチのある力強い味わいが楽しめます。</div>
@@ -928,7 +1235,7 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div><ruby>無濾過<rt>むろか</rt></ruby></div>
+          <div><ruby>無濾過<rt>むろか</rt></ruby><small class="acc-hint">濾過をしない（または軽く）、そのままの味</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">搾った後に、細かな不純物を取り除いて透明にする「濾過（ろか）」という作業をしない、またはごく軽く行うだけにしたお酒です。お酒本来の香りや旨味、かすかな色合いがそのまま残っています。</div>
@@ -1003,7 +1310,7 @@
         </div>
 
         <div class="floating-item" onclick="showMaterialDetail('awamori', this)">
-          <div class="floating-icon-box awamori-adjust">
+          <div class="floating-icon-box">
             <img src="awamori.webp" alt="泡盛">
           </div>
           <div class="floating-label">泡盛</div>
@@ -1046,19 +1353,21 @@
         </p>
       </div>
 
+      <div class="komeo-tip"><img src="komeo4.webp" alt=""><div class="bubble">ラベルの言葉は、<strong>ひとこと</strong>だけでも十分です。気になったらタップして、詳しくご覧ください。</div></div>
+
       <div class="sub-heading mt-24">種類を表すことば</div>
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>本格焼酎（乙類）</div>
+          <div>本格焼酎（乙類）<small class="acc-hint">原料の個性が残る、伝統的な焼酎</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-        <div class="accordion-body">昔ながらの伝統的な方法で造られた焼酎のこと。「乙類（おつるい）」とも呼ばれます。原料の風味がしっかり残り、香りや味わの個性を楽しむならこちらがおすすめです。</div>
+        <div class="accordion-body">昔ながらの伝統的な方法で造られた焼酎のこと。「乙類（おつるい）」とも呼ばれます。原料の風味がしっかり残り、香りや味わいの個性を楽しむならこちらがおすすめです。</div>
       </div>
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>焼酎甲類</div>
+          <div>焼酎甲類<small class="acc-hint">クセのない無色透明、割り材のベースに</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">近代的な機械で純度の高いアルコールを抽出し、水で薄めた焼酎のこと。無色透明でクセがなく、クリアな味わいが特徴です。主にサワーやチューハイ、お茶割りなどの「ベース（割り材）」として大活躍します。</div>
@@ -1066,17 +1375,19 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>混和焼酎</div>
+          <div>混和焼酎<small class="acc-hint">乙類と甲類をブレンドした焼酎</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">風味の豊かな「本格焼酎（乙類）」と、スッキリとした「焼酎甲類」をブレンドした焼酎です。本格焼酎の香りやコクを楽しみつつ、甲類のクセのない飲みやすさを兼ね備えた、まさに「いいとこ取り」の飲みやすいお酒です。</div>
       </div>
 
+      <div class="quiz-box" data-quiz="kouotsu"></div>
+
       <div class="sub-heading">味のベースとなる「麹（こうじ）」</div>
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>黒麹（くろこうじ）</div>
+          <div>黒麹（くろこうじ）<small class="acc-hint">パンチのある、力強いコク</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">沖縄の泡盛ルーツの麹。パンチのある力強いコクと、しっかりとした深みが生まれます。ガツンと飲みごたえのある焼酎が好きな方におすすめです。</div>
@@ -1084,7 +1395,7 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>白麹（しろこうじ）</div>
+          <div>白麹（しろこうじ）<small class="acc-hint">やさしくマイルドな、定番の麹</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">黒麹から偶然生まれた突然変異の麹。香りが優しく、口当たりがマイルドでスッキリとした味わいになります。とても飲みやすく、焼酎のスタンダードとも言えます。</div>
@@ -1092,7 +1403,7 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>黄麹（きこうじ）</div>
+          <div>黄麹（きこうじ）<small class="acc-hint">フルーティーで華やか</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">主に日本酒造りに使われる麹。管理が難しいため焼酎で使われるのは珍しいですが、フルーティーで華やかな香りや、軽快な味わいが生まれます。</div>
@@ -1100,9 +1411,22 @@
 
       <div class="sub-heading">香りと口当たりを決める「蒸留」</div>
 
+      <div class="glass-box diagram trk" id="distillDiagram">
+        <h3 class="section-title">気圧で、味がかわる</h3>
+        <div class="seg">
+          <button type="button" class="on" data-mode="jo">常圧蒸留</button>
+          <button type="button" data-mode="gen">減圧蒸留</button>
+        </div>
+        <div class="meter"><span class="meter-label">加熱する温度</span><div class="meter-track"><div class="meter-fill heat" data-m="temp"></div></div></div>
+        <div class="meter"><span class="meter-label">コクと香りの強さ</span><div class="meter-track"><div class="meter-fill koku" data-m="koku"></div></div></div>
+        <div class="meter"><span class="meter-label">軽快さ・クリアさ</span><div class="meter-track"><div class="meter-fill clear" data-m="clear"></div></div></div>
+        <p class="diagram-text" id="distillText"></p>
+        <p class="diagram-note">※イメージ図です。ボタンを切り替えて、くらべてみてください。</p>
+      </div>
+
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>常圧蒸留（じょうあつ）</div>
+          <div>常圧蒸留（じょうあつ）<small class="acc-hint">昔ながらの、コクと香りが強い焼酎</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">通常の気圧で蒸発させる、昔ながらの方法。高い温度で熱するため、原料の風味がガッツリと抽出され、コクと香りの強い「昔ながらの濃い焼酎」になります。</div>
@@ -1110,11 +1434,13 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>減圧蒸留（げんあつ）</div>
+          <div>減圧蒸留（げんあつ）<small class="acc-hint">軽快でクリアな、飲みやすい焼酎</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">機械の中の気圧を下げて、低い温度で蒸発させる方法（高い山でお湯が早く沸くのと同じ原理です）。雑味が少なくなり、とても軽快でクリアな、飲みやすい焼酎になります。</div>
       </div>
+
+      <div class="quiz-box" data-quiz="genatsu"></div>
 
       <button class="primary-btn" onclick="goScreen('our-shochu')">
         吾熊の焼酎
@@ -1155,11 +1481,40 @@
         </p>
       </div>
 
+      <div class="komeo-tip"><img src="komeo1.webp" alt=""><div class="bubble">覚える言葉は、たった3つ。タップして読んだあと、クイズで試してみましょう。</div></div>
+
       <div class="sub-heading mt-24">原料による違い</div>
 
-      <div class="accordion-item" onclick="toggleAccordion(this)">
+      
+      <div class="glass-box diagram trk" id="blendDiagram">
+        <h3 class="section-title">ブレンドしてみましょう</h3>
+        <p class="article-text" style="font-size: 14.5px; line-height: 1.7; margin-bottom: 8px;">つまみを動かして、モルトとグレーンの割合を変えてみましょう。</p>
+        <div class="blend-stage">
+          <svg class="blend-glass" viewBox="0 0 120 150" role="img" aria-label="グラスの中のブレンドのイメージ">
+            <defs><clipPath id="glassClip"><path d="M22 20 L98 20 L90 138 Q60 146 30 138 Z"/></clipPath></defs>
+            <g clip-path="url(#glassClip)">
+              <rect id="blendGrain" x="0" y="44" width="120" height="50" fill="#EBCB77"/>
+              <rect id="blendMalt" x="0" y="94" width="120" height="50" fill="#A8561C"/>
+            </g>
+            <path d="M22 20 L98 20 L90 138 Q60 146 30 138 Z" fill="none" stroke="#6B5F55" stroke-width="3" stroke-linejoin="round"/>
+          </svg>
+          <div class="blend-info">
+            <div class="blend-name" id="blendName">ブレンデッド</div>
+            <div class="blend-ratio">
+              <div><i style="background:#A8561C"></i>モルト <span id="blendMaltPct">50</span>%</div>
+              <div><i style="background:#EBCB77"></i>グレーン <span id="blendGrainPct">50</span>%</div>
+            </div>
+          </div>
+        </div>
+        <input type="range" class="polish-range" id="blendRange" min="0" max="100" step="5" value="50" aria-label="モルトの割合（パーセント）">
+        <div class="blend-ends"><span>グレーン<br>100%</span><span style="text-align:right">モルト<br>100%</span></div>
+        <p class="diagram-text" id="blendText"></p>
+        <p class="diagram-note">※割合はイメージです。実際の配合は銘柄ごとに異なります。</p>
+      </div>
+
+<div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>モルト</div>
+          <div>モルト<small class="acc-hint">大麦麦芽だけ。個性が強い</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">大麦の麦芽（モルト）だけを原料にして造られるウイスキー。香りが豊かで個性が強く出やすいため、ウイスキーの味わいの主役となります。</div>
@@ -1167,7 +1522,7 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>グレーン</div>
+          <div>グレーン<small class="acc-hint">穀物が主役。軽やかでクセが少ない</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">トウモロコシや小麦などの穀物を主原料にしたウイスキー。クセが少なく軽やかな味わいで、ブレンドする際に味を優しくまとめる「縁の下の力持ち」として活躍します。</div>
@@ -1175,29 +1530,15 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>ブレンデッド</div>
+          <div>ブレンデッド<small class="acc-hint">モルト × グレーンの調和</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">個性豊かな「モルト」と、穏やかな「グレーン」を絶妙な比率でブレンドしたもの。プロの職人が計算し尽くして味をまとめているため、非常にバランスが良く、飲みやすいのが最大の魅力です。</div>
       </div>
 
-      <div class="quiz-box" id="whiskyQuiz" style="margin-top: 32px;">
-        <h3 class="quiz-title">Q. よく聞く<br>「シングルモルト」って何？</h3>
-        
-        <div id="quizOptions">
-          <button class="quiz-btn" onclick="answerQuiz('A')">A: たった一つの「蒸留所」で造られたもの</button>
-          <button class="quiz-btn" onclick="answerQuiz('B')">B: たった一つの「樽」から取り出されたもの</button>
-        </div>
+      <div class="quiz-box" data-quiz="singleMalt"></div>
 
-        <div class="quiz-result" id="quizResult" style="display: none; margin-top: 20px; padding-top: 16px; border-top: 1px dashed var(--ai-light);">
-          <h4 id="quizResultTitle" class="quiz-result-title"></h4>
-          <p style="font-size: 15px; line-height: 1.7; color: var(--sumi); margin: 0;">
-            「シングルモルト」の「シングル」は、<strong>「たった一つの蒸留所（工場）」</strong>で造られた原酒のみを瓶詰めしているという意味です。<br><br>
-            ちなみに、Bの「たった一つの樽」から取り出されたものは「シングルカスク（一つの樽）」と呼ばれ、同じ蒸留所の中でもさらに希少価値が高いウイスキーです。<br><br>
-            他の蒸留所のお酒を一切混ぜない「シングルモルト」は、その土地の気候や造り手のこだわりが<strong>ダイレクトに現れます。</strong>蔵ごとの個性を味わえる、いわば「一点モノの芸術品」です。
-          </p>
-        </div>
-      </div>
+      <div class="quiz-box" data-quiz="blended"></div>
 
       <button class="primary-btn" onclick="goScreen('world-whisky')">
         世界のウイスキー
@@ -1223,13 +1564,15 @@
         </p>
       </div>
 
+      <div class="komeo-tip"><img src="komeo5.webp" alt=""><div class="bubble">気になる国をタップしてみてください。最後にクイズもあります。</div></div>
+
       <div class="sub-heading mt-24">世界5大ウイスキー</div>
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
           <div style="display: flex; align-items: center; gap: 8px;">
             <img src="scotland.webp" alt="スコットランド" class="flag-icon">
-            <span>スコッチ（スコットランド）</span>
+            <span>スコッチ（スコットランド）<small class="acc-hint">スモーキーな香りが特徴</small></span>
           </div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
@@ -1240,7 +1583,7 @@
         <div class="accordion-header">
           <div style="display: flex; align-items: center; gap: 8px;">
             <img src="UK.webp" alt="アメリカ" class="flag-icon">
-            <span>バーボン（アメリカ）</span>
+            <span>バーボン（アメリカ）<small class="acc-hint">トウモロコシが主役。甘く力強い</small></span>
           </div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
@@ -1251,7 +1594,7 @@
         <div class="accordion-header">
           <div style="display: flex; align-items: center; gap: 8px;">
             <img src="japan.webp" alt="日本" class="flag-icon">
-            <span>ジャパニーズ（日本）</span>
+            <span>ジャパニーズ（日本）<small class="acc-hint">繊細で、バランスが良い</small></span>
           </div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
@@ -1262,7 +1605,7 @@
         <div class="accordion-header">
           <div style="display: flex; align-items: center; gap: 8px;">
             <img src="Ireland.webp" alt="アイルランド" class="flag-icon">
-            <span>アイリッシュ（アイルランド）</span>
+            <span>アイリッシュ（アイルランド）<small class="acc-hint">なめらかでマイルド</small></span>
           </div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
@@ -1273,12 +1616,14 @@
         <div class="accordion-header">
           <div style="display: flex; align-items: center; gap: 8px;">
             <img src="Canada.webp" alt="カナダ" class="flag-icon">
-            <span>カナディアン（カナダ）</span>
+            <span>カナディアン（カナダ）<small class="acc-hint">5大の中で最も軽快</small></span>
           </div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">5大ウイスキーの中で最も軽快でマイルド。クセがなくスッキリとしているため、そのまま飲むだけでなく、カクテルのベースとしても世界中で愛されています。</div>
       </div>
+
+      <div class="quiz-box" data-quiz="world5"></div>
 
       <button class="primary-btn" onclick="goScreen('whisky-deep')">
         もっとディープな話
@@ -1296,17 +1641,21 @@
         </p>
       </div>
 
+      <div class="komeo-tip"><img src="komeo4.webp" alt=""><div class="bubble">ここからは、少し<strong>マニアックな話題</strong>です。ひとことだけ読んでも、お酒の席で話したくなる内容です。</div></div>
+
       <div class="sub-heading mt-24" style="font-size: 12px; letter-spacing: -0.05em; white-space: nowrap;">
         好き嫌いが分かれる！？「ピート（泥炭）」の秘密
       </div>
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>スモーキーな香りの正体</div>
+          <div>スモーキーな香りの正体<small class="acc-hint">犯人は「ピート（泥炭）」の煙</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">スコッチウイスキーなどを飲むと、「正露丸」や「焚き火」のような強烈な香りがすることがあります。これは麦芽を乾燥させるときに燃やす「ピート（泥炭：シダやコケが長い年月をかけて炭化したもの）」の煙の香り。最初は「うっ」と思っても、不思議とこのクセのある香りの虜になってしまう人が後を絶ちません。</div>
       </div>
+
+      <div class="quiz-box" data-quiz="peat"></div>
 
       <div class="sub-heading">ウイスキーの風味を決める「樽（カスク）」</div>
       
@@ -1318,7 +1667,7 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>バーボン樽</div>
+          <div>バーボン樽<small class="acc-hint">バニラやカラメルの甘い香り</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">以前にアメリカのバーボンを寝かせていた樽。ウイスキーに、バニラやカラメル、ハチミツのような甘く華やかな香りを与えてくれます。世界中で最も多く使われている定番の樽です。</div>
@@ -1326,7 +1675,7 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>シェリー樽</div>
+          <div>シェリー樽<small class="acc-hint">ドライフルーツやチョコのようなコク</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">スペインの酒精強化ワイン「シェリー酒」を寝かせていた樽。色が濃く赤みを帯び、レーズンなどのドライフルーツや、ビターチョコレートのようなリッチで深いコクが生まれます。</div>
@@ -1334,11 +1683,13 @@
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
-          <div>ミズナラ樽（日本独自の樽）</div>
+          <div>ミズナラ樽（日本独自の樽）<small class="acc-hint">お香や白檀のような、日本らしい香り</small></div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="accordion-body">北海道などに自生する「ミズナラ（水楢）」で作られた樽。加工が難しく大変貴重ですが、長く寝かせると「お香」や「白檀（びゃくだん）」、「伽羅（きゃら）」といった日本らしい神秘的な香りが現れ、世界中のウイスキーファンから熱狂的な支持を集めています。</div>
       </div>
+
+      <div class="quiz-box" data-quiz="mizunara"></div>
 
       <button class="primary-btn" onclick="goScreen('our-whisky')">
         吾熊のウイスキー
@@ -1413,6 +1764,7 @@ if (playPromise !== undefined) {
 /* ============ アコーディオン開閉 ============ */
 function toggleAccordion(element) {
   element.classList.toggle('open');
+  if (element.classList.contains('open')) markDone(element);
 }
 
 /* ============ 原料データ ============ */
@@ -1429,6 +1781,7 @@ const materialData = {
 function showMaterialDetail(key, element) {
   document.querySelectorAll('.floating-item').forEach(el => el.classList.remove('active'));
   element.classList.add('active');
+  markDone(element);
 
   const data = materialData[key];
   document.getElementById('materialTitle').textContent = data.title;
@@ -1599,34 +1952,368 @@ function renderList(wrapId, dataGroups, isSake) {
   wrap.innerHTML = html;
 }
 
+/* ============ クイズ（コメオが反応） ============ */
+// correct: 正解の選択肢の番号（0始まり）
+const quizData = {
+  polishRatio: {
+    q: "Q. 「精米歩合60%」は、お米をどれくらい削ったという意味？",
+    options: [
+      "外側を60%削り、中心の40%を使った",
+      "外側を40%削り、中心の60%を使った",
+      "60日間かけてお米を磨いた"
+    ],
+    correct: 1,
+    exp: "「精米歩合」は<strong>削って残った割合</strong>のことです。60%なら、外側を40%削り落とし、中心の60%だけを使っています。数字が小さいほど、たくさん磨いたお米です。"
+  },
+  junmai: {
+    q: "Q. ラベルの「純米」は、どんなお酒のしるし？",
+    options: [
+      "お米を50%以下まで削ったお酒",
+      "加熱殺菌をしていないお酒",
+      "醸造アルコールを加えずに造ったお酒"
+    ],
+    correct: 2,
+    exp: "「純米」は<strong>お米・米麹・水だけ</strong>で造ったお酒のこと。醸造アルコールは加えていません。お米の削り具合は、「吟醸」「大吟醸」といった別の言葉で表します。"
+  },
+  yamahai: {
+    q: "Q. 「山廃（やまはい）」の「廃」は、何を廃止したという意味？",
+    options: [
+      "山卸（お米をすりつぶす作業）",
+      "火入れ（加熱殺菌）",
+      "精米（お米を削る作業）"
+    ],
+    correct: 0,
+    exp: "山廃は「<strong>山卸廃止</strong>」の略です。生酛造りで行う、お米をすりつぶす重労働（山卸）をなくし、自然の力でお米を溶かす製法です。"
+  },
+  genatsu: {
+    q: "Q. 「減圧蒸留」で造った焼酎は、どんな味わいになりやすい？",
+    options: [
+      "原料の風味がガツンと濃い",
+      "軽快でクリアな飲みやすさ",
+      "樽のような甘い香り"
+    ],
+    correct: 1,
+    exp: "減圧蒸留は、気圧を下げて<strong>低い温度</strong>で蒸発させる方法。雑味が少なく、軽快でクリアな味わいになります。ガツンと濃い「昔ながらの味」は、常圧蒸留の特徴です。"
+  },
+  kouotsu: {
+    q: "Q. サワーやチューハイの「ベース」としてよく使われるのは？",
+    options: [
+      "本格焼酎（乙類）",
+      "焼酎甲類"
+    ],
+    correct: 1,
+    exp: "<strong>焼酎甲類</strong>は無色透明でクセがなく、割り材のベースとして大活躍します。本格焼酎（乙類）は、原料の香りや味わいの個性を楽しむ焼酎です。"
+  },
+  singleMalt: {
+    q: "Q. よく聞く「シングルモルト」って何？",
+    options: [
+      "たった一つの「蒸留所」で造られたもの",
+      "たった一つの「樽」から取り出されたもの"
+    ],
+    correct: 0,
+    exp: "「シングルモルト」の「シングル」は、<strong>「たった一つの蒸留所（工場）」</strong>で造られた原酒のみを瓶詰めしているという意味です。<br><br>ちなみに、Bの「たった一つの樽」から取り出されたものは「シングルカスク（一つの樽）」と呼ばれ、同じ蒸留所の中でもさらに希少価値が高いウイスキーです。<br><br>他の蒸留所のお酒を一切混ぜない「シングルモルト」は、その土地の気候や造り手のこだわりが<strong>ダイレクトに現れます。</strong>蔵ごとの個性を味わえる、いわば「一点モノの芸術品」です。"
+  },
+  blended: {
+    q: "Q. 「ブレンデッド」ウイスキーは、何と何を混ぜたもの？",
+    options: [
+      "新しい樽と古い樽の原酒",
+      "日本産とスコットランド産の原酒",
+      "モルト原酒とグレーン原酒"
+    ],
+    correct: 2,
+    exp: "ブレンデッドは、個性豊かな<strong>モルト</strong>と、穏やかな<strong>グレーン</strong>を絶妙な比率でブレンドしたもの。職人が味をまとめるので、バランスが良く飲みやすいのが魅力です。"
+  },
+  world5: {
+    q: "Q. 「世界5大ウイスキー」に入っていないのは、どれ？",
+    options: ["日本", "アイルランド", "フランス"],
+    correct: 2,
+    exp: "世界5大ウイスキーは、<strong>スコットランド・アメリカ・日本・アイルランド・カナダ</strong>の5つです。日本もそのひとつに数えられています。"
+  },
+  peat: {
+    q: "Q. スコッチの「スモーキーな香り」は、何の煙の香り？",
+    options: [
+      "麦芽を発酵させたときのガス",
+      "ピート（泥炭）を燃やした煙",
+      "水に溶けているミネラル"
+    ],
+    correct: 1,
+    exp: "麦芽を乾燥させるときに燃やす<strong>ピート（泥炭）</strong>の煙の香りです。好みが分かれますが、このクセのある香りの虜になる人も多くいます。"
+  },
+  mizunara: {
+    q: "Q. 日本独自の「ミズナラ樽」で長く熟成すると、どんな香りが現れる？",
+    options: [
+      "レーズンやビターチョコのような香り",
+      "お香や白檀のような日本らしい香り",
+      "バニラやカラメルのような香り"
+    ],
+    correct: 1,
+    exp: "長く寝かせると、<strong>「お香」や「白檀（びゃくだん）」</strong>のような神秘的な香りが現れます。レーズンやビターチョコはシェリー樽、バニラやカラメルはバーボン樽の特徴です。"
+  }
+};
+
+const KOMEO_THINK = 'komeo3.webp';
+const KOMEO_OK = ['komeo1.webp', 'komeo4.webp'];
+const KOMEO_NG = 'komeo6.webp';
+const OK_TITLES = ['大正解！', '正解です！', 'その通りです！'];
+let quizOkCount = 0;
+
+function renderQuiz(box) {
+  const d = quizData[box.dataset.quiz];
+  if (!d) return;
+  const letters = ['A', 'B', 'C', 'D'];
+  box.innerHTML = `
+    <div class="quiz-head">
+      <img class="quiz-komeo" src="${KOMEO_THINK}" alt="">
+      <div class="quiz-q">${d.q}</div>
+    </div>
+    <div class="quiz-options">
+      ${d.options.map((t, i) => `<button type="button" class="quiz-btn" data-i="${i}">${letters[i]}: ${t}</button>`).join('')}
+    </div>
+    <div class="quiz-result" hidden>
+      <h4 class="quiz-result-title"></h4>
+      <p>${d.exp}</p>
+      <button type="button" class="quiz-retry">もう一度</button>
+    </div>
+  `;
+  box.querySelectorAll('.quiz-btn').forEach(btn => {
+    btn.addEventListener('click', () => answerQuiz(box, Number(btn.dataset.i)));
+  });
+  box.querySelector('.quiz-retry').addEventListener('click', () => renderQuiz(box));
+}
+
+function answerQuiz(box, picked) {
+  const d = quizData[box.dataset.quiz];
+  const btns = box.querySelectorAll('.quiz-btn');
+  const komeo = box.querySelector('.quiz-komeo');
+  const result = box.querySelector('.quiz-result');
+  const title = box.querySelector('.quiz-result-title');
+  const letters = ['A', 'B', 'C', 'D'];
+  const ok = picked === d.correct;
+
+  btns.forEach(b => b.disabled = true);
+  btns[d.correct].classList.add('correct');
+
+  if (ok) {
+    komeo.src = KOMEO_OK[quizOkCount % KOMEO_OK.length];
+    title.textContent = OK_TITLES[quizOkCount % OK_TITLES.length];
+    title.className = 'quiz-result-title correct-text';
+    quizOkCount++;
+  } else {
+    btns[picked].classList.add('incorrect');
+    komeo.src = KOMEO_NG;
+    title.textContent = `おしい！ 正解は${letters[d.correct]}です`;
+    title.className = 'quiz-result-title incorrect-text';
+  }
+
+  komeo.classList.remove('komeo-hop', 'komeo-wobble');
+  void komeo.offsetWidth;
+  komeo.classList.add(ok ? 'komeo-hop' : 'komeo-wobble');
+
+  markDone(box);
+  result.hidden = false;
+  result.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+
+/* ============ 精米歩合スライダー ============ */
+function polishStage(cut) {
+  const keep = 100 - cut;
+  if (cut === 0) {
+    return { img: 'komeo1.webp', names: ['普通酒', '純米酒'], msg: 'つまみを右へ動かして、お米を削ってみましょう。' };
+  }
+  if (keep > 70) {
+    return { img: 'komeo3.webp', names: ['普通酒', '純米酒'], msg: 'まだ外側がたっぷり残っています。お米のしっかりした味わいが出やすい削り方です。' };
+  }
+  if (keep > 60) {
+    return { img: 'komeo5.webp', names: ['本醸造酒', '純米酒'], msg: '精米歩合70%以下のゾーン。「本醸造酒」の基準を満たせます。' };
+  }
+  if (keep > 50) {
+    return { img: 'komeo1.webp', names: ['吟醸酒', '純米吟醸酒'], msg: '精米歩合60%以下の「吟醸」ゾーン！雑味が減って、華やかな香りが出やすくなります。' };
+  }
+  let msg = '精米歩合50%以下の「大吟醸」ゾーン！半分以上を削り落とした、いちばん磨いた分類です。';
+  if (cut >= 70) msg += 'ここまで磨くのは、ごく一部のお酒だけです。';
+  return { img: 'komeo4.webp', names: ['大吟醸酒', '純米大吟醸酒'], msg: msg };
+}
+
+function initPolish() {
+  const range = document.getElementById('polishRange');
+  if (!range) return;
+  const core = document.getElementById('polishCore');
+  const cutEl = document.getElementById('polishCut');
+  const keepEl = document.getElementById('polishKeep');
+  const namesEl = document.getElementById('polishNames');
+  const msgEl = document.getElementById('polishMsg');
+  const komeoEl = document.getElementById('polishKomeo');
+  let lastImg = komeoEl.getAttribute('src');
+  let lastNames = '';
+
+  function update() {
+    const cut = Number(range.value);
+    const keep = 100 - cut;
+    // 面積が精米歩合に比例して小さくなるイメージ
+    const s = Math.sqrt(keep / 100);
+    core.setAttribute('transform', `translate(100 120) scale(${s}) translate(-100 -120)`);
+    cutEl.textContent = cut;
+    keepEl.textContent = keep;
+    range.style.setProperty('--p', (cut / 80 * 100) + '%');
+    range.setAttribute('aria-valuetext', `削る量${cut}%、精米歩合${keep}%`);
+
+    const st = polishStage(cut);
+    msgEl.textContent = st.msg;
+    const key = st.names.join('/');
+    if (key !== lastNames) {
+      namesEl.innerHTML = st.names.map(n => `<span class="polish-chip">${n}</span>`).join('');
+      lastNames = key;
+    }
+    if (st.img !== lastImg) {
+      komeoEl.setAttribute('src', st.img);
+      lastImg = st.img;
+      komeoEl.classList.remove('komeo-hop');
+      void komeoEl.offsetWidth;
+      komeoEl.classList.add('komeo-hop');
+    }
+  }
+  range.addEventListener('input', () => { markDone(document.getElementById('polishBox')); update(); });
+  update();
+}
+
+
+/* ============ 図解 ============ */
+function initDistill() {
+  const box = document.getElementById('distillDiagram');
+  if (!box) return;
+  const modes = {
+    jo:  { temp: 88, koku: 90, clear: 30, text: 'ふつうの気圧のまま、高めの温度で蒸発させる昔ながらの方法。原料の風味がしっかり出て、コクと香りの強い焼酎になります。' },
+    gen: { temp: 35, koku: 40, clear: 90, text: '機械の中の気圧を下げて、低い温度で蒸発させます（高い山でお湯が早く沸くのと同じ原理）。雑味が少なく、軽快でクリアな焼酎になります。' }
+  };
+  const btns = box.querySelectorAll('.seg button');
+  function set(k) {
+    const m = modes[k];
+    btns.forEach(b => b.classList.toggle('on', b.dataset.mode === k));
+    box.querySelector('[data-m="temp"]').style.width = m.temp + '%';
+    box.querySelector('[data-m="koku"]').style.width = m.koku + '%';
+    box.querySelector('[data-m="clear"]').style.width = m.clear + '%';
+    document.getElementById('distillText').textContent = m.text;
+  }
+  btns.forEach(b => b.addEventListener('click', () => { set(b.dataset.mode); markDone(box); }));
+  set('jo');
+}
+
+function initHiire() {
+  const box = document.getElementById('hiireDiagram');
+  if (!box) return;
+  const states = {
+    nama:      { f: [0, 0], text: '火入れを一度もしないお酒。しぼりたてのみずみずしさが楽しめますが、味が変わりやすいので冷蔵保管します。' },
+    namazume:  { f: [1, 0], text: '火入れは、貯蔵前の1回だけ。秋に出回る「ひやおろし」の仲間で、ひと夏を越してまろやかになります。' },
+    namachozo: { f: [0, 1], text: '火入れは、瓶詰めして出荷する直前の1回だけ。生酒のようなフレッシュさを残しつつ、品質を安定させています。' },
+    futsu:     { f: [1, 1], text: '貯蔵前と出荷前の、合計2回。品質が安定していて、一般的なお酒の多くがこの造り方です。' }
+  };
+  const flames = box.querySelectorAll('.flame');
+  const btns = box.querySelectorAll('.seg button');
+  function set(k) {
+    const s = states[k];
+    btns.forEach(b => b.classList.toggle('on', b.dataset.k === k));
+    flames.forEach((f, i) => f.classList.toggle('on', !!s.f[i]));
+    document.getElementById('hiireText').textContent = s.text;
+  }
+  btns.forEach(b => b.addEventListener('click', () => { set(b.dataset.k); markDone(box); }));
+  set('futsu');
+}
+
+function initBlend() {
+  const box = document.getElementById('blendDiagram');
+  if (!box) return;
+  const range = document.getElementById('blendRange');
+  const malt = document.getElementById('blendMalt');
+  const grain = document.getElementById('blendGrain');
+  function update() {
+    const m = Number(range.value);
+    const top = 44, total = 100;
+    const mh = total * m / 100;
+    malt.setAttribute('y', top + total - mh);
+    malt.setAttribute('height', mh);
+    grain.setAttribute('y', top);
+    grain.setAttribute('height', total - mh);
+    document.getElementById('blendMaltPct').textContent = m;
+    document.getElementById('blendGrainPct').textContent = 100 - m;
+    range.style.setProperty('--p', m + '%');
+    let name, text;
+    if (m === 100) { name = 'モルトウイスキー'; text = '大麦麦芽だけで造る、個性のいちばん強いタイプ。香りが豊かです。'; }
+    else if (m === 0) { name = 'グレーンウイスキー'; text = '穀物が主原料。クセが少なく、軽やかでやさしい味わいです。'; }
+    else if (m >= 70) { name = 'ブレンデッド'; text = 'モルトが多めで、香り豊か。モルトの個性がしっかり感じられる傾向があります。'; }
+    else if (m > 30) { name = 'ブレンデッド'; text = 'バランス型。個性の強いモルトを、穏やかなグレーンがやさしくまとめます。'; }
+    else { name = 'ブレンデッド'; text = 'グレーンが多めで、軽やかで飲みやすい傾向があります。'; }
+    document.getElementById('blendName').textContent = name;
+    document.getElementById('blendText').textContent = text;
+  }
+  range.addEventListener('input', () => { markDone(box); update(); });
+  update();
+}
+
+/* ============ 進み具合（足跡） ============ */
+const progressState = {};
+
+function progressItems(sec) {
+  const name = sec.dataset.screen;
+  if (name === 'top' || name.indexOf('our-') === 0) return [];
+  return Array.from(sec.querySelectorAll('.accordion-item, .quiz-box[data-quiz], .floating-item, .flip-card, .trk'));
+}
+
+function initProgress() {
+  const hdr = document.querySelector('header');
+  const setHdr = () => document.documentElement.style.setProperty('--hdr', hdr.offsetHeight + 'px');
+  setHdr();
+  window.addEventListener('resize', setHdr);
+  window.addEventListener('load', setHdr);
+
+  document.querySelectorAll('.flip-card').forEach(f => f.addEventListener('click', () => markDone(f)));
+
+  document.querySelectorAll('.screen').forEach(sec => {
+    const name = sec.dataset.screen;
+    const items = progressItems(sec);
+    progressState[name] = { total: items.length, done: 0 };
+    items.forEach(el => { el.dataset.track = '1'; });
+    if (items.length >= 3) {
+      const bar = document.createElement('div');
+      bar.className = 'progress';
+      bar.dataset.for = name;
+      bar.innerHTML = '<div class="progress-track"><div class="progress-fill"></div><img class="progress-walker" src="ashi.webp" alt=""></div>';
+      const head = sec.querySelector('h2.title, h3.section-title');
+      head.insertAdjacentElement('afterend', bar);
+      paintBar(name);
+    }
+  });
+}
+
+function markDone(el) {
+  if (!el || el.dataset.track !== '1' || el.dataset.done) return;
+  el.dataset.done = '1';
+  const name = el.closest('.screen').dataset.screen;
+  const st = progressState[name];
+  st.done++;
+  paintBar(name);
+}
+
+function paintBar(name) {
+  const bar = document.querySelector('.progress[data-for="' + name + '"]');
+  if (!bar) return;
+  const st = progressState[name];
+  const pct = st.total ? st.done / st.total * 100 : 0;
+  bar.querySelector('.progress-fill').style.width = pct + '%';
+  bar.querySelector('.progress-walker').style.left = pct + '%';
+  bar.classList.toggle('complete', st.total > 0 && st.done === st.total);
+}
+
 /* ============ 初期化 ============ */
 renderList('ourSakeList', sakeItems, true);
 renderList('ourShochuList', shochuGroups, false);
 renderList('ourWhiskyList', whiskyGroups, false);
+document.querySelectorAll('.quiz-box[data-quiz]').forEach(renderQuiz);
+initPolish();
+initDistill();
+initHiire();
+initBlend();
+initProgress();
 goScreen('top');
-
-/* ============ クイズ機能 ============ */
-function answerQuiz(answer) {
-  const options = document.getElementById('quizOptions').querySelectorAll('.quiz-btn');
-  options.forEach(btn => btn.disabled = true); 
-
-  const resultBox = document.getElementById('quizResult');
-  const resultTitle = document.getElementById('quizResultTitle');
-
-  if (answer === 'A') {
-    options[0].classList.add('correct');
-    resultTitle.textContent = "大正解！";
-    resultTitle.className = "correct-text quiz-result-title";
-  } else {
-    options[1].classList.add('incorrect');
-    options[0].classList.add('correct'); 
-    resultTitle.textContent = "おしい！ 正解はAです";
-    resultTitle.className = "incorrect-text quiz-result-title";
-  }
-
-  resultBox.style.display = "block";
-  resultBox.style.animation = "fadeUp 0.4s ease";
-}
 </script>
 
 </body>

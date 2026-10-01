@@ -335,6 +335,9 @@
     margin: 0 auto; display: block; cursor: zoom-in;
   }
   .trivia-illustration-caption { font-size: 11px; color: #ffffff; margin-top: 8px; opacity: 0.9; }
+  .ill-legend { list-style:none; margin:12px 0 0; padding:0; text-align:left; }
+  .ill-legend li { display:flex; align-items:center; gap:10px; font-size:13px; line-height:1.5; color:#fff; padding:4px 0; }
+  .ill-legend .dot { flex:0 0 auto; width:14px; height:14px; border-radius:50%; border:2px solid rgba(255,255,255,.85); }
 
   /* --- 見分けカード --- */
   .story-compare { margin: 0 0 24px; }
@@ -551,6 +554,7 @@
           <div class="trivia-illustration-wrap" id="detailIllWrap">
             <img id="detailIllImg" src="" alt="">
             <div class="trivia-illustration-caption" id="detailIllCaption"></div>
+            <ul class="ill-legend" id="detailIllLegend" hidden></ul>
           </div>
         </div>
 
@@ -710,7 +714,7 @@ const fishList = [
         { text: "味が良いから", isCorrect: true },
         { text: "アジアから伝わったから", isCorrect: false }
       ],
-      explanation: "「味が良い」から「アジ」と名付けられたという説が最も有力です！古くから日本人に愛されてきた魚です。"
+      explanation: "「味が良い」から「アジ」と名付けられたという説が有力です！古くから日本人に愛されてきた魚です。"
     },
     trivia: "尾に近い側線に並ぶ「ゼイゴ」は、アジ科の魚だけが持つ硬いウロコです。包丁を入れる前に、これを取り除いてから調理します。",
     illustration: "maaji_kaisetsu.webp", illAlt: "アジのゼイゴ",
@@ -726,12 +730,12 @@ const fishList = [
       type: "quiz",
       question: "カツオは泳ぐのをやめるとどうなるでしょうか？",
       options: [
-        { text: "沈んでしまう", isCorrect: false },
+        { text: "ゆっくり休める", isCorrect: false },
         { text: "呼吸ができなくなる", isCorrect: true }
       ],
-      explanation: "カツオはエラ呼吸のために常に泳ぎ続ける必要があります。一生休むことなく高速で泳いでいるんです。"
+      explanation: "カツオはエラ蓋を動かせないため、泳ぎ続けて口から海水を送り込まないと、酸素を取り込めなくなると言われています。浮き袋も未発達で、泳ぎを止めると沈んでしまうとも言われます。"
     },
-    trivia: "鰹節（かつおぶし）は世界一硬い食品としてギネス認定されており、日本料理の出汁に欠かせない存在です。",
+    trivia: "鰹節（かつおぶし）は、カツオを煮て煙で燻す「焙乾（ばいかん）」を、1か月以上かけて10〜15回も繰り返して作られます。さらにカビを付けて熟成させた「本枯節」は、世界一硬い食べ物とも言われるほどカチカチになり、日本料理の出汁に欠かせない存在です。",
     compare: {
       title: "見分けカード：カツオ × マグロ",
       items: [
@@ -752,9 +756,9 @@ const fishList = [
       question: "現在では大人気の「トロ」ですが、江戸時代はどのような扱いを受けていたでしょうか？",
       options: [
         { text: "殿様しか食べられない高級品", isCorrect: false },
-        { text: "捨てるか畑の肥料にしていた", isCorrect: true }
+        { text: "人気がなく、捨てられていた", isCorrect: true }
       ],
-      explanation: "冷蔵（冷凍）技術がなかった当時、脂の多いトロはすぐに腐ってしまうため、「下等な部位」として捨てられたり、畑の肥料にされていました。"
+      explanation: "冷蔵（冷凍）技術がなかった当時、脂の多いトロは傷みやすく、猫もまたいで通る「ねこまたぎ」と呼ばれるほど人気がなく、捨てられることも多かったそうです。"
     },
     trivia: "マグロもカツオと同様に、泳ぎ続けないとエラ呼吸ができず窒息してしまうため、寝ている間もゆっくり泳ぎ続けています。",
     parts: {
@@ -792,7 +796,7 @@ const fishList = [
         { text: "白身魚", isCorrect: true },
         { text: "赤身魚", isCorrect: false }
       ],
-      explanation: "実は「白身魚」に分類されます。餌の甲殻類の色素（アスタキサンチン）が蓄積してこの色になります。",
+      explanation: "実は「白身魚」に分類されます。エビやオキアミなどのエサに含まれる赤い色素（アスタキサンチン）が体に蓄積して、この色になります。",
       extra: "salmonSlice"
     },
     trivia: "生食用の「サーモン」は基本的に寄生虫対策がされた養殖物で、天然の「鮭」は加熱調理が基本です。",
@@ -821,10 +825,8 @@ const fishList = [
     menuItems: [], recommendedSake: "hakkaisan"
   },
   {
-    id: "shimaaji", name: "シマアジ", kana: "しまあじ", img: "shimaaji_kaisetsu.webp",
-    // ※ img は仮に解説用の絵を使っています。実物と違う描き方(縦縞)なので、水槽用の新しい絵に差し替えてください。
-    hideHero: true,   // 絵の差し替えが済むまで、詳細画面の大きな絵は出しません
-    basicInfo: "アジ類の中で最も味が良いとされ、高級魚として扱われます。身が締まり、上品な脂の甘みがあります。",
+    id: "shimaaji", name: "シマアジ", kana: "しまあじ", img: "shimaaji.webp",
+    basicInfo: "アジの仲間の中でも特に味が良いとされ、高級魚として扱われます。身が締まり、上品な脂の甘みがあります。",
     eatingPoint: "青魚特有のクセがなく、白身魚のような上品な脂の甘さと、しっかりとした歯ごたえを同時に味わえるのが特徴です。",
     interaction: {
       type: "quiz",
@@ -836,7 +838,8 @@ const fishList = [
       explanation: "体の中央を頭から尾へ走る黄色いラインが、名前の由来と言われています！（※伊豆諸島などの「島」で獲れるからという説もあります。また、このラインは若い魚で目立ち、成長すると薄れていきます）"
     },
     trivia: "天然物は非常に漁獲量が少なく「幻の魚」とも呼ばれます。現在お店で食べられるものの多くは、養殖技術の進歩によって美味しく育てられたものです。",
-    illustration: null,   // 実物に合わせた新しい解説図ができたら、ここに画像名を入れます
+    illustration: "shimaaji_kaisetsu2.webp", illAlt: "シマアジの黄色いライン",
+    illCaption: "頭の後ろから尾へ走る黄色いライン",
     ownerNote: "",
     menuItems: [], recommendedSake: "manozuru"
   },
@@ -866,11 +869,17 @@ const fishList = [
         { text: "6つ", isCorrect: false },
         { text: "9つ", isCorrect: true }
       ],
-      explanation: "タコは心臓を3つ、脳を9つ持っており、非常に高い知能を持っていると言われています。"
+      explanation: "タコは心臓を3つ持っています。脳は、頭の中枢の脳に加えて、8本の腕それぞれにある「小さな脳」（神経のかたまり）を合わせて9つと言われ、非常に高い知能を持っています。"
     },
     trivia: "日本では茹でると赤くなりますが、生きている時は環境に合わせて一瞬で体の色や模様を変えることができます。",
-    illustration: "tako_kaisetsu.webp", illAlt: "タコにある3つの心臓と9つの脳",
-    illCaption: "タコにある3つの心臓と9つの脳",
+    illustration: "tako_kaisetsu2.webp", illAlt: "タコの脳と心臓のイラスト",
+    illCaption: "タコの体のなか（脳9つ・心臓3つ）",
+    illLegend: [
+      { color: "#F0A9B0", text: "中枢の脳（目の奥に1つ）" },
+      { color: "#1E7F9E", text: "腕の付け根の脳（神経のかたまり）× 8" },
+      { color: "#B3261E", text: "心臓（全身に血液を送る）× 1" },
+      { color: "#F08A6B", text: "鰓心臓（えらに血液を送る）× 2" }
+    ],
     ownerNote: "",
     menuItems: [], recommendedSake: "manozuru"
   },
@@ -881,7 +890,7 @@ const fishList = [
     interaction: {
       type: "flip",
       front: "ウナギをお刺身（生）で見かけないのはなぜ？",
-      back: "実はウナギの血には毒（イクチオトキシン）が含まれているため、加熱せずに生で食べることは基本的にできません。だから蒲焼きなどで加熱するんですね。"
+      back: "実はウナギの血には毒（イクチオトキシン）が含まれています。この毒は熱に弱く、60℃で5分ほど加熱すると毒性がなくなるため、蒲焼きなどで加熱して食べるんですね。"
     },
     trivia: "ウナギの生態は長年謎に包まれていましたが、近年になってようやくマリアナ諸島付近で産卵することが判明しました。",
     ownerNote: "",
@@ -898,7 +907,7 @@ const fishList = [
         { text: "約1年", isCorrect: true },
         { text: "約10年", isCorrect: false }
       ],
-      explanation: "実は寿命はわずか1年！秋に生まれて成長し、翌年の春に産卵を終えると一生を終える、とても短い命なんです。"
+      explanation: "実は寿命はわずか1年！春から夏に生まれて成長し、翌年の春に産卵を終えると一生を終える、とても短い命なんです。"
     },
     trivia: "「ヤリイカ（槍烏賊）」という名前は、細長く先が尖った胴体の形が「槍の穂先」に似ていることに由来します。",
     illustration: "ika_kaisetsu.webp", illAlt: "槍の穂先とヤリイカ",
@@ -913,7 +922,7 @@ const fishList = [
     interaction: {
       type: "flip",
       front: "アマエビの不思議な生態。<br>大きくなると性別が変わるって本当？",
-      back: "本当です！<br>生まれた時はすべてオスですが、4〜5年経つとメスに性転換するという不思議な生態を持っています。"
+      back: "本当です！<br>生まれた時はすべてオスですが、数年（4〜6歳ごろ）たつとメスに性転換するという不思議な生態を持っています。"
     },
     trivia: "水揚げされてから少し時間が経つことで、自己消化によりアミノ酸が増え、より甘みが増します。",
     ownerNote: "",
@@ -1399,6 +1408,19 @@ function selectFish(id){
     illImg.alt = f.illAlt || '';
     illCaption.textContent = (f.illCaption || '') + '（タップで拡大）';
     illWrap.style.display = 'block';
+    const legend = document.getElementById('detailIllLegend');
+    legend.innerHTML = '';
+    if (f.illLegend) {
+      f.illLegend.forEach(it => {
+        const li = document.createElement('li');
+        const dot = document.createElement('span'); dot.className = 'dot'; dot.style.background = it.color;
+        li.append(dot, document.createTextNode(it.text));
+        legend.appendChild(li);
+      });
+      legend.hidden = false;
+    } else {
+      legend.hidden = true;
+    }
   } else {
     illWrap.style.display = 'none';
     illImg.removeAttribute('src');

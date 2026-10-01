@@ -51,15 +51,16 @@
     opacity: 0;
     transition: opacity 1.5s ease-in-out;
   }
-  .bg-video-wrap video.show-bg { opacity: 1; }
-  /* 濃紺のレイヤー: 本編では濃く、OP中は薄くして映像の美しさを残す */
+  .bg-video-wrap video.show-bg {
+    opacity: 1;
+  }
+  #bg-video-op {
+    filter: brightness(2.5);
+  }
   .bg-video-overlay{
     position:absolute; inset:0;
     background: linear-gradient(180deg, rgba(13,27,42,0.72), rgba(13,27,42,0.85));
-    opacity: 1;
-    transition: opacity 1.2s ease-in-out;
   }
-  body.is-op .bg-video-overlay{ opacity: .45; }
 
   .app{
     width:100%; min-height:100vh; min-height:100dvh;
@@ -125,14 +126,10 @@
     display: flex; align-items: center; justify-content: center;
     cursor: pointer;
   }
-  /* ロゴは動画の終わりを待たず、冒頭から出す */
   .op-logo-img {
-    opacity: 0;
+    opacity: 0; transition: opacity 1s ease-in-out;
     max-width: 250px; width: 60%; height: auto;
-    filter: drop-shadow(0 4px 22px rgba(8,16,28,.55));
-    animation: logoIn 1s ease-out .5s forwards;
   }
-  @keyframes logoIn { from{ opacity:0; transform:translateY(8px) scale(.98);} to{ opacity:1; transform:none; } }
   .skip-telop {
     position: absolute;
     bottom: 50px;
@@ -150,7 +147,6 @@
   }
   @media (prefers-reduced-motion: reduce){
     .skip-telop{ animation:none; transform:translateX(-50%); opacity:.8; }
-    .op-logo-img{ animation-duration:.01s; }
   }
 
   /* ============ 魚選択(水族館) ============ */
@@ -480,7 +476,7 @@
   .lb-scroll img{ flex:0 0 auto; width:min(180vw, 1000px); height:auto; margin:0 auto; }
 </style>
 </head>
-<body class="is-op">
+<body>
 
 <div class="bg-video-wrap">
   <!-- OP動画: 初回のみ読み込む(preload=none。JSが再生を開始) -->
@@ -662,7 +658,7 @@
 /* ============ 設定 ============ */
 const GAS_URL    = 'YOUR_GAS_WEBHOOK_URL_HERE';   // ログ送信先(未設定なら送信しません)
 const ORDER_URL  = '';                            // 注文ページのURL(空なら「注文する」ボタンは出ません)
-const OP_AUTO_MS = 4500;                          // OPの自動終了までの時間(初回のみOPを表示)
+const OP_FIRST_VISIT_ONLY = false;                // true: OPは端末ごとに初回だけ表示 / false: 毎回表示
 
 const GAS_ENABLED = /^https:\/\//.test(GAS_URL);
 const REDUCED_MOTION = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1023,7 +1019,6 @@ function goScreen(name, isBack = false){
 
   const opVideo = document.getElementById('bg-video-op');
   const header = document.getElementById('main-header');
-  document.body.classList.toggle('is-op', name === 'op');
 
   if (name === 'op') {
     if (opVideo) opVideo.classList.add('show-bg');
@@ -1047,21 +1042,35 @@ function goBack() {
 }
 
 /* ============ OP ============
-   ・初回のみ表示。2回目以降は水槽へ直行
-   ・ロゴは冒頭から表示し、OP_AUTO_MS後に自動で進む(動画が再生できなくても進む) */
-let opTimer = null;
+   当初と同じ流れ: 動画を最後まで再生 → ロゴを表示(1秒かけて) → 3秒後に水槽へ。タップでスキップ。
+   ※動画が再生できない・終わらない場合に備えて、ロゴを出して進む保険を入れています。 */
+let opTimer = null, opGuard = null, opLogoShown = false;
+
+function showOpLogo(){
+  if (opLogoShown) return;
+  opLogoShown = true;
+  document.getElementById('op-logo').style.opacity = '1';
+  opTimer = setTimeout(finishOp, 3000);
+}
+
 function startOp(){
   goScreen('op');
   const v = document.getElementById('bg-video-op');
+  v.addEventListener('ended', showOpLogo);
+  v.addEventListener('error', showOpLogo);
+  const sources = v.querySelectorAll('source');
+  if (!sources.length) showOpLogo();                // 動画ファイルが指定されていない
+  sources.forEach(sr => sr.addEventListener('error', showOpLogo));   // 動画が読み込めない
   try {
     v.load();
     const p = v.play();
-    if (p && p.catch) p.catch(() => {});
-  } catch(e) {}
-  opTimer = setTimeout(finishOp, OP_AUTO_MS);
+    if (p && p.catch) p.catch(showOpLogo);          // 自動再生が止められた場合
+  } catch(e) { showOpLogo(); }
+  opGuard = setTimeout(showOpLogo, 10000);          // 動画が終わらない場合の保険
 }
+
 function finishOp(){
-  clearTimeout(opTimer);
+  clearTimeout(opTimer); clearTimeout(opGuard);
   if (document.querySelector('.screen.active')?.dataset.screen === 'op') {
     store.set('fish_op_seen', '1');
     goScreen('select');
@@ -1540,10 +1549,10 @@ function goOrder(){ if (ORDER_URL) location.href = ORDER_URL; }
 /* ============ 初期化 ============ */
 sendLog('アクセス');
 document.getElementById('totalCount').textContent = fishList.length;
-if (store.get('fish_op_seen')) {
-  goScreen('select');      // 2回目以降はOPを飛ばす
+if (OP_FIRST_VISIT_ONLY && store.get('fish_op_seen')) {
+  goScreen('select');      // 2回目以降はOPを飛ばす(OP_FIRST_VISIT_ONLYがtrueのとき)
 } else {
-  startOp();               // 初回のみOP
+  startOp();
 }
 </script>
 </body>

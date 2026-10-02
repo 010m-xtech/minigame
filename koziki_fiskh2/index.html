@@ -453,6 +453,29 @@
     border-style:solid; border-width:9px var(--tail-len) 9px 0;
     border-color: transparent var(--kinari) transparent transparent;
   }
+  /* 冒頭の質問: 話している間は、画面いっぱいに大きく(ステージ) */
+  .stage-head{
+    position:fixed; left:0; right:0; bottom:0; top:var(--stage-top, 66px); z-index:15;
+    display:flex; align-items:center; justify-content:center; padding:0 22px 6vh;
+  }
+  .stage-head[hidden]{ display:none; }
+  .stage-inner{ width:100%; max-width:520px; display:flex; flex-direction:column; align-items:center; gap:8px; will-change:transform, opacity; }
+  .stage-head .talk-fish-wrap{ width:min(62vw, 250px); }
+  .stage-head .talk-bubble{
+    flex:none; width:100%; cursor:pointer;
+    font-size:clamp(21px, 6.8vw, 29px); line-height:1.7; padding:24px 24px; border-radius:26px;
+    --tail-len:30px; --tail-x:70%;
+    transform-origin: var(--tail-x) calc(-1 * var(--tail-len));
+  }
+  /* しっぽは、上向き(魚の口へ) */
+  .stage-head .talk-bubble::before{
+    left:calc(var(--tail-x) - 12px); top:calc(-1 * var(--tail-len));
+    border-width:0 12px var(--tail-len) 12px; border-color:transparent transparent var(--kinari) transparent;
+  }
+  .stage-head .talk-sub{ font-size:15px; margin-top:10px; }
+  .stage-head .talk-bubble:focus-visible{ outline:2px solid var(--shu-pale); outline-offset:3px; }
+  .talk-head.await{ visibility:hidden; }
+  .talk-bubble.static{ opacity:1 !important; animation:none !important; }
   /* 最初の画面の案内役 */
   .select-talk{ position:relative; z-index:30; margin:6px 0 12px; min-height:146px; }   /* 吹き出しの行数が変わっても、下のボタンが動かないように */
   .select-talk .talk-fish-wrap{ width:clamp(70px, 21vw, 88px); }
@@ -834,6 +857,30 @@
   </main>
 </div>
 
+<!-- 冒頭の質問: 話している間は、魚と吹き出しを画面いっぱいに大きく表示し、話しおわると上に小さく移る -->
+<div class="stage-head" id="surveyStage" data-orient="v" hidden>
+  <div class="stage-inner">
+    <div class="talk-fish-wrap"><img class="talk-fish" src="maaji.webp" alt=""></div>
+    <div class="talk-bubble" role="button" tabindex="0" aria-live="polite" aria-label="お魚の案内(タップで次へ)">
+      <span class="talk-main"></span>
+      <span class="talk-sub"></span>
+    </div>
+  </div>
+  <span class="air a1"></span><span class="air a2"></span><span class="air a3"></span>
+</div>
+
+<!-- 最後のひとこと: 話している間は、画面いっぱいに大きく -->
+<div class="stage-head" id="farewellStage" data-orient="v" hidden>
+  <div class="stage-inner">
+    <div class="talk-fish-wrap"><img class="talk-fish" src="maaji.webp" alt=""></div>
+    <div class="talk-bubble" role="button" tabindex="0" aria-live="polite" aria-label="お魚の言葉(タップで次へ)">
+      <span class="talk-main"></span>
+      <span class="talk-sub"></span>
+    </div>
+  </div>
+  <span class="air a1"></span><span class="air a2"></span><span class="air a3"></span>
+</div>
+
 <!-- 画像の拡大表示 -->
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="画像の拡大表示">
   <div class="lb-bar">
@@ -864,7 +911,7 @@ function loadJSON(k, fallback){
 
 // 動作確認用: URLに ?reset を付けると、捕まえた魚やOP表示済みの記録を消します
 if (/[?&]reset\b/.test(location.search)) {
-  ['fish_survey','fish_caught','fish_op_seen'].forEach(k => store.remove(k));
+  ['fish_survey','fish_caught','fish_op_seen','fish_farewell_done'].forEach(k => store.remove(k));
 }
 
 let fishDeviceId = store.get('fish_device_id');
@@ -1229,8 +1276,8 @@ function goScreen(name, isBack = false){
   if (name === 'result') renderResult();
   if (name === 'survey') playSurveyIntro();
   if (name === 'select') startSelectTalk(); else selectTalk.stop();
-  if (name === 'farewell') playFarewellIntro(); else farewellTalk.stop();
-  if (name !== 'survey') surveyTalk.stop();
+  if (name === 'farewell') playFarewellIntro(); else { farewellTalk.stop(); farewellStageCtl.hide(); }
+  if (name !== 'survey') { surveyTalk.stop(); surveyStageCtl.hide(); }
 }
 
 function goBack() {
@@ -1709,7 +1756,7 @@ function goToMenu(){
       ${s ? sakeCardHtml(s) : ''}`;
   }
   document.getElementById('finishButton').textContent =
-    'おしまいにする';
+    (farewellDone && !surveyReview) ? '最初に戻る' : 'おしまいにする';
   goScreen('menu');
 }
 
@@ -1771,6 +1818,7 @@ function createFishTalk(root){
   const q = s => root.querySelector(s);
   const wrap = q('.talk-fish-wrap'), img = q('.talk-fish'), bubble = q('.talk-bubble'), main = q('.talk-main'), sub = q('.talk-sub');
   let fishId = 'aji', timers = [], seq = null;
+  const vertical = root.dataset.orient === 'v';
 
   function setFish(id){
     const f = fishById(id) || fishById('aji');
@@ -1796,6 +1844,12 @@ function createFishTalk(root){
     const r = wrap.getBoundingClientRect(), b = bubble.getBoundingClientRect(), h = root.getBoundingClientRect();
     if (!r.width || !r.height || !b.height) return;
     const mx = r.left + (1 - m[0]) * r.width, my = r.top + m[1] * r.height;     // scaleX(-1) で反転するため、口は右側
+    if (vertical) {                                                              // 魚が上、吹き出しが下: しっぽは上向き
+      bubble.style.setProperty('--tail-x', Math.max(28, Math.min(b.width - 28, mx - b.left)) + 'px');
+      bubble.style.setProperty('--tail-len', Math.max(14, Math.min(90, b.top - my)) + 'px');
+      root.querySelectorAll('.air').forEach((a, i) => { a.style.left = (mx - h.left + 4 + i * 6) + 'px'; a.style.top = (my - h.top - 4) + 'px'; });
+      return;
+    }
     const len = Math.max(10, Math.min(36, b.left - mx));
     const ty  = Math.max(16, Math.min(b.height - 16, my - b.top));
     bubble.style.setProperty('--tail-len', len + 'px');
@@ -1804,7 +1858,7 @@ function createFishTalk(root){
   }
   // 吹き出しを引っ込めて、口からもう一度ふくらませ、ひとことしゃべる
   function say(text, opt = {}){
-    bubble.classList.remove('play', 'skip'); void bubble.offsetWidth;
+    bubble.classList.remove('play', 'skip', 'static'); void bubble.offsetWidth;
     build(text, opt.wave || '');
     if (sub) {
       sub.style.display = opt.withSub ? '' : 'none';
@@ -1846,13 +1900,15 @@ function createFishTalk(root){
 const surveyTalk = createFishTalk(document.getElementById('surveyHead'));
 const selectTalk = createFishTalk(document.getElementById('selectHead'));
 const farewellTalk = createFishTalk(document.getElementById('farewellHead'));
-const relayoutTalks = () => { surveyTalk.layout(); selectTalk.layout(); farewellTalk.layout(); };
+const surveyStage = createFishTalk(document.getElementById('surveyStage'));
+const farewellStage = createFishTalk(document.getElementById('farewellStage'));
+const relayoutTalks = () => { surveyTalk.layout(); selectTalk.layout(); farewellTalk.layout(); surveyStage.layout(); farewellStage.layout(); };
 window.addEventListener('resize', relayoutTalks);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(relayoutTalks);
 
 // アンケート側の呼び出し口
 let surveyDone = false;
-function setSurveyFish(id){ surveyTalk.setFish(id); }
+function setSurveyFish(id){ surveyTalk.setFish(id); surveyStage.setFish(id); }
 function fishSays(text, waveWord, withSub){ surveyTalk.say(text, { wave: waveWord, withSub: withSub, cls: text === SURVEY_THANKS ? 'thanks' : '' }); }
 // 魚が話しきったら、質問が現れる
 let surveyIntroToken = 0, surveyRevealTimer = null;
@@ -1865,28 +1921,88 @@ function revealSurveyQuestions(token){
   if (document.querySelector('.screen.active')?.dataset.screen !== 'survey') return;
   ['group-gender','surveyFoot'].forEach(id => { const e = document.getElementById(id); if (e.hidden) { e.hidden = false; e.classList.add('pop-in'); } });
 }
+// ---- 「画面いっぱいに話す → 話しおわったら上へ小さく移る」の共通部品(冒頭の質問・最後のひとことで使う) ----
+function createStage(cfg){
+  const { stageEl, headEl, talk, stageTalk, lines } = cfg;
+  const inner = () => stageEl.querySelector('.stage-inner');
+  let moveTimer = null, revealTimer = null;
+  function resetInner(){ const i = inner(); i.style.transition = 'none'; i.style.transform = ''; i.style.opacity = ''; }
+  function show(){
+    const hh = document.getElementById('main-header').offsetHeight || 66;
+    stageEl.style.setProperty('--stage-top', hh + 'px');
+    resetInner();
+    stageEl.hidden = false;
+    headEl.classList.add('await'); headEl.classList.remove('pop-in');         // 小さい方の魚は、移ってくるまで隠す
+  }
+  function hide(){
+    clearTimeout(moveTimer); clearTimeout(revealTimer); stageTalk.stop();
+    stageEl.hidden = true; resetInner();
+  }
+  // 小さい吹き出し(上)には、最後のひとことを、そのまま表示しておく
+  function compactFinal(){
+    const last = lines[lines.length - 1];
+    talk.say(last.text, { wave: last.wave, withSub: !!last.sub, subText: last.sub });
+    talk.bubble.classList.add('skip', 'static');
+  }
+  // 話しおわり → 大きな魚と吹き出しが、上へ小さく移り、質問(入力欄)が現れる
+  function finish(token){
+    if (!cfg.valid(token) || stageEl.hidden) return;
+    stageTalk.stop(); clearTimeout(revealTimer);
+    compactFinal();
+    headEl.classList.remove('await'); headEl.classList.add('pop-in');
+    if (REDUCED_MOTION) { cfg.reveal(token); hide(); return; }
+    setTimeout(() => cfg.reveal(token), 450);                  // 大きな魚が上へ移りはじめてから出す(重ならないように)
+    const i = inner(), sr = i.getBoundingClientRect(), cr = headEl.getBoundingClientRect();
+    const tx = (cr.left + cr.width / 2) - (sr.left + sr.width / 2), ty = (cr.top + cr.height / 2) - (sr.top + sr.height / 2);
+    i.style.transition = 'transform .8s cubic-bezier(.45,.05,.25,1), opacity .45s ease .12s';
+    i.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(.4)';
+    i.style.opacity = '0';
+    clearTimeout(moveTimer); moveTimer = setTimeout(hide, 900);
+  }
+  function start(token){
+    clearTimeout(moveTimer); clearTimeout(revealTimer); stageTalk.stop();
+    show();
+    stageTalk.sequence(lines, (ln) => {
+      if (!cfg.valid(token)) return;
+      // 最後の吹き出しの文字が出きる → 下の一言が出きる、のあとに、上へ移る
+      const ms = REDUCED_MOTION ? 500 : (talkSettle(ln.text) + (ln.sub ? 0.5 : 0) + 0.6) * 1000;
+      clearTimeout(revealTimer); revealTimer = setTimeout(() => finish(token), ms);
+    });
+  }
+  // 大きな吹き出しをタップすると、次の吹き出しへ(最後なら、話を飛ばして先へ)
+  function skip(){
+    if (cfg.blocked && cfg.blocked()) return;
+    if (!stageTalk.isLast()) { stageTalk.next(); return; }
+    stageTalk.bubble.classList.add('skip');
+    clearTimeout(revealTimer);
+    finish(cfg.token());
+  }
+  stageTalk.bubble.addEventListener('click', skip);
+  stageTalk.bubble.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); skip(); } });
+  return { show, hide, start, finish, compactFinal };
+}
+
+// ---- 冒頭の質問 ----
+const surveyHeadEl = document.getElementById('surveyHead');
+const surveyStageCtl = createStage({
+  stageEl: document.getElementById('surveyStage'), headEl: surveyHeadEl,
+  talk: surveyTalk, stageTalk: surveyStage, lines: SURVEY_LINES,
+  valid: (t) => t === surveyIntroToken && document.querySelector('.screen.active')?.dataset.screen === 'survey',
+  reveal: (t) => revealSurveyQuestions(t),
+  token: () => surveyIntroToken,
+  blocked: () => surveyDone
+});
 function playSurveyIntro(){
   const token = ++surveyIntroToken;
-  // まだ何も選んでいなければ、質問を隠して、魚の話を先に聞いてもらう(選び始めている場合は、そのまま)
-  if (!surveyDone && !document.querySelector('.screen[data-screen="survey"] input:checked')) hideSurveyQuestions();
-  surveyTalk.sequence(SURVEY_LINES, (ln) => {
-    if (token !== surveyIntroToken) return;
-    // 最後の吹き出しの文字が出きる → 下の一言が出きる(0.5秒)、のあとに質問を出す
-    const ms = REDUCED_MOTION ? 500 : (talkSettle(ln.text) + (ln.sub ? 0.5 : 0) + 0.3) * 1000;
-    clearTimeout(surveyRevealTimer);
-    surveyRevealTimer = setTimeout(() => revealSurveyQuestions(token), ms);
-  });
+  const fresh = !surveyDone && !document.querySelector('.screen[data-screen="survey"] input:checked');
+  if (!fresh) {                                          // すでに選び始めている・回答ずみ: 大きな表示はせず、小さいまま
+    surveyStageCtl.hide(); surveyHeadEl.classList.remove('await');
+    if (!surveyDone) surveyStageCtl.compactFinal();
+    return;
+  }
+  hideSurveyQuestions();
+  surveyStageCtl.start(token);
 }
-// 吹き出しをタップすると、話を飛ばして質問を出す
-(function(){
-  surveyTalk.bubble.addEventListener('click', () => {
-    if (surveyDone) return;
-    if (!surveyTalk.isLast()) { surveyTalk.next(); return; }       // 最初の吹き出しなら、次の吹き出しへ
-    surveyTalk.bubble.classList.add('skip');
-    clearTimeout(surveyRevealTimer);
-    revealSurveyQuestions(surveyIntroToken);
-  });
-})();
 
 // 最初の画面(魚を選ぶ画面)で、魚が話して案内する
 const SELECT_LINES = {
@@ -1918,12 +2034,13 @@ function startSelectTalk(){
 
 // ---- 最後のひとこと(任意・1問だけ)。魚が話して聞くので、アンケートっぽくならない ----
 const FAREWELL_LINES = [
-  { text: 'ここまで、\nありがとう\nございます。', wave: 'ありがとう', hold: 0.9 },
+  { text: 'ここまで、\nありがとう\nございます。', wave: 'ありがとう', hold: 0.9, sub: 'タップで次へ' },
   { text: 'お店へ、ひとこと\nいただけませんか？', wave: 'ひとこと' }
 ];
 const FAREWELL_SENT = 'ありがとうございます。\n励みになります。';
 const FAREWELL_SKIP = 'ありがとうございました。\nまたお待ちしていますね。';
-let farewellAsked = false, farewellToken = 0, farewellTimer = null, farewellFinished = false;
+let farewellDone = store.get('fish_farewell_done') === '1';          // 1端末1回: この端末で、すでに答えた(または「このまま終わる」を選んだ)か
+let farewellToken = 0, farewellTimer = null, farewellFinished = false;
 const fwEl = id => document.getElementById(id);
 function hideFarewellForm(){ clearTimeout(farewellTimer); const f = fwEl('farewellForm'); f.hidden = true; f.classList.remove('pop-in'); }
 function resetFarewellUI(){
@@ -1936,19 +2053,25 @@ function revealFarewellForm(token){
   if (document.querySelector('.screen.active')?.dataset.screen !== 'farewell') return;
   const f = fwEl('farewellForm'); if (f.hidden) { f.hidden = false; f.classList.add('pop-in'); }
 }
+const farewellStageCtl = createStage({
+  stageEl: document.getElementById('farewellStage'), headEl: document.getElementById('farewellHead'),
+  talk: farewellTalk, stageTalk: farewellStage, lines: FAREWELL_LINES,
+  valid: (t) => t === farewellToken && !farewellFinished && document.querySelector('.screen.active')?.dataset.screen === 'farewell',
+  reveal: (t) => revealFarewellForm(t),
+  token: () => farewellToken,
+  blocked: () => farewellFinished
+});
+function setFarewellFish(id){ farewellTalk.setFish(id); farewellStage.setFish(id); }
 function playFarewellIntro(){
   const token = ++farewellToken;
-  if (!farewellFinished) hideFarewellForm();
   if (farewellFinished) return;
-  farewellTalk.sequence(FAREWELL_LINES, (ln) => {
-    const ms = REDUCED_MOTION ? 500 : (talkSettle(ln.text) + 0.5) * 1000;   // 最後のひとことを話しきってから、入力欄を出す
-    clearTimeout(farewellTimer);
-    farewellTimer = setTimeout(() => revealFarewellForm(token), ms);
-  });
+  hideFarewellForm();
+  farewellStageCtl.start(token);
 }
 function finishFarewell(kind){
   if (farewellFinished) return;
-  farewellFinished = true; farewellAsked = true;
+  farewellFinished = true;
+  if (!surveyReview) { farewellDone = true; store.set('fish_farewell_done', '1'); }   // 確認モードでは記録しない
   hideFarewellForm();
   farewellTalk.stop();
   farewellTalk.img.classList.add('done');
@@ -1967,20 +2090,12 @@ function farewellSend(){
   fwEl('farewellText').addEventListener('input', () => { fwEl('farewellSend').disabled = !fwEl('farewellText').value.trim(); });
   fwEl('farewellSend').addEventListener('click', farewellSend);
   fwEl('farewellSkip').addEventListener('click', () => finishFarewell('skip'));
-  // 吹き出しをタップすると、話を飛ばして入力欄を出す
-  farewellTalk.bubble.addEventListener('click', () => {
-    if (farewellFinished) return;
-    if (!farewellTalk.isLast()) { farewellTalk.next(); return; }
-    farewellTalk.bubble.classList.add('skip');          // 最後のひとことの途中なら、飛ばして入力欄を出す
-    clearTimeout(farewellTimer);
-    revealFarewellForm(farewellToken);
-  });
 })();
 function openFarewellReview(){            // 確認用: 最後のひとこと画面を、何度でも新品の状態で開く(送信されません)
   clearTimeout(opTimer); clearTimeout(opGuard);
-  surveyReview = true; farewellAsked = false;
+  surveyReview = true;
   resetFarewellUI();
-  farewellTalk.setFish(currentFishId || 'aji');
+  setFarewellFish(currentFishId || 'aji');
   screenHistory = [];
   goScreen('farewell');
 }
@@ -2009,8 +2124,9 @@ function openSurveyReview(){
 
 // 初回はアンケートへ。回答済みなら最初の画面へ戻る
 function handleFinishClick(){
-  resetFarewellUI();                                       // 前に書いた内容や終わった状態を消して、毎回、新品の状態で聞く
-  farewellTalk.setFish(currentFishId || 'aji');            // 最後にしゃべる魚は、いま見ていた魚
+  if (farewellDone && !surveyReview) { goScreen('select'); return; }   // この端末では、すでに聞いたので、そのまま戻る
+  resetFarewellUI();
+  setFarewellFish(currentFishId || 'aji');                 // 最後にしゃべる魚は、いま見ていた魚
   goScreen('farewell');
 }
 

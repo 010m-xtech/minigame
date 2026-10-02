@@ -458,6 +458,8 @@
   .select-talk .talk-fish-wrap{ width:clamp(70px, 21vw, 88px); }
   .talk-bubble.compact{ font-size:16px; padding:12px 14px; cursor:pointer; }
   .talk-bubble.compact:focus-visible{ outline:2px solid var(--shu-pale); outline-offset:3px; }
+  .talk-bubble.skip .ch, .talk-bubble.skip .ch.wave, .talk-bubble.skip .talk-sub{ animation:none !important; opacity:1; transform:none; }
+  #surveyFoot.pop-in{ animation: fadeUp .45s ease both; }
   .talk-bubble.thanks{ font-size:clamp(13px, 3.9vw, 15.5px); }
   .talk-bubble.play{ animation: bubblePop .6s cubic-bezier(.2,1.3,.4,1) .2s both; }
   @keyframes bubblePop{ 0%{ transform:scale(.15); opacity:0; } 55%{ opacity:1; } 100%{ transform:scale(1); opacity:1; } }
@@ -691,7 +693,7 @@
         <span class="air a1"></span><span class="air a2"></span><span class="air a3"></span>
       </div>
 
-      <div class="survey-q" id="group-gender">
+      <div class="survey-q" id="group-gender" hidden>
         <p class="q-label">まずは、性別を教えてください</p>
         <div class="chip-row">
           <label class="chip"><input type="radio" name="s-gender" value="男性" onchange="onSurveyChange()"><span class="chip-box">男性</span></label>
@@ -708,10 +710,12 @@
         </div>
       </div>
 
-      <p class="note">お店づくりの参考にさせていただきます</p>
+      <div id="surveyFoot" hidden>
+        <p class="note">お店づくりの参考にさせていただきます</p>
 
-      <div class="btn-row" style="flex-direction: column;">
-        <button class="btn btn-ghost" id="surveyBackBtn" style="width:100%" disabled onclick="goScreen('select')">最初の画面に戻る</button>
+        <div class="btn-row" style="flex-direction: column;">
+          <button class="btn btn-ghost" id="surveyBackBtn" style="width:100%" disabled onclick="goScreen('select')">最初の画面に戻る</button>
+        </div>
       </div>
     </section>
 
@@ -1692,7 +1696,7 @@ function createFishTalk(root){
   }
   // 吹き出しを引っ込めて、口からもう一度ふくらませ、ひとことしゃべる
   function say(text, opt = {}){
-    bubble.classList.remove('play'); void bubble.offsetWidth;
+    bubble.classList.remove('play', 'skip'); void bubble.offsetWidth;
     build(text, opt.wave || '');
     if (sub) sub.style.display = opt.withSub ? '' : 'none';
     bubble.classList.toggle('thanks', opt.cls === 'thanks');
@@ -1735,7 +1739,40 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(relayoutTa
 let surveyDone = false;
 function setSurveyFish(id){ surveyTalk.setFish(id); }
 function fishSays(text, waveWord, withSub){ surveyTalk.say(text, { wave: waveWord, withSub: withSub, cls: text === SURVEY_THANKS ? 'thanks' : '' }); }
-function playSurveyIntro(){ surveyTalk.whenReady(() => surveyTalk.say(SURVEY_TITLE, { wave: SURVEY_WAVE, withSub: true })); }
+// 魚が話しきったら、質問が現れる
+let surveyIntroToken = 0, surveyRevealTimer = null;
+function hideSurveyQuestions(){
+  clearTimeout(surveyRevealTimer);
+  ['group-gender','surveyFoot'].forEach(id => { const e = document.getElementById(id); e.hidden = true; e.classList.remove('pop-in'); });
+}
+function revealSurveyQuestions(token){
+  if (token !== surveyIntroToken) return;
+  if (document.querySelector('.screen.active')?.dataset.screen !== 'survey') return;
+  ['group-gender','surveyFoot'].forEach(id => { const e = document.getElementById(id); if (e.hidden) { e.hidden = false; e.classList.add('pop-in'); } });
+}
+function playSurveyIntro(){
+  const token = ++surveyIntroToken;
+  // まだ何も選んでいなければ、質問を隠して、魚の話を先に聞いてもらう(選び始めている場合は、そのまま)
+  if (!surveyDone && !document.querySelector('.screen[data-screen="survey"] input:checked')) hideSurveyQuestions();
+  surveyTalk.whenReady(() => {
+    if (token !== surveyIntroToken) return;
+    surveyTalk.say(SURVEY_TITLE, { wave: SURVEY_WAVE, withSub: true });
+    const n = [...SURVEY_TITLE.replace(/\n/g, '')].length;
+    // 吹き出しが出る(0.2秒) → 1文字ずつ現れる(0.85秒〜) → 最後の文字が出きる → 下の一言が出きる(2.5秒)、のあとに質問を出す
+    const ms = REDUCED_MOTION ? 500 : Math.max(2500, 200 + 850 + n * 50 + 380) + 350;
+    clearTimeout(surveyRevealTimer);
+    surveyRevealTimer = setTimeout(() => revealSurveyQuestions(token), ms);
+  });
+}
+// 吹き出しをタップすると、話を飛ばして質問を出す
+(function(){
+  surveyTalk.bubble.addEventListener('click', () => {
+    if (surveyDone) return;
+    surveyTalk.bubble.classList.add('skip');
+    clearTimeout(surveyRevealTimer);
+    revealSurveyQuestions(surveyIntroToken);
+  });
+})();
 
 // 最初の画面(魚を選ぶ画面)で、魚が話して案内する
 const SELECT_LINES = {
@@ -1751,10 +1788,10 @@ function startSelectTalk(){
   selectTalk.setFish(f ? f.id : 'aji');                // 案内役は、直前に見たお魚(はじめは真鯵)
   const n = caught.size, total = fishList.length;
   let lines;
-  if (n === 0)            lines = [SELECT_LINES.hello, SELECT_LINES.explain, SELECT_LINES.action];
-  else if (!selectGreeted) lines = [SELECT_LINES.hello, SELECT_LINES.action];
-  else if (n >= total)    lines = [SELECT_LINES.all];
-  else                    lines = [SELECT_LINES.more];
+  if (!selectGreeted)      lines = [SELECT_LINES.hello, SELECT_LINES.explain, SELECT_LINES.action];   // ページを開いて最初は、捕まえた数にかかわらず、案内を最後まで話す
+  else if (n === 0)        lines = [SELECT_LINES.action];
+  else if (n >= total)     lines = [SELECT_LINES.all];
+  else                     lines = [SELECT_LINES.more];
   selectGreeted = true;
   selectTalk.sequence(lines);
 }
@@ -1771,6 +1808,7 @@ let surveyReview = false;
 function resetSurveyUI(){
   document.querySelectorAll('.screen[data-screen="survey"] input').forEach(i => { i.checked = false; i.disabled = false; });
   const q2 = document.getElementById('group-age'); q2.hidden = true; q2.classList.remove('pop-in');
+  hideSurveyQuestions();
   surveyDone = false;
   surveyTalk.img.classList.remove('done');
   const b = document.getElementById('surveyBackBtn');

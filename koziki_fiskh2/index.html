@@ -423,33 +423,113 @@
   .btn-primary:hover{ opacity:.92; }
   .btn-ghost{ background: rgba(242,238,227,0.08); color:var(--kinari); border:1px solid rgba(242,238,227,0.3); }
   button.btn:disabled{ opacity:.4; cursor:not-allowed; }
-  .survey-thanks{
-    font-family: var(--font-mincho); font-size: 22px; line-height: 1.6; text-align:center;
-    color: var(--kinari); margin: 28px 0 4px; letter-spacing:.04em;
-    animation: fadeUp .5s ease both;
+
+  /* ============ アンケート(やわらかい見た目) ============ */
+  .talk-head{ position:relative; display:flex; align-items:center; gap:20px; margin:4px 0 30px; }
+  /* 魚は、吹き出しの側(右)を向く。口の位置は JS で測って、吹き出しのしっぽの先をそこに合わせる */
+  .talk-fish-wrap{ flex:0 0 auto; width:clamp(84px, 26vw, 104px); transform:scaleX(-1); }
+  .talk-fish{
+    display:block; width:100%; height:auto; transform-origin:50% 60%;
+    filter: drop-shadow(0 6px 10px rgba(0,0,0,.5));
+    animation: fishBob 3.2s ease-in-out infinite;
+  }
+  @keyframes fishBob{ 0%,100%{ transform:translateY(0) rotate(-3deg); } 50%{ transform:translateY(-5px) rotate(3deg); } }
+  .talk-fish.done{ animation: fishHop .8s ease 2; }
+  @keyframes fishHop{ 0%,100%{ transform:translateY(0) rotate(0); } 40%{ transform:translateY(-22px) rotate(-8deg); } 70%{ transform:translateY(-4px) rotate(4deg); } }
+
+  .talk-bubble{
+    --tail-len:16px; --tail-y:40px;
+    position:relative; flex:1; opacity:0;
+    background: var(--kinari); color: var(--ai);
+    border-radius: 18px; padding: 14px 16px;
+    font-family: var(--font-mincho); font-weight:700; font-size:17px; line-height:1.6;
+    box-shadow: 0 4px 0 rgba(0,0,0,.22);
+    transform-origin: calc(-1 * var(--tail-len)) var(--tail-y);
+  }
+  /* 口から出るしっぽ */
+  .talk-bubble::before{
+    content:''; position:absolute; width:0; height:0;
+    left: calc(-1 * var(--tail-len)); top: calc(var(--tail-y) - 9px);
+    border-style:solid; border-width:9px var(--tail-len) 9px 0;
+    border-color: transparent var(--kinari) transparent transparent;
+  }
+  /* 最初の画面の案内役 */
+  .select-talk{ position:relative; z-index:30; margin:6px 0 12px; min-height:130px; }   /* 吹き出しの行数が変わっても、下のボタンが動かないように */
+  .select-talk .talk-fish-wrap{ width:clamp(70px, 21vw, 88px); }
+  .talk-bubble.compact{ font-size:16px; padding:12px 14px; cursor:pointer; }
+  .talk-bubble.compact:focus-visible{ outline:2px solid var(--shu-pale); outline-offset:3px; }
+  .talk-bubble.thanks{ font-size:clamp(13px, 3.9vw, 15.5px); }
+  .talk-bubble.play{ animation: bubblePop .6s cubic-bezier(.2,1.3,.4,1) .2s both; }
+  @keyframes bubblePop{ 0%{ transform:scale(.15); opacity:0; } 55%{ opacity:1; } 100%{ transform:scale(1); opacity:1; } }
+
+  /* 吹き出しの文字: 1文字ずつぽんと現れ、「ちょっとだけ」だけゆらゆら揺れ続ける */
+  .ch{
+    display:inline-block; opacity:0; transform: translateY(9px) scale(.5);
+    animation: chIn .38s cubic-bezier(.2,1.5,.4,1) forwards;
+    animation-delay: calc(.85s + var(--i) * .05s);
+  }
+  @keyframes chIn{ to{ opacity:1; transform: translateY(0) scale(1); } }
+  .ch.wave{
+    animation: chIn .38s cubic-bezier(.2,1.5,.4,1) forwards, chWave 2.2s ease-in-out infinite;
+    animation-delay: calc(.85s + var(--i) * .05s), calc(2.2s + var(--i) * .12s);
+  }
+  @keyframes chWave{ 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-3px); } }
+  .talk-sub{
+    display:block; margin-top:4px;
+    font-family: var(--font-gothic); font-weight:500; font-size:12.5px; color: var(--ai-light);
+    opacity:0; animation: subIn .5s ease 2.0s forwards;
+  }
+  @keyframes subIn{ to{ opacity:1; } }
+  .sr-only{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+  /* 口から出る小さな泡 */
+  .air{
+    position:absolute; border:1.5px solid rgba(242,238,227,.85); border-radius:50%;
+    opacity:0; pointer-events:none;
+  }
+  .air.a1{ width:7px; height:7px; animation: airRise 2.6s ease-out 1.0s infinite; }
+  .air.a2{ width:10px; height:10px; animation: airRise 2.6s ease-out 1.5s infinite; }
+  .air.a3{ width:5px; height:5px; animation: airRise 2.6s ease-out 2.0s infinite; }
+  @keyframes airRise{ 0%{ transform:translate(0,0) scale(.6); opacity:0; } 15%{ opacity:.9; } 100%{ transform:translate(8px,-38px) scale(1.1); opacity:0; } }
+
+  .survey-q{ margin-bottom:26px; }
+  .survey-q.pop-in{ animation: fadeUp .45s ease both; }
+  .q-label{
+    display:flex; align-items:center; gap:8px;
+    font-family: var(--font-mincho); font-weight:700; font-size:17px; color: var(--kinari);
+    margin:0 0 12px;
+  }
+  .q-label::before{
+    content:''; display:inline-block; width:7px; height:7px; background: var(--shu); transform: rotate(45deg);
+  }
+  .chip-row{ display:flex; gap:10px; flex-wrap:wrap; }
+  .chip{ flex:1; min-width:96px; cursor:pointer; position:relative; display:block; }
+  .chip input{ position:absolute; opacity:0; pointer-events:none; }
+  .chip-box{
+    display:flex; align-items:center; justify-content:center; min-height:58px; padding:0 10px;
+    border-radius:999px; background: var(--kinari); color: var(--ai);
+    font-weight:700; font-size:16px;
+    box-shadow: 0 4px 0 rgba(0,0,0,.28);
+    transition: transform .12s ease, box-shadow .12s ease, background .2s ease, color .2s ease;
+  }
+  .chip:active .chip-box{ transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,.28); }
+  .chip input:checked + .chip-box{
+    background: var(--shu); color:#fff; transform: translateY(3px) scale(1.03);
+    box-shadow: 0 1px 0 rgba(0,0,0,.28);
+  }
+  .chip input:checked + .chip-box::before{ content:'✓'; margin-right:6px; font-size:15px; }
+  .chip input:focus-visible + .chip-box{ outline:2px solid var(--shu-pale); outline-offset:3px; }
+  .chip input:disabled + .chip-box{ cursor:default; }
+  @media (prefers-reduced-motion: reduce){
+    .talk-fish, .talk-fish.done{ animation:none; }
+    .talk-bubble{ opacity:1; }
+    .talk-bubble.play{ animation:none; }
+    .ch, .ch.wave, .talk-sub{ animation:none; opacity:1; transform:none; }
+    .air{ display:none; }
+    .chip-box{ transition:none; }
   }
 
-  /* ============ アンケート ============ */
-  .radio-buttons{ display:flex; gap:8px; flex-wrap:wrap; }
-  .radio-btn-wrap{ flex:1; min-width:84px; cursor:pointer; }
-  .radio-btn-wrap input{ position:absolute; opacity:0; pointer-events:none; }
-  .radio-box{
-    display:flex; align-items:center; justify-content:center; padding:12px 0;
-    border:1px solid rgba(242,238,227,0.3); background: rgba(242,238,227,0.05); border-radius:8px;
-    font-size:13px; font-weight:700; color: rgba(242,238,227,0.75); transition:all .2s ease;
-  }
-  .radio-box::before{
-    content:''; display:inline-block; width:14px; height:14px; border-radius:50%;
-    border:1px solid rgba(242,238,227,0.4); margin-right:6px; transition:all .2s ease;
-  }
-  .radio-btn-wrap input:checked + .radio-box{ background: var(--shu); border-color: var(--shu); color:#fff; }
-  .radio-btn-wrap input:checked + .radio-box::before{ border-width:4px; border-color:#fff; background: var(--shu); }
-  .radio-btn-wrap input:focus-visible + .radio-box{ outline:2px solid var(--shu-pale); outline-offset:2px; }
-
-  .profile-group{ margin-bottom:24px; }
-  .profile-group > label{ display:block; font-size:12.5px; font-weight:700; color: var(--kinari); margin-bottom:10px; }
-
-  .note{ font-size:10.5px; color: rgba(242,238,227,0.5); margin-top:10px; line-height:1.6; text-align:center; }
+  .note{ font-size:12px; color: rgba(242,238,227,0.6); margin-top:6px; line-height:1.6; text-align:center; }
 
   /* ============ 結果 ============ */
   .result-card{
@@ -518,12 +598,13 @@
 
     <!-- Screen: サカナ選択 -->
     <section class="screen" data-screen="select">
-      <h2 class="title" style="font-size: clamp(14px, 4.8vw, 24px); white-space: nowrap; letter-spacing: -0.05em; color: #ffffff;">魚をタップして捕まえてみてください</h2>
-      <p class="lead" style="font-size: 15px; color: #ffffff;">
-        居酒屋 乞食の新鮮なお魚たち。
-        <span style="display: block; margin-top: 10px;"></span>
-        捕まえたお魚の豆知識と、<br>相性抜群の日本酒をご提案します。
-      </p>
+      <div class="talk-head select-talk" id="selectHead">
+        <div class="talk-fish-wrap"><img class="talk-fish" src="maaji.webp" alt=""></div>
+        <div class="talk-bubble compact" role="button" tabindex="0" aria-label="お魚の案内(タップで次へ)">
+          <span class="talk-main" aria-live="polite"></span>
+        </div>
+        <span class="air a1"></span><span class="air a2"></span><span class="air a3"></span>
+      </div>
       <button class="collect-counter" id="collectCounter" type="button" onclick="goScreen('result')">
         捕まえた魚 <b id="caughtCount">0</b> / <span id="totalCount">0</span>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
@@ -601,30 +682,33 @@
 
     <!-- Screen: アンケート(初回のみ) -->
     <section class="screen" data-screen="survey">
-      <p class="eyebrow">LAST STEP</p>
-      <h2 class="title">最後にお聞かせください</h2>
-      <p class="lead" style="color: #ffffff;">(初回のみ・次回からは表示されません)</p>
+      <div class="talk-head" id="surveyHead">
+        <div class="talk-fish-wrap"><img class="talk-fish" id="surveyFish" src="maaji.webp" alt=""></div>
+        <div class="talk-bubble" id="surveyBubble" aria-live="polite">
+          <span class="talk-main" id="bubbleMain"></span>
+          <span class="talk-sub">選ぶのは、お二つだけですよ</span>
+        </div>
+        <span class="air a1"></span><span class="air a2"></span><span class="air a3"></span>
+      </div>
 
-      <div class="profile-group" id="group-gender">
-        <label>性別</label>
-        <div class="radio-buttons">
-          <label class="radio-btn-wrap"><input type="radio" name="s-gender" value="男性" onchange="onSurveyChange()"><span class="radio-box">男性</span></label>
-          <label class="radio-btn-wrap"><input type="radio" name="s-gender" value="女性" onchange="onSurveyChange()"><span class="radio-box">女性</span></label>
-          <label class="radio-btn-wrap"><input type="radio" name="s-gender" value="無回答" onchange="onSurveyChange()"><span class="radio-box" style="font-size:12px;">無回答</span></label>
+      <div class="survey-q" id="group-gender">
+        <p class="q-label">まずは、性別を教えてください</p>
+        <div class="chip-row">
+          <label class="chip"><input type="radio" name="s-gender" value="男性" onchange="onSurveyChange()"><span class="chip-box">男性</span></label>
+          <label class="chip"><input type="radio" name="s-gender" value="女性" onchange="onSurveyChange()"><span class="chip-box">女性</span></label>
+          <label class="chip"><input type="radio" name="s-gender" value="無回答" onchange="onSurveyChange()"><span class="chip-box">内緒</span></label>
         </div>
       </div>
 
-      <div class="profile-group" id="group-age">
-        <label>年齢</label>
-        <div class="radio-buttons">
-          <label class="radio-btn-wrap"><input type="radio" name="s-age" value="34歳以下" onchange="onSurveyChange()"><span class="radio-box">34歳以下</span></label>
-          <label class="radio-btn-wrap"><input type="radio" name="s-age" value="35歳以上" onchange="onSurveyChange()"><span class="radio-box">35歳以上</span></label>
+      <div class="survey-q" id="group-age" hidden>
+        <p class="q-label">それから、年齢もお願いします</p>
+        <div class="chip-row">
+          <label class="chip"><input type="radio" name="s-age" value="34歳以下" onchange="onSurveyChange()"><span class="chip-box">34歳以下</span></label>
+          <label class="chip"><input type="radio" name="s-age" value="35歳以上" onchange="onSurveyChange()"><span class="chip-box">35歳以上</span></label>
         </div>
       </div>
 
-      <p class="note">※サービス改善のための参考にさせていただきます</p>
-
-      <p class="survey-thanks" id="surveyThanks" hidden>ありがとうございました。</p>
+      <p class="note">お店づくりの参考にさせていただきます</p>
 
       <div class="btn-row" style="flex-direction: column;">
         <button class="btn btn-ghost" id="surveyBackBtn" style="width:100%" disabled onclick="goScreen('select')">最初の画面に戻る</button>
@@ -1040,6 +1124,8 @@ function goScreen(name, isBack = false){
 
   if (name === 'select') { refreshSelect(); startAquarium(); } else { stopAquarium(); }
   if (name === 'result') renderResult();
+  if (name === 'survey') playSurveyIntro();
+  if (name === 'select') startSelectTalk(); else selectTalk.stop();
 }
 
 function goBack() {
@@ -1527,29 +1613,184 @@ function goToMenu(){
 function onSurveyChange(){
   const genderEl = document.querySelector('input[name="s-gender"]:checked');
   const ageEl = document.querySelector('input[name="s-age"]:checked');
+  // 性別を選んだら、2つ目の質問をふわっと出す
+  if (genderEl) {
+    const ageBox = document.getElementById('group-age');
+    if (ageBox.hidden) {
+      ageBox.hidden = false; ageBox.classList.add('pop-in');
+      ageBox.scrollIntoView({ block: 'center', behavior: REDUCED_MOTION ? 'auto' : 'smooth' });
+    }
+  }
   if (!genderEl || !ageEl) return;                 // どちらか未選択なら、まだ何も起こらない
-  if (surveyProfile) return;                       // 二重に記録しない
+  if (surveyDone) return;                           // すでに完了している
 
-  surveyProfile = { gender: genderEl.value, age: ageEl.value };
-  store.set('fish_survey', JSON.stringify(surveyProfile));
-  sendLog('アンケート回答', { gender: genderEl.value, age: ageEl.value, fishId: currentFishId });
+  if (!surveyReview) {                             // 確認モードでは、保存もログ送信もしない
+    if (surveyProfile) return;                     // 二重に記録しない
+    surveyProfile = { gender: genderEl.value, age: ageEl.value };
+    store.set('fish_survey', JSON.stringify(surveyProfile));
+    sendLog('アンケート回答', { gender: genderEl.value, age: ageEl.value, fishId: currentFishId });
+  }
 
   // 回答は固定し、お礼を表示
   document.querySelectorAll('.screen[data-screen="survey"] input').forEach(i => i.disabled = true);
   const backToTop = document.getElementById('surveyBackBtn');
   backToTop.disabled = false;
   backToTop.classList.replace('btn-ghost', 'btn-primary');
-  const thanks = document.getElementById('surveyThanks');
-  thanks.hidden = false;
+  surveyDone = true;
+  surveyTalk.img.classList.add('done');                                   // 魚がぴょんと跳ねて…
+  fishSays(SURVEY_THANKS, THANKS_WAVE, false);                          // …「ありがとうございました。」としゃべる
   document.getElementById('header-back-btn').style.display = 'none';   // アンケートへは戻さない
   screenHistory = [];
-  thanks.scrollIntoView({ block: 'center', behavior: REDUCED_MOTION ? 'auto' : 'smooth' });
+  document.getElementById('surveyHead').scrollIntoView({ block: 'center', behavior: REDUCED_MOTION ? 'auto' : 'smooth' });
+}
+
+// ---- 魚がしゃべる(吹き出し)。アンケート画面と、最初の画面で共用 ----
+const SURVEY_TITLE = '最後に、少しだけ\nお付き合いくださいね';
+const SURVEY_WAVE  = '少しだけ';
+const SURVEY_THANKS = 'ありがとうございました。\nごゆっくりどうぞ。';
+const THANKS_WAVE   = 'ありがとう';
+// 魚ごとの「口」の位置(画像の左端からの割合 x, 上端からの割合 y)。左向きの絵での位置
+const MOUTH = {
+  aji:[.075,.56], katsuo:[.07,.62], maguro:[.05,.62], salmon:[.05,.60], hirame:[.12,.60],
+  shimaaji:[.085,.59], maiwashi:[.07,.54], madako:[.30,.45], unagi:[.17,.79], yariika:[.30,.62], amaebi:[.30,.43]
+};
+
+function createFishTalk(root){
+  const q = s => root.querySelector(s);
+  const wrap = q('.talk-fish-wrap'), img = q('.talk-fish'), bubble = q('.talk-bubble'), main = q('.talk-main'), sub = q('.talk-sub');
+  let fishId = 'aji', timers = [], seq = null;
+
+  function setFish(id){
+    const f = fishById(id) || fishById('aji');
+    fishId = f.id; img.src = f.img;
+  }
+  function build(text, waveWord){
+    main.innerHTML = '';
+    const sr = document.createElement('span'); sr.className = 'sr-only'; sr.textContent = text.replace(/\n/g, ' '); main.appendChild(sr);
+    const w0 = waveWord ? text.indexOf(waveWord) : -1;
+    let last = null;
+    [...text].forEach((c, i) => {
+      if (c === '\n') { main.appendChild(document.createElement('br')); last = null; return; }
+      if (last && '、。，．！？!?'.includes(c)) { last.textContent += c; return; }   // 句読点は直前の文字と一緒に(行頭に残さない)
+      const sp = document.createElement('span');
+      sp.className = 'ch' + ((w0 >= 0 && i >= w0 && i < w0 + waveWord.length) ? ' wave' : '');
+      sp.style.setProperty('--i', i); sp.textContent = c; sp.setAttribute('aria-hidden', 'true');
+      main.appendChild(sp); last = sp;
+    });
+  }
+  // 魚の口の位置を測り、吹き出しのしっぽの先と、口から出る泡の位置を合わせる
+  function layout(){
+    const m = MOUTH[fishId] || [.08,.58];
+    const r = wrap.getBoundingClientRect(), b = bubble.getBoundingClientRect(), h = root.getBoundingClientRect();
+    if (!r.width || !r.height || !b.height) return;
+    const mx = r.left + (1 - m[0]) * r.width, my = r.top + m[1] * r.height;     // scaleX(-1) で反転するため、口は右側
+    const len = Math.max(10, Math.min(36, b.left - mx));
+    const ty  = Math.max(16, Math.min(b.height - 16, my - b.top));
+    bubble.style.setProperty('--tail-len', len + 'px');
+    bubble.style.setProperty('--tail-y', ty + 'px');
+    root.querySelectorAll('.air').forEach((a, i) => { a.style.left = (mx - h.left + 2 + i * 6) + 'px'; a.style.top = (my - h.top - 4) + 'px'; });
+  }
+  // 吹き出しを引っ込めて、口からもう一度ふくらませ、ひとことしゃべる
+  function say(text, opt = {}){
+    bubble.classList.remove('play'); void bubble.offsetWidth;
+    build(text, opt.wave || '');
+    if (sub) sub.style.display = opt.withSub ? '' : 'none';
+    bubble.classList.toggle('thanks', opt.cls === 'thanks');
+    void bubble.offsetWidth;
+    layout();
+    bubble.classList.add('play');
+  }
+  function whenReady(fn){ if (img.complete && img.naturalWidth) fn(); else img.onload = fn; }
+  function stop(){ timers.forEach(clearTimeout); timers = []; seq = null; }
+
+  // 複数のひとことを、順番にしゃべる。タップで次のひとことへ
+  function speakCurrent(){
+    if (!seq) return;
+    const ln = seq.lines[seq.i];
+    say(ln.text, { wave: ln.wave });
+    if (seq.i < seq.lines.length - 1) {
+      const ms = (0.85 + [...ln.text.replace(/\n/g, '')].length * 0.05 + (ln.hold || 2.3)) * 1000;
+      timers.push(setTimeout(() => { if (seq) { seq.i++; speakCurrent(); } }, ms));
+    }
+  }
+  function sequence(lines){
+    stop(); seq = { lines, i: 0 };
+    whenReady(speakCurrent);
+  }
+  function next(){
+    if (!seq || seq.i >= seq.lines.length - 1) return;
+    timers.forEach(clearTimeout); timers = [];
+    seq.i++; speakCurrent();
+  }
+  return { root, img, bubble, setFish, say, layout, sequence, next, stop, whenReady };
+}
+
+const surveyTalk = createFishTalk(document.getElementById('surveyHead'));
+const selectTalk = createFishTalk(document.getElementById('selectHead'));
+const relayoutTalks = () => { surveyTalk.layout(); selectTalk.layout(); };
+window.addEventListener('resize', relayoutTalks);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(relayoutTalks);
+
+// アンケート側の呼び出し口
+let surveyDone = false;
+function setSurveyFish(id){ surveyTalk.setFish(id); }
+function fishSays(text, waveWord, withSub){ surveyTalk.say(text, { wave: waveWord, withSub: withSub, cls: text === SURVEY_THANKS ? 'thanks' : '' }); }
+function playSurveyIntro(){ surveyTalk.whenReady(() => surveyTalk.say(SURVEY_TITLE, { wave: SURVEY_WAVE, withSub: true })); }
+
+// 最初の画面(魚を選ぶ画面)で、魚が話して案内する
+const SELECT_LINES = {
+  hello:   { text: 'いらっしゃいませ。\n乞食のお魚たちです。', wave: 'いらっしゃいませ' },
+  explain: { text: '捕まえると、豆知識と、\n相性のよい日本酒を\nご案内しますよ。', wave: '日本酒' },
+  action:  { text: '気になるお魚を、\nタップで捕まえて\nくださいね。', wave: 'タップ' },
+  more:    { text: 'ほかのお魚も、\n捕まえてみませんか？', wave: 'ほかの' },
+  all:     { text: '全部のお魚に、\n会えましたね。', wave: '全部' }
+};
+let selectGreeted = false;
+function startSelectTalk(){
+  const f = fishById(currentFishId);
+  selectTalk.setFish(f ? f.id : 'aji');                // 案内役は、直前に見たお魚(はじめは真鯵)
+  const n = caught.size, total = fishList.length;
+  let lines;
+  if (n === 0)            lines = [SELECT_LINES.hello, SELECT_LINES.explain, SELECT_LINES.action];
+  else if (!selectGreeted) lines = [SELECT_LINES.hello, SELECT_LINES.action];
+  else if (n >= total)    lines = [SELECT_LINES.all];
+  else                    lines = [SELECT_LINES.more];
+  selectGreeted = true;
+  selectTalk.sequence(lines);
+}
+(function(){
+  const b = selectTalk.bubble;
+  b.addEventListener('click', () => selectTalk.next());
+  b.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectTalk.next(); } });
+})();
+
+// ---- アンケート画面の見た目確認用 ----
+// 通常は「初回の1回だけ」しか見られないため、画面を確認するときは、何度でも新品の状態で開けるようにする。
+// 使い方: アドレスの末尾に ?survey を付けて開く(本番でも可)。この間の回答は、保存もログ送信もしません。
+let surveyReview = false;
+function resetSurveyUI(){
+  document.querySelectorAll('.screen[data-screen="survey"] input').forEach(i => { i.checked = false; i.disabled = false; });
+  const q2 = document.getElementById('group-age'); q2.hidden = true; q2.classList.remove('pop-in');
+  surveyDone = false;
+  surveyTalk.img.classList.remove('done');
+  const b = document.getElementById('surveyBackBtn');
+  b.disabled = true; b.classList.remove('btn-primary'); b.classList.add('btn-ghost');
+}
+function openSurveyReview(){
+  clearTimeout(opTimer); clearTimeout(opGuard);
+  surveyReview = true;
+  resetSurveyUI();
+  setSurveyFish(currentFishId);
+  screenHistory = [];
+  goScreen('survey');
 }
 
 // 初回はアンケートへ。回答済みなら最初の画面へ戻る
 function handleFinishClick(){
-  if (surveyProfile) goScreen('select');
-  else goScreen('survey');
+  if (surveyProfile) { goScreen('select'); return; }
+  // アンケートに出る魚は、いま見ていた魚(なければ真鯵)
+  setSurveyFish(currentFishId);
+  goScreen('survey');
 }
 
 function renderResult(){
@@ -1571,7 +1812,9 @@ function goOrder(){ if (ORDER_URL) location.href = ORDER_URL; }
 /* ============ 初期化 ============ */
 sendLog('アクセス');
 document.getElementById('totalCount').textContent = fishList.length;
-if (OP_FIRST_VISIT_ONLY && store.get('fish_op_seen')) {
+if (/[?&]survey\b/.test(location.search)) {
+  openSurveyReview();      // 確認用: ?survey
+} else if (OP_FIRST_VISIT_ONLY && store.get('fish_op_seen')) {
   goScreen('select');      // 2回目以降はOPを飛ばす(OP_FIRST_VISIT_ONLYがtrueのとき)
 } else {
   startOp();

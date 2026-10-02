@@ -651,6 +651,61 @@
   button.btn:disabled{ opacity:.55; }
   .quiz-btn:disabled{ opacity:.92; }          /* 答えを選んだあとも、選択肢の文字をはっきり読めるように */
   .note-input{ font-size:16px; }          /* 16px未満だと、iPhoneで入力時に画面が拡大されてしまう */
+
+  /* ===== 本編: 文字を減らし、ひとめで分かる見せ方に ===== */
+  .story-lead{
+    font-family: var(--font-mincho); font-weight:700; font-size:18px; line-height:1.75;
+    color: var(--kinari); text-align:center; margin:12px 4px 0; text-wrap:balance;
+  }
+  .points{ list-style:none; margin:0; padding:0; display:grid; gap:10px; }
+  .points li{
+    display:flex; align-items:center; gap:12px;
+    background: rgba(242,238,227,.07); border:1px solid rgba(242,238,227,.18); border-radius:14px;
+    padding:12px 14px; font-size:16px; font-weight:700; line-height:1.5; color:#fff;
+  }
+  .pt-mark{
+    flex:0 0 26px; height:26px; border-radius:50%; background: var(--shu); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700;
+  }
+  /* 大事なことばを、蛍光ペンのように */
+  b.em, .em{
+    font-weight:700; color: var(--kinari);
+    background: linear-gradient(transparent 58%, rgba(189,70,48,.55) 58%);
+    padding:0 .08em;
+  }
+  .story-trivia p{ font-size:15px; line-height:1.85; }
+  .quiz-result-text{ font-size:15.5px; line-height:1.85; }
+  .quiz-result-text .em, .flip-card-back .em{ color:#fff; }
+  /* 解説図: 「拡大」の印 */
+  .ill-box{ position:relative; display:block; max-width:260px; margin:0 auto; }
+  .ill-box img{ display:block; width:100%; height:auto; cursor:zoom-in; }
+  .zoom-badge{
+    position:absolute; right:6px; bottom:6px; pointer-events:none;
+    font-size:12px; font-weight:700; color:#fff; background:rgba(13,27,42,.78);
+    border:1px solid rgba(242,238,227,.5); border-radius:999px; padding:2px 10px;
+  }
+  .trivia-illustration-wrap img{ max-width:none; }
+  /* お酒の画面 */
+  .sake-legend{ display:flex; flex-wrap:wrap; gap:8px; margin:0 0 16px; }
+  .sake-legend .lg{ font-size:13.5px; color:#fff; background:rgba(242,238,227,.08); border:1px solid rgba(242,238,227,.2); border-radius:999px; padding:5px 12px; }
+  .sake-legend .lg b{ color:var(--shu-pale); margin-right:6px; }
+  .sake-card .taste{ margin:0 0 10px; }
+  .match{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
+  .match-label{ font-size:13px; font-weight:700; color:var(--shu-pale); margin-right:2px; }
+  .chip-m{ font-size:13.5px; color:#fff; background:rgba(242,238,227,.12); border-radius:999px; padding:3px 11px; }
+
+  /* ===== お魚のこと: 特徴・味わい・食べ方(ラベル + 2文ほどの説明) ===== */
+  .about{ display:grid; gap:0; }
+  .about-row{ padding:14px 2px; border-top:1px solid rgba(242,238,227,.16); }
+  .about-row:first-child{ border-top:0; padding-top:4px; }
+  .about-k{
+    display:inline-block; margin:0 0 8px; padding:1px 11px;
+    font-size:13.5px; font-weight:700; letter-spacing:.08em; color: var(--shu-pale);
+    border:1px solid rgba(241,220,213,.55); border-radius:999px;
+  }
+  .about-v{ margin:0; font-size:15.5px; line-height:1.9; color:#fff; text-wrap:pretty; letter-spacing:.02em; }
+  .about-v .em{ color:#fff; }
+  .story-lead{ font-size:17.5px; }
 </style>
 </head>
 <body>
@@ -713,6 +768,7 @@
         <div class="fish-header">
           <span class="name" id="detailName"></span>
         </div>
+        <p class="story-lead" id="detailLead"></p>
       </div>
 
       <article class="fish-story">
@@ -727,7 +783,7 @@
           </div>
           <p id="detailTrivia"></p>
           <div class="trivia-illustration-wrap" id="detailIllWrap">
-            <img id="detailIllImg" src="" alt="">
+            <div class="ill-box"><img id="detailIllImg" src="" alt=""><span class="zoom-badge" aria-hidden="true">拡大</span></div>
             <div class="trivia-illustration-caption" id="detailIllCaption"></div>
             <ul class="ill-legend" id="detailIllLegend" hidden></ul>
           </div>
@@ -738,9 +794,8 @@
 
         <!-- 3. 味わい -->
         <div class="story-taste">
-          <p class="story-basic" id="detailBasic"></p>
-          <h4 class="taste-title">味わいと食べるポイント</h4>
-          <p class="eating" id="detailEatingPoint"></p>
+          <h4 class="taste-title">お魚のこと</h4>
+          <div class="about" id="detailAbout"></div>
           <div class="parts" id="detailParts" hidden></div>
         </div>
 
@@ -762,11 +817,11 @@
       <h2 class="title" style="line-height: 1.6; word-break: keep-all;" id="menuTitle"></h2>
 
       <div class="menu-notice">
-        ※ご注文は、注文用QRもしくは口頭で承ります。<br>
-        ※仕入れの都合により、ご用意が無い場合がございます。
+        ※ご注文は、注文用QRまたは口頭で承ります。<br>
+        ※仕入れの都合で、品切れの場合があります。
       </div>
 
-      <p class="sake-legend">お酒の合わせ方　<b>流す</b>＝脂や香りをスッと切る　<b>重ねる</b>＝旨味に寄り添い、深める</p>
+      <div class="sake-legend"><span class="lg"><b>流す</b>脂をスッと切る</span><span class="lg"><b>重ねる</b>旨みを深める</span></div>
       <div id="menuScreenList"></div>
 
       <div class="btn-row" style="margin-top: 32px; flex-direction: column;">
@@ -935,113 +990,132 @@ function sendLog(action, extra) {
 const fishList = [
   {
     id: "aji", name: "真鯵", kana: "まあじ", img: "maaji.webp",
-    basicInfo: "通年出回るが、旬は初夏から夏。旨味成分が豊富で、刺身、塩焼き、フライなど万能な青魚です。",
-    eatingPoint: "皮目の香ばしさと、身に感じる脂の甘みのバランスが絶妙です。生姜やネギなどの薬味と一緒に食べると、より一層旨味が引き立ちます。",
+    lead: "旨みが豊富で、料理を選ばない万能の青魚。",
+    about: [
+      { k: "特徴", v: "通年出回りますが、**旬は初夏から夏**。旨みが豊富な青魚です。" },
+      { k: "味わい", v: "皮目の香ばしさと、脂の甘みのバランスが絶妙です。" },
+      { k: "食べ方", v: "刺身・塩焼き・フライで。**生姜やネギ**を添えると旨みが引き立ちます。" }
+    ],
     interaction: {
       type: "quiz",
-      question: "「アジ」という名前の由来は次のうちどれでしょうか？",
+      question: "「アジ」という名前の由来は？",
       options: [
         { text: "味が良いから", isCorrect: true },
         { text: "アジアから伝わったから", isCorrect: false }
       ],
-      explanation: "「味が良い」から「アジ」と名付けられたという説が有力です！古くから日本人に愛されてきた魚です。"
+      explanation: "「**味が良い**」から「アジ」と名付けられたという説が有力です。昔から日本人に愛されてきた魚です。"
     },
-    trivia: "尾に近い側線に並ぶ「ゼイゴ」は、アジ科の魚だけが持つ硬いウロコです。包丁を入れる前に、これを取り除いてから調理します。",
+    trivia: "尾の近くの硬いウロコ**「ゼイゴ」**は、アジの仲間だけの特徴。調理前に、これを取り除きます。",
     illustration: "maaji_kaisetsu2.webp", illAlt: "アジのゼイゴ",
-    illCaption: "尾の方にある硬いウロコ「ゼイゴ」",
+    illCaption: "尾の近くにある「ゼイゴ」",
     ownerNote: "",
     menuItems: [], recommendedSake: "hakkaisan"
   },
   {
     id: "katsuo", name: "カツオ", kana: "かつお", img: "katsuo.webp",
-    basicInfo: "春の「初鰹」と秋の「戻り鰹」で年に2回旬を迎える、赤身魚の代表格。鉄分を多く含みます。",
-    eatingPoint: "藁焼きの香ばしさと、赤身ならではの濃い旨みが特徴です。ニンニクやポン酢と合わせることで、さっぱりとしつつも力強い味わいを楽しめます。",
+    lead: "春と秋、年に2回の旬を迎える赤身魚の代表格。",
+    about: [
+      { k: "特徴", v: "春の「初鰹」と秋の「戻り鰹」で**年に2回が旬**。鉄分も豊富です。" },
+      { k: "味わい", v: "藁焼きの香ばしさと、赤身ならではの濃い旨みが特徴です。" },
+      { k: "食べ方", v: "**ニンニクやポン酢**で。さっぱりしつつ、力強い味わいに。" }
+    ],
     interaction: {
       type: "quiz",
-      question: "カツオは泳ぐのをやめるとどうなるでしょうか？",
+      question: "カツオは泳ぐのをやめるとどうなる？",
       options: [
         { text: "ゆっくり休める", isCorrect: false },
         { text: "呼吸ができなくなる", isCorrect: true }
       ],
-      explanation: "カツオはエラ蓋を動かせないため、泳ぎ続けて口から海水を送り込まないと、酸素を取り込めなくなると言われています。浮き袋も未発達で、泳ぎを止めると沈んでしまうとも言われます。"
+      explanation: "**泳ぎ続けて**海水をエラに送らないと、酸素を取り込めません。止まると沈むとも言われます。"
     },
-    trivia: "鰹節（かつおぶし）は、カツオを煮て煙で燻す「焙乾（ばいかん）」を、1か月以上かけて10〜15回も繰り返して作られます。さらにカビを付けて熟成させた「本枯節」は、世界一硬い食べ物とも言われるほどカチカチになり、日本料理の出汁に欠かせない存在です。",
+    trivia: "鰹節は、燻す工程を**1か月以上**かけて10〜15回くり返して作ります。**世界一硬い食べ物**とも言われます。",
     compare: {
-      title: "見分けカード：カツオ × マグロ",
+      title: "カツオとマグロの見分け方",
       items: [
-        { img: "katsuo.webp", label: "カツオ", note: "腹側に縞模様がある" },
+        { img: "katsuo.webp", label: "カツオ", note: "腹に縞がある" },
         { img: "maguro.webp", label: "マグロ", note: "縞模様はない（成魚）" }
       ],
-      foot: "形がよく似た2匹は、腹の縞が見分けの目印です。"
+      foot: "形はそっくり。腹の縞が目印です。"
     },
     ownerNote: "",
     menuItems: [], recommendedSake: "tateyama"
   },
   {
     id: "maguro", name: "まぐろ", kana: "まぐろ", img: "maguro.webp",
-    basicInfo: "寿司や刺身の主役。赤身、中トロ、大トロと部位によって脂の乗り方と味わいが大きく異なります。",
-    eatingPoint: "赤身はさっぱりとした酸味と旨味が、トロは口の中でとろける濃厚な脂の甘みが楽しめます。部位ごとの味わいの違いをぜひ食べ比べてみてください。",
+    lead: "赤身・中トロ・大トロ。部位で味わいが変わる刺身の主役。",
+    about: [
+      { k: "特徴", v: "寿司や刺身の主役。**部位**によって、脂ののり方が大きく違います。" },
+      { k: "味わい", v: "赤身は**さっぱりとした酸味と旨み**、トロは**濃厚な脂の甘み**です。" },
+      { k: "食べ方", v: "ぜひ**部位ごとに食べ比べ**を。違いがよく分かります。" }
+    ],
     interaction: {
       type: "quiz",
-      question: "現在では大人気の「トロ」ですが、江戸時代はどのような扱いを受けていたでしょうか？",
+      question: "江戸時代、「トロ」はどう扱われていた？",
       options: [
         { text: "殿様しか食べられない高級品", isCorrect: false },
         { text: "人気がなく、捨てられていた", isCorrect: true }
       ],
-      explanation: "冷蔵（冷凍）技術がなかった当時、脂の多いトロは傷みやすく、猫もまたいで通る「ねこまたぎ」と呼ばれるほど人気がなく、捨てられることも多かったそうです。"
+      explanation: "傷みやすかったため、**「ねこまたぎ」**と呼ばれるほど人気がなく、捨てられることも多かったそうです。"
     },
-    trivia: "マグロもカツオと同様に、泳ぎ続けないとエラ呼吸ができず窒息してしまうため、寝ている間もゆっくり泳ぎ続けています。",
+    trivia: "**泳ぎ続けないと息ができない**ため、寝ている間も、ゆっくり泳ぎ続けています。",
     parts: {
       img: "maguro.webp",
-      title: "部位をタップして、味わいを見る",
-      note: "※部位の位置は目安のイメージです。",
+      title: "部位をタップして、味を見る",
+      note: "※位置は目安です。",
       regions: [
         { id: "akami",  label: "赤身",   color: "#AA2828", cx: 470, cy: 232, rx: 170, ry: 34,
-          desc: "背中側の部位。脂は控えめで、さっぱりとした酸味と旨みが特徴です。" },
+          desc: "背中側の部位。脂は控えめで、さっぱりとした酸味と旨みです。" },
         { id: "chutoro", label: "中トロ", color: "#E66E64", cx: 555, cy: 350, rx: 140, ry: 29,
-          desc: "赤身と大トロの中間。ほどよい脂と、赤身の旨みを一緒に楽しめます。" },
+          desc: "赤身と大トロの中間。ほどよい脂と、赤身の旨みを楽しめます。" },
         { id: "otoro",  label: "大トロ", color: "#FFC8BE", cx: 395, cy: 402, rx: 118, ry: 26,
-          desc: "お腹側の部位。口の中でとろける、濃厚な脂の甘みが特徴です。" }
+          desc: "お腹側の部位。口の中でとろける、濃厚な脂の甘みです。" }
       ]
     },
     compare: {
-      title: "見分けカード：カツオ × マグロ",
+      title: "カツオとマグロの見分け方",
       items: [
-        { img: "katsuo.webp", label: "カツオ", note: "腹側に縞模様がある" },
+        { img: "katsuo.webp", label: "カツオ", note: "腹に縞がある" },
         { img: "maguro.webp", label: "マグロ", note: "縞模様はない（成魚）" }
       ],
-      foot: "形がよく似た2匹は、腹の縞が見分けの目印です。"
+      foot: "形はそっくり。腹の縞が目印です。"
     },
     ownerNote: "",
     menuItems: [], recommendedSake: "zaku"
   },
   {
     id: "salmon", name: "サーモン", kana: "さーもん", img: "sa-mon.webp",
-    basicInfo: "脂がたっぷり乗り、とろけるような食感が特徴。子供から大人まで大人気の魚です。",
-    eatingPoint: "豊かな脂の甘みと、なめらかな舌触りが最大の魅力です。炙ることで香ばしさが加わり、生とはまた違ったとろける食感を味わえます。",
+    lead: "子どもから大人まで人気。とろける脂の甘みが魅力。",
+    about: [
+      { k: "特徴", v: "脂がたっぷり乗った、とろけるような食感の魚です。" },
+      { k: "味わい", v: "豊かな脂の甘みと、なめらかな舌触りが魅力です。" },
+      { k: "食べ方", v: "**炙る**と香ばしさが加わり、生とは違うとろける食感に。" }
+    ],
     interaction: {
       type: "quiz",
-      question: "サーモンの身はオレンジ色ですが、実は「何魚」に分類される？",
+      question: "身はオレンジ色。実は何魚に分類される？",
       options: [
         { text: "白身魚", isCorrect: true },
         { text: "赤身魚", isCorrect: false }
       ],
-      explanation: "実は「白身魚」に分類されます。エビやオキアミなどのエサに含まれる赤い色素（アスタキサンチン）が体に蓄積して、この色になります。",
+      explanation: "実は**白身魚**。エビやオキアミなどのエサに含まれる赤い色素（アスタキサンチン）が体にたまって、この色になります。",
       extra: "salmonSlice"
     },
-    trivia: "生食用の「サーモン」は基本的に寄生虫対策がされた養殖物で、天然の「鮭」は加熱調理が基本です。",
+    trivia: "生で食べるサーモンは、寄生虫対策がされた**養殖**が基本。天然の鮭は、加熱が基本です。",
     ownerNote: "",
     menuItems: [], recommendedSake: "oze"
   },
   {
     id: "hirame", name: "ヒラメ", kana: "ひらめ", img: "hirame.webp",
-    basicInfo: "上品な旨味とコリコリとした食感が特徴の高級白身魚。冬に脂が乗って「寒ビラメ」として美味しくなります。",
-    eatingPoint: "淡白な中にも上品な旨みがあり、コリコリとした弾力のある食感が楽しめます。えんがわ部分は脂が乗っており、特有の甘みが口に広がります。",
+    lead: "上品な旨みとコリコリの食感。冬は脂ののる「寒ビラメ」。",
+    about: [
+      { k: "特徴", v: "高級白身魚。**冬**に脂がのり、「寒ビラメ」と呼ばれます。" },
+      { k: "味わい", v: "淡白で上品な旨みと、コリコリとした弾力が楽しめます。" },
+      { k: "食べ方", v: "**えんがわ**は脂がのって、特有の甘みが口に広がります。" }
+    ],
     interaction: {
       type: "flip",
       front: "ヒラメとカレイの見分け方は？",
-      back: `目を上にして置いた時に顔が左を向くのがヒラメ、右を向くのがカレイと見分けます。
-      <div class="flip-sub">口の大きさも手がかりで、ヒラメは大きな口に鋭い歯があり、カレイは小さな口です。</div>
+      back: `目を上にして、顔が<b class="em">左向き</b>ならヒラメ、<b class="em">右向き</b>ならカレイ。口の大きさも手がかりで、ヒラメは大きな口に鋭い歯があります。
       <div style="margin-top: 12px; background: rgba(0,0,0,0.15); padding: 10px; border-radius: 8px;">
         <img src="hirame_kaisetsu2.webp" alt="左ヒラメに右カレイ" style="width: 100%; height: auto; border-radius: 4px; display: block; margin: 0 auto;">
         <div class="flip-cap">
@@ -1050,24 +1124,28 @@ const fishList = [
         </div>
       </div>`
     },
-    trivia: "生まれたばかりのヒラメは普通の魚のように目が両側にありますが、成長するにつれて右目が左側に移動します。また、海底の砂に潜って身を隠すため、背中側の色は周りの環境に合わせて変化させることができます。",
+    trivia: "生まれたては目が両側にあり、成長すると**右目が左側へ**移ります。海底の砂に潜るため、背中の色を周りに合わせて変えることもできます。",
     ownerNote: "",
     menuItems: [], recommendedSake: "hakkaisan"
   },
   {
     id: "shimaaji", name: "シマアジ", kana: "しまあじ", img: "shimaaji.webp",
-    basicInfo: "アジの仲間の中でも特に味が良いとされ、高級魚として扱われます。身が締まり、上品な脂の甘みがあります。",
-    eatingPoint: "青魚特有のクセがなく、白身魚のような上品な脂の甘さと、しっかりとした歯ごたえを同時に味わえるのが特徴です。",
+    lead: "アジの仲間でも特に味がよいとされる高級魚。",
+    about: [
+      { k: "特徴", v: "身が締まり、**上品な脂の甘み**がある高級魚です。" },
+      { k: "味わい", v: "青魚特有のクセがなく、白身魚のような上品な甘さです。" },
+      { k: "食べ方", v: "しっかりとした**歯ごたえ**と脂の甘みを、同時に味わえます。" }
+    ],
     interaction: {
       type: "quiz",
-      question: "「シマアジ」という名前の由来は、次のうちどちらでしょうか？",
+      question: "「シマアジ」の名前の由来は？",
       options: [
         { text: "体に縞（シマ）模様があるから", isCorrect: true },
         { text: "身が引き締まっているから", isCorrect: false }
       ],
-      explanation: "体の中央を頭から尾へ走る黄色いラインが、名前の由来と言われています！（※伊豆諸島などの「島」で獲れるからという説もあります。また、このラインは若い魚で目立ち、成長すると薄れていきます）"
+      explanation: "体の中央を走る**黄色いライン**が由来と言われます。このラインは、成長すると薄れていきます。"
     },
-    trivia: "天然物は非常に漁獲量が少なく「幻の魚」とも呼ばれます。現在お店で食べられるものの多くは、養殖技術の進歩によって美味しく育てられたものです。",
+    trivia: "天然は漁獲量が少なく**「幻の魚」**とも呼ばれます。お店で食べられるものは、養殖が多いです。",
     illustration: "shimaaji_kaisetsu2.webp", illAlt: "シマアジの黄色いライン",
     illCaption: "頭の後ろから尾へ走る黄色いライン",
     ownerNote: "",
@@ -1075,86 +1153,106 @@ const fishList = [
   },
   {
     id: "maiwashi", name: "真いわし", kana: "まいわし", img: "iwashi.webp",
-    basicInfo: "青魚の代表で、EPAやDHAなどの栄養素が豊富。新鮮なものは刺身でも絶品です。",
-    eatingPoint: "青魚ならではの豊かな香りと、とろけるように脂ののった身の旨みがたまりません。生姜醤油でさっぱりといただくのがおすすめです。",
+    lead: "栄養が豊富で、香りと脂の旨みが魅力の青魚。",
+    about: [
+      { k: "特徴", v: "青魚の代表で、**EPAやDHA**が豊富です。新鮮なら刺身でも絶品。" },
+      { k: "味わい", v: "青魚ならではの豊かな香りと、とろけるような脂の旨みです。" },
+      { k: "食べ方", v: "**生姜醤油**でさっぱりいただくのがおすすめです。" }
+    ],
     interaction: {
       type: "flip",
-      front: "イワシは漢字で魚へんに「弱い（鰯）」と書きます。一体なぜでしょうか？",
-      back: "水揚げされるとすぐに死んでしまうほど鮮度落ちが早く、「弱し（よわし）」と呼ばれたことが名前と漢字の由来だと言われています。"
+      front: "イワシは魚へんに「弱い」と書きます。なぜ？",
+      back: "水揚げ後すぐ弱ってしまうほど鮮度落ちが早く、「弱し（よわし）」から名前と漢字がついたと<b class='em'>言われています</b>。"
     },
-    trivia: "敵から身を守るために、何万匹という巨大な群れ（トルネード）を作って泳ぐ習性があります。",
+    trivia: "敵から身を守るため、何万匹もの大きな群れ**「トルネード」**を作って泳ぎます。",
     illustration: "iwashi_kaisetsu.webp", illAlt: "イワシの群れ（トルネード）",
-    illCaption: "巨大な群れ（トルネード）を作って泳ぐイワシ",
+    illCaption: "群れで泳ぐイワシ（トルネード）",
     ownerNote: "",
     menuItems: [], recommendedSake: "tateyama"
   },
   {
     id: "madako", name: "真だこ", kana: "まだこ", img: "tako.webp",
-    basicInfo: "噛むほどに広がる濃厚な旨味と、しっかりとした弾力が特徴。日本で最も一般的に食べられるタコです。",
-    eatingPoint: "噛めば噛むほどに広がる濃厚な旨みと、しっかりとした歯ごたえが特徴です。吸盤のコリコリとした食感も良いアクセントになります。",
+    lead: "噛むほどに旨みが広がる、日本で一番身近なタコ。",
+    about: [
+      { k: "特徴", v: "日本で最も一般的に食べられるタコ。**弾力**がしっかりしています。" },
+      { k: "味わい", v: "噛めば噛むほど、**濃厚な旨み**が広がります。" },
+      { k: "食べ方", v: "**吸盤**のコリコリとした食感も、よいアクセントです。" }
+    ],
     interaction: {
       type: "quiz",
-      question: "タコは脳をいくつ持っているでしょうか？",
+      question: "タコの脳はいくつ？",
       options: [
         { text: "6つ", isCorrect: false },
         { text: "9つ", isCorrect: true }
       ],
-      explanation: "タコは心臓を3つ持っています。脳は、頭の中枢の脳に加えて、8本の腕それぞれにある「小さな脳」（神経のかたまり）を合わせて9つと言われ、非常に高い知能を持っています。"
+      explanation: "心臓は**3つ**。脳は、中枢の脳と、8本の腕の「小さな脳」を合わせて**9つ**と言われます。"
     },
-    trivia: "日本では茹でると赤くなりますが、生きている時は環境に合わせて一瞬で体の色や模様を変えることができます。",
+    trivia: "茹でると赤くなりますが、生きている間は、環境に合わせて**一瞬で体の色や模様を変えられます**。",
     illustration: "tako_kaisetsu2.webp", illAlt: "タコの脳と心臓のイラスト",
-    illCaption: "タコの体のなか（脳9つ・心臓3つ）",
+    illCaption: "",
     illLegend: [
       { color: "#F0A9B0", text: "中枢の脳（目の奥に1つ）" },
-      { color: "#1E7F9E", text: "腕の付け根の脳（神経のかたまり）× 8" },
-      { color: "#B3261E", text: "心臓（全身に血液を送る）× 1" },
-      { color: "#F08A6B", text: "鰓心臓（えらに血液を送る）× 2" }
+      { color: "#1E7F9E", text: "腕の付け根の脳 × 8" },
+      { color: "#B3261E", text: "心臓（全身用）× 1" },
+      { color: "#F08A6B", text: "鰓心臓（えら用）× 2" }
     ],
     ownerNote: "",
     menuItems: [], recommendedSake: "manozuru"
   },
   {
     id: "unagi", name: "うなぎ", kana: "うなぎ", img: "unagi.webp",
-    basicInfo: "土用の丑の日に食べる習慣でおなじみ。ふっくらとした身と香ばしいタレの相性が抜群です。",
-    eatingPoint: "皮目はパリッと香ばしく、身はふっくらと柔らかな食感。甘辛いタレと脂の旨味が絡み合い、ご飯やお酒がどんどん進む深い味わいです。",
+    lead: "土用の丑の日でおなじみ。ふっくら香ばしい味わい。",
+    about: [
+      { k: "特徴", v: "ふっくらとした身と、香ばしいタレの相性が抜群です。" },
+      { k: "味わい", v: "皮目は**パリッと香ばしく**、身はふっくら柔らかな食感です。" },
+      { k: "食べ方", v: "甘辛いタレと脂の旨みで、**ご飯もお酒も進みます**。" }
+    ],
     interaction: {
       type: "flip",
-      front: "ウナギをお刺身（生）で見かけないのはなぜ？",
-      back: "実はウナギの血には毒（イクチオトキシン）が含まれています。この毒は熱に弱く、60℃で5分ほど加熱すると毒性がなくなるため、蒲焼きなどで加熱して食べるんですね。"
+      front: "ウナギを刺身で見かけないのはなぜ？",
+      back: "血に<b class='em'>毒</b>（イクチオトキシン）があるためです。熱に弱く、60℃で5分ほど加熱すると毒性がなくなるので、蒲焼きなどで加熱して食べます。"
     },
-    trivia: "ウナギの生態は長年謎に包まれていましたが、近年になってようやくマリアナ諸島付近で産卵することが判明しました。",
+    trivia: "長年謎でしたが、近年ようやく、産卵場所が**「マリアナ諸島付近」**と分かりました。",
     ownerNote: "",
     menuItems: [], recommendedSake: "zaku"
   },
   {
     id: "yariika", name: "ヤリイカ", kana: "やりいか", img: "ika.webp",
-    basicInfo: "上品な甘みと、コリコリとした歯切れの良い食感が魅力。冬から春にかけてが旬です。",
-    eatingPoint: "透き通るような身は、上品な甘みと柔らかくも歯切れの良い食感が魅力です。噛むほどにイカ本来の優しい旨味が口いっぱいに広がります。",
+    lead: "上品な甘みと歯切れのよさが魅力。冬から春が旬。",
+    about: [
+      { k: "特徴", v: "**冬から春**が旬。透き通るような身が特徴です。" },
+      { k: "味わい", v: "上品な甘みと、柔らかくも歯切れのよい食感です。" },
+      { k: "食べ方", v: "噛むほどに、イカ本来の**優しい旨み**が広がります。" }
+    ],
     interaction: {
       type: "quiz",
-      question: "ヤリイカの寿命はどれくらいでしょうか？",
+      question: "ヤリイカの寿命はどれくらい？",
       options: [
         { text: "約1年", isCorrect: true },
         { text: "約10年", isCorrect: false }
       ],
-      explanation: "実は寿命はわずか1年！春から夏に生まれて成長し、翌年の春に産卵を終えると一生を終える、とても短い命なんです。"
+      explanation: "実は寿命は**1年**。春〜夏に生まれて成長し、翌年の春に産卵を終えると一生を終える、短い命です。"
     },
-    trivia: "「ヤリイカ（槍烏賊）」という名前は、細長く先が尖った胴体の形が「槍の穂先」に似ていることに由来します。",
+    trivia: "名前は、細長く先が尖った胴体が**「槍の穂先」**に似ていることに由来します。",
     illustration: "ika_kaisetsu.webp", illAlt: "槍の穂先とヤリイカ",
-    illCaption: "槍の穂先（左）に似た、ヤリイカの細長い形",
+    illCaption: "槍の穂先（左）に似たヤリイカ",
     ownerNote: "",
     menuItems: [], recommendedSake: "oze"
   },
   {
     id: "amaebi", name: "甘エビ", kana: "あまえび", img: "ebi.webp",
-    basicInfo: "その名の通り、とろけるような強い甘みが特徴。正式名称は「ホッコクアカエビ」といいます。",
-    eatingPoint: "口に入れた瞬間にとろけるような強い甘みと、ねっとりとしたなめらかな口当たりが特徴です。頭の味噌も濃厚で、余すところなく楽しめます。",
+    lead: "名前のとおり、とろける強い甘みが特徴。",
+    about: [
+      { k: "特徴", v: "正式名称は**「ホッコクアカエビ」**。強い甘みが特徴です。" },
+      { k: "味わい", v: "口に入れるととろける甘みと、ねっとり滑らかな口当たり。" },
+      { k: "食べ方", v: "**頭の味噌**も濃厚。余すところなく楽しめます。" }
+    ],
     interaction: {
       type: "flip",
-      front: "アマエビの不思議な生態。<br>大きくなると性別が変わるって本当？",
-      back: "本当です！<br>生まれた時はすべてオスですが、数年（4〜6歳ごろ）たつとメスに性転換するという不思議な生態を持っています。"
+      front: "アマエビは、大きくなると<br>性別が変わるって本当？",
+      back: "本当です！<br>生まれた時はすべてオスで、数年（4〜6歳ごろ）たつとメスに性転換します。"
     },
-    trivia: "水揚げされてから少し時間が経つことで、自己消化によりアミノ酸が増え、より甘みが増します。",
+    trivia: "水揚げ後、少し時間がたつと、**自己消化でアミノ酸が増え**、より甘くなります。",
     ownerNote: "",
     menuItems: [], recommendedSake: "oze"
   }
@@ -1166,31 +1264,36 @@ const sakeList = [
     id: "oze", group: "冷や・常温で", tag: "辛口", pair: "流す",
     name: "尾瀬のゆきどけ", region: "群馬",
     line: "脂をスッと洗い流して、次の一口を新鮮に。",
-    taste: "キレのある喉ごしと、澄んだ後味が特徴です。ほのかなフルーティーな香りがありつつも、後味はスッと切れるため、サーモンやヤリイカのような甘みのある魚の脂や旨味を綺麗に洗い流してくれます。お造りなどの生食と合わせるのが特におすすめです。"
+    taste: "キレのある喉ごしと、澄んだ後味。ほのかにフルーティーな香りがあり、魚の脂や旨みをきれいに洗い流します。",
+    match: ["サーモン", "ヤリイカ", "お造り"]
   },
   {
     id: "hakkaisan", group: "冷や・常温で", tag: "スッキリ", pair: "流す",
     name: "八海山", region: "新潟",
     line: "軽やかに流して、魚の繊細な風味を引き立てる。",
-    taste: "雑味のないクリアな味わいと、淡麗で軽やかな飲み口が魅力の銘酒。魚の繊細な風味を一切邪魔せず、むしろ引き立ててくれます。ヒラメのような上品な白身魚や、アジなどの青魚を塩焼きにした際の香ばしさとも見事に調和します。"
+    taste: "雑味のないクリアな味わいと、淡麗で軽やかな飲み口。魚の繊細な風味を邪魔せず、引き立てます。",
+    match: ["ヒラメなどの白身魚", "アジの塩焼き"]
   },
   {
     id: "zaku", group: "冷や・常温で", tag: "旨甘口", pair: "重ねる",
     name: "作", region: "三重",
     line: "お酒の甘みと魚の脂が、口の中で溶け合う。",
-    taste: "やわらかな甘みと、ふくよかな米の旨みが口いっぱいに広がるリッチな味わい。マグロのトロやウナギのような、脂が乗っていて味の濃い魚と合わせると、お酒の甘みと魚の脂が口の中で溶け合い、極上のペアリングを生み出します。濃いめのタレや味噌を使った料理にもよく合います。"
+    taste: "やわらかな甘みと、ふくよかな米の旨み。脂の乗った魚と合わせると、お酒の甘みと魚の脂が口の中で溶け合います。",
+    match: ["マグロのトロ", "ウナギ", "濃いめのタレ・味噌"]
   },
   {
     id: "manozuru", group: "熱燗で", tag: "辛口", pair: "重ねる",
     name: "真野鶴", region: "新潟",
     line: "燗の温かさが、素材の甘みを深めてくれる。",
-    taste: "温めることで米本来のまろやかな旨味と、辛口ならではの輪郭がグッと引き立ちます。シマアジのようなしっかりとした旨味を持つ魚や、タコのように噛むほどに味が出る魚介と合わせると、燗酒の温かさが素材の甘みをより一層深めてくれます。"
+    taste: "温めると、米のまろやかな旨みと辛口の輪郭が引き立ちます。旨みのある魚や、噛むほど味が出る魚介と好相性です。",
+    match: ["シマアジ", "タコ"]
   },
   {
     id: "tateyama", group: "熱燗で", tag: "超辛口", pair: "流す",
     name: "立山", region: "富山",
     line: "キレで口の中をさっぱりリセット。",
-    taste: "熱燗にすることでキレ味と辛さがより一層際立つ、食中酒の王道。口の中をさっぱりとリセットしてくれるので、カツオのタタキやイワシなど、クセや香りが強めの青魚・赤身魚と相性抜群です。香ばしい炭火焼きの料理と合わせても負けない力強さがあります。"
+    taste: "熱燗でキレと辛さが際立つ、食中酒の王道。口の中をさっぱりリセットし、香りの強い魚にも負けません。",
+    match: ["カツオのタタキ", "イワシ", "炭火焼き"]
   }
 ];
 
@@ -1459,6 +1562,15 @@ function stopAquarium() {
 }
 
 /* ============ 魚詳細 ============ */
+// 文章の中の **ことば** を、蛍光ペンのような強調にして表示する(HTMLは使わず、安全に組み立てる)
+function setRich(node, text){
+  node.textContent = '';
+  String(text).split('**').forEach((seg, i) => {
+    if (!seg) return;
+    if (i % 2) { const b = document.createElement('b'); b.className = 'em'; b.textContent = seg; node.appendChild(b); }
+    else node.appendChild(document.createTextNode(seg));
+  });
+}
 function el(tag, cls, text){
   const e = document.createElement(tag);
   if (cls) e.className = cls;
@@ -1512,7 +1624,7 @@ function answerQuiz(f, idx, buttons, result, rTitle, rText, rExtra){
 
   result.className = 'quiz-result-box show ' + (correct ? 'correct' : 'incorrect');
   rTitle.textContent = correct ? '⭕ 正解！' : '❌ ざんねん...';
-  rText.textContent = q.explanation;
+  setRich(rText, q.explanation);
 
   if (q.extra === 'salmonSlice') {
     rExtra.innerHTML = salmonSliceHtml();
@@ -1635,14 +1747,14 @@ function selectFish(id){
   }
 
   // 2. 答え・豆知識
-  document.getElementById('detailTrivia').textContent = f.trivia;
+  setRich(document.getElementById('detailTrivia'), f.trivia);
   const illWrap = document.getElementById('detailIllWrap');
   const illImg = document.getElementById('detailIllImg');
   const illCaption = document.getElementById('detailIllCaption');
   if (f.illustration) {
     illImg.src = f.illustration;
     illImg.alt = f.illAlt || '';
-    illCaption.textContent = (f.illCaption || '') + '（タップで拡大）';
+    illCaption.textContent = f.illCaption || '';
     illWrap.style.display = 'block';
     const legend = document.getElementById('detailIllLegend');
     legend.innerHTML = '';
@@ -1665,8 +1777,14 @@ function selectFish(id){
   renderCompare(f);
 
   // 3. 味わい
-  document.getElementById('detailBasic').textContent = f.basicInfo;
-  document.getElementById('detailEatingPoint').textContent = f.eatingPoint;
+  document.getElementById('detailLead').textContent = f.lead || '';
+  const about = document.getElementById('detailAbout'); about.textContent = '';
+  (f.about || []).forEach(r => {
+    const row = document.createElement('div'); row.className = 'about-row';
+    const k = document.createElement('div'); k.className = 'about-k'; k.textContent = r.k;
+    const v = document.createElement('p'); v.className = 'about-v'; setRich(v, r.v);
+    row.append(k, v); about.appendChild(row);
+  });
   renderParts(f);
 
   // 店主のひとこと
@@ -1718,6 +1836,7 @@ function sakeCardHtml(s){
       </div>
       <p class="pair-line">${s.line}</p>
       <p class="taste">${s.taste}</p>
+      ${(s.match && s.match.length) ? `<div class="match"><span class="match-label">合う</span>${s.match.map(m => `<span class="chip-m">${m}</span>`).join('')}</div>` : ''}
     </div>`;
 }
 
@@ -1749,7 +1868,7 @@ function goToMenu(){
   } else {
     // 実メニューが未登録のときは、ダミーの料理は出さず、お酒の提案だけを表示
     wrap.innerHTML = `
-      <p class="menu-empty">この魚を使った料理は、お店のメニューやスタッフにおたずねください。</p>
+      <p class="menu-empty">この魚の料理は、スタッフにおたずねください。</p>
       <div class="sake-group-label" style="margin-top:0;">おすすめのペアリング</div>
       ${s ? sakeCardHtml(s) : ''}`;
   }
@@ -2151,7 +2270,7 @@ function goOrder(){ if (ORDER_URL) location.href = ORDER_URL; }
    あと(次が漢字・カタカナ・数字のとき)でだけ折り返せるようにして、言葉が途中で切れないようにします。
    うまく動かない場合は PHRASE_ON を false にすると、通常の折り返しに戻ります。 */
 const PHRASE_ON = true;
-const PHRASE_SEL = '.story-basic, .story-taste p.eating, .story-trivia p, .trivia-illustration-caption, .compare-card .note, .compare-foot, .parts-info, .parts-note, .story-owner p, .quiz-question, .quiz-result-text, .flip-card-front p, .flip-card-back p, .flip-sub, .menu-item .desc, .menu-empty, .sake-card .taste, .sake-card .pair-line, .sake-legend, .menu-notice, .note, .ill-legend li, .result-sub, .slice-caption';
+const PHRASE_SEL = '.story-lead, .about-v, .story-trivia p, .trivia-illustration-caption, .compare-card .note, .compare-foot, .parts-info, .parts-note, .story-owner p, .quiz-question, .quiz-result-text, .flip-card-front p, .flip-card-back p, .flip-sub, .menu-item .desc, .menu-empty, .sake-card .taste, .sake-card .pair-line, .sake-legend, .menu-notice, .note, .ill-legend li, .result-sub, .slice-caption';
 const RE_NEXT_OK = /[\u4E00-\u9FFF\u3005\u30A0-\u30FF0-9A-Za-z]/;      // 漢字・々・カタカナ・数字・英字
 const PARTICLES = 'がはもにでとへやの';
 // 途中で切ると不自然になる語(この中の位置では折り返さない)

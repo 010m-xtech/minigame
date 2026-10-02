@@ -822,7 +822,7 @@
       </div>
 
       <div id="farewellForm" hidden>
-        <textarea id="farewellText" class="note-input" rows="4" maxlength="200" placeholder="どんなことでも、お気軽にどうぞ&#10;（書かなくても大丈夫です）" aria-label="お店へのひとこと"></textarea>
+        <textarea id="farewellText" class="note-input" rows="4" maxlength="200" placeholder="どんなことでも、お気軽にどうぞ" aria-label="お店へのひとこと"></textarea>
         <p class="note">お名前や連絡先は、書かなくて大丈夫です</p>
         <div class="btn-row" style="flex-direction: column;">
           <button class="btn btn-primary" id="farewellSend" type="button" style="width:100%" disabled>送る</button>
@@ -1804,7 +1804,7 @@ const SURVEY_LINES = [
 ];
 const TALK_T0 = 0.6, TALK_TS = 0.04;                                   // 1文字目が出るまで / 1文字ごとの間隔(秒)。CSSの --t0, --ts と同じ値
 const talkSettle = (text) => TALK_T0 + [...text.replace(/\n/g, '')].length * TALK_TS + 0.25;   // 吹き出しの文字が出きるまでの秒数
-const SURVEY_THANKS = 'ありがとうございます。\nそれでは、水槽へ\nご案内しますね。';
+const SURVEY_THANKS = 'ありがとうございます。\nそれでは、水槽へ\nご案内しますね。\nどうぞ、ごゆっくり\nお楽しみください。';
 const THANKS_WAVE   = '';                  // お礼の言葉は、強調せず、そのまま
 // 魚ごとの「口」の位置(画像の左端からの割合 x, 上端からの割合 y)。左向きの絵での位置
 const MOUTH = {
@@ -1939,7 +1939,7 @@ function createStage(cfg){
   // 小さい吹き出し(上)には、最後のひとことを、そのまま表示しておく
   function compactFinal(){
     const last = lines[lines.length - 1];
-    talk.say(last.text, { wave: last.wave, withSub: !!last.sub, subText: last.sub });
+    talk.say(last.text, { wave: last.wave, withSub: !!last.sub, subText: last.sub, cls: last.compactCls });
     talk.bubble.classList.add('skip', 'static');
   }
   // 話しおわり → 大きな魚と吹き出しが、上へ小さく移り、質問(入力欄)が現れる
@@ -2033,10 +2033,12 @@ function startSelectTalk(){
 // ---- 最後のひとこと(任意・1問だけ)。魚が話して聞くので、アンケートっぽくならない ----
 const FAREWELL_LINES = [
   { text: 'ここまで、\nありがとうございます。', wave: '', hold: 0.9, sub: 'タップで次へ' },
-  { text: 'お店へ、ひとこと\nいただけませんか？', wave: 'ひとこと' }
+  { text: 'お店へ、ひとこと\nいただけませんか？', wave: 'ひとこと', hold: 0.7, sub: 'タップで次へ' },
+  // 具体的に伝える: 料理・お酒・このコンテンツなど、何でもよいこと。上に残る小さい吹き出しは、長いので少し小さい文字に(compactCls)
+  { text: '料理やお酒、\nこのコンテンツなど、\nどんなことでも\n感想をいただけたら\n嬉しいです。', wave: 'どんなことでも', compactCls: 'thanks' }
 ];
-const FAREWELL_SENT = 'ありがとうございます。\n励みになります。';
-const FAREWELL_SKIP = 'ありがとうございました。\nまたお待ちしていますね。';
+const FAREWELL_SENT = 'ありがとうございます。\n励みになります。\nこの後も、どうぞ\nお楽しみください。';
+const FAREWELL_SKIP = 'ありがとうございます。\nまたお待ちしています。\nこの後も、どうぞ\nお楽しみください。';
 let farewellDone = store.get('fish_farewell_done') === '1';          // 1端末1回: この端末で、すでに答えた(または「このまま終わる」を選んだ)か
 let farewellToken = 0, farewellTimer = null, farewellFinished = false;
 const fwEl = id => document.getElementById(id);

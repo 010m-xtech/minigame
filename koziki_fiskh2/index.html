@@ -568,6 +568,68 @@
   }
   .lb-scroll{ flex:1; overflow:auto; display:flex; align-items:center; -webkit-overflow-scrolling:touch; }
   .lb-scroll img{ flex:0 0 auto; width:min(180vw, 1000px); height:auto; margin:0 auto; }
+
+  /* ===== 読みやすさ(文字の大きさ・行間・折り返し) =====
+     ・小さすぎた文字(10〜13px)を13〜15.5pxに。長い文章は、行間と字間を少し広げ、太さも一段上げています
+     ・折り返しは「禁則処理(行頭に。、ぁっー が来ない)」＋「文節の切れ目(JSが<wbr>を入れた所)」で行います */
+  body{ font-weight:500; }
+  main{ line-break:strict; overflow-wrap:anywhere; }
+  .phrase{ word-break:keep-all; }
+  .story-basic, .story-taste p.eating, .story-trivia p, .menu-item .desc, .sake-card .taste, .parts-info,
+  .compare-foot, .story-owner p, .menu-empty, .result-sub, .quiz-result-text, .flip-card-back p, .ill-legend li{ text-wrap:pretty; letter-spacing:.02em; }
+  h2.title, .fish-header .name, .q-label, .taste-title, .highlight-title, .parts-title, .compare-card .label{ text-wrap:balance; }
+
+  .story-basic{ font-size:15.5px; line-height:1.9; }
+  .story-taste p.eating{ font-size:15.5px; line-height:1.9; }
+  .taste-title{ font-size:16.5px; }
+  .highlight-title{ font-size:17.5px; }
+  .quiz-question{ font-size:16px; line-height:1.65; }
+  .quiz-btn{ font-size:15px; }
+  .quiz-result-box{ font-size:15px; line-height:1.75; }
+  .quiz-result-title{ font-size:16.5px; }
+  .flip-card-front p{ font-size:16px; }
+  .flip-card-front .hint{ font-size:13px; }
+  .flip-card-back p{ font-size:15px; line-height:1.75; }
+  .flip-sub{ margin-top:10px; font-size:14px; line-height:1.7; }
+  .flip-cap{ display:flex; justify-content:space-around; margin-top:8px; font-size:13px; font-weight:700; color:#fff; }
+  .story-trivia p{ font-size:14.5px; line-height:1.85; }
+  .trivia-label{ font-size:13px; }
+  .trivia-illustration-caption{ font-size:13px; line-height:1.65; }
+  .ill-legend li{ font-size:14.5px; }
+  .compare-card .label{ font-size:15.5px; }
+  .compare-card .note{ font-size:13.5px; line-height:1.6; }
+  .compare-foot{ font-size:14.5px; line-height:1.8; }
+  .parts-title{ font-size:15.5px; }
+  .parts-btn{ font-size:15px; }
+  .parts-info{ font-size:14.5px; line-height:1.8; }
+  .parts-note{ font-size:12.5px; color:rgba(242,238,227,.78); }
+  .slice-caption{ font-size:13.5px; }
+  .story-owner .owner-label{ font-size:13px; }
+  .story-owner p{ font-size:15.5px; line-height:1.9; }
+
+  .menu-notice{ color:#ff8787; font-size:14px; margin-bottom:24px; line-height:1.75; font-weight:700; }
+  .menu-item .name{ font-size:17px; }
+  .menu-item .desc{ font-size:14.5px; line-height:1.75; }
+  .menu-item .tap-hint{ font-size:13px; }
+  .menu-empty{ font-size:15px; line-height:1.85; }
+  .sake-legend{ font-size:13.5px; line-height:1.85; }
+  .sake-group-label{ font-size:13px; }
+  .sake-card .tag{ font-size:12.5px; padding:3px 11px; }
+  .sake-card .region{ font-size:13px; }
+  .sake-card .name{ font-size:17px; }
+  .sake-card .pair-line{ font-size:14.5px; line-height:1.7; }
+  .sake-card .taste{ font-size:14.5px; line-height:1.85; }
+
+  .btn, button.btn{ font-size:15px; }
+  .note{ font-size:13.5px; color:rgba(242,238,227,.8); line-height:1.7; }
+  .talk-sub{ font-size:13.5px; color:#3A5686; }
+  .collect-counter{ font-size:14px; }
+  .result-label{ font-size:14px; }
+  .result-sub{ font-size:15px; line-height:1.85; }
+  .skip-telop{ font-size:14px; text-shadow:0 1px 6px rgba(0,0,0,.6); }
+  button.btn:disabled{ opacity:.55; }
+  .quiz-btn:disabled{ opacity:.92; }          /* 答えを選んだあとも、選択肢の文字をはっきり読めるように */
+  .note-input{ font-size:16px; }          /* 16px未満だと、iPhoneで入力時に画面が拡大されてしまう */
 </style>
 </head>
 <body>
@@ -678,7 +740,7 @@
     <section class="screen" data-screen="menu">
       <h2 class="title" style="line-height: 1.6; word-break: keep-all;" id="menuTitle"></h2>
 
-      <div style="color: #ff8787; font-size: 13px; margin-bottom: 24px; line-height: 1.7; font-weight: 700;">
+      <div class="menu-notice">
         ※ご注文は、注文用QRもしくは口頭で承ります。<br>
         ※仕入れの都合により、ご用意が無い場合がございます。
       </div>
@@ -739,7 +801,7 @@
       </div>
 
       <div id="farewellForm" hidden>
-        <textarea id="farewellText" class="note-input" rows="4" maxlength="200" placeholder="どんなことでも、お気軽にどうぞ（書かなくても大丈夫です）" aria-label="お店へのひとこと"></textarea>
+        <textarea id="farewellText" class="note-input" rows="4" maxlength="200" placeholder="どんなことでも、お気軽にどうぞ&#10;（書かなくても大丈夫です）" aria-label="お店へのひとこと"></textarea>
         <p class="note">お名前や連絡先は、書かなくて大丈夫です</p>
         <div class="btn-row" style="flex-direction: column;">
           <button class="btn btn-primary" id="farewellSend" type="button" style="width:100%" disabled>送る</button>
@@ -934,10 +996,10 @@ const fishList = [
       type: "flip",
       front: "ヒラメとカレイの見分け方は？",
       back: `目を上にして置いた時に顔が左を向くのがヒラメ、右を向くのがカレイと見分けます。
-      <div style="margin-top: 10px; font-size: 13px; line-height: 1.6;">口の大きさも手がかりで、ヒラメは大きな口に鋭い歯があり、カレイは小さな口です。</div>
+      <div class="flip-sub">口の大きさも手がかりで、ヒラメは大きな口に鋭い歯があり、カレイは小さな口です。</div>
       <div style="margin-top: 12px; background: rgba(0,0,0,0.15); padding: 10px; border-radius: 8px;">
         <img src="hirame_kaisetsu2.webp" alt="左ヒラメに右カレイ" style="width: 100%; height: auto; border-radius: 4px; display: block; margin: 0 auto;">
-        <div style="display: flex; justify-content: space-around; margin-top: 8px; font-size: 11px; font-weight: bold; color: #fff;">
+        <div class="flip-cap">
           <span>左ヒラメ</span>
           <span>右カレイ</span>
         </div>
@@ -1967,6 +2029,91 @@ function renderResult(){
 
 function goOrder(){ if (ORDER_URL) location.href = ORDER_URL; }
 
+
+/* ============ 読みやすい折り返し: 文節の切れ目に <wbr> を入れる ============
+   日本語は、そのままだと文字の途中どこでも折り返されます。「、」「。」「を」や、助詞(は・が・も・に・で・と・へ・や・の)の
+   あと(次が漢字・カタカナ・数字のとき)でだけ折り返せるようにして、言葉が途中で切れないようにします。
+   うまく動かない場合は PHRASE_ON を false にすると、通常の折り返しに戻ります。 */
+const PHRASE_ON = true;
+const PHRASE_SEL = '.story-basic, .story-taste p.eating, .story-trivia p, .trivia-illustration-caption, .compare-card .note, .compare-foot, .parts-info, .parts-note, .story-owner p, .quiz-question, .quiz-result-text, .flip-card-front p, .flip-card-back p, .flip-sub, .menu-item .desc, .menu-empty, .sake-card .taste, .sake-card .pair-line, .sake-legend, .menu-notice, .note, .ill-legend li, .result-sub, .slice-caption';
+const RE_NEXT_OK = /[\u4E00-\u9FFF\u3005\u30A0-\u30FF0-9A-Za-z]/;      // 漢字・々・カタカナ・数字・英字
+const PARTICLES = 'がはもにでとへやの';
+// 途中で切ると不自然になる語(この中の位置では折り返さない)
+const PROTECT = ['ようやく','ともに','ところ','ほとんど','やはり','やがて','やわらか','やさしい','とても','どうも','ありがと','ありがた','それでは','おいしい','どんどん','ねっとり','ほっこり','もちもち','ぷりぷり','ふっくら','とろける','なめらか','ください','ございます','いただ','にんにく','どんな','そのとき','ひとこと','ひとつ','ふたつ','マリアナ諸島','イクチオトキシン','アスタキサンチン','ホッコクアカエビ','という','として','について','によって','による','ために','ような','ように','られる','される'];
+const RE_HIRA = /[\u3041-\u309F]/, RE_KATA = /[\u30A1-\u30FA\u30FC]/, RE_KANJI = /[\u4E00-\u9FFF\u3005]/;
+function protectedAt(seg, i){                       // i と i+1 の間が、保護する語の内側かどうか
+  for (const w of PROTECT) {
+    let k = seg.indexOf(w);
+    while (k >= 0) { if (i >= k && i < k + w.length - 1) return true; k = seg.indexOf(w, k + 1); }
+  }
+  return false;
+}
+// 長すぎる塊(12文字超)は、自然な切れ目のうち、なるべく真ん中に近い所で分ける
+function quoteDepths(seg){                            // 「」の内側かどうか(内側では折り返さない)
+  const d = []; let depth = 0;
+  for (const ch of seg) { if (ch === '「') depth++; d.push(depth); if (ch === '」') depth = Math.max(0, depth - 1); }
+  return d;
+}
+function splitLong(seg){
+  if (seg.length <= 12) return [seg];
+  let best = -1, bestScore = 1e9;
+  const qd = quoteDepths(seg);
+  for (let i = 2; i < seg.length - 2; i++) {
+    const c = seg[i], n = seg[i + 1];
+    if (qd[i] > 0 && qd[i + 1] > 0) continue;                                                   // 「…」の内側
+    let ok = false;
+    if (n === '「' || n === '（') ok = true;                                                  // 括弧の前
+    else if (['ほど','から','まで','より','など'].includes(seg.slice(i - 1, i + 1)) && !(PARTICLES.includes(n) || n === 'を')) ok = true;   // 二文字の助詞のあと
+    else if (['ような','ように'].includes(seg.slice(i - 2, i + 1))) ok = true;                  // 「〜のような|…」
+    else if (RE_HIRA.test(c) && RE_HIRA.test(seg[i - 1]) && RE_KANJI.test(n)) ok = true;       // ひらがな2文字以上 → 漢字の境目
+    else if ((PARTICLES.includes(c) || c === 'を') && !(PARTICLES.includes(n) || n === 'を')) ok = true;   // 助詞のあと(には・では・でも など続く所は除く)
+    else if (RE_HIRA.test(c) && RE_HIRA.test(seg[i - 1]) && RE_KATA.test(n)) ok = true;       // ひらがな → カタカナの境目
+    if (!ok || protectedAt(seg, i)) continue;
+    if (i + 1 < 3 || seg.length - (i + 1) < 3) continue;
+    const score = Math.abs((i + 1) - seg.length / 2);
+    if (score < bestScore) { bestScore = score; best = i; }
+  }
+  if (best < 0) return [seg];
+  return splitLong(seg.slice(0, best + 1)).concat(splitLong(seg.slice(best + 1)));
+}
+function splitJa(t){
+  const parts = []; let cur = '', depth = 0;
+  for (let i = 0; i < t.length; i++) {
+    const c = t[i], n = t[i + 1]; cur += c;
+    if (c === '「') depth++; else if (c === '」') depth = Math.max(0, depth - 1);
+    if (n === undefined) break;
+    if (depth > 0) continue;                                               // 「…」の内側では切らない
+    const brk = '、。，．！？'.includes(c) || c === 'を' || (PARTICLES.includes(c) && RE_NEXT_OK.test(n));
+    if (brk && !'、。，．！？）」』】'.includes(n)) { parts.push(cur); cur = ''; }
+  }
+  if (cur) parts.push(cur);
+  return parts.flatMap(splitLong);
+}
+const phraseDone = new WeakSet();
+function phraseNode(tn){
+  if (phraseDone.has(tn)) return;
+  phraseDone.add(tn);
+  const t = tn.nodeValue; if (!t || t.trim().length < 6) return;
+  const parts = splitJa(t); if (parts.length < 2) return;
+  const frag = document.createDocumentFragment();
+  parts.forEach((p, i) => { const n = document.createTextNode(p); phraseDone.add(n); frag.appendChild(n); if (i < parts.length - 1) frag.appendChild(document.createElement('wbr')); });
+  tn.parentNode.replaceChild(frag, tn);
+}
+function applyPhrase(){
+  if (!PHRASE_ON) return;
+  document.querySelectorAll(PHRASE_SEL).forEach(el => {
+    el.classList.add('phrase');
+    const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), nodes = [];
+    while (w.nextNode()) nodes.push(w.currentNode);
+    nodes.forEach(phraseNode);
+  });
+}
+if (PHRASE_ON) {
+  const mainEl = document.querySelector('main');
+  const obs = new MutationObserver(() => { obs.disconnect(); applyPhrase(); obs.observe(mainEl, { childList: true, subtree: true, characterData: true }); });
+  obs.observe(mainEl, { childList: true, subtree: true, characterData: true });
+  applyPhrase();
+}
 
 /* ============ 初期化 ============ */
 sendLog('アクセス');

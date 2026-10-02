@@ -155,7 +155,7 @@
     min-height: 100vh; min-height: 100dvh;
     overflow: hidden;
     /* 水槽を画面幅いっぱいに広げ、魚が見えない線で切れないようにする(文字の位置は従来どおり) */
-    padding: 0px 40px 0;
+    padding: 0px 20px 0;                       /* 文字の左右の余白を、ほかの画面(20px)と同じに。魚の吹き出しを広く使うため */
     margin: -12px -20px 0;
   }
   .screen[data-screen="select"] > .eyebrow,
@@ -463,7 +463,7 @@
   .stage-head .talk-fish-wrap{ width:min(62vw, 250px); }
   .stage-head .talk-bubble{
     flex:none; width:100%; cursor:pointer;
-    font-size:clamp(21px, 6.8vw, 29px); line-height:1.7; padding:24px 24px; border-radius:26px;
+    font-size:clamp(19px, 6.4vw, 29px); line-height:1.7; padding:24px 24px; border-radius:26px;
     --tail-len:30px; --tail-x:70%;
     transform-origin: var(--tail-x) calc(-1 * var(--tail-len));
   }
@@ -481,6 +481,7 @@
   .select-talk .talk-fish-wrap{ width:clamp(70px, 21vw, 88px); }
   .talk-bubble.compact{ font-size:16px; padding:12px 14px; cursor:pointer; }
   .talk-bubble.compact:focus-visible{ outline:2px solid var(--shu-pale); outline-offset:3px; }
+  @media (max-width:340px){ .talk-bubble.compact{ font-size:13.5px; padding:12px 12px; } }          /* 画面が特に狭い機種では、吹き出しの文字を少し小さく(行の途中で折り返さないように) */
   .talk-bubble.skip .ch, .talk-bubble.skip .ch.wave, .talk-bubble.skip .talk-sub{ animation:none !important; opacity:1; transform:none; }
   #surveyFoot.pop-in, #farewellForm.pop-in, #farewellDone.pop-in{ animation: fadeUp .45s ease both; }
   .note-input{
@@ -493,21 +494,18 @@
   .note-input::placeholder{ color: var(--ai-light); }
   .note-input:focus-visible{ outline:2px solid var(--shu-pale); outline-offset:3px; }
   .talk-bubble.thanks{ font-size:clamp(13px, 3.9vw, 15.5px); }
-  .talk-bubble.play{ animation: bubblePop .6s cubic-bezier(.2,1.3,.4,1) .2s both; }
+  .talk-bubble.play{ animation: bubblePop .45s cubic-bezier(.22,.9,.3,1) .1s both; }   /* 文字が出はじめる(0.6秒)より前に、ふくらみきる */
   @keyframes bubblePop{ 0%{ transform:scale(.15); opacity:0; } 55%{ opacity:1; } 100%{ transform:scale(1); opacity:1; } }
 
-  /* 吹き出しの文字: 1文字ずつぽんと現れ、「ちょっとだけ」だけゆらゆら揺れ続ける */
+  /* 吹き出しの文字: 1文字ずつ、ふわっと現れる(大きさや位置は動かさないので、行がずれて見えない)。
+     強調したい言葉は、揺らさずに、お店の差し色(朱)で示す */
   .ch{
-    display:inline-block; opacity:0; transform: translateY(9px) scale(.5);
-    animation: chIn .38s cubic-bezier(.2,1.5,.4,1) forwards;
+    display:inline-block; white-space:pre; opacity:0;
+    animation: chIn .16s ease-out forwards;
     animation-delay: calc(var(--t0, .6s) + var(--i) * var(--ts, .04s));
   }
-  @keyframes chIn{ to{ opacity:1; transform: translateY(0) scale(1); } }
-  .ch.wave{
-    animation: chIn .38s cubic-bezier(.2,1.5,.4,1) forwards, chWave 2.2s ease-in-out infinite;
-    animation-delay: calc(var(--t0, .6s) + var(--i) * var(--ts, .04s)), calc(var(--t0, .6s) + var(--i) * var(--ts, .04s) + 1.1s);
-  }
-  @keyframes chWave{ 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-3px); } }
+  @keyframes chIn{ to{ opacity:1; } }
+  .ch.wave{ color: var(--shu); }
   .talk-sub{
     display:block; margin-top:4px;
     font-family: var(--font-gothic); font-weight:500; font-size:12.5px; color: var(--ai-light);
@@ -1799,15 +1797,15 @@ function onSurveyChange(){
 
 // ---- 魚がしゃべる(吹き出し)。アンケート画面と、最初の画面で共用 ----
 const SURVEY_LINES = [
-  { text: 'ご来店、ありがとう\nございます！', wave: 'ありがとう', hold: 0.6, sub: 'タップで次へ' },
+  { text: 'ご来店、\nありがとうございます！', wave: '', hold: 0.6, sub: 'タップで次へ' },
   { text: 'ここでは、\n居酒屋 乞食の\n新鮮なお魚たちに\n関する豆知識と、', wave: '豆知識', hold: 0.8, sub: 'タップで次へ' },
   { text: '相性の良い日本酒を\nご案内します！\nぜひ、たのしんで\nいってください！', wave: '日本酒', hold: 0.8, sub: 'タップで次へ' },
   { text: 'その前に、最初に\nお二つだけ、\n聞かせてくださいね。', wave: 'お二つだけ', sub: 'タップするだけです' }
 ];
 const TALK_T0 = 0.6, TALK_TS = 0.04;                                   // 1文字目が出るまで / 1文字ごとの間隔(秒)。CSSの --t0, --ts と同じ値
-const talkSettle = (text) => TALK_T0 + [...text.replace(/\n/g, '')].length * TALK_TS + 0.4;   // 吹き出しの文字が出きるまでの秒数
+const talkSettle = (text) => TALK_T0 + [...text.replace(/\n/g, '')].length * TALK_TS + 0.25;   // 吹き出しの文字が出きるまでの秒数
 const SURVEY_THANKS = 'ありがとうございます。\nそれでは、水槽へ\nご案内しますね。';
-const THANKS_WAVE   = 'ありがとう';
+const THANKS_WAVE   = '';                  // お礼の言葉は、強調せず、そのまま
 // 魚ごとの「口」の位置(画像の左端からの割合 x, 上端からの割合 y)。左向きの絵での位置
 const MOUTH = {
   aji:[.075,.56], katsuo:[.07,.62], maguro:[.05,.62], salmon:[.05,.60], hirame:[.12,.60],
@@ -2008,9 +2006,9 @@ function playSurveyIntro(){
 const SELECT_LINES = {
   // 冒頭の質問を答え済みの方には、冒頭と同じ案内を、水槽の魚が話す
   welcome: SURVEY_LINES[0], explain1: SURVEY_LINES[1], explain2: SURVEY_LINES[2],
-  action:  { text: '気になるお魚を、\nタップで捕まえて\nくださいね。', wave: 'タップ' },
-  more:    { text: 'ほかのお魚も、\n捕まえてみませんか？', wave: 'ほかの' },
-  all:     { text: '全部のお魚に、\n会えましたね。', wave: '全部' }
+  action:  { text: '気になるお魚を、\nタップして\n捕まえてくださいね。', wave: 'タップ' },
+  more:    { text: 'ほかのお魚も、\n捕まえてみませんか？', wave: '' },
+  all:     { text: '全部のお魚に、\n会えましたね。', wave: '' }
 };
 let selectGreeted = false, selectNeedsExplain = false;
 function startSelectTalk(){
@@ -2034,7 +2032,7 @@ function startSelectTalk(){
 
 // ---- 最後のひとこと(任意・1問だけ)。魚が話して聞くので、アンケートっぽくならない ----
 const FAREWELL_LINES = [
-  { text: 'ここまで、\nありがとう\nございます。', wave: 'ありがとう', hold: 0.9, sub: 'タップで次へ' },
+  { text: 'ここまで、\nありがとうございます。', wave: '', hold: 0.9, sub: 'タップで次へ' },
   { text: 'お店へ、ひとこと\nいただけませんか？', wave: 'ひとこと' }
 ];
 const FAREWELL_SENT = 'ありがとうございます。\n励みになります。';
@@ -2075,7 +2073,7 @@ function finishFarewell(kind){
   hideFarewellForm();
   farewellTalk.stop();
   farewellTalk.img.classList.add('done');
-  farewellTalk.say(kind === 'sent' ? FAREWELL_SENT : FAREWELL_SKIP, { wave: 'ありがとう', cls: 'thanks' });
+  farewellTalk.say(kind === 'sent' ? FAREWELL_SENT : FAREWELL_SKIP, { wave: '', cls: 'thanks' });
   fwEl('farewellDone').hidden = false; fwEl('farewellDone').classList.add('pop-in');
   document.getElementById('header-back-btn').style.display = 'none';
   screenHistory = [];

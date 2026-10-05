@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>酒肴家 吾熊</title>
+<title>吾熊辞典</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
@@ -854,6 +854,64 @@
   .guide-bubble .g-live { text-wrap: pretty; }
   .ch { opacity: 0; transition: opacity .14s ease; }
   .ch.v { opacity: 1; }
+
+  /* ===== 精米歩合の「？」説明 ===== */
+  .what-btn {
+    display: inline-flex; align-items: center; gap: 6px; margin: 0 0 10px; padding: 5px 12px 5px 6px;
+    background: #fff; border: 1px solid var(--ai-light); border-radius: 16px; cursor: pointer;
+    font-family: var(--font-gothic); font-weight: 700; font-size: 13px; color: var(--ai);
+  }
+  .what-mark { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--shu); color: #fff; font-size: 12px; }
+  .what-btn:focus-visible { outline: 2px solid var(--shu); outline-offset: 2px; }
+  .what-body { background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--shu); border-radius: 8px; padding: 10px 14px; margin: 0 0 12px; }
+  .what-body[hidden] { display: none; }
+  .what-body p { margin: 0 0 6px; font-size: 14.5px; line-height: 1.85; letter-spacing: var(--ls); text-align: left; }
+  .what-body p:last-child { margin-bottom: 0; }
+  .what-body strong { color: var(--shu); }
+
+  /* ===== 特定名称酒の早見表 ===== */
+  .matrix-box { padding: 18px 14px; }
+  .matrix-axis { display: flex; justify-content: space-between; margin: 2px 2px 8px; font-size: 12px; font-weight: 700; color: var(--ai-light); }
+  .matrix-cap { margin: 10px 0 6px; font-size: 13px; font-weight: 700; color: var(--ai); text-align: left; }
+  .matrix-cap span { font-weight: 500; color: var(--ai-light); }
+  .matrix-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .mcell {
+    min-width: 0; padding: 9px 2px 8px; background: #fff; border: 1px solid var(--line); border-radius: 10px;
+    text-align: center; cursor: pointer; color: var(--ai); font-family: var(--font-gothic);
+    transition: background .2s ease, border-color .2s ease, color .2s ease;
+  }
+  .mcell b { display: block; font-family: var(--font-mincho); font-size: 14.5px; line-height: 1.35; font-weight: 700; }
+  .mcell small { display: block; margin-top: 4px; font-size: 11px; line-height: 1.4; color: var(--ai-light); font-weight: 500; }
+  .mcell.hit { background: var(--shu-pale); border-color: var(--shu); }
+  .mcell.sel { background: var(--shu); border-color: var(--shu); color: #fff; }
+  .mcell.sel small { color: #fff; }
+  .mcell:focus-visible, .mchip:focus-visible { outline: 2px solid var(--shu); outline-offset: 2px; }
+  .matrix-extra { display: flex; gap: 6px; }
+  .mchip {
+    padding: 7px 14px; background: #fff; border: 1px solid var(--line); border-radius: 16px; cursor: pointer;
+    font-family: var(--font-mincho); font-weight: 700; font-size: 14px; color: var(--ai);
+  }
+  .mchip.sel { background: var(--shu); border-color: var(--shu); color: #fff; }
+  .mdetail {
+    margin-top: 16px; min-height: 150px; background: #fff; border: 1px solid var(--line);
+    border-left: 4px solid var(--shu); border-radius: 8px; padding: 14px 16px; text-align: left;
+  }
+  .mdetail-empty { margin: 0; padding-top: 48px; text-align: center; font-size: 14px; color: var(--muted); }
+  .mdetail-in { animation: fadeUp .35s ease both; }
+  .mdetail-name { font-family: var(--font-mincho); font-weight: 700; font-size: 17px; color: var(--ai); }
+  .mdetail-hint { margin: 2px 0 8px; font-size: 13px; color: var(--ai-light); font-weight: 500; }
+  .mdetail-body { margin: 0; font-size: var(--fs-read); line-height: var(--lh); letter-spacing: var(--ls); text-align: left; }
+
+  /* スライダー部分をコンパクトに */
+  .polish-top { display: flex; align-items: center; gap: 12px; margin: 4px 0 8px; }
+  .polish-top .polish-stage { flex: 0 0 132px; margin: 0; }
+  .polish-top .polish-stage svg { width: 132px; max-width: none; }
+  .polish-top .polish-readout { flex: 1; flex-direction: column; margin: 0; gap: 8px; }
+  .polish-top .polish-stat { padding: 7px 6px; }
+  .polish-top .polish-stat .num { font-size: 26px; }
+  .mchip.hit { background: var(--shu-pale); border-color: var(--shu); }
+  .mdetail { min-height: 132px; }
+  .mdetail-empty { padding-top: 40px; }
 </style>
 </head>
 <body class="opening">
@@ -1047,43 +1105,8 @@
     <!-- Screen: 日本酒・特定名称種 -->
     <section class="screen" data-screen="sake-types">
       <h2 class="title">特定名称酒の主な種類</h2>
-      <div class="guide" data-komeo="komeo4.webp"><div class="guide-src">ここでは<wbr>日本酒の分類を<wbr>学びます。<wbr>スライダーで<wbr>お米を削ると、<wbr>名前が変わる様子が<wbr>分かります。</div></div>
 
-            
-      <div class="glass-box">
-        <p class="article-text" style="font-size: clamp(15.5px, 4vw, 17px); line-height: 1.85;">
-          原料や「精米歩合」などの基準を満たした日本酒を<strong>「特定名称酒」</strong>と呼びます。<br>
-          分類の基本は、以下の3つのキーワードの組み合わせです。<br><br>
-          <span style="color:var(--shu); font-weight:700;">・純米：</span><span style="font-size: clamp(12.5px, 3.2vw, 16px); letter-spacing: -0.04em;">お米と水だけで造る</span><br>
-          <span style="color:var(--shu); font-weight:700;">・本醸造：</span><span style="font-size: clamp(12.5px, 3.2vw, 16px); letter-spacing: -0.04em;">アルコールを足してスッキリ仕上げる</span><br>
-          <span style="color:var(--shu); font-weight:700;">・吟醸：</span><span style="font-size: clamp(12.5px, 3.2vw, 16px); letter-spacing: -0.04em;">お米をよく削って香り高く仕上げる</span>
-        </p>
-      </div>
-
-      <div class="flip-card" onclick="this.classList.toggle('is-flipped')">
-        <div class="flip-card-inner">
-          <div class="flip-card-front">
-            <img src="komeo3.webp" class="komeo-char komeo-pos1" alt="" loading="lazy" decoding="async">
-            <img src="komeo1.webp" class="komeo-char komeo-pos2" alt="" loading="lazy" decoding="async">
-            <img src="komeo2.webp" class="komeo-char komeo-pos3" alt="" loading="lazy" decoding="async">
-            <img src="komeo4.webp" class="komeo-char komeo-pos4" alt="" loading="lazy" decoding="async">
-            <h3>そもそも<br>「精米歩合」とは？</h3>
-            <div class="tap-hint">
-              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-              タップして裏返す
-            </div>
-          </div>
-          <div class="flip-card-back">
-            <h4>どれくらい「削って残した」か</h4>
-            <p style="margin-bottom: 8px;">
-              お米の外側には雑味の成分があるため、削るほどスッキリとして華やかな香りが生まれやすくなります。
-            </p>
-            <p>
-              例えば「精米歩合60%」は、外側を40%削り落とし、<strong>中心部の60%だけを贅沢に使った</strong>という意味になります。
-            </p>
-          </div>
-        </div>
-      </div>
+      <div class="guide" data-komeo="komeo4.webp"><div class="guide-src">基準を満たした日本酒を<wbr><strong>「特定名称酒」</strong>と呼びます。<br>名前は、<wbr>お米を磨く度合いと、<wbr>醸造アルコールの有無で<wbr>決まります。<br>まずは<wbr>スライダーで、<wbr>お米を削ってみましょう。</div></div>
 
       <!-- 精米歩合スライダー -->
       <div class="glass-box polish-box trk" id="polishBox">
@@ -1091,28 +1114,34 @@
         <p class="article-text" style="margin-bottom: 8px; font-size: 15px; line-height: 1.7;">
           つまみを右へ動かすと、お米がどんどん削れていきます。削る量によって、名乗れるお酒の名前が変わります。
         </p>
+        <button type="button" class="what-btn" id="polishWhatBtn" aria-expanded="false" aria-controls="polishWhat"><span class="what-mark">？</span>精米歩合とは</button>
+        <div class="what-body" id="polishWhat" hidden>
+          <p>お米の外側には雑味の成分があるため、削るほどスッキリとして華やかな香りが生まれやすくなります。</p>
+          <p>例えば「精米歩合60%」は、外側を40%削り落とし、<strong>中心部の60%だけを贅沢に使った</strong>という意味になります。</p>
+        </div>
 
-        <div class="polish-stage">
-          <svg viewBox="0 0 200 240" role="img" aria-label="お米を削るイメージ図">
-            <ellipse cx="100" cy="120" rx="76" ry="102" fill="#E4D2AC" stroke="#B9A57C" stroke-width="2" stroke-dasharray="6 5"/>
-            <g id="polishCore" transform="translate(100 120) scale(1) translate(-100 -120)">
-              <ellipse cx="100" cy="120" rx="76" ry="102" fill="#FFFDF6" stroke="#6B5F55" stroke-width="3" vector-effect="non-scaling-stroke"/>
-              <circle cx="76" cy="108" r="5" fill="#5A5048"/>
-              <circle cx="124" cy="108" r="5" fill="#5A5048"/>
-              <circle cx="62" cy="132" r="11" fill="#F6CDB8" opacity="0.85"/>
-              <circle cx="138" cy="132" r="11" fill="#F6CDB8" opacity="0.85"/>
-              <path d="M88 134 Q100 146 112 134" fill="none" stroke="#5A5048" stroke-width="3" stroke-linecap="round"/>
-            </g>
-          </svg>
+        <div class="polish-top">
+          <div class="polish-stage">
+            <svg viewBox="0 0 200 240" role="img" aria-label="お米を削るイメージ図">
+              <ellipse cx="100" cy="120" rx="76" ry="102" fill="#E4D2AC" stroke="#B9A57C" stroke-width="2" stroke-dasharray="6 5"/>
+              <g id="polishCore" transform="translate(100 120) scale(1) translate(-100 -120)">
+                <ellipse cx="100" cy="120" rx="76" ry="102" fill="#FFFDF6" stroke="#6B5F55" stroke-width="3" vector-effect="non-scaling-stroke"/>
+                <circle cx="76" cy="108" r="5" fill="#5A5048"/>
+                <circle cx="124" cy="108" r="5" fill="#5A5048"/>
+                <circle cx="62" cy="132" r="11" fill="#F6CDB8" opacity="0.85"/>
+                <circle cx="138" cy="132" r="11" fill="#F6CDB8" opacity="0.85"/>
+                <path d="M88 134 Q100 146 112 134" fill="none" stroke="#5A5048" stroke-width="3" stroke-linecap="round"/>
+              </g>
+            </svg>
+          </div>
+          <div class="polish-readout">
+            <div class="polish-stat"><div class="label">削った量</div><div class="num"><span id="polishCut">0</span><small>%</small></div></div>
+            <div class="polish-stat keep"><div class="label">精米歩合（残った量）</div><div class="num"><span id="polishKeep">100</span><small>%</small></div></div>
+          </div>
         </div>
         <div class="polish-legend">
           <span><i class="l-cut"></i>削り落とす外側</span>
           <span><i class="l-keep"></i>お酒に使う中心</span>
-        </div>
-
-        <div class="polish-readout">
-          <div class="polish-stat"><div class="label">削った量</div><div class="num"><span id="polishCut">0</span><small>%</small></div></div>
-          <div class="polish-stat keep"><div class="label">精米歩合（残った量）</div><div class="num"><span id="polishKeep">100</span><small>%</small></div></div>
         </div>
 
         <input type="range" class="polish-range" id="polishRange" min="0" max="80" step="1" value="0" aria-label="お米を削る量（パーセント）">
@@ -1122,115 +1151,41 @@
           <span style="--f:.625">50%<br>大吟醸</span>
         </div>
 
-        <div class="polish-names" id="polishNames"></div>
-
         <div class="polish-say">
           <img id="polishKomeo" src="komeo1.webp" alt="">
           <p id="polishMsg"></p>
         </div>
-
-        <p class="polish-note">※イメージ図です。「吟醸」「大吟醸」と名乗るには、精米歩合に加えて、低温でじっくり発酵させる「吟醸造り」などの条件も必要です。</p>
       </div>
 
       <div class="quiz-box" data-quiz="polishRatio"></div>
 
-      <div class="guide" data-komeo="komeo1.webp"><div class="guide-src">名前の下の<wbr><strong>ひとこと</strong>だけでも、<wbr>おおよそ<wbr>把握できます。<wbr>詳しく知りたいときは、<wbr>タップしてご覧ください。</div></div>
-
-      <div class="sub-heading mt-24">純米酒系（米・米麹・水のみ）</div>
-
-      <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>純米大吟醸酒<small class="acc-hint">米と水だけ × 50%以下まで磨く</small></div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="glass-box matrix-box trk" id="sakeMatrix">
+        <h3 class="section-title">特定名称酒の早見表</h3>
+        <div class="matrix-axis" aria-hidden="true"><span>← お米をよく磨く</span><span>あまり磨かない →</span></div>
+        <div class="matrix-cap">純米系<span>（米・米麹・水のみ）</span></div>
+        <div class="matrix-row">
+          <button type="button" class="mcell" data-key="jundai"><b>純米<br>大吟醸</b><small>50%以下</small></button>
+          <button type="button" class="mcell" data-key="junginjo"><b>純米<br>吟醸</b><small>60%以下</small></button>
+          <button type="button" class="mcell" data-key="tokujun"><b>特別<br>純米</b><small>60%以下<br>または特別</small></button>
+          <button type="button" class="mcell" data-key="jun"><b>純米</b><small>規定なし</small></button>
         </div>
-        <div class="accordion-body">精米歩合50%以下まで磨いた米を使い、吟醸造りで仕込んだ純米酒です。日本酒の特定名称の中でも、最も磨かれた分類にあたります。</div>
-      </div>
-
-      <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>純米吟醸酒<small class="acc-hint">米と水だけ × 60%以下まで磨く</small></div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="matrix-cap">本醸造系<span>（醸造アルコール添加）</span></div>
+        <div class="matrix-row">
+          <button type="button" class="mcell" data-key="dai"><b>大吟醸</b><small>50%以下</small></button>
+          <button type="button" class="mcell" data-key="gin"><b>吟醸</b><small>60%以下</small></button>
+          <button type="button" class="mcell" data-key="tokuhon"><b>特別<br>本醸造</b><small>60%以下<br>または特別</small></button>
+          <button type="button" class="mcell" data-key="hon"><b>本醸造</b><small>70%以下</small></button>
         </div>
-        <div class="accordion-body">精米歩合60%以下の米を使い、低温でじっくり発酵させる「吟醸造り」で仕込んだ純米酒です。フルーティーな香りが出やすいのが特徴です。</div>
-      </div>
-
-      <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>特別純米酒<small class="acc-hint">米と水だけ × 「特別」なこだわり付き</small></div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="matrix-cap">表にないお酒</div>
+        <div class="matrix-extra">
+          <button type="button" class="mchip" data-key="futsu">普通酒</button>
+          <button type="button" class="mchip" data-key="nigori">にごり酒</button>
         </div>
-        <div class="accordion-body">精米歩合60%以下、または特別な製法で造られた純米酒です。「特別」の内容はラベル等に表記されます。</div>
-      </div>
-
-      <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>純米酒<small class="acc-hint">お米と水だけで造る</small></div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="accordion-body">米・米麹・水のみを原料として造られた日本酒です。醸造アルコールを加えていません。お米本来のふくよかな旨味が楽しめます。</div>
+        <div class="mdetail" id="sakeDetail" aria-live="polite"><p class="mdetail-empty">マスをタップすると、説明が表示されます。</p></div>
+        <p class="diagram-note">※数字は精米歩合です。「吟醸」「大吟醸」と名乗るには、低温でじっくり発酵させる「吟醸造り」などの条件も必要です。</p>
       </div>
 
       <div class="quiz-box" data-quiz="junmai"></div>
-
-      <div class="sub-heading">本醸造酒系（醸造アルコール添加）</div>
-
-      <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>大吟醸酒<small class="acc-hint">50%以下まで磨く × アルコール添加</small></div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="accordion-body">精米歩合50%以下まで磨いた米を、吟醸造りで仕込んだ日本酒です。醸造アルコールが加えられているため、香りが立ちやすくスッキリとした飲み口になります。</div>
-      </div>
-
-      <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>吟醸酒<small class="acc-hint">60%以下まで磨く × アルコール添加</small></div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="accordion-body">精米歩合60%以下の米を、低温長期発酵させる「吟醸造り」で仕込んだ日本酒です。軽快でフルーティーな香りが特徴です。</div>
-      </div>
-
-      <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>特別本醸造酒<small class="acc-hint">本醸造酒のワンランク上</small></div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="accordion-body">精米歩合60%以下、または特別な製法で造られた本醸造酒です。通常の本醸造酒よりもスッキリと洗練された味わいになることが多いです。</div>
-      </div>
-
-      <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>本醸造酒<small class="acc-hint">70%以下 × アルコールを少し添加</small></div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="accordion-body">精米歩合70%以下の米に、規定量以下の醸造アルコールを加えて造られた日本酒です。すっきりとした軽い飲み口になりやすいとされます。</div>
-      </div>
-
-      <div class="sub-heading">その他の種類（造り方の違いなど）</div>
-
-      <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>普通酒<small class="acc-hint">特定名称酒の基準に入らないお酒</small></div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="accordion-body">特定名称酒の基準（精米歩合やアルコール添加量など）に当てはまらない日本酒です。手頃な価格帯のものが多く、日常の食中酒として親しまれている、いわゆる「レギュラー酒」の多くがこれに該当します。</div>
-      </div>
-
-      <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>生酒<small class="acc-hint">加熱殺菌をしない、フレッシュなお酒</small></div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="accordion-body">通常、お酒の品質を安定させるために行う「火入れ（加熱殺菌）」を一切行わないお酒です。しぼりたてのみずみずしさや、フレッシュで華やかな香りが楽しめますが、味が変化しやすいため要冷蔵となります。</div>
-      </div>
-
-      <div class="accordion-item" onclick="toggleAccordion(this)">
-        <div class="accordion-header">
-          <div>にごり酒<small class="acc-hint">お米の粒を残した、白く濁ったお酒</small></div>
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="accordion-body">発酵が終わったお酒を搾る際に、目の粗い布などで漉すことで、お米の細かな粒をあえて残したお酒です。白く濁っており、とろりとした口当たりとお米本来の甘味や旨味をしっかりと感じられます。</div>
-      </div>
 
       <button class="primary-btn" onclick="goScreen('sake-methods')">
         さまざまな「造り」
@@ -2334,11 +2289,9 @@ function initPolish() {
   const core = document.getElementById('polishCore');
   const cutEl = document.getElementById('polishCut');
   const keepEl = document.getElementById('polishKeep');
-  const namesEl = document.getElementById('polishNames');
   const msgEl = document.getElementById('polishMsg');
   const komeoEl = document.getElementById('polishKomeo');
   let lastImg = 'komeo1.webp';
-  let lastNames = '';
 
   function update() {
     const cut = Number(range.value);
@@ -2351,13 +2304,9 @@ function initPolish() {
     range.style.setProperty('--p', (cut / 80 * 100) + '%');
     range.setAttribute('aria-valuetext', `削る量${cut}%、精米歩合${keep}%`);
 
+    highlightMatrix(keep, cut);
     const st = polishStage(cut);
     msgEl.textContent = st.msg;
-    const key = st.names.join('/');
-    if (key !== lastNames) {
-      namesEl.innerHTML = st.names.map(n => `<span class="polish-chip">${n}</span>`).join('');
-      lastNames = key;
-    }
     if (st.img !== lastImg) {
       komeoEl.setAttribute('src', imgSrc(st.img));
       lastImg = st.img;
@@ -2757,11 +2706,65 @@ function initIntro() {
   prepareIntro();
 }
 
+
+/* ============ 特定名称酒の早見表 ============ */
+const sakeTypeData = {
+  jundai: { name: '純米大吟醸酒', hint: '米と水だけ × 50%以下まで磨く', body: '精米歩合50%以下まで磨いた米を使い、吟醸造りで仕込んだ純米酒です。日本酒の特定名称の中でも、最も磨かれた分類にあたります。' },
+  junginjo: { name: '純米吟醸酒', hint: '米と水だけ × 60%以下まで磨く', body: '精米歩合60%以下の米を使い、低温でじっくり発酵させる「吟醸造り」で仕込んだ純米酒です。フルーティーな香りが出やすいのが特徴です。' },
+  tokujun: { name: '特別純米酒', hint: '米と水だけ × 「特別」なこだわり付き', body: '精米歩合60%以下、または特別な製法で造られた純米酒です。「特別」の内容はラベル等に表記されます。' },
+  jun: { name: '純米酒', hint: 'お米と水だけで造る', body: '米・米麹・水のみを原料として造られた日本酒です。醸造アルコールを加えていません。お米本来のふくよかな旨味が楽しめます。' },
+  dai: { name: '大吟醸酒', hint: '50%以下まで磨く × アルコール添加', body: '精米歩合50%以下まで磨いた米を、吟醸造りで仕込んだ日本酒です。醸造アルコールが加えられているため、香りが立ちやすくスッキリとした飲み口になります。' },
+  gin: { name: '吟醸酒', hint: '60%以下まで磨く × アルコール添加', body: '精米歩合60%以下の米を、低温長期発酵させる「吟醸造り」で仕込んだ日本酒です。軽快でフルーティーな香りが特徴です。' },
+  tokuhon: { name: '特別本醸造酒', hint: '本醸造酒のワンランク上', body: '精米歩合60%以下、または特別な製法で造られた本醸造酒です。通常の本醸造酒よりもスッキリと洗練された味わいになることが多いです。' },
+  hon: { name: '本醸造酒', hint: '70%以下 × アルコールを少し添加', body: '精米歩合70%以下の米に、規定量以下の醸造アルコールを加えて造られた日本酒です。すっきりとした軽い飲み口になりやすいとされます。' },
+  futsu: { name: '普通酒', hint: '特定名称酒の基準に入らないお酒', body: '特定名称酒の基準（精米歩合やアルコール添加量など）に当てはまらない日本酒です。手頃な価格帯のものが多く、日常の食中酒として親しまれている、いわゆる「レギュラー酒」の多くがこれに該当します。' },
+  nigori: { name: 'にごり酒', hint: 'お米の粒を残した、白く濁ったお酒', body: '発酵が終わったお酒を搾る際に、目の粗い布などで漉すことで、お米の細かな粒をあえて残したお酒です。白く濁っており、とろりとした口当たりとお米本来の甘味や旨味をしっかりと感じられます。' }
+};
+
+function initSakeMatrix() {
+  const box = document.getElementById('sakeMatrix');
+  if (!box) return;
+  const panel = document.getElementById('sakeDetail');
+  const btns = box.querySelectorAll('[data-key]');
+  btns.forEach(b => b.addEventListener('click', () => {
+    const d = sakeTypeData[b.dataset.key];
+    btns.forEach(x => x.classList.toggle('sel', x === b));
+    panel.innerHTML = '<div class="mdetail-in"><div class="mdetail-name">' + d.name + '</div>' +
+      '<div class="mdetail-hint">' + d.hint + '</div><p class="mdetail-body">' + d.body + '</p></div>';
+    markDone(box);
+  }));
+}
+
+// スライダーの位置に合わせて、早見表の該当するマスを光らせる
+function highlightMatrix(keep, cut) {
+  let keys = [];
+  if (cut > 0) {
+    if (keep > 70) keys = ['jun', 'futsu'];
+    else if (keep > 60) keys = ['jun', 'hon'];
+    else if (keep > 50) keys = ['junginjo', 'gin'];
+    else keys = ['jundai', 'dai'];
+  }
+  document.querySelectorAll('#sakeMatrix [data-key]').forEach(c => c.classList.toggle('hit', keys.indexOf(c.dataset.key) >= 0));
+}
+
+function initPolishWhat() {
+  const btn = document.getElementById('polishWhatBtn');
+  if (!btn) return;
+  const body = document.getElementById('polishWhat');
+  btn.addEventListener('click', () => {
+    const open = body.hidden;
+    body.hidden = !open;
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+}
+
 /* ============ 初期化 ============ */
 renderList('ourSakeList', sakeItems, true);
 renderList('ourShochuList', shochuGroups, false);
 renderList('ourWhiskyList', whiskyGroups, false);
 document.querySelectorAll('.quiz-box[data-quiz]').forEach(renderQuiz);
+initSakeMatrix();
+initPolishWhat();
 initPolish();
 initDistill();
 initHiire();

@@ -809,7 +809,7 @@
     --ls: 0.02em;         /* 字間 */
   }
   .article-text { font-size: var(--fs-body); line-height: var(--lh); letter-spacing: var(--ls); }
-  .sub-heading { font-size: 17px; letter-spacing: 0.04em; line-height: 1.5; }
+  .sub-heading { font-size: 17px; letter-spacing: 0.04em; line-height: 1.5; word-break: keep-all; overflow-wrap: anywhere; line-break: strict; }
   .accordion-header { font-size: 16px; line-height: 1.5; padding: 15px 16px; }
   .accordion-body { font-size: var(--fs-read); line-height: var(--lh); letter-spacing: var(--ls); }
   .accordion-item.open .accordion-body { padding: 16px 18px; }
@@ -1818,9 +1818,7 @@
 
       <div class="guide" data-komeo="komeo4.webp"><div class="guide-src">ここからは、<wbr>少し<wbr><strong>マニアックな話題</strong>です。<wbr>ひとことだけ<wbr>読んでも、<wbr>お酒の席で<wbr>話したくなる内容です。</div></div>
 
-      <div class="sub-heading mt-24" style="font-size: 12px; letter-spacing: -0.05em; white-space: nowrap;">
-        好き嫌いが分かれる！？「ピート（泥炭）」の秘密
-      </div>
+      <div class="sub-heading mt-24">好き嫌いが分かれる！？<br>「ピート（泥炭）」の秘密</div>
 
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
@@ -1832,7 +1830,7 @@
 
       <div class="quiz-box" data-quiz="peat"></div>
 
-      <div class="sub-heading">ウイスキーの風味を決める「樽（カスク）」</div>
+      <div class="sub-heading">ウイスキーの風味を決める<wbr><span style="white-space: nowrap;">「樽（カスク）」</span></div>
       
       <div class="glass-box" style="padding: 16px 20px;">
         <p class="article-text">

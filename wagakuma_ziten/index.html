@@ -644,13 +644,11 @@
   }
   .guide.on .guide-bubble { opacity: 1; transform: none; }
   .guide-bubble strong { color: var(--shu); }
-  .g-ghost { visibility: hidden; }
-  .g-live { position: absolute; left: 14px; right: 14px; top: 10px; }
   .caret { display: inline-block; width: 2px; height: 1em; background: var(--shu); margin-left: 1px; vertical-align: -2px; animation: caretBlink .8s steps(1) infinite; }
   @keyframes caretBlink { 50% { opacity: 0; } }
   @keyframes talk { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.04, 0.95); } }
   .talking { animation: talk .45s ease-in-out infinite; }
-  @media (prefers-reduced-motion: reduce){ .talking, .caret { animation: none; } .guide-bubble { transition: none; } }
+  @media (prefers-reduced-motion: reduce){ .talking { animation: none; } .guide-bubble { transition: none; } .ch { transition: none; } }
 
   /* ===== 導入（キャラクターがあいさつ→アンケート） ===== */
   #introScreen {
@@ -668,8 +666,8 @@
     position: relative; width: 100%; max-width: 460px; min-height: 100%; padding: 28px 20px;
     display: flex; flex-direction: column; justify-content: center; gap: 22px;
   }
-  .intro-row { display: flex; align-items: flex-end; gap: 12px; }
-  .intro-komeo { width: 84px; height: 126px; object-fit: contain; object-position: bottom; flex: 0 0 auto; transform-origin: 50% 100%; }
+  .intro-row { display: flex; align-items: flex-end; gap: 10px; }
+  .intro-komeo { width: 66px; height: 100px; object-fit: contain; object-position: bottom; flex: 0 0 auto; transform-origin: 50% 100%; }
   .intro-komeo.pop { animation: introPop .6s cubic-bezier(.34,1.56,.64,1) both; }
   @keyframes introPop { from { opacity: 0; transform: translateY(18px) scale(.7); } to { opacity: 1; transform: none; } }
   .intro-bubble {
@@ -683,8 +681,8 @@
     border: 9px solid transparent; border-right-color: #fff; border-left: 0;
   }
   .intro-bubble strong { color: var(--shu); }
-  #introText { position: absolute; left: 18px; right: 18px; top: 16px; }
-  #introText, #introGhost { text-wrap: balance; }
+  #introText { position: static; }
+  #introText { text-wrap: balance; }
   .intro-options { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
   .intro-opt {
     width: 100%; padding: 14px 16px; background: #fff; color: var(--ai); border: 1px solid var(--ai-light);
@@ -825,10 +823,8 @@
   .material-detail-desc { font-size: var(--fs-read); line-height: var(--lh); letter-spacing: var(--ls); }
 
   .guide-bubble { font-size: var(--fs-guide); line-height: 1.9; letter-spacing: var(--ls); padding: 12px 16px; }
-  .g-live { left: 16px; right: 16px; top: 12px; }
   .guide-img { width: 62px; height: 86px; }
-  .intro-bubble { font-size: 16px; line-height: 1.95; letter-spacing: 0.01em; padding: 18px; }
-  #introText { left: 18px; right: 18px; top: 18px; }
+  .intro-bubble { font-size: clamp(14.5px, 4.1vw, 16.5px); line-height: 1.95; letter-spacing: 0.01em; padding: 16px; }
 
   .quiz-q { font-size: 17px; line-height: 1.65; }
   .quiz-btn { font-size: var(--fs-quiz); line-height: 1.55; padding: 13px 14px; }
@@ -853,6 +849,14 @@
     .screen[data-screen="top"] .guide-bubble { font-size: 14px; line-height: 1.8; }
     .screen[data-screen="top"] .guide-img { width: 52px; height: 72px; }
   }
+
+  /* ===== 吹き出しの文章を自然に折り返す =====
+     文節（意味のまとまり）の途中では改行せず、<wbr> の位置か句読点で改行します。
+     1文字ずつの表示でも、最初から完成した改行位置で並びます。 */
+  .guide-bubble, .intro-bubble { word-break: keep-all; overflow-wrap: anywhere; line-break: strict; }
+  .guide-bubble .g-live { text-wrap: pretty; }
+  .ch { opacity: 0; transition: opacity .14s ease; }
+  .ch.v { opacity: 1; }
 </style>
 </head>
 <body class="opening">
@@ -869,7 +873,7 @@
   <div class="intro-inner">
     <div class="intro-row">
       <img id="introKomeo" class="intro-komeo" src="komeo1.webp" alt="">
-      <div class="intro-bubble"><div id="introGhost" style="visibility:hidden"></div><div id="introText"></div></div>
+      <div class="intro-bubble"><div id="introText"></div></div>
     </div>
     <div class="intro-options" id="introOptions"></div>
     <div class="intro-dots" id="introDots"><i></i><i></i></div>
@@ -905,7 +909,7 @@
         <h2 class="title">今夜の一杯を、もっと美味しく。</h2>
       </div>
 
-      <div class="guide" data-komeo="komeo1.webp"><div class="guide-src">ラベルの言葉や造り方の秘密を少し知るだけで、いつものお酒が違った表情を見せてくれます。<br>知ればもっと美味しくなる、お酒の知識を深めてみませんか？<br><strong>ご覧になりたいお酒のアイコンを、タップ</strong>してください。</div></div>
+      <div class="guide" data-komeo="komeo1.webp"><div class="guide-src">ラベルの言葉や<wbr>造り方の秘密を<wbr>少し知るだけで、<wbr>いつものお酒が<wbr>違った表情を<wbr>見せてくれます。<br>知ればもっと<wbr>美味しくなる、<wbr>お酒の知識を<wbr>深めてみませんか？<br><strong>ご覧になりたい<wbr>お酒の<wbr>アイコンを、<wbr>タップ</strong><wbr>してください。</div></div>
 
       <div class="top-categories-wrap">
         <div class="top-categories-row">
@@ -930,7 +934,7 @@
     <!-- Screen: 日本酒・導入 -->
     <section class="screen" data-screen="sake-intro">
       <h3 class="section-title">日本酒ってどんなお酒？</h3>
-      <div class="guide" data-komeo="komeo1.webp"><div class="guide-src">日本酒の基本を、3つのポイントで紹介します。下のカードも、タップしてみてください。</div></div>
+      <div class="guide" data-komeo="komeo1.webp"><div class="guide-src">日本酒の基本を、<wbr>3つのポイントで<wbr>紹介します。<wbr>下のカードも、<wbr>タップしてみてください。</div></div>
 
             <div class="glass-box">
         <p class="article-text">
@@ -977,7 +981,7 @@
     <!-- Screen: 焼酎・導入 -->
     <section class="screen" data-screen="shochu-intro">
       <h3 class="section-title">焼酎ってどんなお酒？</h3>
-      <div class="guide" data-komeo="komeo4.webp"><div class="guide-src">焼酎の魅力を、3つのポイントで紹介します。下の図解も、ぜひご覧ください。</div></div>
+      <div class="guide" data-komeo="komeo4.webp"><div class="guide-src">焼酎の魅力を、<wbr>3つのポイントで<wbr>紹介します。<wbr>下の図解も、<wbr>ぜひご覧ください。</div></div>
 
             <div class="glass-box">
         <p class="article-text">
@@ -1022,7 +1026,7 @@
     <!-- Screen: ウイスキー・導入 -->
     <section class="screen" data-screen="whisky-intro">
       <h3 class="section-title">ウイスキーってどんなお酒？</h3>
-      <div class="guide" data-komeo="komeo1.webp"><div class="guide-src">ウイスキーの魅力を、3つのポイントで紹介します。</div></div>
+      <div class="guide" data-komeo="komeo1.webp"><div class="guide-src">ウイスキーの魅力を、<wbr>3つのポイントで<wbr>紹介します。</div></div>
 
             <div class="glass-box">
         <p class="article-text">
@@ -1046,7 +1050,7 @@
     <!-- Screen: 日本酒・特定名称種 -->
     <section class="screen" data-screen="sake-types">
       <h2 class="title">特定名称酒の主な種類</h2>
-      <div class="guide" data-komeo="komeo4.webp"><div class="guide-src">ここでは日本酒の分類を学びます。スライダーでお米を削ると、名前が変わる様子が分かります。</div></div>
+      <div class="guide" data-komeo="komeo4.webp"><div class="guide-src">ここでは<wbr>日本酒の分類を<wbr>学びます。<wbr>スライダーで<wbr>お米を削ると、<wbr>名前が変わる様子が<wbr>分かります。</div></div>
 
             
       <div class="glass-box">
@@ -1133,7 +1137,7 @@
 
       <div class="quiz-box" data-quiz="polishRatio"></div>
 
-      <div class="guide" data-komeo="komeo1.webp"><div class="guide-src">名前の下の<strong>ひとこと</strong>だけでも、おおよそ把握できます。詳しく知りたいときは、タップしてご覧ください。</div></div>
+      <div class="guide" data-komeo="komeo1.webp"><div class="guide-src">名前の下の<wbr><strong>ひとこと</strong>だけでも、<wbr>おおよそ<wbr>把握できます。<wbr>詳しく知りたいときは、<wbr>タップしてご覧ください。</div></div>
 
       <div class="sub-heading mt-24">純米酒系（米・米麹・水のみ）</div>
 
@@ -1248,7 +1252,7 @@
         </p>
       </div>
 
-      <div class="guide" data-komeo="komeo2.webp"><div class="guide-src">難しい言葉は、<strong>ひとことだけ</strong>読めば十分です。途中のクイズにも、ぜひ挑戦してみてください。</div></div>
+      <div class="guide" data-komeo="komeo2.webp"><div class="guide-src">難しい言葉は、<wbr><strong>ひとことだけ</strong><wbr>読めば十分です。<wbr>途中のクイズにも、<wbr>ぜひ挑戦してみてください。</div></div>
 
       <div class="sub-heading mt-24">お米の削り方による違い（精米歩合）</div>
 
@@ -1402,7 +1406,7 @@
     <!-- Screen: 吾熊の日本酒 -->
     <section class="screen" data-screen="our-sake">
       <h2 class="title">吾熊の日本酒</h2>
-      <div class="guide" data-komeo="komeo1.webp"><div class="guide-src">気になる銘柄をタップすると、解説が開きます。</div></div>
+      <div class="guide" data-komeo="komeo1.webp"><div class="guide-src">気になる銘柄を<wbr>タップすると、<wbr>解説が開きます。</div></div>
 
             
       <div class="glass-box" style="padding: 16px 20px;">
@@ -1418,7 +1422,7 @@
       <div id="ourSakeList"></div>
 
       <div class="feedback">
-        <div class="guide" data-komeo="komeo4.webp"><div class="guide-src">ありがとうございました。<br>お酒やお料理、飲みたいお酒やコンテンツに関してなど、自由にひとこと感想をいただけると嬉しいです。</div></div>
+        <div class="guide" data-komeo="komeo4.webp"><div class="guide-src">ありがとうございました。<br>お酒やお料理、<wbr>飲みたいお酒や<wbr>コンテンツに関してなど、<wbr>自由にひとこと<wbr>感想を<wbr>いただけると<wbr>嬉しいです。</div></div>
         <div class="feedback-form">
           <textarea maxlength="500" placeholder="ご自由にご記入ください" aria-label="ご感想"></textarea>
           <p class="feedback-note">※お名前などの個人情報は、入力しないでください。</p>
@@ -1435,7 +1439,7 @@
     <!-- Screen: 焼酎・何からできている？ -->
     <section class="screen" data-screen="shochu-materials">
       <h2 class="title" style="font-size: clamp(17px, 5vw, 20px);">原材料による「味」の違い</h2>
-      <div class="guide" data-komeo="komeo1.webp"><div class="guide-src">原料のアイコンをタップすると、それぞれの味わいの特徴が分かります。</div></div>
+      <div class="guide" data-komeo="komeo1.webp"><div class="guide-src">原料のアイコンを<wbr>タップすると、<wbr>それぞれの味わいの<wbr>特徴が分かります。</div></div>
 
             
       <div class="glass-box" style="padding: 16px 20px;">
@@ -1518,7 +1522,7 @@
         </p>
       </div>
 
-      <div class="guide" data-komeo="komeo4.webp"><div class="guide-src">ラベルの言葉は、<strong>ひとこと</strong>だけでも十分です。気になったらタップして、詳しくご覧ください。</div></div>
+      <div class="guide" data-komeo="komeo4.webp"><div class="guide-src">ラベルの言葉は、<wbr><strong>ひとこと</strong>だけでも<wbr>十分です。<wbr>気になったら<wbr>タップして、<wbr>詳しくご覧ください。</div></div>
 
       <div class="sub-heading mt-24">種類を表すことば</div>
 
@@ -1617,7 +1621,7 @@
     <!-- Screen: 吾熊の焼酎 -->
     <section class="screen" data-screen="our-shochu">
       <h2 class="title">吾熊の焼酎</h2>
-      <div class="guide" data-komeo="komeo4.webp"><div class="guide-src">気になる銘柄をタップすると、解説が開きます。</div></div>
+      <div class="guide" data-komeo="komeo4.webp"><div class="guide-src">気になる銘柄を<wbr>タップすると、<wbr>解説が開きます。</div></div>
 
             
       <div class="glass-box" style="padding: 16px 20px;">
@@ -1633,7 +1637,7 @@
       <div id="ourShochuList"></div>
 
       <div class="feedback">
-        <div class="guide" data-komeo="komeo4.webp"><div class="guide-src">ありがとうございました。<br>お酒やお料理、飲みたいお酒やコンテンツに関してなど、自由にひとこと感想をいただけると嬉しいです。</div></div>
+        <div class="guide" data-komeo="komeo4.webp"><div class="guide-src">ありがとうございました。<br>お酒やお料理、<wbr>飲みたいお酒や<wbr>コンテンツに関してなど、<wbr>自由にひとこと<wbr>感想を<wbr>いただけると<wbr>嬉しいです。</div></div>
         <div class="feedback-form">
           <textarea maxlength="500" placeholder="ご自由にご記入ください" aria-label="ご感想"></textarea>
           <p class="feedback-note">※お名前などの個人情報は、入力しないでください。</p>
@@ -1657,7 +1661,7 @@
         </p>
       </div>
 
-      <div class="guide" data-komeo="komeo1.webp"><div class="guide-src">覚える言葉は、たった3つ。タップして読んだあと、クイズで試してみましょう。</div></div>
+      <div class="guide" data-komeo="komeo1.webp"><div class="guide-src">覚える言葉は、<wbr>たった3つ。<wbr>タップして読んだあと、<wbr>クイズで<wbr>試してみましょう。</div></div>
 
       <div class="sub-heading mt-24">原料による違い</div>
 
@@ -1740,7 +1744,7 @@
         </p>
       </div>
 
-      <div class="guide" data-komeo="komeo5.webp"><div class="guide-src">気になる国をタップしてみてください。最後にクイズもあります。</div></div>
+      <div class="guide" data-komeo="komeo5.webp"><div class="guide-src">気になる国を<wbr>タップしてみてください。<wbr>最後に<wbr>クイズもあります。</div></div>
 
       <div class="sub-heading mt-24">世界5大ウイスキー</div>
 
@@ -1817,7 +1821,7 @@
         </p>
       </div>
 
-      <div class="guide" data-komeo="komeo4.webp"><div class="guide-src">ここからは、少し<strong>マニアックな話題</strong>です。ひとことだけ読んでも、お酒の席で話したくなる内容です。</div></div>
+      <div class="guide" data-komeo="komeo4.webp"><div class="guide-src">ここからは、<wbr>少し<wbr><strong>マニアックな話題</strong>です。<wbr>ひとことだけ<wbr>読んでも、<wbr>お酒の席で<wbr>話したくなる内容です。</div></div>
 
       <div class="sub-heading mt-24" style="font-size: 12px; letter-spacing: -0.05em; white-space: nowrap;">
         好き嫌いが分かれる！？「ピート（泥炭）」の秘密
@@ -1876,7 +1880,7 @@
     <!-- Screen: 吾熊のウイスキー -->
     <section class="screen" data-screen="our-whisky">
       <h2 class="title">吾熊のウイスキー</h2>
-      <div class="guide" data-komeo="komeo1.webp"><div class="guide-src">気になる銘柄をタップすると、解説が開きます。</div></div>
+      <div class="guide" data-komeo="komeo1.webp"><div class="guide-src">気になる銘柄を<wbr>タップすると、<wbr>解説が開きます。</div></div>
 
             
       <div class="glass-box" style="padding: 16px 20px;">
@@ -1892,7 +1896,7 @@
       <div id="ourWhiskyList"></div>
 
       <div class="feedback">
-        <div class="guide" data-komeo="komeo4.webp"><div class="guide-src">ありがとうございました。<br>お酒やお料理、飲みたいお酒やコンテンツに関してなど、自由にひとこと感想をいただけると嬉しいです。</div></div>
+        <div class="guide" data-komeo="komeo4.webp"><div class="guide-src">ありがとうございました。<br>お酒やお料理、<wbr>飲みたいお酒や<wbr>コンテンツに関してなど、<wbr>自由にひとこと<wbr>感想を<wbr>いただけると<wbr>嬉しいです。</div></div>
         <div class="feedback-form">
           <textarea maxlength="500" placeholder="ご自由にご記入ください" aria-label="ご感想"></textarea>
           <p class="feedback-note">※お名前などの個人情報は、入力しないでください。</p>
@@ -2507,9 +2511,9 @@ const SURVEY_CONFIG = {
   storageKey: 'wagakuma_survey_done_v1',
   // 質問（ここを書き換えると内容を変えられます）
   questions: [
-    { id: 'gender', text: '性別を教えてください。', komeo: 'komeo3.webp',
+    { id: 'gender', text: '性別を<wbr>教えてください。', komeo: 'komeo3.webp',
       options: ['男性', '女性', '秘密'] },
-    { id: 'age', text: '年代を教えてください。', komeo: 'komeo5.webp',
+    { id: 'age', text: '年代を<wbr>教えてください。', komeo: 'komeo5.webp',
       options: ['34歳以下', '35歳以上'] }
   ]
 };
@@ -2531,28 +2535,40 @@ function sendData(payload) {
 
 /* ============ 文字を1文字ずつ表示（キャラクターが話す演出） ============ */
 const REDUCED_MOTION = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-function isTag(t) { return t.length > 1 && t.charAt(0) === '<'; }
 
+// 文章を最初から完成した形（改行位置も確定）で配置し、1文字ずつ表示する。
+// 途中で改行位置が変わらないので、読んでいる最中に文字が動かない。
 function typeHTML(el, html, onDone) {
-  const toks = html.match(/<[^>]+>|[\s\S]/g) || [];
+  el.innerHTML = html;
+  const spans = [];
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(tn => {
+    const frag = document.createDocumentFragment();
+    Array.from(tn.nodeValue).forEach(c => {
+      const s = document.createElement('span');
+      s.className = 'ch';
+      s.textContent = c;
+      frag.appendChild(s);
+      spans.push(s);
+    });
+    tn.parentNode.replaceChild(frag, tn);
+  });
   let i = 0, timer = null, done = false;
-  function render(n) {
-    el.innerHTML = toks.slice(0, n).join('') + (n < toks.length ? '<span class="caret"></span>' : '');
-  }
   function finish() {
     if (done) return;
     done = true; clearTimeout(timer);
-    render(toks.length);
+    for (; i < spans.length; i++) spans[i].classList.add('v');
     if (onDone) onDone();
   }
-  if (REDUCED_MOTION) { finish(); return { finish: finish, isDone: () => true }; }
+  if (REDUCED_MOTION || !spans.length) { finish(); return { finish: finish, isDone: () => true }; }
   function step() {
     if (done) return;
-    do { i++; } while (i < toks.length && isTag(toks[i - 1]));
-    while (i < toks.length && isTag(toks[i])) i++;
-    render(i);
-    if (i >= toks.length) { finish(); return; }
-    const c = toks[i - 1];
+    const c = spans[i].textContent;
+    spans[i].classList.add('v');
+    i++;
+    if (i >= spans.length) { finish(); return; }
     timer = setTimeout(step, (c === '。' || c === '！' || c === '？') ? 190 : (c === '、' ? 110 : 34));
   }
   step();
@@ -2571,12 +2587,12 @@ function buildGuide(g) {
   const html = src ? src.innerHTML : '';
   g._html = html;
   g.innerHTML = '<img class="guide-img" src="' + imgSrc(g.dataset.komeo || 'komeo1.webp') + '" alt="">' +
-    '<div class="guide-bubble"><div class="g-ghost">' + html + '</div><div class="g-live"></div></div>';
+    '<div class="guide-bubble"><div class="g-live">' + html + '</div></div>';
 }
 
 function sayGuide(g, html) {
   const img = g.querySelector('.guide-img');
-  if (html) { g._html = html; g.querySelector('.g-ghost').innerHTML = html; }
+  if (html) g._html = html;
   g.classList.add('on');
   img.classList.add('talking');
   const ctrl = typeHTML(g.querySelector('.g-live'), g._html, () => {
@@ -2632,7 +2648,7 @@ function initFeedback() {
       form.classList.remove('show');
       form.classList.add('sent');
       g.querySelector('.guide-img').src = imgSrc('komeo1.webp');
-      sayGuide(g, '送信しました。<br>ご協力、ありがとうございました。');
+      sayGuide(g, '送信しました。<br>ご協力、<wbr>ありがとうございました。');
     });
   });
 }
@@ -2682,7 +2698,6 @@ function introSay(html, komeo, opts) {
       img.src = imgSrc(komeo);
       img.classList.remove('pop'); void img.offsetWidth; img.classList.add('pop');
     }
-    $id('introGhost').innerHTML = html;
     img.classList.add('talking');
     const ctrl = typeHTML($id('introText'), html, () => {
       img.classList.remove('talking');
@@ -2723,9 +2738,9 @@ async function runIntro() {
   const dots = $id('introDots');
   dots.innerHTML = qs.map(() => '<i></i>').join('');
   dots.classList.remove('show');
-  await introSay('ご来店ありがとうございます。<br>酒肴家 吾熊です。', 'komeo1.webp');
-  await introSay('この辞典では、日本酒・焼酎・ウイスキーのラベルの言葉や造り方を、図解やクイズで気軽に知ることができます。', 'komeo4.webp');
-  await introSay('はじめに、<strong>2つだけ</strong>質問させてください。', 'komeo1.webp');
+  await introSay('ご来店<wbr>ありがとうございます。<br>酒肴家 吾熊です。', 'komeo1.webp');
+  await introSay('この辞典では、<wbr><span style="white-space:nowrap">日本酒・焼酎・ウイスキーの</span><wbr>ラベルの言葉や<wbr>造り方を、<wbr>図解やクイズで<wbr>気軽に知ることが<wbr>できます。', 'komeo4.webp');
+  await introSay('はじめに、<wbr><strong>2つだけ</strong><wbr>質問させてください。', 'komeo1.webp');
   const answers = {};
   dots.classList.add('show');
   for (let i = 0; i < qs.length; i++) {
@@ -2735,7 +2750,7 @@ async function runIntro() {
   storageSet(SURVEY_CONFIG.storageKey, '1');
   sendData({ type: 'survey', answers: answers });
   dots.classList.remove('show');
-  await introSay('ありがとうございます。<br>それでは、はじめましょう。', 'komeo4.webp', { auto: 1500 });
+  await introSay('ありがとうございます。<br>それでは、<wbr>はじめましょう。', 'komeo4.webp', { auto: 1500 });
   closeIntro();
 }
 

@@ -22,6 +22,7 @@
     --font-mincho: 'Shippori Mincho', serif;
     --font-gothic: 'Zen Kaku Gothic New', sans-serif;
     --radius: 14px;
+    --bg-back: url('wagakuma_back.webp');
   }
 
   *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -115,7 +116,7 @@
     background-color: #1a1a1a; 
     background-image: 
       linear-gradient(rgba(20, 20, 20, 0.70), rgba(20, 20, 20, 0.70)), 
-      url('wagakuma_back.webp');
+      var(--bg-back);
     background-size: cover; 
     background-repeat: no-repeat; 
     background-position: center top;
@@ -193,6 +194,7 @@
     display: flex;
   }
   .screen[data-screen="top"] .glass-box {
+    padding: 16px 20px;
     margin-bottom: 0; 
     flex: 0 0 auto;
   }
@@ -537,15 +539,6 @@
     line-height: 1.5; color: var(--ai-light);
   }
 
-  /* ===== コメオのひとこと ===== */
-  .komeo-tip { display: flex; align-items: flex-end; gap: 10px; margin: 22px 0 6px; }
-  .komeo-tip img { width: 58px; height: 80px; object-fit: contain; object-position: bottom; flex: 0 0 auto; }
-  .komeo-tip .bubble {
-    position: relative; background: rgba(255,255,255,0.92); border: 1px solid var(--line);
-    border-radius: 14px 14px 14px 3px; padding: 10px 14px;
-    font-size: 13.5px; line-height: 1.7; color: var(--sumi); text-align: left; margin-bottom: 8px;
-  }
-  .komeo-tip .bubble strong { color: var(--shu); }
 
 
   /* ===== 図解（共通） ===== */
@@ -635,6 +628,95 @@
 
 
 
+  /* ===== キャラクターの案内（吹き出し） ===== */
+  .guide { display: flex; align-items: flex-end; gap: 10px; margin: 18px 0 8px; }
+  .guide-img { width: 58px; height: 80px; object-fit: contain; object-position: bottom; flex: 0 0 auto; transform-origin: 50% 100%; }
+  .guide-bubble {
+    position: relative; flex: 1; background: rgba(255,255,255,0.94); border: 1px solid var(--line);
+    border-radius: 14px 14px 14px 3px; padding: 10px 14px; margin-bottom: 8px;
+    font-size: 14px; line-height: 1.75; color: var(--sumi); text-align: left;
+    opacity: 0; transform: translateY(6px) scale(0.97); transform-origin: 0 100%;
+    transition: opacity .3s ease, transform .4s cubic-bezier(.34,1.56,.64,1);
+  }
+  .guide-bubble::before {
+    content: ''; position: absolute; left: -8px; bottom: 11px;
+    border: 8px solid transparent; border-right-color: rgba(255,255,255,0.94); border-left: 0;
+  }
+  .guide.on .guide-bubble { opacity: 1; transform: none; }
+  .guide-bubble strong { color: var(--shu); }
+  .g-ghost { visibility: hidden; }
+  .g-live { position: absolute; left: 14px; right: 14px; top: 10px; }
+  .caret { display: inline-block; width: 2px; height: 1em; background: var(--shu); margin-left: 1px; vertical-align: -2px; animation: caretBlink .8s steps(1) infinite; }
+  @keyframes caretBlink { 50% { opacity: 0; } }
+  @keyframes talk { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.04, 0.95); } }
+  .talking { animation: talk .45s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce){ .talking, .caret { animation: none; } .guide-bubble { transition: none; } }
+
+  /* ===== 導入（キャラクターがあいさつ→アンケート） ===== */
+  #introScreen {
+    position: fixed; inset: 0; z-index: 9000; display: none; justify-content: center;
+    background: #1a1a1a; overflow-y: auto; transition: opacity .7s ease;
+  }
+  #introScreen::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(20,20,20,0.74), rgba(20,20,20,0.74)), var(--bg-back);
+    background-size: cover; background-position: center top;
+  }
+  #introScreen.show { display: flex; }
+  #introScreen.hide { opacity: 0; pointer-events: none; }
+  .intro-inner {
+    position: relative; width: 100%; max-width: 460px; min-height: 100%; padding: 28px 20px;
+    display: flex; flex-direction: column; justify-content: center; gap: 22px;
+  }
+  .intro-row { display: flex; align-items: flex-end; gap: 12px; }
+  .intro-komeo { width: 84px; height: 126px; object-fit: contain; object-position: bottom; flex: 0 0 auto; transform-origin: 50% 100%; }
+  .intro-komeo.pop { animation: introPop .6s cubic-bezier(.34,1.56,.64,1) both; }
+  @keyframes introPop { from { opacity: 0; transform: translateY(18px) scale(.7); } to { opacity: 1; transform: none; } }
+  .intro-bubble {
+    position: relative; flex: 1; background: #fff; border-radius: 18px 18px 18px 4px; padding: 16px 18px 22px;
+    font-size: 16px; line-height: 1.85; color: var(--sumi); box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    animation: bubbleIn .5s cubic-bezier(.34,1.56,.64,1) both; transform-origin: 0 100%;
+  }
+  @keyframes bubbleIn { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: none; } }
+  .intro-bubble::before {
+    content: ''; position: absolute; left: -9px; bottom: 16px;
+    border: 9px solid transparent; border-right-color: #fff; border-left: 0;
+  }
+  .intro-bubble strong { color: var(--shu); }
+  #introText { position: absolute; left: 18px; right: 18px; top: 16px; }
+  #introText, #introGhost { text-wrap: balance; }
+  .intro-options { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+  .intro-opt {
+    width: 100%; padding: 14px 16px; background: #fff; color: var(--ai); border: 1px solid var(--ai-light);
+    border-radius: 12px; font-family: var(--font-gothic); font-weight: 700; font-size: 15px; text-align: left; cursor: pointer;
+    animation: fadeUp .45s ease both; transition: background .2s ease, color .2s ease, transform .15s ease;
+  }
+  .intro-opt:hover:not(:disabled) { background: var(--ai-pale); }
+  .intro-opt.picked { background: var(--shu); border-color: var(--shu); color: #fff; transform: scale(1.02); opacity: 1; }
+  .intro-opt:disabled { cursor: default; opacity: .75; }
+  .intro-opt:focus-visible { outline: 2px solid var(--shu); outline-offset: 2px; }
+  .intro-dots { display: none; justify-content: center; gap: 8px; }
+  .intro-dots.show { display: flex; }
+  .intro-dots i { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.35); transition: background .3s ease; }
+  .intro-dots i.on { background: #fff; }
+  @media (prefers-reduced-motion: reduce){ .intro-komeo.pop, .intro-bubble, .intro-opt { animation: none; } }
+
+  /* ===== ご感想（自由記述） ===== */
+  .feedback { margin-top: 30px; }
+  .feedback-form { display: none; margin-top: 6px; }
+  .feedback-form.show { display: block; animation: fadeUp .5s ease both; }
+  .feedback-form.sent { display: none; }
+  .feedback-form textarea {
+    display: block; width: 100%; min-height: 120px; resize: vertical; padding: 12px 14px;
+    border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,0.96);
+    font-family: var(--font-gothic); font-size: 15px; line-height: 1.7; color: var(--sumi);
+  }
+  .feedback-form textarea:focus-visible { outline: 2px solid var(--shu); outline-offset: 2px; }
+  .feedback-note { margin: 8px 0 0; font-size: 12px; line-height: 1.6; color: rgba(255,255,255,0.85); text-align: left; }
+  .feedback-send { animation: none !important; margin-top: 14px; }
+  .feedback-send::before { display: none; }
+  .feedback-send:disabled { opacity: .45; cursor: default; transform: none; }
+
   /* フリップカード */
   .flip-card {
     background-color: transparent; width: 100%; height: 280px; 
@@ -721,15 +803,77 @@
   .material-detail-box.show { display: block; animation: fadeUp 0.3s ease; }
   .material-detail-title { font-family: var(--font-mincho); font-weight: 700; font-size: 16px; color: var(--ai); margin: 0 0 8px; display: flex; align-items: center; gap: 8px; }
   .material-detail-desc { font-size: 15px; color: var(--sumi); line-height: 1.7; margin: 0; }
+
+  /* ===== 文字の読みやすさ調整 =====
+     ここの数値を変えると、サイト全体の文字の大きさ・行の間隔・字間をまとめて調整できます。 */
+  :root {
+    --fs-body: 16px;      /* 本文 */
+    --fs-read: 15.5px;    /* 解説カードを開いたときの文章 */
+    --fs-guide: 15px;     /* キャラクターの吹き出し */
+    --fs-quiz: 15px;      /* クイズの選択肢 */
+    --fs-small: 12.5px;   /* 注記など小さい文字 */
+    --lh: 1.9;            /* 行の間隔 */
+    --ls: 0.02em;         /* 字間 */
+  }
+  .article-text { font-size: var(--fs-body); line-height: var(--lh); letter-spacing: var(--ls); }
+  .sub-heading { font-size: 17px; letter-spacing: 0.04em; line-height: 1.5; }
+  .accordion-header { font-size: 16px; line-height: 1.5; padding: 15px 16px; }
+  .accordion-body { font-size: var(--fs-read); line-height: var(--lh); letter-spacing: var(--ls); }
+  .accordion-item.open .accordion-body { padding: 16px 18px; }
+  .acc-hint { font-size: 13px; line-height: 1.6; margin-top: 4px; letter-spacing: 0.02em; }
+  .region-label { font-size: 12.5px; }
+  .material-detail-desc { font-size: var(--fs-read); line-height: var(--lh); letter-spacing: var(--ls); }
+
+  .guide-bubble { font-size: var(--fs-guide); line-height: 1.9; letter-spacing: var(--ls); padding: 12px 16px; }
+  .g-live { left: 16px; right: 16px; top: 12px; }
+  .guide-img { width: 62px; height: 86px; }
+  .intro-bubble { font-size: 16px; line-height: 1.95; letter-spacing: 0.01em; padding: 18px; }
+  #introText { left: 18px; right: 18px; top: 18px; }
+
+  .quiz-q { font-size: 17px; line-height: 1.65; }
+  .quiz-btn { font-size: var(--fs-quiz); line-height: 1.55; padding: 13px 14px; }
+  .quiz-result p { font-size: var(--fs-read); line-height: 1.85; letter-spacing: var(--ls); }
+
+  .diagram-text { font-size: var(--fs-guide); line-height: 1.85; letter-spacing: var(--ls); }
+  .diagram-note, .polish-note { font-size: var(--fs-small); line-height: 1.75; }
+  .polish-say p { font-size: var(--fs-guide); line-height: 1.85; letter-spacing: var(--ls); }
+  .polish-stat .label { font-size: var(--fs-small); }
+  .meter-label { font-size: 13px; }
+  .flow-sub { font-size: 13px; }
+  .flow-arrow { font-size: 13px; }
+  .tl-node { font-size: 12.5px; }
+  .tl-gap .tl-label { font-size: 12px; }
+  .polish-ticks span { font-size: 12px; }
+  .blend-ratio { font-size: 14px; }
+  .blend-ends { font-size: 12px; }
+  .feedback-form textarea { font-size: 16px; line-height: 1.75; }
+  .feedback-note { font-size: var(--fs-small); }
+  /* 画面の高さが小さい端末では、トップ画面の吹き出しを少しコンパクトに */
+  @media (max-height: 700px) {
+    .screen[data-screen="top"] .guide-bubble { font-size: 14px; line-height: 1.8; }
+    .screen[data-screen="top"] .guide-img { width: 52px; height: 72px; }
+  }
 </style>
 </head>
-<body>
+<body class="opening">
 
 <!-- オープニング画面 -->
 <div id="openingScreen">
   <video id="openingVideo" src="title2.mp4" autoplay muted playsinline></video>
   <img id="openingLogo" src="wagakuma.webp" alt="吾熊">
   <div id="skipText">画面をタップしてスキップ</div>
+</div>
+
+<!-- 導入（キャラクターのあいさつ→アンケート） -->
+<div id="introScreen" aria-live="polite">
+  <div class="intro-inner">
+    <div class="intro-row">
+      <img id="introKomeo" class="intro-komeo" src="komeo1.webp" alt="">
+      <div class="intro-bubble"><div id="introGhost" style="visibility:hidden"></div><div id="introText"></div></div>
+    </div>
+    <div class="intro-options" id="introOptions"></div>
+    <div class="intro-dots" id="introDots"><i></i><i></i></div>
+  </div>
 </div>
 
 <div class="app">
@@ -759,9 +903,9 @@
     <section class="screen active" data-screen="top">
       <div class="glass-box">
         <h2 class="title">今夜の一杯を、もっと美味しく。</h2>
-        <p class="lead" style="margin-bottom: 16px;">ラベルの言葉や造り方の秘密を少し知るだけで、いつものお酒が違った表情を見せてくれます。<br>知ればもっと美味しくなる、お酒の知識を深めてみませんか？</p>
-        <p style="font-size: 13.5px; font-weight: 700; color: var(--shu); margin: 0;">※お酒のアイコンをタップしてください。</p>
       </div>
+
+      <div class="guide" data-komeo="komeo1.webp"><div class="guide-src">ラベルの言葉や造り方の秘密を少し知るだけで、いつものお酒が違った表情を見せてくれます。<br>知ればもっと美味しくなる、お酒の知識を深めてみませんか？<br><strong>ご覧になりたいお酒のアイコンを、タップ</strong>してください。</div></div>
 
       <div class="top-categories-wrap">
         <div class="top-categories-row">
@@ -786,7 +930,9 @@
     <!-- Screen: 日本酒・導入 -->
     <section class="screen" data-screen="sake-intro">
       <h3 class="section-title">日本酒ってどんなお酒？</h3>
-      <div class="glass-box">
+      <div class="guide" data-komeo="komeo1.webp"><div class="guide-src">日本酒の基本を、3つのポイントで紹介します。下のカードも、タップしてみてください。</div></div>
+
+            <div class="glass-box">
         <p class="article-text">
           <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">① 米と水が織りなす「醸造酒」</span>
           日本酒は、米、米麹、水を主な原料として発酵させて造る「醸造酒」の一種。古くから日本特有の製法で造られてきた伝統的なお酒です。<br><br>
@@ -831,7 +977,9 @@
     <!-- Screen: 焼酎・導入 -->
     <section class="screen" data-screen="shochu-intro">
       <h3 class="section-title">焼酎ってどんなお酒？</h3>
-      <div class="glass-box">
+      <div class="guide" data-komeo="komeo4.webp"><div class="guide-src">焼酎の魅力を、3つのポイントで紹介します。下の図解も、ぜひご覧ください。</div></div>
+
+            <div class="glass-box">
         <p class="article-text">
           <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">① 日本が誇る「蒸留酒」</span>
           焼酎は、穀物や芋などを発酵させた後に、熱を加えてアルコール分を抽出して造られる「蒸留酒」の仲間です。<br><br>
@@ -874,7 +1022,9 @@
     <!-- Screen: ウイスキー・導入 -->
     <section class="screen" data-screen="whisky-intro">
       <h3 class="section-title">ウイスキーってどんなお酒？</h3>
-      <div class="glass-box">
+      <div class="guide" data-komeo="komeo1.webp"><div class="guide-src">ウイスキーの魅力を、3つのポイントで紹介します。</div></div>
+
+            <div class="glass-box">
         <p class="article-text">
           <span style="color:var(--shu); font-weight:700; display:block; margin-bottom:4px;">① 穀物から生まれる「蒸留酒」</span>
           ウイスキーは、大麦などの穀物を発酵・蒸留し、木製の樽で長い年月をかけてじっくりと熟成させて造られるお酒です。<br><br>
@@ -896,7 +1046,9 @@
     <!-- Screen: 日本酒・特定名称種 -->
     <section class="screen" data-screen="sake-types">
       <h2 class="title">特定名称酒の主な種類</h2>
-      
+      <div class="guide" data-komeo="komeo4.webp"><div class="guide-src">ここでは日本酒の分類を学びます。スライダーでお米を削ると、名前が変わる様子が分かります。</div></div>
+
+            
       <div class="glass-box">
         <p class="article-text" style="font-size: clamp(15.5px, 4vw, 17px); line-height: 1.85;">
           原料や「精米歩合」などの基準を満たした日本酒を<strong>「特定名称酒」</strong>と呼びます。<br>
@@ -981,7 +1133,7 @@
 
       <div class="quiz-box" data-quiz="polishRatio"></div>
 
-      <div class="komeo-tip"><img src="komeo1.webp" alt=""><div class="bubble">名前の下の<strong>ひとこと</strong>だけでも、おおよそ把握できます。詳しく知りたいときは、タップしてご覧ください。</div></div>
+      <div class="guide" data-komeo="komeo1.webp"><div class="guide-src">名前の下の<strong>ひとこと</strong>だけでも、おおよそ把握できます。詳しく知りたいときは、タップしてご覧ください。</div></div>
 
       <div class="sub-heading mt-24">純米酒系（米・米麹・水のみ）</div>
 
@@ -1096,7 +1248,7 @@
         </p>
       </div>
 
-      <div class="komeo-tip"><img src="komeo2.webp" alt=""><div class="bubble">難しい言葉は、<strong>ひとことだけ</strong>読めば十分です。途中のクイズにも、ぜひ挑戦してみてください。</div></div>
+      <div class="guide" data-komeo="komeo2.webp"><div class="guide-src">難しい言葉は、<strong>ひとことだけ</strong>読めば十分です。途中のクイズにも、ぜひ挑戦してみてください。</div></div>
 
       <div class="sub-heading mt-24">お米の削り方による違い（精米歩合）</div>
 
@@ -1250,7 +1402,9 @@
     <!-- Screen: 吾熊の日本酒 -->
     <section class="screen" data-screen="our-sake">
       <h2 class="title">吾熊の日本酒</h2>
-      
+      <div class="guide" data-komeo="komeo1.webp"><div class="guide-src">気になる銘柄をタップすると、解説が開きます。</div></div>
+
+            
       <div class="glass-box" style="padding: 16px 20px;">
         <p class="article-text" style="margin-bottom: 12px; text-align: left;">
           現在、当店でご用意している<span style="display: inline-block;">日本酒です。</span><br>
@@ -1263,6 +1417,15 @@
 
       <div id="ourSakeList"></div>
 
+      <div class="feedback">
+        <div class="guide" data-komeo="komeo4.webp"><div class="guide-src">ありがとうございました。<br>お酒やお料理、飲みたいお酒やコンテンツに関してなど、自由にひとこと感想をいただけると嬉しいです。</div></div>
+        <div class="feedback-form">
+          <textarea maxlength="500" placeholder="ご自由にご記入ください" aria-label="ご感想"></textarea>
+          <p class="feedback-note">※お名前などの個人情報は、入力しないでください。</p>
+          <button type="button" class="primary-btn feedback-send" disabled>送信する</button>
+        </div>
+      </div>
+
       <button class="primary-btn back-home-btn" onclick="goScreen('top')">
         <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke-linecap="round" stroke-linejoin="round"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         最初の画面に戻る
@@ -1272,7 +1435,9 @@
     <!-- Screen: 焼酎・何からできている？ -->
     <section class="screen" data-screen="shochu-materials">
       <h2 class="title" style="font-size: clamp(17px, 5vw, 20px);">原材料による「味」の違い</h2>
-      
+      <div class="guide" data-komeo="komeo1.webp"><div class="guide-src">原料のアイコンをタップすると、それぞれの味わいの特徴が分かります。</div></div>
+
+            
       <div class="glass-box" style="padding: 16px 20px;">
         <p class="article-text">
           焼酎の面白さは、なんといっても「原料のバリエーション」にあります。使う素材の個性がそのまま香りや味わいに表れるため、気分や料理に合わせて使い分けるのがおすすめです。<br>
@@ -1353,7 +1518,7 @@
         </p>
       </div>
 
-      <div class="komeo-tip"><img src="komeo4.webp" alt=""><div class="bubble">ラベルの言葉は、<strong>ひとこと</strong>だけでも十分です。気になったらタップして、詳しくご覧ください。</div></div>
+      <div class="guide" data-komeo="komeo4.webp"><div class="guide-src">ラベルの言葉は、<strong>ひとこと</strong>だけでも十分です。気になったらタップして、詳しくご覧ください。</div></div>
 
       <div class="sub-heading mt-24">種類を表すことば</div>
 
@@ -1452,7 +1617,9 @@
     <!-- Screen: 吾熊の焼酎 -->
     <section class="screen" data-screen="our-shochu">
       <h2 class="title">吾熊の焼酎</h2>
-      
+      <div class="guide" data-komeo="komeo4.webp"><div class="guide-src">気になる銘柄をタップすると、解説が開きます。</div></div>
+
+            
       <div class="glass-box" style="padding: 16px 20px;">
         <p class="article-text" style="margin-bottom: 12px; text-align: left;">
           現在、当店でご用意している<span style="display: inline-block;">焼酎です。</span><br>
@@ -1464,6 +1631,15 @@
       </div>
 
       <div id="ourShochuList"></div>
+
+      <div class="feedback">
+        <div class="guide" data-komeo="komeo4.webp"><div class="guide-src">ありがとうございました。<br>お酒やお料理、飲みたいお酒やコンテンツに関してなど、自由にひとこと感想をいただけると嬉しいです。</div></div>
+        <div class="feedback-form">
+          <textarea maxlength="500" placeholder="ご自由にご記入ください" aria-label="ご感想"></textarea>
+          <p class="feedback-note">※お名前などの個人情報は、入力しないでください。</p>
+          <button type="button" class="primary-btn feedback-send" disabled>送信する</button>
+        </div>
+      </div>
 
       <button class="primary-btn back-home-btn" onclick="goScreen('top')">
         <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke-linecap="round" stroke-linejoin="round"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -1481,7 +1657,7 @@
         </p>
       </div>
 
-      <div class="komeo-tip"><img src="komeo1.webp" alt=""><div class="bubble">覚える言葉は、たった3つ。タップして読んだあと、クイズで試してみましょう。</div></div>
+      <div class="guide" data-komeo="komeo1.webp"><div class="guide-src">覚える言葉は、たった3つ。タップして読んだあと、クイズで試してみましょう。</div></div>
 
       <div class="sub-heading mt-24">原料による違い</div>
 
@@ -1564,7 +1740,7 @@
         </p>
       </div>
 
-      <div class="komeo-tip"><img src="komeo5.webp" alt=""><div class="bubble">気になる国をタップしてみてください。最後にクイズもあります。</div></div>
+      <div class="guide" data-komeo="komeo5.webp"><div class="guide-src">気になる国をタップしてみてください。最後にクイズもあります。</div></div>
 
       <div class="sub-heading mt-24">世界5大ウイスキー</div>
 
@@ -1641,7 +1817,7 @@
         </p>
       </div>
 
-      <div class="komeo-tip"><img src="komeo4.webp" alt=""><div class="bubble">ここからは、少し<strong>マニアックな話題</strong>です。ひとことだけ読んでも、お酒の席で話したくなる内容です。</div></div>
+      <div class="guide" data-komeo="komeo4.webp"><div class="guide-src">ここからは、少し<strong>マニアックな話題</strong>です。ひとことだけ読んでも、お酒の席で話したくなる内容です。</div></div>
 
       <div class="sub-heading mt-24" style="font-size: 12px; letter-spacing: -0.05em; white-space: nowrap;">
         好き嫌いが分かれる！？「ピート（泥炭）」の秘密
@@ -1700,7 +1876,9 @@
     <!-- Screen: 吾熊のウイスキー -->
     <section class="screen" data-screen="our-whisky">
       <h2 class="title">吾熊のウイスキー</h2>
-      
+      <div class="guide" data-komeo="komeo1.webp"><div class="guide-src">気になる銘柄をタップすると、解説が開きます。</div></div>
+
+            
       <div class="glass-box" style="padding: 16px 20px;">
         <p class="article-text" style="margin-bottom: 12px; text-align: left;">
           現在、当店でご用意がある<span style="display: inline-block;">ウイスキーです。</span><br>
@@ -1712,6 +1890,15 @@
       </div>
 
       <div id="ourWhiskyList"></div>
+
+      <div class="feedback">
+        <div class="guide" data-komeo="komeo4.webp"><div class="guide-src">ありがとうございました。<br>お酒やお料理、飲みたいお酒やコンテンツに関してなど、自由にひとこと感想をいただけると嬉しいです。</div></div>
+        <div class="feedback-form">
+          <textarea maxlength="500" placeholder="ご自由にご記入ください" aria-label="ご感想"></textarea>
+          <p class="feedback-note">※お名前などの個人情報は、入力しないでください。</p>
+          <button type="button" class="primary-btn feedback-send" disabled>送信する</button>
+        </div>
+      </div>
 
       <button class="primary-btn back-home-btn" onclick="goScreen('top')">
         <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke-linecap="round" stroke-linejoin="round"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -1736,6 +1923,11 @@ function endOpening() {
   setTimeout(() => {
     openingScreen.style.display = 'none'; 
   }, 1500);
+  setTimeout(() => {
+    document.body.classList.remove('opening');
+    startIntro();
+    resumeGuides();
+  }, 700);
 }
 
 openingScreen.addEventListener('click', endOpening);
@@ -1760,6 +1952,9 @@ if (playPromise !== undefined) {
     endOpening();
   });
 }
+
+/* 画像のパス解決（本番はファイル名のまま） */
+function imgSrc(n) { return (window.__IMG && window.__IMG[n]) || n; }
 
 /* ============ アコーディオン開閉 ============ */
 function toggleAccordion(element) {
@@ -2063,7 +2258,7 @@ function renderQuiz(box) {
   const letters = ['A', 'B', 'C', 'D'];
   box.innerHTML = `
     <div class="quiz-head">
-      <img class="quiz-komeo" src="${KOMEO_THINK}" alt="">
+      <img class="quiz-komeo" src="${imgSrc(KOMEO_THINK)}" alt="">
       <div class="quiz-q">${d.q}</div>
     </div>
     <div class="quiz-options">
@@ -2094,13 +2289,13 @@ function answerQuiz(box, picked) {
   btns[d.correct].classList.add('correct');
 
   if (ok) {
-    komeo.src = KOMEO_OK[quizOkCount % KOMEO_OK.length];
+    komeo.src = imgSrc(KOMEO_OK[quizOkCount % KOMEO_OK.length]);
     title.textContent = OK_TITLES[quizOkCount % OK_TITLES.length];
     title.className = 'quiz-result-title correct-text';
     quizOkCount++;
   } else {
     btns[picked].classList.add('incorrect');
-    komeo.src = KOMEO_NG;
+    komeo.src = imgSrc(KOMEO_NG);
     title.textContent = `おしい！ 正解は${letters[d.correct]}です`;
     title.className = 'quiz-result-title incorrect-text';
   }
@@ -2143,7 +2338,7 @@ function initPolish() {
   const namesEl = document.getElementById('polishNames');
   const msgEl = document.getElementById('polishMsg');
   const komeoEl = document.getElementById('polishKomeo');
-  let lastImg = komeoEl.getAttribute('src');
+  let lastImg = 'komeo1.webp';
   let lastNames = '';
 
   function update() {
@@ -2165,7 +2360,7 @@ function initPolish() {
       lastNames = key;
     }
     if (st.img !== lastImg) {
-      komeoEl.setAttribute('src', st.img);
+      komeoEl.setAttribute('src', imgSrc(st.img));
       lastImg = st.img;
       komeoEl.classList.remove('komeo-hop');
       void komeoEl.offsetWidth;
@@ -2276,7 +2471,7 @@ function initProgress() {
       const bar = document.createElement('div');
       bar.className = 'progress';
       bar.dataset.for = name;
-      bar.innerHTML = '<div class="progress-track"><div class="progress-fill"></div><img class="progress-walker" src="ashi.webp" alt=""></div>';
+      bar.innerHTML = '<div class="progress-track"><div class="progress-fill"></div><img class="progress-walker" src="' + imgSrc('ashi.webp') + '" alt=""></div>';
       const head = sec.querySelector('h2.title, h3.section-title');
       head.insertAdjacentElement('afterend', bar);
       paintBar(name);
@@ -2303,6 +2498,255 @@ function paintBar(name) {
   bar.classList.toggle('complete', st.total > 0 && st.done === st.total);
 }
 
+
+/* ============ 設定（アンケート） ============ */
+const SURVEY_CONFIG = {
+  // 回答の送信先URL（Google Apps Script のウェブアプリURLなど）。空欄の間は、回答は保存されません。
+  endpoint: '',
+  // 1端末につき1回だけ表示するための目印
+  storageKey: 'wagakuma_survey_done_v1',
+  // 質問（ここを書き換えると内容を変えられます）
+  questions: [
+    { id: 'gender', text: '性別を教えてください。', komeo: 'komeo3.webp',
+      options: ['男性', '女性', '秘密'] },
+    { id: 'age', text: '年代を教えてください。', komeo: 'komeo5.webp',
+      options: ['34歳以下', '35歳以上'] }
+  ]
+};
+
+function storageGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function storageSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+function sendData(payload) {
+  payload.ts = new Date().toISOString();
+  if (!SURVEY_CONFIG.endpoint) return;
+  try {
+    fetch(SURVEY_CONFIG.endpoint, {
+      method: 'POST', mode: 'no-cors', keepalive: true,
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+  } catch (e) {}
+}
+
+/* ============ 文字を1文字ずつ表示（キャラクターが話す演出） ============ */
+const REDUCED_MOTION = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+function isTag(t) { return t.length > 1 && t.charAt(0) === '<'; }
+
+function typeHTML(el, html, onDone) {
+  const toks = html.match(/<[^>]+>|[\s\S]/g) || [];
+  let i = 0, timer = null, done = false;
+  function render(n) {
+    el.innerHTML = toks.slice(0, n).join('') + (n < toks.length ? '<span class="caret"></span>' : '');
+  }
+  function finish() {
+    if (done) return;
+    done = true; clearTimeout(timer);
+    render(toks.length);
+    if (onDone) onDone();
+  }
+  if (REDUCED_MOTION) { finish(); return { finish: finish, isDone: () => true }; }
+  function step() {
+    if (done) return;
+    do { i++; } while (i < toks.length && isTag(toks[i - 1]));
+    while (i < toks.length && isTag(toks[i])) i++;
+    render(i);
+    if (i >= toks.length) { finish(); return; }
+    const c = toks[i - 1];
+    timer = setTimeout(step, (c === '。' || c === '！' || c === '？') ? 190 : (c === '、' ? 110 : 34));
+  }
+  step();
+  return { finish: finish, isDone: () => done };
+}
+
+/* ============ 画面内のキャラクター案内 ============ */
+function guidesPaused() {
+  return document.body.classList.contains('opening') || document.body.classList.contains('intro-open');
+}
+
+function buildGuide(g) {
+  if (g.dataset.built) return;
+  g.dataset.built = '1';
+  const src = g.querySelector('.guide-src');
+  const html = src ? src.innerHTML : '';
+  g._html = html;
+  g.innerHTML = '<img class="guide-img" src="' + imgSrc(g.dataset.komeo || 'komeo1.webp') + '" alt="">' +
+    '<div class="guide-bubble"><div class="g-ghost">' + html + '</div><div class="g-live"></div></div>';
+}
+
+function sayGuide(g, html) {
+  const img = g.querySelector('.guide-img');
+  if (html) { g._html = html; g.querySelector('.g-ghost').innerHTML = html; }
+  g.classList.add('on');
+  img.classList.add('talking');
+  const ctrl = typeHTML(g.querySelector('.g-live'), g._html, () => {
+    img.classList.remove('talking');
+    g._typing = null;
+    g.dispatchEvent(new CustomEvent('guidedone'));
+  });
+  if (!ctrl.isDone()) g._typing = ctrl;
+  return ctrl;
+}
+
+function maybeSay(g) {
+  if (g.dataset.said || guidesPaused()) return;
+  const r = g.getBoundingClientRect();
+  if (r.height === 0) return;
+  if (r.top < window.innerHeight * 0.92 && r.bottom > 60) {
+    g.dataset.said = '1';
+    sayGuide(g);
+  }
+}
+
+function resumeGuides() {
+  document.querySelectorAll('.guide').forEach(maybeSay);
+}
+
+function initGuides() {
+  const guides = document.querySelectorAll('.guide');
+  guides.forEach(buildGuide);
+  // 吹き出しをタップすると、話している途中でも全文がすぐに表示される
+  guides.forEach(g => g.addEventListener('click', () => { if (g._typing) g._typing.finish(); }));
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(en => { if (en.isIntersecting) maybeSay(en.target); });
+    }, { threshold: 0.5 });
+    guides.forEach(g => io.observe(g));
+  }
+  window.addEventListener('scroll', () => { resumeGuides(); }, { passive: true });
+}
+
+/* ============ ご感想（自由記述） ============ */
+function initFeedback() {
+  document.querySelectorAll('.feedback').forEach(fb => {
+    const g = fb.querySelector('.guide');
+    const form = fb.querySelector('.feedback-form');
+    const ta = fb.querySelector('textarea');
+    const btn = fb.querySelector('.feedback-send');
+    g.addEventListener('guidedone', () => form.classList.add('show'));
+    ta.addEventListener('input', () => { btn.disabled = ta.value.trim().length === 0; });
+    btn.addEventListener('click', () => {
+      const text = ta.value.trim();
+      if (!text) return;
+      sendData({ type: 'feedback', text: text, screen: fb.closest('.screen').dataset.screen });
+      form.classList.remove('show');
+      form.classList.add('sent');
+      g.querySelector('.guide-img').src = imgSrc('komeo1.webp');
+      sayGuide(g, '送信しました。<br>ご協力、ありがとうございました。');
+    });
+  });
+}
+
+/* ============ 導入（キャラクターのあいさつ→アンケート） ============ */
+const introState = { typing: null };
+let introStarted = false;
+const $id = id => document.getElementById(id);
+
+function surveyNeeded() { return !storageGet(SURVEY_CONFIG.storageKey); }
+
+function prepareIntro() {
+  if (!surveyNeeded()) return false;
+  $id('introScreen').classList.remove('hide');
+  $id('introScreen').classList.add('show');
+  document.body.classList.add('intro-open');
+  return true;
+}
+
+function startIntro() {
+  if (introStarted || !document.body.classList.contains('intro-open')) return;
+  introStarted = true;
+  runIntro();
+}
+
+function closeIntro() {
+  const el = $id('introScreen');
+  el.classList.add('hide');
+  document.body.classList.remove('intro-open');
+  setTimeout(() => { el.classList.remove('show'); }, 750);
+  resumeGuides();
+}
+
+// 話し終えたあと、次のセリフに進むまでの間（文字数に応じて長くなる）
+function readingPause(html) {
+  const len = html.replace(/<[^>]+>/g, '').length;
+  return Math.min(3200, 1300 + len * 28);
+}
+
+function introSay(html, komeo, opts) {
+  opts = opts || {};
+  return new Promise(resolve => {
+    const img = $id('introKomeo');
+    $id('introOptions').innerHTML = '';
+    if (komeo && img.dataset.k !== komeo) {
+      img.dataset.k = komeo;
+      img.src = imgSrc(komeo);
+      img.classList.remove('pop'); void img.offsetWidth; img.classList.add('pop');
+    }
+    $id('introGhost').innerHTML = html;
+    img.classList.add('talking');
+    const ctrl = typeHTML($id('introText'), html, () => {
+      img.classList.remove('talking');
+      introState.typing = null;
+      if (opts.auto) setTimeout(resolve, opts.auto);
+      else if (opts.onTyped) opts.onTyped(resolve);
+      else setTimeout(resolve, readingPause(html));
+    });
+    if (!ctrl.isDone()) introState.typing = ctrl;
+  });
+}
+
+function introAsk(q) {
+  return new Promise(resolve => {
+    introSay(q.text, q.komeo, { onTyped: () => {
+      const box = $id('introOptions');
+      box.innerHTML = '';
+      q.options.forEach((t, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'intro-opt';
+        b.style.animationDelay = (i * 70) + 'ms';
+        b.textContent = t;
+        b.addEventListener('click', e => {
+          e.stopPropagation();
+          box.querySelectorAll('button').forEach(x => { x.disabled = true; });
+          b.classList.add('picked');
+          setTimeout(() => resolve(t), 420);
+        });
+        box.appendChild(b);
+      });
+    }});
+  });
+}
+
+async function runIntro() {
+  const qs = SURVEY_CONFIG.questions;
+  const dots = $id('introDots');
+  dots.innerHTML = qs.map(() => '<i></i>').join('');
+  dots.classList.remove('show');
+  await introSay('ご来店ありがとうございます。<br>酒肴家 吾熊です。', 'komeo1.webp');
+  await introSay('この辞典では、日本酒・焼酎・ウイスキーのラベルの言葉や造り方を、図解やクイズで気軽に知ることができます。', 'komeo4.webp');
+  await introSay('はじめに、<strong>2つだけ</strong>質問させてください。', 'komeo1.webp');
+  const answers = {};
+  dots.classList.add('show');
+  for (let i = 0; i < qs.length; i++) {
+    dots.querySelectorAll('i').forEach((d, k) => d.classList.toggle('on', k <= i));
+    answers[qs[i].id] = await introAsk(qs[i]);
+  }
+  storageSet(SURVEY_CONFIG.storageKey, '1');
+  sendData({ type: 'survey', answers: answers });
+  dots.classList.remove('show');
+  await introSay('ありがとうございます。<br>それでは、はじめましょう。', 'komeo4.webp', { auto: 1500 });
+  closeIntro();
+}
+
+function initIntro() {
+  // 画面をタップすると、話している途中でも全文がすぐに表示される
+  $id('introScreen').addEventListener('click', () => {
+    if (introState.typing) introState.typing.finish();
+  });
+  prepareIntro();
+}
+
 /* ============ 初期化 ============ */
 renderList('ourSakeList', sakeItems, true);
 renderList('ourShochuList', shochuGroups, false);
@@ -2313,6 +2757,9 @@ initDistill();
 initHiire();
 initBlend();
 initProgress();
+initGuides();
+initFeedback();
+initIntro();
 goScreen('top');
 </script>
 

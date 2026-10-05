@@ -35,7 +35,7 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  p, .lead, .article-text, .desc, .accordion-body, .material-detail-desc, .quiz-result p {
+  p, .article-text, .desc, .accordion-body, .material-detail-desc, .quiz-result p {
     text-align: justify;
     text-justify: inter-ideograph;
     word-break: break-word;
@@ -205,15 +205,11 @@
     letter-spacing: 0;
     white-space: nowrap;
   }
-  .screen[data-screen="top"] .lead {
-    font-size: clamp(15px, 4.5vw, 17px);
-  }
   
   @keyframes fadeUp{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
   @media (prefers-reduced-motion: reduce){ .screen{ animation:none; } }
 
   h2.title{ font-family:var(--font-mincho); font-size:19px; line-height:1.5; margin:0 0 14px; color:#fff; }
-  .lead{ font-size:15px; color:#fff; line-height:1.85; margin:0 0 32px; }
 
   .glass-box {
     background: rgba(255, 255, 255, 0.75);
@@ -307,7 +303,6 @@
 
   .glass-box h2.title,
   .glass-box h3.section-title { color: var(--ai); }
-  .glass-box .lead { color: var(--sumi); }
 
   .article-text{ font-size: 16px; color: var(--sumi); line-height: 1.8; margin-bottom: 24px; }
   .article-text strong{ color: var(--shu); font-weight: 700; }
@@ -952,8 +947,8 @@
       <div class="flip-card" onclick="this.classList.toggle('is-flipped')">
         <div class="flip-card-inner">
           <div class="flip-card-front">
-            <img src="komeo6.webp" class="komeo-char komeo-pos3" alt="">
-            <img src="komeo5.webp" class="komeo-char komeo-pos4" alt="">
+            <img src="komeo6.webp" class="komeo-char komeo-pos3" alt="" loading="lazy" decoding="async">
+            <img src="komeo5.webp" class="komeo-char komeo-pos4" alt="" loading="lazy" decoding="async">
             <h3>「甘口・辛口」って<br>どう決まるの？</h3>
             <div class="tap-hint">
               <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
@@ -1000,7 +995,7 @@
         <h3 class="section-title">「醸造」と「蒸留」のちがい</h3>
         <div class="flow">
           <div class="flow-node">
-            <div class="flow-imgs"><img src="kome.webp" alt="米"><img src="mugi.webp" alt="麦"><img src="satsumaimo.webp" alt="芋"></div>
+            <div class="flow-imgs"><img src="kome.webp" alt="米" loading="lazy" decoding="async"><img src="mugi.webp" alt="麦" loading="lazy" decoding="async"><img src="satsumaimo.webp" alt="芋" loading="lazy" decoding="async"></div>
             <div><div class="flow-name">原料</div><div class="flow-sub">米・麦・芋など</div></div>
           </div>
           <div class="flow-arrow">発酵させる</div>
@@ -1066,10 +1061,10 @@
       <div class="flip-card" onclick="this.classList.toggle('is-flipped')">
         <div class="flip-card-inner">
           <div class="flip-card-front">
-            <img src="komeo3.webp" class="komeo-char komeo-pos1" alt="">
-            <img src="komeo1.webp" class="komeo-char komeo-pos2" alt="">
-            <img src="komeo2.webp" class="komeo-char komeo-pos3" alt="">
-            <img src="komeo4.webp" class="komeo-char komeo-pos4" alt="">
+            <img src="komeo3.webp" class="komeo-char komeo-pos1" alt="" loading="lazy" decoding="async">
+            <img src="komeo1.webp" class="komeo-char komeo-pos2" alt="" loading="lazy" decoding="async">
+            <img src="komeo2.webp" class="komeo-char komeo-pos3" alt="" loading="lazy" decoding="async">
+            <img src="komeo4.webp" class="komeo-char komeo-pos4" alt="" loading="lazy" decoding="async">
             <h3>そもそも<br>「精米歩合」とは？</h3>
             <div class="tap-hint">
               <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
@@ -1452,42 +1447,42 @@
       <div class="floating-wrap">
         <div class="floating-item" onclick="showMaterialDetail('imo', this)">
           <div class="floating-icon-box">
-            <img src="satsumaimo.webp" alt="芋">
+            <img src="satsumaimo.webp" alt="芋" loading="lazy" decoding="async">
           </div>
           <div class="floating-label">芋</div>
         </div>
 
         <div class="floating-item" onclick="showMaterialDetail('mugi', this)">
           <div class="floating-icon-box">
-            <img src="mugi.webp" alt="麦">
+            <img src="mugi.webp" alt="麦" loading="lazy" decoding="async">
           </div>
           <div class="floating-label">麦</div>
         </div>
 
         <div class="floating-item" onclick="showMaterialDetail('kome', this)">
           <div class="floating-icon-box">
-            <img src="kome.webp" alt="米">
+            <img src="kome.webp" alt="米" loading="lazy" decoding="async">
           </div>
           <div class="floating-label">米</div>
         </div>
 
         <div class="floating-item" onclick="showMaterialDetail('kokuto', this)">
           <div class="floating-icon-box">
-            <img src="kokouto.webp" alt="黒糖">
+            <img src="kokouto.webp" alt="黒糖" loading="lazy" decoding="async">
           </div>
           <div class="floating-label">黒糖</div>
         </div>
 
         <div class="floating-item" onclick="showMaterialDetail('awamori', this)">
           <div class="floating-icon-box">
-            <img src="awamori.webp" alt="泡盛">
+            <img src="awamori.webp" alt="泡盛" loading="lazy" decoding="async">
           </div>
           <div class="floating-label">泡盛</div>
         </div>
 
         <div class="floating-item" onclick="showMaterialDetail('soba', this)">
           <div class="floating-icon-box">
-            <img src="soba.webp" alt="そば">
+            <img src="soba.webp" alt="そば" loading="lazy" decoding="async">
           </div>
           <div class="floating-label">そば</div>
         </div>
@@ -1751,7 +1746,7 @@
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <img src="scotland.webp" alt="スコットランド" class="flag-icon">
+            <img src="scotland.webp" alt="スコットランド" class="flag-icon" loading="lazy" decoding="async">
             <span>スコッチ（スコットランド）<small class="acc-hint">スモーキーな香りが特徴</small></span>
           </div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1762,7 +1757,7 @@
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <img src="UK.webp" alt="アメリカ" class="flag-icon">
+            <img src="UK.webp" alt="アメリカ" class="flag-icon" loading="lazy" decoding="async">
             <span>バーボン（アメリカ）<small class="acc-hint">トウモロコシが主役。甘く力強い</small></span>
           </div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1773,7 +1768,7 @@
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <img src="japan.webp" alt="日本" class="flag-icon">
+            <img src="japan.webp" alt="日本" class="flag-icon" loading="lazy" decoding="async">
             <span>ジャパニーズ（日本）<small class="acc-hint">繊細で、バランスが良い</small></span>
           </div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1784,7 +1779,7 @@
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <img src="Ireland.webp" alt="アイルランド" class="flag-icon">
+            <img src="Ireland.webp" alt="アイルランド" class="flag-icon" loading="lazy" decoding="async">
             <span>アイリッシュ（アイルランド）<small class="acc-hint">なめらかでマイルド</small></span>
           </div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1795,7 +1790,7 @@
       <div class="accordion-item" onclick="toggleAccordion(this)">
         <div class="accordion-header">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <img src="Canada.webp" alt="カナダ" class="flag-icon">
+            <img src="Canada.webp" alt="カナダ" class="flag-icon" loading="lazy" decoding="async">
             <span>カナディアン（カナダ）<small class="acc-hint">5大の中で最も軽快</small></span>
           </div>
           <svg class="icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -2262,7 +2257,7 @@ function renderQuiz(box) {
   const letters = ['A', 'B', 'C', 'D'];
   box.innerHTML = `
     <div class="quiz-head">
-      <img class="quiz-komeo" src="${imgSrc(KOMEO_THINK)}" alt="">
+      <img class="quiz-komeo" src="${imgSrc(KOMEO_THINK)}" alt="" loading="lazy" decoding="async">
       <div class="quiz-q">${d.q}</div>
     </div>
     <div class="quiz-options">
@@ -2475,7 +2470,7 @@ function initProgress() {
       const bar = document.createElement('div');
       bar.className = 'progress';
       bar.dataset.for = name;
-      bar.innerHTML = '<div class="progress-track"><div class="progress-fill"></div><img class="progress-walker" src="' + imgSrc('ashi.webp') + '" alt=""></div>';
+      bar.innerHTML = '<div class="progress-track"><div class="progress-fill"></div><img class="progress-walker" src="' + imgSrc('ashi.webp') + '" alt="" loading="lazy" decoding="async"></div>';
       const head = sec.querySelector('h2.title, h3.section-title');
       head.insertAdjacentElement('afterend', bar);
       paintBar(name);
@@ -2586,7 +2581,7 @@ function buildGuide(g) {
   const src = g.querySelector('.guide-src');
   const html = src ? src.innerHTML : '';
   g._html = html;
-  g.innerHTML = '<img class="guide-img" src="' + imgSrc(g.dataset.komeo || 'komeo1.webp') + '" alt="">' +
+  g.innerHTML = '<img class="guide-img" src="' + imgSrc(g.dataset.komeo || 'komeo1.webp') + '" alt="" loading="lazy" decoding="async">' +
     '<div class="guide-bubble"><div class="g-live">' + html + '</div></div>';
 }
 

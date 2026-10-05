@@ -762,6 +762,61 @@
         const TAP_LOCK_MS = 500;      // 【修正2】誤タップ防止の時間（ミリ秒）
 
         // ------------------------------------------------
+        // 利用ログ（Googleスプレッドシートに記録）
+        //   LOG_URL に Apps Script のウェブアプリURLを入れると有効になります。空のままなら何も送りません。
+        //   端末名は、URLに ?device=テーブル1 のように付けて一度開くと、その端末に記憶されます。
+        // ------------------------------------------------
+        const LOG_URL = 'https://script.google.com/macros/s/AKfycbzNoFEmdJAbO2_tcaQ4cB8s6bUED4DmmYrZKgWxIU5B37as2Lhle7viPhQJ65hFU7-3sg/exec';
+        const LOG_SESSION_ID = Math.random().toString(36).slice(2, 8) + Date.now().toString(36);
+        let g3_theme = '';
+
+        const LOG_DEVICE_NAME = (function () {
+            try {
+                const q = new URLSearchParams(location.search).get('device');
+                if (q) localStorage.setItem('fishQuizDeviceName', q.slice(0, 40));
+                return localStorage.getItem('fishQuizDeviceName') || '';
+            } catch (e) { return ''; }
+        })();
+
+        function summarizeDevice() {
+            const ua = navigator.userAgent;
+            let os = 'その他';
+            if (/iPad/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)) os = 'iPad';
+            else if (/iPhone/.test(ua)) os = 'iPhone';
+            else if (/Android/.test(ua)) os = /Mobile/.test(ua) ? 'Android(スマホ)' : 'Android(タブレット)';
+            else if (/Windows/.test(ua)) os = 'Windows';
+            else if (/Macintosh/.test(ua)) os = 'Mac';
+            let br = 'その他';
+            if (/Edg\//.test(ua)) br = 'Edge';
+            else if (/CriOS|Chrome\//.test(ua)) br = 'Chrome';
+            else if (/FxiOS|Firefox\//.test(ua)) br = 'Firefox';
+            else if (/Safari\//.test(ua)) br = 'Safari';
+            return os + ' / ' + br;
+        }
+        const LOG_DEVICE_INFO = summarizeDevice();
+
+        // event: load / select / start / finish   game: game1 / game2 / game3
+        function logEvent(event, game, detail) {
+            if (!LOG_URL) return;
+            try {
+                const body = JSON.stringify({
+                    sessionId: LOG_SESSION_ID,
+                    device: LOG_DEVICE_NAME,
+                    deviceInfo: LOG_DEVICE_INFO,
+                    screen: window.innerWidth + 'x' + window.innerHeight,
+                    event: event,
+                    game: game || '',
+                    detail: detail || ''
+                });
+                fetch(LOG_URL, {
+                    method: 'POST', mode: 'no-cors', keepalive: true,
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: body
+                }).catch(() => {});
+            } catch (e) { /* ログの失敗でゲームを止めない */ }
+        }
+
+        // ------------------------------------------------
         // 【修正2】誤タップ防止ヘルパー
         // ------------------------------------------------
         function lockTap(elements, ms) {
@@ -824,12 +879,14 @@
         }
 
         function openGame1() {
+            logEvent('select', 'game1');
             document.getElementById("menu-screen").classList.add("hidden");
             document.getElementById("game1-container").classList.remove("hidden");
             setInGame(true);
         }
 
         function openGame2() {
+            logEvent('select', 'game2');
             document.getElementById("menu-screen").classList.add("hidden");
             document.getElementById("game2-container").classList.remove("hidden");
             g2_goScreen('start');
@@ -837,6 +894,7 @@
         }
 
         function openGame3() {
+            logEvent('select', 'game3');
             document.getElementById("menu-screen").classList.add("hidden");
             document.getElementById("game3-container").classList.remove("hidden");
             g3_goScreen('start');
@@ -1000,6 +1058,7 @@
         }
 
         document.addEventListener("DOMContentLoaded", () => {
+            logEvent('load', '', isLite ? '軽量モード' : '通常');
             initBackgroundVideo();
 
             // Game 2の装飾用の魚を配置
@@ -1032,6 +1091,7 @@
         const g1_btnColors = ["btn-orange", "btn-blue", "btn-pink"];
 
         function g1_startGame() {
+            logEvent('start', 'game1');
             g1_score = 0;
             g1_currentIndex = 0;
             g1_correctFishes = [];
@@ -1136,6 +1196,7 @@
             document.getElementById("screen-quiz").classList.add("hidden");
             document.getElementById("screen-end").classList.remove("hidden");
             document.getElementById("g1-final-score").textContent = `${g1_score} もん`;
+            logEvent('finish', 'game1', g1_score + '/' + g1_currentQuestions.length);
             // 【修正2】終了画面でも直後の誤タップを防ぐ
             lockTap(document.querySelectorAll('#screen-end button'));
         }
@@ -1299,6 +1360,7 @@
         }
 
         function g2_startQuiz(){
+            logEvent('start', 'game2');
             g2_currentIndex = 0;
             g2_correctCount = 0;
             let shuffled = [...g2_allQuestions].sort(() => 0.5 - Math.random());
@@ -1409,6 +1471,7 @@
         }
 
         function g2_showFinal(){
+            logEvent('finish', 'game2', g2_correctCount + '/' + g2_questions.length);
             document.getElementById('g2-finalScore').innerHTML = g2_correctCount + '<span> / ' + g2_questions.length + ' もん</span>';
             let msg = "";
             if (g2_correctCount === g2_questions.length){
@@ -1506,6 +1569,8 @@
         }
 
         function g3_startTheme(themeId){
+            g3_theme = themeId;
+            logEvent('start', 'game3', themeId);
             g3_rounds = g3_fishData[themeId];
             g3_currentIndex = 0;
             g3_renderRound();
@@ -1631,6 +1696,7 @@
                 const endMascot = document.getElementById('g3-endMascot');
                 if(endMascot) endMascot.src = randomFish.img;
 
+                logEvent('finish', 'game3', g3_theme);
                 g3_goScreen('end');
             }
         }

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>酒肴家 吾熊</title>
+<title>吾熊辞典</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
@@ -111,7 +111,7 @@
     transform: translateX(-50%);
     width: 100%; max-width: 460px;
     height: 100vh;
-    height: 100dvh; 
+    height: 100lvh;
     z-index: -1; 
     background-color: #1a1a1a; 
     background-image: 
@@ -912,6 +912,22 @@
   .mchip.hit { background: var(--shu-pale); border-color: var(--shu); }
   .mdetail { min-height: 132px; }
   .mdetail-empty { padding-top: 40px; }
+
+  /* ===== iPhone（Safari）で背景が下まで届かない／不要なスクロールが出る問題の対策 =====
+     ・背景は、アドレスバーが縮んでも常に画面全体を覆う高さ（lvh）にする
+     ・ページの最低の高さは、アドレスバーが出ている状態の表示領域（svh）に合わせる
+     ・トップ画面のお酒のアイコンは、表示領域の高さ（svh）に合わせた大きさにする */
+  @supports (height: 100svh) {
+    body { min-height: 100svh; }
+    .app { min-height: 100svh; }
+    .screen[data-screen="top"] { min-height: calc(100svh - var(--hdr, 85px) - 68px); }
+    .top-categories-wrap { --ic: clamp(84px, calc((100svh - 400px) * 0.64), 176px); gap: 0; padding: 4px 0 0; }
+    .top-category-icon { width: calc(var(--ic) * 0.78); height: calc(var(--ic) * 0.78); max-width: none; max-height: none; }
+    .top-category-top .top-category-icon { width: var(--ic); height: var(--ic); }
+    .top-category-right .top-category-icon { width: calc(var(--ic) * 0.89); height: calc(var(--ic) * 0.89); }
+    .top-categories-row.row-bottom { margin-top: calc(-1 * var(--ic) - 4px); }
+    .top-category-label { font-size: clamp(15px, 2.4svh, 19px); }
+  }
 </style>
 </head>
 <body class="opening">

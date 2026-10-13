@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scaleable=no">
+    <title>豪華 チンチロリン チャレンジ！</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@500;700&family=Yuji+Syuku&display=swap');
+
+        body {
+            font-family: 'Kiwi Maru', serif;
+            background-color: #0f0b08;
+            background-image: 
+                radial-gradient(circle at 50% 20%, rgba(217, 119, 6, 0.15) 0%, transparent 60%),
+                radial-gradient(circle at 50% 80%, rgba(185, 28, 28, 0.15) 0%, transparent 60%);
+            touch-action: manipulation;
+        }
+
+        .font-shodo {
+            font-family: 'Yuji Syuku', serif;
+        }
+
+        /* サイコロの3Dアニメーション効果 */
+        .bowl {
+            background: radial-gradient(circle at 30% 30%, #4a2c11 0%, #211205 70%, #0d0702 100%);
+            box-shadow: 
+                inset 0 10px 25px rgba(0,0,0,0.8),
+                inset 0 -5px 15px rgba(255,255,255,0.05),
+                0 15px 25px rgba(0,0,0,0.6);
+            border: 4px solid #854d0e;
+        }
+
+        .die-rolling {
+            animation: rollDie 0.15s infinite linear;
+        }
+
+        @keyframes rollDie {
+            0% { transform: rotate(0deg) scale(1.1) translateY(-5px); }
+            25% { transform: rotate(90deg) scale(0.9) translateY(5px); }
+            50% { transform: rotate(180deg) scale(1.05) translateX(-5px); }
+            75% { transform: rotate(270deg) scale(0.95) translateX(5px); }
+            100% { transform: rotate(360deg) scale(1.1) translateY(-5px); }
+        }
+
+        /* ネオン・ゴールドのグラデーションテキスト */
+        .text-gold {
+            background: linear-gradient(135deg, #fef08a 0%, #d97706 50%, #78350f 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gold-border {
+            border-image: linear-gradient(to bottom right, #fef08a, #d97706, #78350f) 1;
+        }
+
+        /* アニメーション用クラス */
+        .bounce-in {
+            animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="min-h-screen text-amber-100 flex flex-col justify-between items-center p-4 select-none">
+    <!-- ヘッダー / タイトル -->
+    <header class="w-full max-w-md text-center pt-2 pb-1 relative">
+        <div class="inline-block border-b-2 border-amber-600 px-6 py-1 mb-1">
+            <span class="text-xs tracking-widest text-amber-400 font-bold uppercase block">居酒屋ドリンク特典</span>
+            <h1 class="text-3xl font-extrabold text-gold font-shodo tracking-wider">チンチロリン勝負</h1>
+        </div>
+        <p class="text-xs text-amber-200/70">運を天に任せて運試し！今すぐ振ろう！</p>
+    </header>
+
+    <!-- 特典・ルール一覧表 -->
+    <main class="w-full max-w-md flex-1 flex flex-col items-center justify-center my-2">
+        <section class="w-full bg-stone-900/80 border border-amber-900/60 rounded-xl p-3 mb-4 backdrop-blur-sm shadow-xl">
+            <h2 class="text-xs font-bold text-amber-400 mb-2 flex items-center justify-center gap-1">
+                <i class="fa-solid fa-trophy"></i> 役と特典一覧
+            </h2>
+            <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                <div class="bg-stone-800/90 border border-amber-500/40 rounded-lg p-2 flex flex-col justify-between">
+                    <div>
+                        <span class="inline-block bg-amber-500 text-stone-950 font-bold px-1.5 py-0.5 rounded text-[10px] mb-1">ゾロ目</span>
+                        <p class="text-[10px] text-stone-400">確率: 1/100</p>
+                    </div>
+                    <p class="font-extrabold text-amber-300 text-sm mt-1">1杯無料！</p>
+                </div>
+                <div class="bg-stone-800/90 border border-amber-700/40 rounded-lg p-2 flex flex-col justify-between">
+                    <div>
+                        <span class="inline-block bg-amber-700 text-amber-100 font-bold px-1.5 py-0.5 rounded text-[10px] mb-1">2つ揃い</span>
+                        <p class="text-[10px] text-stone-400">確率: 1/50</p>
+                    </div>
+                    <p class="font-extrabold text-amber-200 text-sm mt-1">ドリンク半額</p>
+                </div>
+                <div class="bg-stone-800/90 border border-stone-700 rounded-lg p-2 flex flex-col justify-between">
+                    <div>
+                        <span class="inline-block bg-stone-700 text-stone-300 font-bold px-1.5 py-0.5 rounded text-[10px] mb-1">その他</span>
+                        <p class="text-[10px] text-stone-400">ハズレ</p>
+                    </div>
+                    <p class="font-bold text-stone-300 text-xs mt-1">通常価格</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- サイコロの器（丼）エリア -->
+        <div class="relative w-full aspect-square max-w-[280px] sm:max-w-[320px] my-2">
+            <div class="bowl w-full h-full rounded-full flex items-center justify-center p-6 relative overflow-hidden">
+                <!-- 丼の底の木目模様（装飾） -->
+                <div class="absolute inset-0 opacity-10 rounded-full border-8 border-dashed border-amber-900 pointer-events-none"></div>
+
+                <!-- サイコロ3つ -->
+                <div id="dice-container" class="flex gap-3 sm:gap-4 justify-center items-center z-10">
+                    <canvas id="dice1" width="64" height="64" class="rounded-xl shadow-2xl transition-transform"></canvas>
+                    <canvas id="dice2" width="64" height="64" class="rounded-xl shadow-2xl transition-transform"></canvas>
+                    <canvas id="dice3" width="64" height="64" class="rounded-xl shadow-2xl transition-transform"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 状態・メッセージ表示 -->
+        <div id="status-message" class="h-8 my-2 text-center flex items-center justify-center text-amber-200/80 font-bold text-sm">
+            ボタンを押してサイコロを振ってください
+        </div>
+
+        <!-- 操作ボタンエリア -->
+        <div class="w-full mt-2 space-y-3">
+            <button id="roll-btn" class="w-full py-4 px-6 bg-gradient-to-r from-amber-500 via-amber-600 to-red-600 hover:from-amber-400 hover:to-red-500 text-stone-950 font-extrabold text-xl rounded-2xl shadow-lg shadow-amber-900/50 transform active:scale-95 transition-all flex items-center justify-center gap-3 border-2 border-amber-300">
+                <i class="fa-solid fa-dice text-2xl"></i>
+                <span class="tracking-widest font-shodo">サイコロを振る！</span>
+            </button>
+
+            <button id="already-played-btn" class="hidden w-full py-3 px-6 bg-stone-800 text-stone-500 font-bold text-base rounded-2xl border border-stone-700 cursor-not-allowed text-center">
+                <i class="fa-solid fa-circle-check mr-2"></i>本日のチャレンジ完了
+            </button>
+        </div>
+    </main>
+
+    <!-- フッター -->
+    <footer class="w-full max-w-md text-center text-[11px] text-stone-500 py-2 border-t border-stone-800/60 flex justify-between items-center">
+        <span>※1グループ1回のご来店につき1回まで</span>
+        <button id="staff-reset-trigger" class="text-stone-600 underline hover:text-stone-400">スタッフ専用</button>
+    </footer>
+
+    <!-- 結果モーダル -->
+    <div id="result-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-stone-900 border-2 border-amber-500/80 rounded-2xl p-6 w-full max-w-sm text-center shadow-2xl relative bounce-in flex flex-col items-center">
+            
+            <!-- 結果バッジ -->
+            <div id="modal-badge" class="mb-3 px-4 py-1 rounded-full font-bold text-xs inline-block"></div>
+
+            <!-- 結果タイトル -->
+            <h3 id="modal-title" class="text-3xl font-extrabold font-shodo mb-2"></h3>
+            
+            <!-- 出目アイコン表示 -->
+            <div id="modal-dice-display" class="flex justify-center gap-2 my-3 text-2xl"></div>
+
+            <!-- 特典内容 -->
+            <div class="w-full bg-stone-950/80 border border-amber-900/50 rounded-xl p-4 my-3">
+                <p class="text-xs text-stone-400 mb-1">あなたが得た特典</p>
+                <p id="modal-prize" class="text-2xl font-extrabold text-gold"></p>
+                <p id="modal-subtext" class="text-xs text-amber-200/70 mt-2"></p>
+            </div>
+
+            <p class="text-xs text-stone-400 my-2">ご注文時にスタッフへこちらの画面をお見せください。</p>
+
+            <!-- スタッフ確認用ボタン -->
+            <button id="staff-confirm-btn" class="w-full mt-2 py-3 bg-stone-800 hover:bg-stone-700 text-amber-200 font-bold text-sm rounded-xl border border-amber-600/40 transition">
+                <i class="fa-solid fa-user-check mr-2"></i>スタッフ確認（画面をクリア）
+            </button>
+        </div>
+    </div>
+
+    <!-- スタッフピン入力モーダル -->
+    <div id="pin-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-stone-900 border border-stone-700 rounded-2xl p-6 w-full max-w-xs text-center">
+            <h3 class="text-lg font-bold text-amber-300 mb-2">スタッフ専用リセット</h3>
+            <p class="text-xs text-stone-400 mb-4">リセットするには合言葉（PIN）を入力してください。<br><span class="text-stone-500">（初期PIN: 1234）</span></p>
+            <input type="password" id="pin-input" maxlength="4" placeholder="PIN入力" class="w-full text-center text-xl tracking-widest bg-stone-950 border border-amber-600/50 rounded-lg py-2 mb-4 text-amber-100 focus:outline-none focus:border-amber-400">
+            <div class="flex gap-2">
+                <button id="pin-cancel-btn" class="w-1/2 py-2 bg-stone-800 text-stone-300 rounded-lg text-sm font-bold">キャンセル</button>
+                <button id="pin-submit-btn" class="w-1/2 py-2 bg-amber-600 text-stone-950 rounded-lg text-sm font-bold">リセット</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 設定・ステート管理 ---
+        const DEFAULT_PIN = "1234";
+        const STORAGE_KEY = "chinchiro_last_played";
+
+        let isRolling = false;
+        let diceValues = [1, 1, 1];
+
+        // --- DOM要素 ---
+        const rollBtn = document.getElementById('roll-btn');
+        const alreadyPlayedBtn = document.getElementById('already-played-btn');
+        const statusMsg = document.getElementById('status-message');
+        const resultModal = document.getElementById('result-modal');
+        const modalBadge = document.getElementById('modal-badge');
+        const modalTitle = document.getElementById('modal-title');
+        const modalDiceDisplay = document.getElementById('modal-dice-display');
+        const modalPrize = document.getElementById('modal-prize');
+        const modalSubtext = document.getElementById('modal-subtext');
+        const staffConfirmBtn = document.getElementById('staff-confirm-btn');
+        const staffResetTrigger = document.getElementById('staff-reset-trigger');
+        const pinModal = document.getElementById('pin-modal');
+        const pinInput = document.getElementById('pin-input');
+        const pinCancelBtn = document.getElementById('pin-cancel-btn');
+        const pinSubmitBtn = document.getElementById('pin-submit-btn');
+
+        const diceCanvases = [
+            document.getElementById('dice1'),
+            document.getElementById('dice2'),
+            document.getElementById('dice3')
+        ];
+
+        // --- サウンド合成 (Web Audio API) ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+        }
+
+        // サイコロが転がる音 (コトコト音)
+        function playDiceRollSound() {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(120 + Math.random() * 80, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.05);
+
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.05);
+        }
+
+        // ファンファーレ（当たり音）
+        function playWinSound(isZorome) {
+            if (!audioCtx) return;
+
+            const notes = isZorome 
+                ? [523.25, 659.25, 783.99, 1046.50, 1318.51] // 豪華ファンファーレ (C5, E5, G5, C6, E6)
+                : [440, 554.37, 659.25, 880]; // 中当たり (A4, C#5, E5, A5)
+
+            notes.forEach((freq, index) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = isZorome ? 'triangle' : 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime + index * 0.1);
+
+                gain.gain.setValueAtTime(0, audioCtx.currentTime + index * 0.1);
+                gain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + index * 0.1 + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + index * 0.1 + 0.4);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(audioCtx.currentTime + index * 0.1);
+                osc.stop(audioCtx.currentTime + index * 0.1 + 0.4);
+            });
+        }
+
+        // ハズレ音
+        function playLoseSound() {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(150, audioCtx.currentTime + 0.3);
+
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        // --- 2D Canvas によるサイコロ描画 ---
+        function drawDice(canvas, value) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+            const radius = 12;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // サイコロ本体の背景（角丸）
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetY = 4;
+
+            ctx.beginPath();
+            ctx.roundRect(0, 0, w, h, radius);
+            ctx.fill();
+
+            ctx.shadowColor = 'transparent';
+
+            // サイコロの目プロット設定
+            const dots = {
+                1: [[0.5, 0.5]],
+                2: [[0.25, 0.25], [0.75, 0.75]],
+                3: [[0.25, 0.25], [0.5, 0.5], [0.75, 0.75]],
+                4: [[0.25, 0.25], [0.75, 0.25], [0.25, 0.75], [0.75, 0.75]],
+                5: [[0.25, 0.25], [0.75, 0.25], [0.5, 0.5], [0.25, 0.75], [0.75, 0.75]],
+                6: [[0.25, 0.25], [0.75, 0.25], [0.25, 0.5], [0.75, 0.5], [0.25, 0.75], [0.75, 0.75]]
+            };
+
+            const dotColor = (value === 1) ? '#dc2626' : '#1e293b'; // 1の目は赤い丸
+            const dotSize = (value === 1) ? w * 0.16 : w * 0.09;
+
+            ctx.fillStyle = dotColor;
+
+            if (dots[value]) {
+                dots[value].forEach(([x, y]) => {
+                    ctx.beginPath();
+                    ctx.arc(x * w, y * h, dotSize, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            }
+        }
+
+        function updateDiceDisplays(vals) {
+            vals.forEach((v, idx) => drawDice(diceCanvases[idx], v));
+        }
+
+        // --- 指定確率に基づく出目決定ロジック ---
+        // ゾロ目: 1/100 (1%)
+        // 2つ揃い: 1/50 (2%)
+        // ハズレ: 残り (97%)
+        function generateWeightedResult() {
+            const rand = Math.random(); // 0.0 ~ 1.0
+
+            if (rand < 0.01) {
+                // 【ゾロ目】 1/100 の確率
+                const val = Math.floor(Math.random() * 6) + 1;
+                return [val, val, val];
+            } else if (rand < 0.03) {
+                // 【2つ揃い】 1/50 の確率 (0.01 ~ 0.03 = 2%)
+                const pairVal = Math.floor(Math.random() * 6) + 1;
+                let otherVal = Math.floor(Math.random() * 5) + 1;
+                if (otherVal >= pairVal) otherVal++; // ペアと被らない値
+
+                const result = [pairVal, pairVal, otherVal];
+                // シャッフルしてランダムな位置に配置
+                return result.sort(() => Math.random() - 0.5);
+            } else {
+                // 【ハズレ】 残り 97%
+                // ゾロ目でもペアでもない3つの異なる値を生成
+                let nums = [1, 2, 3, 4, 5, 6].sort(() => Math.random() - 0.5);
+                return nums.slice(0, 3);
+            }
+        }
+
+        // --- サイコロ振りアニメーション ---
+        function rollDice() {
+            if (isRolling) return;
+            initAudio();
+
+            isRolling = true;
+            rollBtn.disabled = true;
+            rollBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            statusMsg.textContent = "運命のサイコロが転がっています...";
+
+            // アニメーションクラス追加
+            diceCanvases.forEach(c => c.classList.add('die-rolling'));
+
+            // 最終決定出目
+            const finalResult = generateWeightedResult();
+
+            let rollCount = 0;
+            const maxRolls = 20;
+
+            const interval = setInterval(() => {
+                // シャッフル中のランダム出目
+                const tempVals = [
+                    Math.floor(Math.random() * 6) + 1,
+                    Math.floor(Math.random() * 6) + 1,
+                    Math.floor(Math.random() * 6) + 1
+                ];
+                updateDiceDisplays(tempVals);
+                playDiceRollSound();
+
+                rollCount++;
+                if (rollCount >= maxRolls) {
+                    clearInterval(interval);
+                    
+                    // アニメーション停止＆確定出目適用
+                    diceCanvases.forEach(c => c.classList.remove('die-rolling'));
+                    updateDiceDisplays(finalResult);
+                    diceValues = finalResult;
+
+                    isRolling = false;
+                    evaluateResult(finalResult);
+                }
+            }, 80);
+        }
+
+        // --- 結果の判定と表示 ---
+        function evaluateResult(vals) {
+            const [a, b, c] = vals;
+            const isZorome = (a === b && b === c);
+            const isPair = (!isZorome && (a === b || b === c || a === c));
+
+            // 出目の絵文字テキスト作成
+            const diceEmojis = vals.map(v => ['⚀','⚁','⚂','⚃','⚄','⚅'][v-1]).join(' ');
+            modalDiceDisplay.textContent = diceEmojis;
+
+            if (isZorome) {
+                // --- ゾロ目大当り ---
+                playWinSound(true);
+                triggerConfetti();
+
+                modalBadge.className = "mb-3 px-4 py-1 rounded-full font-bold text-xs inline-block bg-amber-400 text-stone-950 animate-pulse";
+                modalBadge.textContent = "★ 奇跡の大当たり ★";
+                modalTitle.className = "text-3xl font-extrabold font-shodo mb-2 text-amber-300";
+                modalTitle.textContent = "ゾロ目達成！";
+                modalPrize.textContent = "ドリンク 1杯無料！";
+                modalSubtext.textContent = "確率1/100を引き当てました！おめでとうございます！";
+
+            } else if (isPair) {
+                // --- 2つ揃い当たり ---
+                playWinSound(false);
+                triggerSmallConfetti();
+
+                modalBadge.className = "mb-3 px-4 py-1 rounded-full font-bold text-xs inline-block bg-amber-700 text-amber-100";
+                modalBadge.textContent = "☆ 当たり ☆";
+                modalTitle.className = "text-3xl font-extrabold font-shodo mb-2 text-amber-200";
+                modalTitle.textContent = "2つ揃い！";
+                modalPrize.textContent = "ドリンク 半額！";
+                modalSubtext.textContent = "ナイスチャレンジ！半額でお楽しみください！";
+
+            } else {
+                // --- ハズレ ---
+                playLoseSound();
+
+                modalBadge.className = "mb-3 px-4 py-1 rounded-full font-bold text-xs inline-block bg-stone-700 text-stone-300";
+                modalBadge.textContent = "残念！";
+                modalTitle.className = "text-2xl font-extrabold font-shodo mb-2 text-stone-300";
+                modalTitle.textContent = "通常価格";
+                modalPrize.textContent = "通常価格で乾杯！";
+                modalSubtext.textContent = "楽しく飲むのが一番！素敵な時間をお過ごしください。";
+            }
+
+            // モーダル表示
+            setTimeout(() => {
+                resultModal.classList.remove('hidden');
+            }, 300);
+
+            // ローカルストレージにプレイ記録を保持
+            markAsPlayed();
+        }
+
+        // 紙吹雪エフェクト (大当り)
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 120,
+                    spread: 80,
+                    origin: { y: 0.6 },
+                    colors: ['#fef08a', '#d97706', '#dc2626', '#ffffff']
+                });
+            }
+        }
+
+        // 控えめ紙吹雪 (当たり)
+        function triggerSmallConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 40,
+                    spread: 50,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        // --- 1回限り制限 & スタッフ管理機能 ---
+        function markAsPlayed() {
+            localStorage.setItem(STORAGE_KEY, "true");
+        }
+
+        function checkPlayStatus() {
+            const played = localStorage.getItem(STORAGE_KEY);
+            if (played === "true") {
+                rollBtn.classList.add('hidden');
+                alreadyPlayedBtn.classList.remove('hidden');
+                statusMsg.textContent = "本日のチンチロリンは終了しました";
+            } else {
+                rollBtn.classList.remove('hidden');
+                alreadyPlayedBtn.classList.add('hidden');
+                statusMsg.textContent = "ボタンを押してサイコロを振ってください";
+            }
+        }
+
+        function resetPlayStatus() {
+            localStorage.removeItem(STORAGE_KEY);
+            checkPlayStatus();
+            rollBtn.disabled = false;
+            rollBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            statusMsg.textContent = "リセットされました！サイコロを振れます";
+        }
+
+        // --- イベントリスナー設定 ---
+        rollBtn.addEventListener('click', rollDice);
+
+        staffConfirmBtn.addEventListener('click', () => {
+            resultModal.classList.add('hidden');
+            checkPlayStatus();
+        });
+
+        // スタッフPIN入力関連
+        staffResetTrigger.addEventListener('click', () => {
+            pinInput.value = "";
+            pinModal.classList.remove('hidden');
+            pinInput.focus();
+        });
+
+        pinCancelBtn.addEventListener('click', () => {
+            pinModal.classList.add('hidden');
+        });
+
+        pinSubmitBtn.addEventListener('click', () => {
+            if (pinInput.value === DEFAULT_PIN) {
+                resetPlayStatus();
+                pinModal.classList.add('hidden');
+                alert("スタッフ認証成功：ゲームをリセットしました。");
+            } else {
+                alert("PINが違います。");
+                pinInput.value = "";
+            }
+        });
+
+        // 初期化処理
+        window.addEventListener('load', () => {
+            updateDiceDisplays([1, 1, 1]);
+            checkPlayStatus();
+        });
+    </script>
+</body>
+</html>

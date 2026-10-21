@@ -1206,7 +1206,8 @@ button { cursor: pointer; }
                 console.error(err);
                 const m = document.createElement('div');
                 m.className = 'fixed inset-0 z-[100] flex items-center justify-center bg-black text-white p-8 text-center';
-                m.textContent = 'お使いの端末/ブラウザでは3D描画を開始できませんでした。最新のブラウザでお試しください。';
+                m.textContent = 'お使いの端末/ブラウザでは3D描画を開始できませんでした。最新のブラウザでお試しください。\n(' + (err && err.message ? err.message : err) + ')';
+                m.style.whiteSpace = 'pre-wrap';
                 document.body.appendChild(m);
             }
         })();

@@ -482,7 +482,6 @@ img, svg { max-width: 100%; }
     </span>
     <span class="bar-right">
       <span class="today" id="today"></span>
-      <button type="button" class="size-btn" id="btnSize" aria-label="文字の大きさを切り替える">文字サイズ：標準</button>
     </span>
   </div>
 
@@ -491,7 +490,7 @@ img, svg { max-width: 100%; }
     <section class="screen paper" id="s-start">
       <span class="tag">2026年版</span>
       <h1>おぢおば<span class="hl">診断</span></h1>
-      <p class="lead"><span class="ln">「自分はまだ若い」と思っているあなた。</span><span class="ln">たった6問で、こっそり測定します。</span></p>
+      <p class="lead"><span class="ln">「自分はまだ若い」と思っているあなた。</span><span class="ln">たった4問で、こっそり測定します。</span></p>
       <p class="honest fixed-lines" data-fit="13"><b>お願い</b><span class="lines"><span class="ln">盛らずに、正直にお答えください。</span><br><span class="ln">先生にはお見通しです。</span></span></p>
       <svg class="ecg" viewBox="0 0 600 60" aria-hidden="true"><path pathLength="100" d="M0 32 H110 l8 -6 l10 6 H190 l7 6 l11 -32 l13 50 l9 -24 H320 l9 -7 l12 7 H430 l7 6 l11 -32 l13 50 l9 -24 H600"></path></svg>
 
@@ -504,7 +503,7 @@ img, svg { max-width: 100%; }
         </div>
       </div>
       <ul class="facts">
-        <li>全6問</li>
+        <li>全4問</li>
         <li>約1分</li>
         <li>質問は毎回ちがう</li>
         <li>ことば解説つき</li>
@@ -688,11 +687,11 @@ window.OJIBA_PHOTOS = {
     }
   };
 
-  var SESSION_N = 6;        // 1回の診断で出す質問数
+  var SESSION_N = 4;        // 1回の診断で出す質問数
   var MAX_PER_DEPT = 2;     // 同じ診察科から出す質問の上限(偏り防止)
   var IDLE_MS = 120000;     // 操作がないまま経つと最初の画面に戻る(ミリ秒)
   var LOADING_MS = 2400;    // 「診断中」演出の長さ(ミリ秒)
-  var ADVANCE_MS = 3500;    // 回答後、先生のひとことを読んでから自動で次へ進むまで(ミリ秒)
+  var ADVANCE_MS = 2500;    // 回答後、先生のひとことを読んでから自動で次へ進むまで(ミリ秒)
   var DEFAULT_SELF = 30;    // 自己申告スライダーの初期値(%)
 
   var CLINIC = SHOP.clinic || ((SHOP.name ? SHOP.name + ' ' : '') + 'おぢおば総合クリニック');
@@ -1087,16 +1086,6 @@ window.OJIBA_PHOTOS = {
   }
   $('today').textContent = reiwaShowa();
   $('clinicName').textContent = CLINIC;
-
-  /* ===== 文字サイズ(標準 → 大 → 特大) ===== */
-  var ZCLS = ['', 'z1', 'z2'], ZLBL = ['標準', '大', '特大'];
-  $('btnSize').addEventListener('click', function () {
-    var w = $('wrap');
-    if (ZCLS[zoomLevel]) w.classList.remove(ZCLS[zoomLevel]);
-    zoomLevel = (zoomLevel + 1) % ZCLS.length;
-    if (ZCLS[zoomLevel]) w.classList.add(ZCLS[zoomLevel]);
-    $('btnSize').textContent = '文字サイズ：' + ZLBL[zoomLevel];
-  });
 
   function show(which) {
     cur = which;

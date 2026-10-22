@@ -682,7 +682,7 @@ window.OJIBA_PHOTOS = {
       A: [{ name: '島豆腐のゴーヤチャンプル', note: '若々しいあなたには、シャキッと元気の一皿を。', photo: P.goya }],
       B: [{ name: 'シンプルだしまき玉子', note: '予備軍には、まずやさしい味でひと息。', photo: P.dashimaki }],
       C: [{ name: '島唐辛子ぎょうざ', note: '境界線でゆれるあなたには、ピリッと一発、気合いを。', photo: P.gyoza }],
-      D: [{ name: '紅芋コロッケ', note: 'どっしり構えた立派な{S}には、ホクホクの紅芋を。', photo: P.beniimo }],
+      D: [{ name: '紅芋コロッケ', note: 'どっしり構えた\n立派な{S}には、\nホクホクの紅芋を。', photo: P.beniimo }],
       E: [{ name: '沖縄そば', note: '国宝級には、とっておきの一杯を。', photo: P.soba }]
     }
   };
@@ -762,7 +762,7 @@ window.OJIBA_PHOTOS = {
       a: ['毎回出る', 'ときどき出る', '出ない'],
       hi: '掛け声は、体からの正直な報告です。',
       lo: '無言で動ける軽やかさ、うらやましい限りです。' },
-    { d: 3, t: '健康診断の結果は、まず「C」の数を数える。',
+    { d: 3, t: '健康診断の結果は、\nまず「C」の数を数える。',
       a: ['毎回数えている', '数えたことがある', '数えない'],
       hi: '健診の話題は、{S}同士の社交辞令です。',
       lo: '健康に自信がおありなのですね。すばらしい。' },
@@ -793,7 +793,7 @@ window.OJIBA_PHOTOS = {
       a: ['毎回、言わずにいられない', 'ときどき言ってしまう', '思いついても言わない'],
       hi: 'ダジャレは、心の余裕の表れです。スベっても、笑いは笑いです。',
       lo: '飲み込める大人です。心の中では、きっと光っています。' },
-    { who: 'oji', d: 0, t: '若い人を飲みに誘うとき、迷惑じゃないかと気にしつつ誘ってしまう。',
+    { who: 'oji', d: 0, t: '若い人を飲みに誘う時、\n迷惑じゃないかと気にしつつ\n誘ってしまう。',
       a: ['いつも気にしている', '気にすることがある', '気にせず誘う'],
       hi: '気にかけられるのは、立派な気配りです。',
       lo: '堂々と誘える、頼れる先輩です。' },
@@ -826,7 +826,7 @@ window.OJIBA_PHOTOS = {
       hi: '「あれ」で通じるのは、長年のつながりの証です。',
       lo: '記憶力が抜群ですね。すばらしい。' },
 
-    { who: 'oba', d: 2, t: '写真を撮るとき、つい「はい、チーズ」と声をかけてしまう。',
+    { who: 'oba', d: 2, t: '写真を撮るとき、「はい、チーズ」と、\nつい声をかけてしまう。',
       a: ['必ず声をかける', 'つい言ってしまう', '言わない'],
       hi: '「はい、チーズ」は、笑顔を引き出す魔法の言葉です。',
       lo: '自然な表情を撮れる、写真上手です。' },
@@ -840,7 +840,7 @@ window.OJIBA_PHOTOS = {
       hi: '足元の快適さは、一日の元気を左右します。',
       lo: 'おしゃれ心を忘れない、素敵なこだわりです。' },
 
-    { who: 'oba', d: 4, t: 'バッグに、飴やお菓子を入れていて、つい配りたくなる。',
+    { who: 'oba', d: 4, t: 'バッグに、飴やお菓子を入れていて、\nついつい配りたくなる。',
       a: ['いつも常備している', 'ときどき入れている', '入れていない'],
       hi: '「飴ちゃん」は、場を和ませる最強の外交官です。',
       lo: '身軽でスマートなバッグですね。' },
@@ -1010,6 +1010,10 @@ window.OJIBA_PHOTOS = {
     var size = parseFloat(window.getComputedStyle(box).fontSize) || 24;
     var spans = box.querySelectorAll ? box.querySelectorAll('.ln') : [];
     function over() {
+      if (box.offsetWidth) {
+        for (var j = 0; j < spans.length; j++) if (spans[j].offsetWidth > box.clientWidth) return true;
+        return false;
+      }
       var limit = box.getBoundingClientRect().right - 1;
       for (var i = 0; i < spans.length; i++) if (spans[i].getBoundingClientRect().right > limit) return true;
       return box.scrollWidth > box.clientWidth + 1;
@@ -1352,7 +1356,7 @@ window.OJIBA_PHOTOS = {
       shopRx.hidden = false;
       $('shopRxShop').textContent = SHOP.pharmacy || (SHOP.name ? SHOP.name + ' 薬局' : '');
       setLines($('shopRxName'), $('shopRxName'), fill(m.name) + (m.price ? '　' + m.price : ''), 12, true);
-      $('shopRxNote').textContent = m.note ? fill(m.note) : '';
+      setLines($('shopRxNote'), $('shopRxNote'), m.note ? fill(m.note) : '', 11);
       $('shopRxOrder').textContent = SHOP.orderNote || '';
       var photo = $('shopRxPhoto');
       if (m.photo) {

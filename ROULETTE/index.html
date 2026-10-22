@@ -697,21 +697,22 @@ button { cursor: pointer; }
 
         function calculateSlices() {
             state.hasCounter = state.players.some(p => p.penalties >= 3);
-            let totalSpecialDeg = SPECIAL_SLICE_DEG; 
+            const hasSplit = state.theme === '支払う人を決める';   // 全員割り勘マスは「支払う人を決める」のときだけ
+            let totalSpecialDeg = hasSplit ? SPECIAL_SLICE_DEG : 0;
             if (state.hasCounter) totalSpecialDeg += SPECIAL_SLICE_DEG; 
             
             const totalPlayerDeg = 360 - totalSpecialDeg;
             let currentAngle = 0;
             const newSlices = [];
 
-            newSlices.push({
+            if (hasSplit) newSlices.push({
                 type: 'split',
                 label: '全員割り勘',
                 startAngle: currentAngle,
                 endAngle: currentAngle + SPECIAL_SLICE_DEG,
                 color: '#0033ff'
             });
-            currentAngle += SPECIAL_SLICE_DEG;
+            if (hasSplit) currentAngle += SPECIAL_SLICE_DEG;
 
             if (state.hasCounter) {
                 newSlices.push({
@@ -1168,6 +1169,7 @@ button { cursor: pointer; }
             const value = e.target.value;
             if (value === 'custom') {
                 DOM.customThemeContainer.classList.remove('hidden');
+                state.theme = 'custom';
             } else {
                 DOM.customThemeContainer.classList.add('hidden');
                 state.theme = value;

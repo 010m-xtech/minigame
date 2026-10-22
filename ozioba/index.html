@@ -1,5 +1,10 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#e6f4ef">
 <title>おぢさんおばさん診断 2026</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Shippori+Mincho+B1:wght@700;800&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
@@ -7,6 +12,7 @@
 /* Layout concept: 総合クリニックの待合室。ECG用紙の方眼の上に、問診票と診断書が乗る。
    色は「病院のミント × 信号の赤 × 注意のカラシ」。見出しだけ極太ゴシックで遊ぶ。 */
 :root {
+  color-scheme: light;
   --bg: #DDEEE9;
   --grid: rgba(17, 35, 58, .06);
   --grid-major: rgba(17, 35, 58, .11);
@@ -31,54 +37,9 @@
   --font-body: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
   --font-seal: "Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", serif;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0E1B22;
-    --grid: rgba(170, 230, 220, .05);
-    --grid-major: rgba(170, 230, 220, .09);
-    --paper: #16272F;
-    --paper-2: #1D3340;
-    --ink: #E8F2EF;
-    --ink-soft: #9DB5B8;
-    --line: #2F4A55;
-    --teal: #46B8A8;
-    --on-teal: #08201C;
-    --mustard: #F4C04A;
-    --red: #FF6E63;
-    --on-red: #2A0A07;
-    --shadow: #04100F;
-    --g-a: #46B8A8;
-    --g-b: #A3D26B;
-    --g-c: #F4C04A;
-    --g-d: #FF9A4D;
-    --g-e: #FF6E63;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #0E1B22;
-  --grid: rgba(170, 230, 220, .05);
-  --grid-major: rgba(170, 230, 220, .09);
-  --paper: #16272F;
-  --paper-2: #1D3340;
-  --ink: #E8F2EF;
-  --ink-soft: #9DB5B8;
-  --line: #2F4A55;
-  --teal: #46B8A8;
-  --on-teal: #08201C;
-  --mustard: #F4C04A;
-  --red: #FF6E63;
-  --on-red: #2A0A07;
-  --shadow: #04100F;
-  --g-a: #46B8A8;
-  --g-b: #A3D26B;
-  --g-c: #F4C04A;
-  --g-d: #FF9A4D;
-  --g-e: #FF6E63;
-  color-scheme: dark;
-}
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; }
 body {
   background-color: var(--bg);
@@ -395,8 +356,94 @@ input[type="range"]::-moz-range-thumb { box-sizing: border-box; width: 42px; hei
   .screen.enter, .qbox.enter, .note.pop p { animation: none; }
   .pct .bar i { transition: none; }
 }
-</style>
 
+/* ---- スマホ最適化 ---- */
+.nb { display: inline-block; }
+html { overflow-x: hidden; }
+body { overflow-wrap: anywhere; -webkit-tap-highlight-color: transparent; }
+button, summary { touch-action: manipulation; }
+img, svg { max-width: 100%; }
+@media (max-width: 400px) {
+  body { font-size: 18px; }
+  .clinic-bar { font-size: 14px; }
+  .qtext { font-size: clamp(21px, 5.8vw, 26px); margin-bottom: 16px; }
+  .ans { min-height: 68px; gap: 10px; padding: 8px 12px; }
+  .shop-rx-name { font-size: clamp(21px, 6.2vw, 26px); }
+  .verdict-top h3 { font-size: clamp(24px, 7vw, 32px); }
+}
+
+/* ---- スマホ: なるべくスクロール不要に(各画面を1画面に収める) ---- */
+@media (max-width: 480px) {
+  body { padding-block: 8px 20px; }
+  .clinic-bar { flex-wrap: nowrap; margin-bottom: 8px; }
+  .clinic-bar .today { display: none; }
+  .size-btn { min-height: 40px; padding: 0 12px; font-size: 14px; box-shadow: 0 2px 0 var(--ink); }
+  .paper { padding: 14px 14px 16px; box-shadow: 4px 4px 0 var(--shadow); }
+  .btn { min-height: 54px; font-size: 19px; }
+  .fine { margin-top: 10px; font-size: 13px; }
+
+  /* スタート */
+  h1 { font-size: clamp(32px, 9.4vw, 40px); margin-block: 6px 6px; }
+  .lead { font-size: 17px; margin-bottom: 4px; }
+  .facts { display: none; }
+  .honest { margin: 6px 0 2px; padding: 6px 12px; font-size: 16px; }
+  .ecg { margin: 4px 0 10px; max-height: 26px; }
+  .start-btns { gap: 10px; }
+  .start-btn { min-height: 64px; font-size: clamp(20px, 5.4vw, 24px); }
+
+  /* 自己申告 */
+  .self-title { font-size: clamp(22px, 6vw, 28px); margin-block: 8px 2px; }
+  .self-big { font-size: clamp(64px, 20vw, 88px); margin-top: 4px; }
+  .self-scale { margin-bottom: 10px; }
+
+  /* 質問(スクロールなしで答えられる) */
+  .quiz-head { margin-bottom: 6px; }
+  .count { font-size: 22px; }
+  .ticks { margin-bottom: 12px; }
+  .ticks i { height: 10px; }
+  .qtext { font-size: clamp(21px, 5.6vw, 25px); margin-bottom: 12px; min-height: 2.9em; line-height: 1.45; }
+  .gloss { margin: -2px 0 10px; padding: 6px 12px; font-size: 14px; line-height: 1.5; }
+  .answers { gap: 8px; }
+  .ans { min-height: 58px; padding: 6px 12px; font-size: clamp(18px, 4.8vw, 21px); }
+  .ans .dot { width: 24px; height: 24px; }
+  .note { margin-top: 10px; min-height: 0; padding: 8px 12px; }
+  .note p { font-size: 15px; line-height: 1.5; }
+  .nav { margin-top: 12px; }
+  #s-quiz .fine { display: none; }
+
+  /* 診断書: 判定・メーター・処方薬が最初の1画面に入る */
+  .r-head { padding-bottom: 4px; }
+  .r-head h2 { font-size: 19px; }
+  .r-meta { font-size: 12px; }
+  .banner { margin-top: 8px; padding: 4px 10px; font-size: 15px; line-height: 1.4; }
+  .verdict-top { margin-top: 10px; gap: 12px; }
+  .stamp { width: 64px; height: 64px; }
+  .stamp small { font-size: 11px; }
+  .stamp b { font-size: 30px; }
+  .verdict-top .sub { font-size: 14px; }
+  .verdict-top h3 { font-size: clamp(22px, 6.4vw, 28px); margin-block: 0 4px; }
+  .nick b { font-size: 15px; padding: 0 10px; }
+  .gauge-box { max-width: 250px; }
+  .meter { margin-top: 0; gap: 0; }
+  .pct { padding-bottom: 0; }
+  .pct .cap { font-size: 13px; }
+  .pct .num { font-size: clamp(44px, 12.5vw, 56px); }
+  .r-body { margin-top: 8px; font-size: 16px; line-height: 1.55; }
+  .shop-rx { margin-top: 10px; padding: 8px 12px 10px; }
+  .shop-rx-body { margin-top: 4px; gap: 12px; }
+  .shop-rx-photo { width: 84px; }
+  .shop-rx-note { font-size: 15px; line-height: 1.45; }
+  .gapcard { margin-top: 10px; padding: 8px 12px; }
+  .gap-tile b { font-size: 26px; }
+  .gap-msg { margin-top: 4px; font-size: 15px; line-height: 1.5; }
+  .rx1 { margin-top: 10px; padding: 8px 12px; font-size: 15px; line-height: 1.5; }
+  .more { margin-top: 10px; }
+  .actions { margin-top: 12px; }
+  .disclaimer { margin-top: 10px; font-size: 12px; }
+}
+</style>
+</head>
+<body>
 <div class="wrap" id="wrap">
   <div class="clinic-bar">
     <span class="brand">
@@ -413,7 +460,7 @@ input[type="range"]::-moz-range-thumb { box-sizing: border-box; width: 42px; hei
     <!-- スタート -->
     <section class="screen paper" id="s-start">
       <span class="tag">2026年版</span>
-      <h1>おぢさん<wbr>おばさん<span class="hl">診断</span></h1>
+      <h1><span class="nb">おぢさん</span><span class="nb">おばさん<span class="hl">診断</span></span></h1>
       <p class="lead">「自分はまだ若い」と思っているあなたへ。たった6問で、こっそり測定します。</p>
       <p class="honest"><b>お願い</b>盛らずに、正直にお答えください。先生にはお見通しです。</p>
       <svg class="ecg" viewBox="0 0 600 60" aria-hidden="true"><path pathLength="100" d="M0 32 H110 l8 -6 l10 6 H190 l7 6 l11 -32 l13 50 l9 -24 H320 l9 -7 l12 7 H430 l7 6 l11 -32 l13 50 l9 -24 H600"></path></svg>
@@ -1346,3 +1393,5 @@ window.OJIBA_PHOTOS = {
   setSelf(DEFAULT_SELF);
 })();
 </script>
+</body>
+</html>

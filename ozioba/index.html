@@ -189,6 +189,7 @@ input[type="range"]::-moz-range-thumb { box-sizing: border-box; width: 42px; hei
 .ticks i.done { background: var(--teal); }
 .ticks i.cur { background: var(--mustard); }
 .qbox.enter { animation: enter .26s ease-out both; }
+.qtext .ln { display: block; white-space: nowrap; }
 .qtext { font-size: clamp(24px, 6vw, 34px); font-weight: 900; line-height: 1.5; margin: 0 0 22px; text-wrap: pretty; min-height: 3em; }
 .gloss { display: grid; gap: 2px; margin: -6px 0 20px; padding: 10px 14px; background: var(--paper-2); border-left: 6px solid var(--mustard); border-radius: 4px 10px 10px 4px; font-size: 17px; font-weight: 700; line-height: 1.6; text-wrap: pretty; }
 .gloss b { font-size: 13px; letter-spacing: .14em; color: var(--ink-soft); }
@@ -242,9 +243,10 @@ input[type="range"]::-moz-range-thumb { box-sizing: border-box; width: 42px; hei
   85% { opacity: 1; }
   100% { transform: translateY(720px) rotate(560deg); opacity: 0; }
 }
-.r-head { display: flex; justify-content: space-between; align-items: baseline; gap: 4px 16px; flex-wrap: wrap; border-bottom: 3px double var(--ink); padding-bottom: 8px; }
-.r-head h2 { font-family: var(--font-seal); font-weight: 800; font-size: clamp(20px, 5vw, 26px); margin: 0; line-height: 1.3; letter-spacing: .08em; }
-.r-meta { font-size: 14px; font-weight: 700; text-align: right; line-height: 1.5; font-variant-numeric: tabular-nums; }
+.r-head { text-align: center; border-bottom: 3px double var(--ink); padding-bottom: 8px; }
+.r-clinic { font-size: 15px; font-weight: 900; letter-spacing: .12em; color: var(--teal); line-height: 1.4; }
+.r-head h2 { font-family: var(--font-seal); font-weight: 800; font-size: clamp(22px, 5.6vw, 30px); margin: 2px 0 8px; line-height: 1.3; letter-spacing: .1em; }
+.r-meta { display: flex; justify-content: space-between; align-items: baseline; gap: 4px 12px; font-size: 14px; font-weight: 700; text-align: left; line-height: 1.5; font-variant-numeric: tabular-nums; }
 .banner {
   margin: 14px 0 0; padding: 8px 14px; border: 2px solid var(--ink); border-radius: 8px; text-align: center;
   font-family: var(--font-seal); font-weight: 800; font-size: clamp(17px, 4.6vw, 24px); line-height: 1.55;
@@ -417,7 +419,8 @@ img, svg { max-width: 100%; }
 
   /* 診断書: 判定・メーター・処方薬が最初の1画面に入る */
   .r-head { padding-bottom: 4px; }
-  .r-head h2 { font-size: 19px; }
+  .r-clinic { font-size: 13px; }
+  .r-head h2 { font-size: 21px; margin-bottom: 4px; }
   .r-meta { font-size: 12px; }
   .banner { margin-top: 8px; padding: 4px 10px; font-size: 15px; line-height: 1.4; }
   .verdict-top { margin-top: 10px; gap: 12px; }
@@ -542,8 +545,9 @@ img, svg { max-width: 100%; }
     <section class="screen paper" id="s-result" hidden>
       <div class="confetti" id="confetti" aria-hidden="true"></div>
       <div class="r-head">
+        <div class="r-clinic" id="rClinic"></div>
         <h2 id="rTitleLabel"></h2>
-        <div class="r-meta"><div id="rDate"></div><div id="rNo"></div></div>
+        <div class="r-meta"><span id="rNo"></span><span id="rDate"></span></div>
       </div>
       <div class="banner" id="rBanner" hidden></div>
 
@@ -691,7 +695,7 @@ window.OJIBA_PHOTOS = {
      u  = 「そもそも知らない」選択肢(2点扱い)、un = そのときの先生のひとこと */
   var QUESTIONS = [
     /* ---------- 共通 ---------- */
-    { d: 0, t: '「昔は〜だったんだよ」と、つい言ってしまう。',
+    { d: 0, t: '「昔は〜だったんだよ」と、\nつい言ってしまう。',
       a: ['口ぐせになっている', '言った覚えがある', '言わない'],
       hi: '出ました、{S}の代名詞。ちなみに「昔」は、たいてい10年以上前です。',
       lo: '今を生きていますね。素敵です。' },
@@ -720,7 +724,7 @@ window.OJIBA_PHOTOS = {
       a: ['毎回付けている', '付けることがある', '付けない'],
       hi: '若い世代には、句点がちょっと威厳に見えるそうです。',
       lo: '文末の空気も、ちゃんと読めていますね。' },
-    { d: 2, t: '生成AIにも、「お世話になっております」から書き始める。',
+    { d: 2, t: '生成AIにも、\n「お世話になっております」\nから書き始める。',
       a: ['毎回書いている', '書いたことがある', '書かない'],
       g: '生成AIは、質問すると文章や答えを作ってくれるAIのこと。ChatGPTやClaudeなどがあります。',
       u: 'AIは使ったことがない',
@@ -749,7 +753,7 @@ window.OJIBA_PHOTOS = {
       a: ['断然、行きつけ', 'どちらかといえば行きつけ', '新しい店のほうが好き'],
       hi: '今日のこのお店も、そのうち行きつけになるかもしれませんね。',
       lo: '新規開拓の精神、まだまだ燃えています。' },
-    { d: 4, t: '休日の予定が「家でゆっくり」だと、わりと最高だと思う。',
+    { d: 4, t: '休日の予定が、\n「家でゆっくり」だと、最高だと思う。',
       a: ['最高の休日だと思う', 'わりとそう思う', '外に出たい派'],
       hi: 'それは成熟の証です。最高の休日です。',
       lo: 'アクティブな休日、うらやましい限りです。' },
@@ -772,8 +776,8 @@ window.OJIBA_PHOTOS = {
       hi: '気にかけられるのは、立派な気配りです。',
       lo: '堂々と誘える、頼れる先輩です。' },
 
-    { who: 'oji', d: 2, t: 'スマホの文字入力が面倒で、つい電話や音声入力で済ませたくなる。',
-      a: ['ほぼ電話や音声で済ませる', '面倒に感じることがある', '入力は苦にならない'],
+    { who: 'oji', d: 2, t: 'スマホの文字入力が面倒で、\nつい電話で済ませたくなる。',
+      a: ['ほぼ電話で済ませる', '面倒に感じることがある', '入力は苦にならない'],
       hi: '電話は、声の温度が伝わる、いい手段です。',
       lo: '入力が速い、現代の達人ですね。' },
 
@@ -781,11 +785,11 @@ window.OJIBA_PHOTOS = {
       a: ['道具選びがいちばん楽しい', 'つい凝ってしまう', '道具にはこだわらない'],
       hi: '道具選びは、趣味の半分です。',
       lo: '身軽でいいですね。道具より腕前で勝負するタイプです。' },
-    { who: 'oji', d: 4, t: '飲み会の最後は、〆のラーメンや〆の一品がないと終われない。',
+    { who: 'oji', d: 4, t: '飲み会の最後は、〆のラーメンや\n〆の一品がないと終われない。',
       a: ['〆がないと終われない', 'ときどき食べたくなる', '〆はいらない'],
       hi: '〆の一品は、{S}の締めくくりの儀式です。',
       lo: '満足して帰れる、健康的な食べ方です。' },
-    { who: 'oji', d: 4, t: 'ビールや缶コーヒーなどの「いつもの銘柄」が決まっている。',
+    { who: 'oji', d: 4, t: 'ビールや缶コーヒーなどの\n「いつもの銘柄」が決まっている。',
       a: ['譲れない銘柄がある', 'なんとなく決まっている', '何でもいい'],
       hi: 'いつもの銘柄は、{S}の相棒です。',
       lo: 'こだわらない自由さ、素敵です。' },
@@ -888,7 +892,7 @@ window.OJIBA_PHOTOS = {
       rx: ['武勇伝は、3分以内に笑いに変えたら勝ちです。'] },
     { letter: 'E', sub: '要保護(国宝級)',
       title: '重要無形{S}文化財',
-      banner: '認定証\nあなたを「{TITLE}」に認定します\n{DATE}　院長',
+      banner: 'あなたを\n「{TITLE}」\nに認定します。',
       body: '貴重な存在です。「昔は〜」には、若い世代が知らない物語が詰まっています。ただし、長いと料理が冷めます。',
       karte: '貴重な生き字引。昭和が抜けていない。保護と、料理が冷める前の話の切り上げが必要。',
       rx: ['「昔は〜」は、料理が届く前に終えるのが理想です。'] }
@@ -919,6 +923,32 @@ window.OJIBA_PHOTOS = {
 
   function $(id) { return document.getElementById(id); }
   function fill(s) { return s.replace(/\{S\}/g, S); }
+  // 質問文: \n の位置で必ず改行し、どの行も横にはみ出さないよう文字サイズを自動調整する
+  function renderQText(text) {
+    var box = $('qText');
+    box.textContent = '';
+    box.style.fontSize = '';
+    box.classList.remove('fixed');
+    if (text.indexOf('\n') < 0) { box.textContent = text; return; }
+    box.classList.add('fixed');
+    text.split('\n').forEach(function (ln) {
+      var s = document.createElement('span');
+      s.className = 'ln';
+      s.textContent = ln;
+      box.appendChild(s);
+    });
+    fitQText();
+  }
+  function fitQText() {
+    var box = $('qText');
+    if (!box.getBoundingClientRect || !window.getComputedStyle) return;
+    var size = parseFloat(window.getComputedStyle(box).fontSize) || 24;
+    var guard = 0;
+    while (box.scrollWidth > box.clientWidth + 1 && size > 13 && guard++ < 40) {
+      size -= 0.5;
+      box.style.fontSize = size + 'px';
+    }
+  }
   function clamp(x, lo, hi) { return Math.max(lo, Math.min(hi, x)); }
   function el(tag, cls, text) {
     var e = document.createElement(tag);
@@ -1078,7 +1108,7 @@ window.OJIBA_PHOTOS = {
     for (var i = 0; i < ticks.length; i++) {
       ticks[i].className = i < idx ? 'done' : (i === idx ? 'cur' : '');
     }
-    $('qText').textContent = fill(q.t);
+    renderQText(fill(q.t));
     $('qGloss').hidden = !q.g;
     $('qGlossText').textContent = q.g || '';
     var a = answers[idx];
@@ -1228,7 +1258,8 @@ window.OJIBA_PHOTOS = {
 
     $('rTitleLabel').textContent = S + '度 診断書';
     $('rDate').textContent = reiwaShowa();
-    $('rNo').textContent = '診察番号 ' + ticketNo + '　' + CLINIC;
+    $('rNo').textContent = '診察番号 ' + ticketNo;
+    $('rClinic').textContent = CLINIC;
     $('rCap').textContent = S + '度';
     $('gauge').setAttribute('aria-label', S + '度メーター ' + pct + '%、判定' + G.letter);
     $('stampLetter').textContent = G.letter;
@@ -1295,7 +1326,7 @@ window.OJIBA_PHOTOS = {
     var chief = $('rChief');
     chief.textContent = '';
     if (top >= 0) {
-      chief.appendChild(document.createTextNode(fill(session[top].t)));
+      chief.appendChild(document.createTextNode(fill(session[top].t).replace(/\n/g, '')));
       chief.appendChild(el('small', '', 'いちばん強く出た症状です(回答: ' + labelFor(top, answers[top]) + ')'));
     } else {
       chief.appendChild(document.createTextNode('自覚症状は見当たりませんでした。'));
@@ -1395,6 +1426,13 @@ window.OJIBA_PHOTOS = {
   $('btnAgain').addEventListener('click', resetAll);
 
   setSelf(DEFAULT_SELF);
+  // フォントの読み込み完了・画面の向き変更のあとに、質問文の文字サイズを合わせ直す
+  function refitQText() {
+    var box = $('qText');
+    if (box.querySelector && box.querySelector('.ln')) { box.style.fontSize = ''; fitQText(); }
+  }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(refitQText);
+  if (window.addEventListener) window.addEventListener('resize', refitQText);
 
   /* ===== 日本語の改行(単語の途中で切れないよう、文節の切れ目だけで改行) =====
      Intl.Segmenter で区切り、助詞などの短いひらがなは前の語にくっつけて、<wbr> を挟みます。 */

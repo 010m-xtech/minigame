@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#e6f4ef">
-<title>おぢさんおばさん診断 2026</title>
+<title>おぢおば診断 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Shippori+Mincho+B1:wght@700;800&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
@@ -107,10 +107,11 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 h1 {
   font-family: var(--font-display); font-weight: 400;
   font-size: clamp(38px, 10.5vw, 68px); line-height: 1.15; margin: 14px 0 10px;
-  text-wrap: balance; letter-spacing: -.01em;
+  text-wrap: balance; letter-spacing: -.01em; white-space: nowrap;
 }
 h1 .hl { background: linear-gradient(transparent 62%, var(--mustard) 62%, var(--mustard) 92%, transparent 92%); padding: 0 .08em; }
-.lead { margin: 0 0 6px; font-size: clamp(18px, 3.8vw, 21px); text-wrap: pretty; }
+.lead { margin: 0 0 6px; font-size: clamp(13px, 4.2vw, 21px); }
+.lead .ln { display: block; white-space: nowrap; }
 .ecg { display: block; width: 100%; height: auto; margin: 6px 0 18px; overflow: visible; }
 .ecg path { fill: none; stroke: var(--red); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 0; }
 @media (prefers-reduced-motion: no-preference) {
@@ -387,10 +388,10 @@ img, svg { max-width: 100%; }
 
   /* スタート */
   h1 { font-size: clamp(32px, 9.4vw, 40px); margin-block: 6px 6px; }
-  .lead { font-size: 17px; margin-bottom: 4px; }
+  .lead { font-size: clamp(13px, 4.2vw, 19px); margin-bottom: 4px; }
   .facts { display: none; }
   .honest { margin: 6px 0 2px; padding: 6px 12px; font-size: 16px; }
-  .ecg { margin: 4px 0 10px; max-height: 26px; }
+  .ecg { margin: 4px 0 8px; }
   .start-btns { gap: 10px; }
   .start-btn { min-height: 64px; font-size: clamp(20px, 5.4vw, 24px); }
 
@@ -463,8 +464,8 @@ img, svg { max-width: 100%; }
     <!-- スタート -->
     <section class="screen paper" id="s-start">
       <span class="tag">2026年版</span>
-      <h1><span class="nb">おぢさん</span><span class="nb">おばさん<span class="hl">診断</span></span></h1>
-      <p class="lead">「自分はまだ若い」と思っているあなたへ。たった6問で、こっそり測定します。</p>
+      <h1>おぢおば<span class="hl">診断</span></h1>
+      <p class="lead"><span class="ln">「自分はまだ若い」と思っているあなた。</span><span class="ln">たった6問で、こっそり測定します。</span></p>
       <p class="honest"><b>お願い</b>盛らずに、正直にお答えください。先生にはお見通しです。</p>
       <svg class="ecg" viewBox="0 0 600 60" aria-hidden="true"><path pathLength="100" d="M0 32 H110 l8 -6 l10 6 H190 l7 6 l11 -32 l13 50 l9 -24 H320 l9 -7 l12 7 H430 l7 6 l11 -32 l13 50 l9 -24 H600"></path></svg>
 

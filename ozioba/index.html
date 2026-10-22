@@ -189,6 +189,7 @@ input[type="range"]::-moz-range-thumb { box-sizing: border-box; width: 42px; hei
 .ticks i.done { background: var(--teal); }
 .ticks i.cur { background: var(--mustard); }
 .qbox.enter { animation: enter .26s ease-out both; }
+.qtext.wrapfb { text-wrap: balance; }
 .qtext .ln { display: block; width: max-content; white-space: nowrap; }
 .fixed-lines { white-space: nowrap !important; text-wrap: nowrap !important; }
 .fixed-lines .ln { white-space: nowrap !important; }
@@ -414,14 +415,14 @@ img, svg { max-width: 100%; }
   .count { font-size: 22px; }
   .ticks { margin-bottom: 12px; }
   .ticks i { height: 10px; }
-  .qtext { font-size: clamp(21px, 5.6vw, 25px); margin-bottom: 12px; min-height: 2.9em; line-height: 1.45; }
+  .qtext { font-size: clamp(21px, 5.6vw, 25px); margin-bottom: 12px; min-height: 1.5em; line-height: 1.45; }
   .gloss { margin: -2px 0 10px; padding: 6px 12px; font-size: 14px; line-height: 1.5; }
   .answers { gap: 8px; }
   .ans { min-height: 58px; padding: 6px 12px; font-size: clamp(18px, 4.8vw, 21px); }
   .ans .dot { width: 24px; height: 24px; }
   .note { display: block; margin-top: 10px; min-height: 0; padding: 8px 12px; }
-  .note .who { display: inline-block; margin: 0 8px 0 0; }
-  .note p { display: inline; font-size: 15px; line-height: 1.5; }
+  .note .who { display: block; width: fit-content; margin: 0 0 4px; font-size: 12px; line-height: 1.6; padding: 0 7px; }
+  .note p { display: block; font-size: 15px; line-height: 1.5; }
   .nav { margin-top: 12px; }
   #s-quiz .fine { display: none; }
   .in-quiz .clinic-bar { display: none; }   /* 質問中は上のバーを隠して、縦の余裕をつくる */
@@ -729,7 +730,7 @@ window.OJIBA_PHOTOS = {
       a: ['何度もある', '一度や二度ある', 'ない'],
       g: '「エモい」は しみじみ心に響く、「チルい」は まったり落ち着く、という意味の若者言葉です。',
       u: 'そもそも意味を知らない',
-      un: '知らないのは健全です。覚えると使いたくなるので要注意！',
+      un: '知らないのは健全です。',
       hi: 'あの沈黙は、優しさでした。',
       lo: '無理に使わないのが正解です。' },
     { d: 1, t: '最近の曲より、昔の曲が好き。',
@@ -744,7 +745,7 @@ window.OJIBA_PHOTOS = {
       a: ['毎回付けている', '付けることがある', '付けない'],
       hi: '句点は、威厳に見えるそうです。',
       lo: '文末の空気も読めています。' },
-    { d: 2, t: '生成AIに「お世話になります」と書く。',
+    { d: 2, t: 'AIに「お世話になります」と書く。',
       a: ['毎回書いている', '書いたことがある', '書かない'],
       g: '生成AIは、質問すると文章や答えを作ってくれるAIのこと。ChatGPTやClaudeなどがあります。',
       u: 'AIは使ったことがない',
@@ -815,7 +816,7 @@ window.OJIBA_PHOTOS = {
       a: ['初対面でも盛り上がる', 'ときどき話しかける', '話しかけない'],
       hi: '世間話は街を明るくする才能！',
       lo: '静かな時間も大切にできる方。' },
-    { who: 'oba', d: 0, t: '「あれ」と言って、名前が出てこない。',
+    { who: 'oba', d: 0, t: '「あれ」と言って、名前が出ない。',
       a: ['毎日ある', 'ときどきある', 'ない'],
       hi: '「あれ」で通じるのは絆の証です。',
       lo: '記憶力が抜群ですね。' },
@@ -937,21 +938,30 @@ window.OJIBA_PHOTOS = {
   function $(id) { return document.getElementById(id); }
   function fill(s) { return s.replace(/\{S\}/g, S); }
   // 質問文: \n の位置で必ず改行し、どの行も横にはみ出さないよう文字サイズを自動調整する
-  function renderQText(text) {
+  var lastQText = '';
+  function renderQText(text, noLater) {
     var box = $('qText');
+    lastQText = text;
     box.textContent = '';
     box.style.fontSize = '';
     box.classList.remove('fixed');
-    if (text.indexOf('\n') < 0) { box.textContent = text; return; }
+    box.classList.remove('wrapfb');
+    var single = text.indexOf('\n') < 0;
     box.classList.add('fixed');
-    text.split('\n').forEach(function (ln) {
+    (single ? [text] : text.split('\n')).forEach(function (ln) {
       var s = document.createElement('span');
       s.className = 'ln';
       s.textContent = ln;
       box.appendChild(s);
     });
-    fitQText();
-    if (window.refitQTextLater) window.refitQTextLater();
+    var ok = fitQText(single ? 15 : 12);
+    if (single && !ok) {          // 1行に収まらない長さのときだけ、バランスよく2行に折り返す
+      box.classList.remove('fixed');
+      box.classList.add('wrapfb');
+      box.style.fontSize = '';
+      box.textContent = text;
+    }
+    if (!noLater && window.refitQTextLater) window.refitQTextLater();
   }
   // 診断書の文: \n の位置で必ず改行(行は折り返さず、はみ出すときは文字サイズを下げる。下限 minPx)
   var lineJobs = [];
@@ -995,7 +1005,8 @@ window.OJIBA_PHOTOS = {
   Array.prototype.forEach.call(document.querySelectorAll('[data-fit]'), function (b) {
     lineJobs.push({ box: b, target: b, min: parseFloat(b.getAttribute('data-fit')) || 12 });
   });
-  function fitQText() {
+  function fitQText(minPx) {
+    minPx = minPx || 12;
     var box = $('qText');
     if (!box.getBoundingClientRect || !window.getComputedStyle) return;
     var size = parseFloat(window.getComputedStyle(box).fontSize) || 24;
@@ -1010,10 +1021,25 @@ window.OJIBA_PHOTOS = {
       return box.scrollWidth > box.clientWidth + 1;
     }
     var guard = 0;
-    while (over() && size > 12 && guard++ < 60) {
+    while (over() && size > minPx && guard++ < 80) {
       size -= 0.5;
       box.style.fontSize = size + 'px';
     }
+    return !over();
+  }
+  // 先生のひとこと: 1行で収まるなら1行に(文字サイズを少しだけ下げる。下限12px)
+  function fitQuip() {
+    var q = $('quip');
+    if (!q || !q.getBoundingClientRect || !window.getComputedStyle) return;
+    q.style.fontSize = '';
+    var cs = window.getComputedStyle(q);
+    var size = parseFloat(cs.fontSize) || 14;
+    var lh = parseFloat(cs.lineHeight) || size * 1.5;
+    function wrapped() { return q.getBoundingClientRect().height > lh * 1.5; }
+    if (!wrapped()) return;
+    var guard = 0;
+    while (wrapped() && size > 12 && guard++ < 20) { size -= 0.5; q.style.fontSize = size + 'px'; }
+    if (wrapped()) q.style.fontSize = '';
   }
   function clamp(x, lo, hi) { return Math.max(lo, Math.min(hi, x)); }
   function el(tag, cls, text) {
@@ -1201,6 +1227,7 @@ window.OJIBA_PHOTOS = {
       quip.className = '';
       quip.textContent = fill((unk[idx] && q.un) ? q.un : (a >= 1 ? q.hi : q.lo));
     }
+    fitQuip();
     $('btnNext').disabled = (a == null);
     $('btnNext').textContent = idx === N - 1 ? '診断書を受け取る' : '次へ';
     $('btnBack').disabled = (idx === 0);
@@ -1511,7 +1538,8 @@ window.OJIBA_PHOTOS = {
   // フォントの読み込み完了・画面の向き変更のあとに、質問文の文字サイズを合わせ直す
   function refitQText() {
     var box = $('qText');
-    if (box.querySelector && box.querySelector('.ln')) { box.style.fontSize = ''; fitQText(); }
+    if (lastQText && cur === 'quiz') { renderQText(lastQText, true); fitQuip(); }
+    else if (box.querySelector && box.querySelector('.ln')) { box.style.fontSize = ''; fitQText(); }
     fitAllLines();
   }
   if (document.fonts) {

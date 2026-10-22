@@ -190,6 +190,8 @@ input[type="range"]::-moz-range-thumb { box-sizing: border-box; width: 42px; hei
 .ticks i.cur { background: var(--mustard); }
 .qbox.enter { animation: enter .26s ease-out both; }
 .qtext .ln { display: block; white-space: nowrap; }
+.fixed-lines { white-space: nowrap !important; text-wrap: nowrap !important; }
+.fixed-lines .ln { white-space: nowrap !important; }
 .qtext { font-size: clamp(24px, 6vw, 34px); font-weight: 900; line-height: 1.5; margin: 0 0 22px; text-wrap: pretty; min-height: 3em; }
 .gloss { display: grid; gap: 2px; margin: -6px 0 20px; padding: 10px 14px; background: var(--paper-2); border-left: 6px solid var(--mustard); border-radius: 4px 10px 10px 4px; font-size: 17px; font-weight: 700; line-height: 1.6; text-wrap: pretty; }
 .gloss b { font-size: 13px; letter-spacing: .14em; color: var(--ink-soft); }
@@ -436,6 +438,7 @@ img, svg { max-width: 100%; }
   .pct .cap { font-size: 13px; }
   .pct .num { font-size: clamp(44px, 12.5vw, 56px); }
   .r-body { margin-top: 8px; font-size: 16px; line-height: 1.55; }
+  .r-body.fixed-lines { margin-inline: -8px; }
   .shop-rx { margin-top: 10px; padding: 8px 12px 10px; }
   .shop-rx-body { margin-top: 4px; gap: 12px; }
   .shop-rx-photo { width: 84px; }
@@ -601,7 +604,7 @@ img, svg { max-width: 100%; }
         <p class="gap-msg" id="gapMsg"></p>
       </div>
 
-      <p class="rx1"><b>処方箋</b><span id="rRx"></span></p>
+      <p class="rx1" id="rRxBox"><b>処方箋</b><span id="rRx"></span></p>
 
       <details class="more" id="more">
         <summary>くわしい検査結果を見る</summary>
@@ -699,7 +702,7 @@ window.OJIBA_PHOTOS = {
       a: ['口ぐせになっている', '言った覚えがある', '言わない'],
       hi: '出ました、{S}の代名詞。ちなみに「昔」は、たいてい10年以上前です。',
       lo: '今を生きていますね。素敵です。' },
-    { d: 0, t: '「最近の若い人は〜」と言いかけて、飲み込んだことがある。',
+    { d: 0, t: '「最近の若い人は〜」と言いかけて、\n飲み込んだことがある。',
       a: ['しょっちゅうある', '言ってしまったこともある', 'ない'],
       hi: '飲み込めたのは大人の対応です。次は、言わずに済ませましょう。',
       lo: '若い世代に寄り添える、貴重なタイプです。' },
@@ -715,7 +718,7 @@ window.OJIBA_PHOTOS = {
       a: ['断然、あの頃の曲', 'そう思うことがある', 'そうは思わない'],
       hi: 'あの頃の曲は、人生のBGMですよね。たしかに名曲ぞろいです。',
       lo: '今の曲も楽しめる、耳の若い方です。' },
-    { d: 1, t: '懐かしの番組や曲が流れると、つい出演者や歌手の豆知識を話してしまう。',
+    { d: 1, t: '懐かしの番組や曲が流れると、\nつい出演者や歌手に関する\n豆知識などを話してしまう。',
       a: ['止まらなくなる', 'つい話してしまう', '話さない'],
       hi: '豆知識は、聞く側が「へえ」と言えば完成します。',
       lo: '静かに聴き入る、渋い楽しみ方です。' },
@@ -893,9 +896,9 @@ window.OJIBA_PHOTOS = {
     { letter: 'E', sub: '要保護(国宝級)',
       title: '重要無形{S}文化財',
       banner: 'あなたを\n「{TITLE}」\nに認定します。',
-      body: '貴重な存在です。「昔は〜」には、若い世代が知らない物語が詰まっています。ただし、長いと料理が冷めます。',
+      body: '貴重すぎる存在です。\n「昔は〜」には、若い世代が知らない物語が詰まっています。\nただし、長いと料理も若者も冷めます。',
       karte: '貴重な生き字引。昭和が抜けていない。保護と、料理が冷める前の話の切り上げが必要。',
-      rx: ['「昔は〜」は、料理が届く前に終えるのが理想です。'] }
+      rx: ['「昔は〜」は、\n料理が届く前に終えるのが理想です。'] }
   ];
 
   var LOADING_MSGS = [
@@ -939,6 +942,44 @@ window.OJIBA_PHOTOS = {
     });
     fitQText();
   }
+  // 診断書の文: \n の位置で必ず改行(行は折り返さず、はみ出すときは文字サイズを下げる。下限 minPx)
+  var lineJobs = [];
+  function setLines(target, box, text, minPx) {
+    target.textContent = '';
+    box.style.fontSize = '';
+    box.classList.remove('fixed-lines');
+    lineJobs = lineJobs.filter(function (j) { return j.box !== box; });
+    if (text.indexOf('\n') < 0) { target.textContent = text; return; }
+    box.classList.add('fixed-lines');
+    text.split('\n').forEach(function (ln, i) {
+      if (i) target.appendChild(document.createElement('br'));
+      var s = document.createElement('span');
+      s.className = 'ln';
+      s.textContent = ln;
+      target.appendChild(s);
+    });
+    lineJobs.push({ box: box, target: target, min: minPx });
+  }
+  function fitLineJob(j) {
+    var box = j.box;
+    if (!box.getBoundingClientRect || !window.getComputedStyle) return;
+    box.style.fontSize = '';
+    var cs = window.getComputedStyle(box);
+    var size = parseFloat(cs.fontSize) || 16;
+    var padR = parseFloat(cs.paddingRight) || 0;
+    var spans = j.target.querySelectorAll ? j.target.querySelectorAll('.ln') : [];
+    function over() {
+      var limit = box.getBoundingClientRect().right - padR + 0.5;
+      for (var i = 0; i < spans.length; i++) if (spans[i].getBoundingClientRect().right > limit) return true;
+      return false;
+    }
+    var guard = 0;
+    while (over() && size > j.min && guard++ < 40) {
+      size -= 0.5;
+      box.style.fontSize = size + 'px';
+    }
+  }
+  function fitAllLines() { lineJobs.forEach(fitLineJob); }
   function fitQText() {
     var box = $('qText');
     if (!box.getBoundingClientRect || !window.getComputedStyle) return;
@@ -1016,6 +1057,7 @@ window.OJIBA_PHOTOS = {
     s.classList.add('enter');
     armIdle();
     try { window.scrollTo(0, 0); } catch (e) {}
+    if (which === 'result') fitAllLines();
   }
 
   /* ===== 放置で最初に戻る ===== */
@@ -1207,7 +1249,7 @@ window.OJIBA_PHOTOS = {
   var result = null;
 
   function gapText(diff) {
-    if (diff >= 40) return '認めたくない度：最高。周りは温かく見守っています。';
+    if (diff >= 40) return '認めたくない度：最高。\n周りは温かく見守っています。';
     if (diff >= 20) return '認めたくない度：高。「まだ若い」は、ちょっと盛られているようです。';
     if (diff >= 5) return '認めたくない度：中。おおむね、自分のことが見えています。';
     if (diff >= -4) return '自己申告とほぼ一致。自分をよく分かっている方です。';
@@ -1265,8 +1307,8 @@ window.OJIBA_PHOTOS = {
     $('stampLetter').textContent = G.letter;
     $('rSub').textContent = G.sub;
     $('rHead').textContent = fill(G.title);
-    $('rBody').textContent = fill(G.body);
-    $('rRx').textContent = fill(G.rx[0]);
+    setLines($('rBody'), $('rBody'), fill(G.body), 11);
+    setLines($('rRx'), $('rRxBox'), fill(G.rx[0]), 13);
 
     // お店のメニュー(処方薬)。その判定に設定があるときだけ表示
     var picks = (SHOP.menus && SHOP.menus[G.letter]) || [];
@@ -1319,7 +1361,7 @@ window.OJIBA_PHOTOS = {
     $('gapSelfV').textContent = selfPct + '%';
     $('gapRealV').textContent = pct + '%';
     $('gapBig').textContent = 'ギャップ ' + (diff > 0 ? '+' : (diff < 0 ? '−' : '±')) + Math.abs(diff) + 'pt';
-    $('gapMsg').textContent = gapText(diff);
+    setLines($('gapMsg'), $('gapMsg'), gapText(diff), 13);
 
     // くわしい結果(折りたたみの中)
     buildLab(catSum, catCnt);
@@ -1430,6 +1472,7 @@ window.OJIBA_PHOTOS = {
   function refitQText() {
     var box = $('qText');
     if (box.querySelector && box.querySelector('.ln')) { box.style.fontSize = ''; fitQText(); }
+    fitAllLines();
   }
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(refitQText);
   if (window.addEventListener) window.addEventListener('resize', refitQText);
@@ -1451,7 +1494,7 @@ window.OJIBA_PHOTOS = {
       var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), nodes = [], n;
       while ((n = w.nextNode())) {
         var p = n.parentNode;
-        if (!p || SKIP[p.nodeName] || !/[\u3040-\u30ff\u4e00-\u9fff]{2}/.test(n.nodeValue)) continue;
+        if (!p || SKIP[p.nodeName] || (p.classList && p.classList.contains('ln')) || !/[\u3040-\u30ff\u4e00-\u9fff]{2}/.test(n.nodeValue)) continue;
         nodes.push(n);
       }
       nodes.forEach(function (t) {

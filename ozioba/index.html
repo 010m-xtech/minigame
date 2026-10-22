@@ -189,7 +189,7 @@ input[type="range"]::-moz-range-thumb { box-sizing: border-box; width: 42px; hei
 .ticks i.done { background: var(--teal); }
 .ticks i.cur { background: var(--mustard); }
 .qbox.enter { animation: enter .26s ease-out both; }
-.qtext .ln { display: block; white-space: nowrap; }
+.qtext .ln { display: block; width: max-content; white-space: nowrap; }
 .fixed-lines { white-space: nowrap !important; text-wrap: nowrap !important; }
 .fixed-lines .ln { white-space: nowrap !important; }
 .qtext { font-size: clamp(24px, 6vw, 34px); font-weight: 900; line-height: 1.5; margin: 0 0 22px; text-wrap: pretty; min-height: 3em; }
@@ -707,14 +707,14 @@ window.OJIBA_PHOTOS = {
       hi: '飲み込めたのは大人の対応です。次は、言わずに済ませましょう。',
       lo: '若い世代に寄り添える、貴重なタイプです。' },
 
-    { d: 1, t: '「エモい」「チルい」を使って、微妙な空気になったことがある。',
+    { d: 1, t: '「エモい」「チルい」を使って、\n微妙な空気になったことがある。',
       a: ['何度もある', '一度や二度ある', 'ない'],
       g: '「エモい」は しみじみ心に響く、「チルい」は まったり落ち着く、という意味の若者言葉です。',
       u: 'そもそも意味を知らない',
       un: '知らないのは健全です。覚えると使いたくなるので、要注意です。',
       hi: 'あの沈黙は、優しさでできていました。',
       lo: '無理に使わない判断、大正解です。' },
-    { d: 1, t: '最近の曲より、青春時代の曲のほうがいいと思う。',
+    { d: 1, t: '最近の曲よりも、\n青春時代の曲のほうがいいと思う。',
       a: ['断然、あの頃の曲', 'そう思うことがある', 'そうは思わない'],
       hi: 'あの頃の曲は、人生のBGMですよね。たしかに名曲ぞろいです。',
       lo: '今の曲も楽しめる、耳の若い方です。' },
@@ -734,7 +734,7 @@ window.OJIBA_PHOTOS = {
       un: 'これから使う楽しみがありますね。聞けば何でも答えてくれる、頼れる相談相手です。',
       hi: '礼儀正しさは美徳です。AIも悪い気はしないはずです。',
       lo: 'AIとも、フラットに付き合えていますね。' },
-    { d: 2, t: 'スマホの写真が数千枚たまったまま、整理していない。',
+    { d: 2, t: 'スマホの写真が数千枚たまったまま、\nぜんぜん整理していない。',
       a: ['数千枚たまっている', 'けっこうたまっている', 'こまめに整理している'],
       hi: '整理していない写真は、未来の自分への贈り物です。',
       lo: '整理上手ですね。うらやましい限りです。' },
@@ -766,7 +766,7 @@ window.OJIBA_PHOTOS = {
       a: ['語りたくて仕方ない', '語った覚えがある', '語らない'],
       hi: '武勇伝は、話すたびに少しずつ盛られていくそうです。',
       lo: '謙虚ですね。でも実は、お持ちなのでは？' },
-    { who: 'oji', d: 0, t: '頼まれていないのに、後輩や若い人にアドバイスをしてしまう。',
+    { who: 'oji', d: 0, t: '頼まれていないのに、\n後輩や若い人に\nアドバイスをしてしまう。',
       a: ['気づけば語っている', 'つい口を出してしまう', '聞かれるまで言わない'],
       hi: 'アドバイスは、聞かれてから出すと、いっそう感謝されます。',
       lo: '聞き上手ですね。若い人に慕われるタイプです。' },
@@ -784,7 +784,7 @@ window.OJIBA_PHOTOS = {
       hi: '電話は、声の温度が伝わる、いい手段です。',
       lo: '入力が速い、現代の達人ですね。' },
 
-    { who: 'oji', d: 4, t: '趣味(釣り・ゴルフ・車・カメラなど)の道具選びに、つい凝ってしまう。',
+    { who: 'oji', d: 4, t: '趣味(釣り・ゴルフ・車など)の\n道具選びに、つい凝ってしまう。',
       a: ['道具選びがいちばん楽しい', 'つい凝ってしまう', '道具にはこだわらない'],
       hi: '道具選びは、趣味の半分です。',
       lo: '身軽でいいですね。道具より腕前で勝負するタイプです。' },
@@ -941,6 +941,7 @@ window.OJIBA_PHOTOS = {
       box.appendChild(s);
     });
     fitQText();
+    if (window.refitQTextLater) window.refitQTextLater();
   }
   // 診断書の文: \n の位置で必ず改行(行は折り返さず、はみ出すときは文字サイズを下げる。下限 minPx)
   var lineJobs = [];
@@ -984,8 +985,14 @@ window.OJIBA_PHOTOS = {
     var box = $('qText');
     if (!box.getBoundingClientRect || !window.getComputedStyle) return;
     var size = parseFloat(window.getComputedStyle(box).fontSize) || 24;
+    var spans = box.querySelectorAll ? box.querySelectorAll('.ln') : [];
+    function over() {
+      var limit = box.getBoundingClientRect().right - 1;
+      for (var i = 0; i < spans.length; i++) if (spans[i].getBoundingClientRect().right > limit) return true;
+      return box.scrollWidth > box.clientWidth + 1;
+    }
     var guard = 0;
-    while (box.scrollWidth > box.clientWidth + 1 && size > 13 && guard++ < 40) {
+    while (over() && size > 12 && guard++ < 60) {
       size -= 0.5;
       box.style.fontSize = size + 'px';
     }
@@ -1474,7 +1481,12 @@ window.OJIBA_PHOTOS = {
     if (box.querySelector && box.querySelector('.ln')) { box.style.fontSize = ''; fitQText(); }
     fitAllLines();
   }
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(refitQText);
+  if (document.fonts) {
+    if (document.fonts.ready) document.fonts.ready.then(refitQText);
+    if (document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', refitQText);
+  }
+  if (window.addEventListener) window.addEventListener('load', refitQText);
+  window.refitQTextLater = function () { setTimeout(refitQText, 250); setTimeout(refitQText, 1200); };
   if (window.addEventListener) window.addEventListener('resize', refitQText);
 
   /* ===== 日本語の改行(単語の途中で切れないよう、文節の切れ目だけで改行) =====

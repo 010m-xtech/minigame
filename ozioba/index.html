@@ -1,0 +1,1348 @@
+<title>おぢさんおばさん診断 2026</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Shippori+Mincho+B1:wght@700;800&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+/* Layout concept: 総合クリニックの待合室。ECG用紙の方眼の上に、問診票と診断書が乗る。
+   色は「病院のミント × 信号の赤 × 注意のカラシ」。見出しだけ極太ゴシックで遊ぶ。 */
+:root {
+  --bg: #DDEEE9;
+  --grid: rgba(17, 35, 58, .06);
+  --grid-major: rgba(17, 35, 58, .11);
+  --paper: #FBFDFC;
+  --paper-2: #EAF4F0;
+  --ink: #11233A;
+  --ink-soft: #44596B;
+  --line: #A9C9C0;
+  --teal: #12786C;
+  --on-teal: #FFFFFF;
+  --mustard: #F0B429;
+  --on-mustard: #11233A;
+  --red: #D3302A;
+  --on-red: #FFFFFF;
+  --shadow: #11233A;
+  --g-a: #2F9E8F;
+  --g-b: #8BBE4E;
+  --g-c: #F0B429;
+  --g-d: #EC7D2E;
+  --g-e: #D3302A;
+  --font-display: "Dela Gothic One", "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Hiragino Sans", "Yu Gothic", sans-serif;
+  --font-body: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+  --font-seal: "Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1B22;
+    --grid: rgba(170, 230, 220, .05);
+    --grid-major: rgba(170, 230, 220, .09);
+    --paper: #16272F;
+    --paper-2: #1D3340;
+    --ink: #E8F2EF;
+    --ink-soft: #9DB5B8;
+    --line: #2F4A55;
+    --teal: #46B8A8;
+    --on-teal: #08201C;
+    --mustard: #F4C04A;
+    --red: #FF6E63;
+    --on-red: #2A0A07;
+    --shadow: #04100F;
+    --g-a: #46B8A8;
+    --g-b: #A3D26B;
+    --g-c: #F4C04A;
+    --g-d: #FF9A4D;
+    --g-e: #FF6E63;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1B22;
+  --grid: rgba(170, 230, 220, .05);
+  --grid-major: rgba(170, 230, 220, .09);
+  --paper: #16272F;
+  --paper-2: #1D3340;
+  --ink: #E8F2EF;
+  --ink-soft: #9DB5B8;
+  --line: #2F4A55;
+  --teal: #46B8A8;
+  --on-teal: #08201C;
+  --mustard: #F4C04A;
+  --red: #FF6E63;
+  --on-red: #2A0A07;
+  --shadow: #04100F;
+  --g-a: #46B8A8;
+  --g-b: #A3D26B;
+  --g-c: #F4C04A;
+  --g-d: #FF9A4D;
+  --g-e: #FF6E63;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--grid-major) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-major) 1px, transparent 1px),
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 19px;
+  line-height: 1.7;
+  font-weight: 500;
+  margin: 0;
+  padding-block: 16px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 760px; margin: 0 auto; }
+.wrap.z1 { zoom: 1.15; }
+.wrap.z2 { zoom: 1.3; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
+
+/* ---- clinic bar ---- */
+.clinic-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 8px 16px; flex-wrap: wrap; margin-bottom: 16px;
+  font-size: 15px; font-weight: 900; letter-spacing: .04em;
+}
+.brand { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
+.brand svg { width: 30px; height: 30px; flex: none; }
+.brand .cross-bg { fill: var(--teal); }
+.brand .cross-fg { fill: var(--on-teal); }
+.bar-right { display: inline-flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.today { font-variant-numeric: tabular-nums; color: var(--ink-soft); }
+.size-btn {
+  min-height: 44px; padding: 2px 16px; border: 2px solid var(--ink); border-radius: 999px;
+  background: var(--paper); font-weight: 900; font-size: 15px; box-shadow: 0 3px 0 var(--ink);
+}
+.size-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+
+/* ---- paper ---- */
+.paper {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  box-shadow: 6px 6px 0 var(--shadow);
+  padding: clamp(18px, 4.4vw, 34px);
+  position: relative;
+}
+.screen.enter { animation: enter .32s ease-out both; }
+@keyframes enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+.label { font-size: 14px; font-weight: 900; letter-spacing: .14em; color: var(--ink-soft); }
+.tag {
+  display: inline-block; background: var(--mustard); color: var(--on-mustard);
+  font-weight: 900; font-size: 16px; padding: 1px 14px; border-radius: 999px;
+  border: 2px solid var(--ink); transform: rotate(-2.5deg); letter-spacing: .06em;
+}
+
+/* ---- start ---- */
+h1 {
+  font-family: var(--font-display); font-weight: 400;
+  font-size: clamp(38px, 10.5vw, 68px); line-height: 1.15; margin: 14px 0 10px;
+  text-wrap: balance; letter-spacing: -.01em;
+}
+h1 .hl { background: linear-gradient(transparent 62%, var(--mustard) 62%, var(--mustard) 92%, transparent 92%); padding: 0 .08em; }
+.lead { margin: 0 0 6px; font-size: clamp(18px, 3.8vw, 21px); text-wrap: pretty; }
+.ecg { display: block; width: 100%; height: auto; margin: 6px 0 18px; overflow: visible; }
+.ecg path { fill: none; stroke: var(--red); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .ecg path { animation: ecg 3.4s linear infinite; }
+}
+@keyframes ecg {
+  0% { stroke-dashoffset: 100; opacity: 1; }
+  68% { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+.ticket {
+  background: var(--paper-2); border: 2px dashed var(--ink-soft); border-radius: 10px;
+  padding: clamp(14px, 3.4vw, 22px); display: grid; gap: 12px;
+}
+.start-btns { display: grid; gap: 14px; }
+.start-btn { min-height: 76px; font-size: clamp(21px, 5.2vw, 26px); }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 64px; padding: 8px 22px; border: 2px solid var(--ink); border-radius: 10px;
+  font-weight: 900; font-size: 20px; letter-spacing: .04em; line-height: 1.3;
+  background: var(--paper); transition: transform .08s ease, box-shadow .08s ease;
+}
+.btn-primary { background: var(--teal); color: var(--on-teal); box-shadow: 0 5px 0 var(--ink); }
+.btn-primary:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 var(--ink); }
+.btn-ghost { box-shadow: 0 4px 0 var(--ink); }
+.btn-ghost:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 2px 0 var(--ink); }
+.btn-warm { background: var(--mustard); color: var(--on-mustard); box-shadow: 0 5px 0 var(--ink); }
+.btn-warm:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 var(--ink); }
+.btn:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; }
+.btn.block { width: 100%; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; padding: 0; list-style: none; font-size: 15px; font-weight: 900; }
+.facts li { border: 2px solid var(--ink); border-radius: 999px; padding: 0 14px; background: var(--paper); }
+
+.honest { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; margin: 8px 0 4px; padding: 8px 14px; border-left: 6px solid var(--red); background: var(--paper-2); border-radius: 4px 10px 10px 4px; font-weight: 900; font-size: clamp(17px, 4.2vw, 20px); line-height: 1.6; text-wrap: pretty; }
+.honest b { color: var(--red); font-family: var(--font-seal); letter-spacing: .12em; }
+
+/* ---- お店の処方薬(結果) ---- */
+.shop-rx { margin-top: 16px; padding: 12px 16px 14px; background: var(--mustard); color: var(--on-mustard); border: 2px solid var(--ink); border-radius: 10px; box-shadow: 4px 4px 0 var(--shadow); }
+.shop-rx-head { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; font-weight: 900; font-size: 16px; }
+.rxmark { font-family: var(--font-seal); font-weight: 800; font-size: 17px; border: 2px solid currentColor; border-radius: 6px; padding: 0 7px; line-height: 1.4; }
+.shop-rx-shop { margin-left: auto; font-size: 14px; letter-spacing: .06em; }
+.shop-rx-name { margin: 4px 0 2px; font-family: var(--font-body); font-weight: 900; letter-spacing: .02em; font-size: clamp(24px, 6.6vw, 34px); line-height: 1.3; text-wrap: balance; }
+.shop-rx-note { margin: 0; font-weight: 700; text-wrap: pretty; }
+.shop-rx-note:empty, .shop-rx-order:empty { display: none; }
+.shop-rx-order { margin: 6px 0 0; font-size: 14px; font-weight: 700; opacity: .85; }
+.shop-rx-body { display: flex; align-items: center; gap: 14px; margin-top: 8px; }
+.shop-rx-text { min-width: 0; flex: 1; }
+.shop-rx-body .shop-rx-name { margin-top: 0; }
+.shop-rx-photo { flex: none; display: block; width: clamp(96px, 28vw, 140px); max-width: 100%; aspect-ratio: 1; object-fit: cover; border: 2px solid var(--ink); border-radius: 8px; background: var(--paper); }
+
+/* ---- 自己申告 ---- */
+.self-title { font-size: clamp(25px, 6.4vw, 34px); font-weight: 900; line-height: 1.5; margin: 14px 0 4px; text-wrap: balance; }
+.self-sub { margin: 0; color: var(--ink-soft); font-weight: 700; }
+.self-big { text-align: center; font-family: var(--font-display); font-size: clamp(80px, 24vw, 132px); line-height: 1.1; margin: 10px 0 0; font-variant-numeric: tabular-nums; }
+.self-big small { font-size: .4em; margin-left: 4px; }
+.self-box { margin-top: 4px; }
+.self-scale { display: flex; justify-content: space-between; font-size: 15px; font-weight: 900; color: var(--ink-soft); margin: -2px 0 22px; }
+input[type="range"] { display: block; width: 100%; min-width: 0; height: 48px; margin: 0; -webkit-appearance: none; appearance: none; background: transparent; cursor: pointer; }
+input[type="range"]::-webkit-slider-runnable-track { box-sizing: border-box; height: 20px; border: 2px solid var(--ink); border-radius: 999px; background: linear-gradient(90deg, var(--g-a), var(--g-b), var(--g-c), var(--g-d), var(--g-e)); }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; box-sizing: border-box; width: 42px; height: 42px; margin-top: -12px; border-radius: 50%; background: var(--paper); border: 3px solid var(--ink); box-shadow: 0 3px 0 var(--ink); }
+input[type="range"]::-moz-range-track { box-sizing: border-box; height: 20px; border: 2px solid var(--ink); border-radius: 999px; background: linear-gradient(90deg, var(--g-a), var(--g-b), var(--g-c), var(--g-d), var(--g-e)); }
+input[type="range"]::-moz-range-thumb { box-sizing: border-box; width: 42px; height: 42px; border-radius: 50%; background: var(--paper); border: 3px solid var(--ink); box-shadow: 0 3px 0 var(--ink); }
+.self-nav { display: flex; gap: 12px; }
+.self-nav .btn-primary { flex: 1; }
+.self-nav .btn-ghost { min-width: 104px; }
+
+/* ---- quiz ---- */
+.quiz-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.dept { display: inline-flex; align-items: center; gap: 8px; font-weight: 900; font-size: 15px; }
+.dept b { background: var(--mustard); color: var(--on-mustard); border: 2px solid var(--ink); border-radius: 6px; padding: 0 10px; font-size: 17px; }
+.count { font-family: var(--font-display); font-size: 26px; font-variant-numeric: tabular-nums; }
+.ticks { display: flex; gap: 6px; margin-bottom: 24px; }
+.ticks i { flex: 1; height: 14px; border: 2px solid var(--ink); border-radius: 3px; background: var(--paper); }
+.ticks i.done { background: var(--teal); }
+.ticks i.cur { background: var(--mustard); }
+.qbox.enter { animation: enter .26s ease-out both; }
+.qtext { font-size: clamp(24px, 6vw, 34px); font-weight: 900; line-height: 1.5; margin: 0 0 22px; text-wrap: pretty; min-height: 3em; }
+.gloss { display: grid; gap: 2px; margin: -6px 0 20px; padding: 10px 14px; background: var(--paper-2); border-left: 6px solid var(--mustard); border-radius: 4px 10px 10px 4px; font-size: 17px; font-weight: 700; line-height: 1.6; text-wrap: pretty; }
+.gloss b { font-size: 13px; letter-spacing: .14em; color: var(--ink-soft); }
+.answers { display: grid; grid-template-columns: 1fr; gap: 12px; }
+.ans-unk { border-style: dashed; }
+.ans {
+  display: flex; align-items: center; gap: 14px; min-height: 72px; padding: 10px 16px; text-align: left;
+  background: var(--paper); border: 2px solid var(--ink); border-radius: 10px;
+  font-weight: 900; font-size: clamp(20px, 5vw, 24px); line-height: 1.35;
+  transition: transform .08s ease, background .12s ease;
+}
+.ans:hover { background: var(--paper-2); }
+.ans:active { transform: translateY(2px); }
+.ans .dot { width: 28px; height: 28px; flex: none; border: 2px solid currentColor; border-radius: 50%; display: grid; place-items: center; font-size: 16px; font-weight: 900; line-height: 1; }
+.ans .qmark { margin-left: auto; font-family: var(--font-display); font-size: 24px; line-height: 1; opacity: .6; }
+.ans[aria-pressed="true"] { background: var(--teal); color: var(--on-teal); }
+.ans[aria-pressed="true"] .dot { background: var(--on-teal); color: var(--teal); }
+.ans[aria-pressed="true"] .dot::after { content: "✓"; }
+.note {
+  margin-top: 18px; min-height: 5.6em; display: flex; gap: 12px; align-items: flex-start;
+  border: 2px dashed var(--ink-soft); border-radius: 10px; padding: 12px 14px; background: var(--paper-2);
+}
+.note .who { flex: none; background: var(--ink); color: var(--paper); font-size: 14px; font-weight: 900; border-radius: 6px; padding: 0 8px; margin-top: 3px; letter-spacing: .06em; }
+.note p { margin: 0; font-size: 17px; line-height: 1.65; }
+.note p.empty { color: var(--ink-soft); }
+.note.pop p { animation: pop .3s ease-out; }
+@keyframes pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.nav { display: flex; gap: 12px; margin-top: 22px; }
+.nav .btn-primary { flex: 1; }
+.nav .btn-ghost { min-width: 104px; }
+.fine { margin: 16px 0 0; font-size: 14px; color: var(--ink-soft); }
+
+/* ---- loading ---- */
+.loading { text-align: center; padding-block: 28px; }
+.loading h2 { font-family: var(--font-display); font-weight: 400; font-size: clamp(26px, 6.5vw, 40px); margin: 6px 0; }
+.loading .msg { min-height: 2em; font-weight: 700; color: var(--ink-soft); margin: 0; }
+.board { margin: 14px auto 8px; max-width: 340px; padding: 10px 18px 12px; background: var(--ink); color: var(--paper); border-radius: 10px; }
+.board .cap { font-size: 14px; font-weight: 900; letter-spacing: .14em; opacity: .85; }
+.board .no { font-family: var(--font-display); font-size: clamp(48px, 14vw, 68px); line-height: 1.15; letter-spacing: .12em; font-variant-numeric: tabular-nums; }
+.board .in { font-size: 15px; font-weight: 900; letter-spacing: .06em; }
+@media (prefers-reduced-motion: no-preference) {
+  .board .in { animation: blink 1.2s steps(2, jump-none) infinite; }
+}
+@keyframes blink { 0% { opacity: 1; } 100% { opacity: .35; } }
+
+/* ---- result(1画面で読み切れる量に) ---- */
+.confetti { position: absolute; inset: 0; overflow: hidden; pointer-events: none; border-radius: 8px; }
+.confetti i { position: absolute; top: -20px; width: 10px; height: 16px; border-radius: 2px; opacity: 0; animation: fall 3.2s ease-in both; }
+@keyframes fall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translateY(720px) rotate(560deg); opacity: 0; }
+}
+.r-head { display: flex; justify-content: space-between; align-items: baseline; gap: 4px 16px; flex-wrap: wrap; border-bottom: 3px double var(--ink); padding-bottom: 8px; }
+.r-head h2 { font-family: var(--font-seal); font-weight: 800; font-size: clamp(20px, 5vw, 26px); margin: 0; line-height: 1.3; letter-spacing: .08em; }
+.r-meta { font-size: 14px; font-weight: 700; text-align: right; line-height: 1.5; font-variant-numeric: tabular-nums; }
+.banner {
+  margin: 14px 0 0; padding: 8px 14px; border: 2px solid var(--ink); border-radius: 8px; text-align: center;
+  font-family: var(--font-seal); font-weight: 800; font-size: clamp(17px, 4.6vw, 24px); line-height: 1.55;
+  letter-spacing: .06em; white-space: pre-line; text-wrap: balance;
+}
+.banner.A { background: var(--paper-2); color: var(--teal); border-color: var(--teal); }
+.banner.E { background: var(--mustard); color: var(--on-mustard); border: 5px double var(--ink); }
+.verdict-top { display: flex; align-items: center; gap: 16px; margin-top: 16px; }
+.verdict-top .vt { min-width: 0; }
+.stamp {
+  flex: none; width: 88px; height: 88px; border-radius: 50%; border: 4px double var(--red); color: var(--red);
+  display: grid; place-content: center; text-align: center; font-family: var(--font-seal); font-weight: 800;
+  transform: rotate(-14deg); opacity: 0;
+}
+.stamp.on { opacity: 1; }
+@media (prefers-reduced-motion: no-preference) {
+  .stamp.on { animation: stampIn .5s cubic-bezier(.2, 1.5, .4, 1) both; }
+}
+@keyframes stampIn { from { opacity: 0; transform: rotate(-14deg) scale(2.6); } to { opacity: 1; transform: rotate(-14deg) scale(1); } }
+.stamp small { font-size: 14px; letter-spacing: .2em; line-height: 1.2; }
+.stamp b { font-size: 44px; line-height: 1; }
+.verdict-top .sub { font-family: var(--font-seal); font-weight: 800; font-size: 18px; line-height: 1.4; margin: 0; color: var(--ink-soft); }
+.verdict-top h3 { font-family: var(--font-display); font-weight: 400; font-size: clamp(28px, 7.4vw, 44px); line-height: 1.25; margin: 2px 0 6px; text-wrap: balance; }
+.nick { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 0; }
+.nick b { background: var(--mustard); color: var(--on-mustard); border: 2px solid var(--ink); border-radius: 999px; padding: 0 14px; font-size: clamp(17px, 4.4vw, 21px); }
+
+.meter { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 4px 16px; margin: 6px auto 0; max-width: 520px; }
+.gauge-box { min-width: 0; }
+.gauge { display: block; width: 100%; height: auto; overflow: visible; }
+.gauge .seg { fill: none; stroke-width: 24; }
+.seg0 { stroke: var(--g-a); } .seg1 { stroke: var(--g-b); } .seg2 { stroke: var(--g-c); } .seg3 { stroke: var(--g-d); } .seg4 { stroke: var(--g-e); }
+.gauge .gl { fill: var(--ink-soft); font-family: var(--font-display); font-size: 15px; text-anchor: middle; dominant-baseline: central; }
+.gauge .gl.cur { fill: var(--ink); font-size: 22px; }
+.gauge #needle path { fill: var(--ink); }
+.gauge .hub { fill: var(--ink); }
+.gauge .hub-dot { fill: var(--mustard); }
+.pct { text-align: center; padding-bottom: 6px; }
+.pct .cap { font-weight: 900; font-size: 15px; letter-spacing: .08em; line-height: 1.3; }
+.pct .num { font-family: var(--font-display); font-size: clamp(52px, 15vw, 84px); line-height: 1.05; font-variant-numeric: tabular-nums; }
+.pct .num small { font-size: .42em; margin-left: 2px; }
+.pct .bar { height: 8px; margin: 2px auto 0; border-radius: 999px; background: var(--line); overflow: hidden; }
+.pct .bar i { display: block; height: 100%; width: 0; background: var(--ink); transition: width 1.5s cubic-bezier(.2, .8, .2, 1); }
+@media (max-width: 420px) {
+  .meter { grid-template-columns: 1fr; justify-items: center; }
+  .gauge-box { width: 100%; max-width: 330px; }
+}
+.r-body { margin: 12px 0 0; text-wrap: pretty; }
+
+.gapcard { margin-top: 16px; border: 2px solid var(--ink); border-radius: 10px; padding: 12px 14px; background: var(--paper-2); }
+.gap-line { display: flex; align-items: center; justify-content: center; gap: 6px 14px; flex-wrap: wrap; }
+.gap-tile { text-align: center; line-height: 1.2; }
+.gap-tile small { display: block; font-size: 14px; font-weight: 900; color: var(--ink-soft); letter-spacing: .08em; }
+.gap-tile b { font-family: var(--font-display); font-weight: 400; font-size: clamp(30px, 8vw, 40px); font-variant-numeric: tabular-nums; }
+.gap-arrow { font-family: var(--font-display); font-size: 26px; }
+.gap-badge { background: var(--mustard); color: var(--on-mustard); border: 2px solid var(--ink); border-radius: 999px; padding: 0 14px; font-weight: 900; font-size: clamp(18px, 4.6vw, 22px); font-variant-numeric: tabular-nums; }
+.gap-msg { margin: 8px 0 0; text-align: center; font-weight: 700; text-wrap: balance; }
+
+.rx1 { margin: 14px 0 0; padding: 10px 14px; border-left: 6px solid var(--teal); background: var(--paper-2); border-radius: 4px 10px 10px 4px; font-weight: 700; text-wrap: pretty; }
+.rx1 b { margin-right: .6em; font-family: var(--font-seal); font-weight: 800; letter-spacing: .1em; }
+
+.more { margin-top: 18px; }
+.more summary {
+  list-style: none; cursor: pointer; min-height: 52px; display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--ink); border-radius: 10px; background: var(--paper); font-weight: 900; box-shadow: 0 3px 0 var(--ink);
+}
+.more summary::-webkit-details-marker { display: none; }
+.more summary::after { content: "＋"; margin-left: 10px; }
+.more[open] summary::after { content: "－"; }
+.more[open] summary { box-shadow: none; }
+.more-body { padding-top: 6px; }
+.block-title { display: flex; align-items: center; gap: 10px; margin: 20px 0 10px; font-family: var(--font-seal); font-weight: 800; font-size: 20px; letter-spacing: .1em; }
+.block-title::after { content: ""; flex: 1; height: 2px; background: var(--ink); opacity: .25; }
+.lab { border: 2px solid var(--ink); border-radius: 8px; overflow: hidden; }
+.lab-row { display: grid; grid-template-columns: minmax(0, 1fr) 5.6em 2.6em; align-items: center; gap: 8px; padding: 8px 12px; border-top: 1px solid var(--line); }
+.lab-row:first-child { border-top: 0; }
+.lab-head { background: var(--ink); color: var(--paper); font-size: 14px; font-weight: 900; letter-spacing: .1em; padding-block: 4px; }
+.lab-head span:nth-child(2) { text-align: right; }
+.lab-head span:nth-child(3) { text-align: center; }
+.lab-name { min-width: 0; }
+.lab-name b { display: block; font-size: 17px; line-height: 1.4; }
+.lab-name small { display: block; font-size: 13px; color: var(--ink-soft); font-weight: 700; line-height: 1.4; }
+.lab-val { text-align: right; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.lab-val b { display: block; font-family: var(--font-display); font-weight: 400; font-size: 26px; }
+.lab-val small { font-size: 13px; color: var(--ink-soft); font-weight: 700; }
+.lab-flag { text-align: center; }
+.lab-flag span { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; font-weight: 900; font-size: 17px; }
+.flag-H { background: var(--red); color: var(--on-red); }
+.flag-L { background: var(--teal); color: var(--on-teal); }
+.flag-ok { color: var(--ink-soft); }
+.lab-row.fH, .lab-row.fL { background: var(--paper-2); }
+.chief { margin: 0; padding: 12px 14px; background: var(--paper-2); border-left: 6px solid var(--red); border-radius: 4px 10px 10px 4px; font-weight: 700; text-wrap: pretty; }
+.chief small { display: block; color: var(--ink-soft); font-size: 15px; margin-top: 4px; }
+.karte { margin: 14px 0 0; padding: 10px 14px; border: 2px dashed var(--ink-soft); border-radius: 8px; font-family: var(--font-seal); font-weight: 700; font-size: 17px; line-height: 1.7; text-wrap: pretty; }
+.karte b { font-weight: 800; letter-spacing: .1em; margin-right: .5em; }
+.doctor { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; margin: 16px 0 0; font-family: var(--font-seal); font-weight: 800; font-size: 18px; }
+.hanko { display: inline-grid; place-items: center; width: 34px; height: 34px; border: 2px solid var(--red); border-radius: 50%; color: var(--red); font-style: normal; font-size: 16px; transform: rotate(-8deg); }
+
+.actions { display: grid; gap: 8px; margin-top: 22px; }
+.actions .hint { margin: 0; text-align: center; font-size: 15px; font-weight: 700; color: var(--ink-soft); }
+.disclaimer { margin: 16px 0 0; font-size: 13px; color: var(--ink-soft); line-height: 1.6; }
+
+@media (max-width: 420px) {
+  .lab-row { grid-template-columns: minmax(0, 1fr) 4.8em 2.4em; padding-inline: 8px; }
+  .lab-val b { font-size: 22px; }
+  .stamp { width: 78px; height: 78px; }
+  .stamp b { font-size: 38px; }
+  .verdict-top { gap: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .screen.enter, .qbox.enter, .note.pop p { animation: none; }
+  .pct .bar i { transition: none; }
+}
+</style>
+
+<div class="wrap" id="wrap">
+  <div class="clinic-bar">
+    <span class="brand">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect class="cross-bg" x="1" y="1" width="30" height="30" rx="7"></rect><path class="cross-fg" d="M13 6h6v7h7v6h-7v7h-6v-7H6v-6h7z"></path></svg>
+      <span id="clinicName">おぢおば総合クリニック</span>
+    </span>
+    <span class="bar-right">
+      <span class="today" id="today"></span>
+      <button type="button" class="size-btn" id="btnSize" aria-label="文字の大きさを切り替える">文字サイズ：標準</button>
+    </span>
+  </div>
+
+  <main>
+    <!-- スタート -->
+    <section class="screen paper" id="s-start">
+      <span class="tag">2026年版</span>
+      <h1>おぢさん<wbr>おばさん<span class="hl">診断</span></h1>
+      <p class="lead">「自分はまだ若い」と思っているあなたへ。たった6問で、こっそり測定します。</p>
+      <p class="honest"><b>お願い</b>盛らずに、正直にお答えください。先生にはお見通しです。</p>
+      <svg class="ecg" viewBox="0 0 600 60" aria-hidden="true"><path pathLength="100" d="M0 32 H110 l8 -6 l10 6 H190 l7 6 l11 -32 l13 50 l9 -24 H320 l9 -7 l12 7 H430 l7 6 l11 -32 l13 50 l9 -24 H600"></path></svg>
+
+      <div class="ticket">
+        <span class="label">診断メニューを選んで、タッチ</span>
+        <div class="start-btns">
+          <button type="button" class="btn btn-primary block start-btn" data-mode="oji">おぢさん度を測る</button>
+          <button type="button" class="btn btn-warm block start-btn" data-mode="oba">おばさん度を測る</button>
+          <button type="button" class="btn btn-ghost block start-btn" data-mode="both">どっちも気になる</button>
+        </div>
+      </div>
+      <ul class="facts">
+        <li>全6問</li>
+        <li>約1分</li>
+        <li>質問は毎回ちがう</li>
+        <li>ことば解説つき</li>
+      </ul>
+    </section>
+
+    <!-- 自己申告 -->
+    <section class="screen paper" id="s-self" hidden>
+      <span class="tag">まずは自己申告</span>
+      <h2 class="self-title" id="selfTitle"></h2>
+      <p class="self-sub">診断のあとで、答え合わせをします。盛らずに、正直にどうぞ。</p>
+      <div class="self-big"><span id="selfOut">30</span><small>%</small></div>
+      <div class="self-box">
+        <input type="range" id="selfRange" min="0" max="100" step="5" value="30" aria-label="自己申告のパーセント">
+        <div class="self-scale"><span>ぜんぜん</span><span>ばっちり</span></div>
+      </div>
+      <div class="self-nav">
+        <button type="button" class="btn btn-ghost" id="btnSelfBack">戻る</button>
+        <button type="button" class="btn btn-primary" id="btnSelf">この数字で申告する</button>
+      </div>
+      <p class="fine">指でスライドして、数字を決めてください。</p>
+    </section>
+
+    <!-- 問診 -->
+    <section class="screen paper" id="s-quiz" hidden>
+      <div class="quiz-head">
+        <span class="dept"><span class="label">診察科</span><b id="qDept"></b></span>
+        <span class="count" id="qNum"></span>
+      </div>
+      <div class="ticks" id="ticks" aria-hidden="true"></div>
+      <div class="qbox" id="qbox">
+        <h2 class="qtext" id="qText"></h2>
+        <p class="gloss" id="qGloss" hidden><b>ことば解説</b><span id="qGlossText"></span></p>
+        <div class="answers" id="answers" role="group" aria-label="回答"></div>
+        <div class="note" id="note" aria-live="polite">
+          <span class="who" id="who">おぢ川先生</span>
+          <p id="quip" class="empty">選ぶと、先生がひとこと添えて次へ進みます。</p>
+        </div>
+      </div>
+      <div class="nav">
+        <button type="button" class="btn btn-ghost" id="btnBack">戻る</button>
+        <button type="button" class="btn btn-primary" id="btnNext" disabled>次へ</button>
+      </div>
+      <p class="fine">盛らずに、正直にお答えください。しばらく操作がないと、最初の画面に戻ります。</p>
+    </section>
+
+    <!-- 診断中 -->
+    <section class="screen paper loading" id="s-loading" hidden>
+      <span class="label">ただいま診断中</span>
+      <h2>診断書を作成しています</h2>
+      <div class="board">
+        <div class="cap">ただいまの診察番号</div>
+        <div class="no" id="boardNo">000</div>
+        <div class="in">診察室へ、お入りください</div>
+      </div>
+      <svg class="ecg" viewBox="0 0 600 60" aria-hidden="true"><path pathLength="100" d="M0 32 H110 l8 -6 l10 6 H190 l7 6 l11 -32 l13 50 l9 -24 H320 l9 -7 l12 7 H430 l7 6 l11 -32 l13 50 l9 -24 H600"></path></svg>
+      <p class="msg" id="loadMsg" aria-live="polite"></p>
+    </section>
+
+    <!-- 診断書 -->
+    <section class="screen paper" id="s-result" hidden>
+      <div class="confetti" id="confetti" aria-hidden="true"></div>
+      <div class="r-head">
+        <h2 id="rTitleLabel"></h2>
+        <div class="r-meta"><div id="rDate"></div><div id="rNo"></div></div>
+      </div>
+      <div class="banner" id="rBanner" hidden></div>
+
+      <div class="verdict-top">
+        <div class="stamp" id="stamp" aria-hidden="true"><small>判定</small><b id="stampLetter">A</b></div>
+        <div class="vt">
+          <p class="sub" id="rSub"></p>
+          <h3 id="rHead"></h3>
+          <p class="nick" id="rNick"><span class="label">二つ名</span><b id="rNickV"></b></p>
+        </div>
+      </div>
+
+      <div class="meter">
+        <div class="gauge-box">
+          <svg class="gauge" id="gauge" viewBox="0 0 340 186" role="img" aria-label="おぢさん度メーター">
+            <g id="gSegs"></g>
+            <g id="gLetters"></g>
+            <g id="needle" transform="rotate(0 170 160)"><path d="M170 153 L64 160 L170 167 Z"></path></g>
+            <circle class="hub" cx="170" cy="160" r="11"></circle>
+            <circle class="hub-dot" cx="170" cy="160" r="4"></circle>
+          </svg>
+        </div>
+        <div class="pct">
+          <div class="cap" id="rCap"></div>
+          <div class="num"><span id="rPct">0</span><small>%</small></div>
+          <div class="bar"><i id="rBar"></i></div>
+        </div>
+      </div>
+
+      <p class="r-body" id="rBody"></p>
+
+      <div class="shop-rx" id="shopRx" hidden>
+        <div class="shop-rx-head"><span class="rxmark">Rx</span><b>処方薬</b><span class="shop-rx-shop" id="shopRxShop"></span></div>
+        <div class="shop-rx-body">
+          <img class="shop-rx-photo" id="shopRxPhoto" alt="" hidden>
+          <div class="shop-rx-text">
+            <p class="shop-rx-name" id="shopRxName"></p>
+            <p class="shop-rx-note" id="shopRxNote"></p>
+            <p class="shop-rx-order" id="shopRxOrder"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="gapcard">
+        <div class="gap-line">
+          <div class="gap-tile"><small>自己申告</small><b id="gapSelfV"></b></div>
+          <span class="gap-arrow" aria-hidden="true">→</span>
+          <div class="gap-tile"><small>実測</small><b id="gapRealV"></b></div>
+          <span class="gap-badge" id="gapBig"></span>
+        </div>
+        <p class="gap-msg" id="gapMsg"></p>
+      </div>
+
+      <p class="rx1"><b>処方箋</b><span id="rRx"></span></p>
+
+      <details class="more" id="more">
+        <summary>くわしい検査結果を見る</summary>
+        <div class="more-body">
+          <div class="block-title">検査結果</div>
+          <div class="lab" id="lab" role="table" aria-label="検査結果"></div>
+          <p class="fine">※ 基準値は当院調べです(根拠はありません)。</p>
+          <div class="block-title">主訴</div>
+          <p class="chief" id="rChief"></p>
+          <p class="karte" id="rKarte"></p>
+          <p class="doctor"><span>担当医</span><b id="rDoctor"></b><i class="hanko">印</i></p>
+        </div>
+      </details>
+
+      <div class="actions">
+        <button type="button" class="btn btn-primary block" id="btnAgain">もういちど診断する</button>
+        <p class="hint">質問は毎回入れ替わります。ご同席の方もどうぞ。</p>
+      </div>
+      <p class="disclaimer">※ お楽しみ用です。医学的な根拠はありません。しばらく操作がないと、最初の画面に戻ります。</p>
+    </section>
+  </main>
+</div>
+
+<script>
+/* メニュー写真(縮小済み・埋め込み)。差し替えるときはここの値を入れ替えます */
+window.OJIBA_PHOTOS = {
+  goya: 'images/goya-champuru.webp',
+  gyoza: 'images/shimatogarashi-gyoza.webp',
+  soba: 'images/okinawa-soba.webp',
+  beniimo: 'images/beniimo-korokke.webp',
+  dashimaki: 'images/dashimaki-tamago.webp'
+};
+</script>
+<script>
+(function () {
+  'use strict';
+
+  /* ===== 設定(お店の運用に合わせて変更できます) ===== */
+  /* --- お店の設定(ここだけ書き換えれば、お店仕様になります) ---
+     name      : 店名(クリニック名・薬局名を自動で作るときの元になります)
+     clinic    : クリニック名(画面上部と診断書の発行元に出ます。空なら name から自動で作ります)
+     pharmacy  : 処方薬のカードに出す薬局名(空なら「name 薬局」)
+     orderNote : 処方薬の下に出す一言(例: 'ご注文はスタッフまで')。空なら出しません
+     menus     : 判定A〜Eごとの「処方薬」(=お店のメニュー)。複数入れると、ランダムに1つ出ます
+                 { name: 'メニュー名', note: 'ひとこと', price: '600円(任意)', photo: 写真(任意) }
+                 note や name の中の {S} は「おぢさん/おばさん」に置き換わります。
+                 どの判定も空のままなら、処方薬の枠は出ません。
+     写真は、すぐ上の <script> に埋め込んだもの(P.〇〇)を使っています。 */
+  var P = window.OJIBA_PHOTOS || {};
+  var SHOP = {
+    name: 'マルト',
+    clinic: 'マルト総合クリニック',
+    pharmacy: 'マルト薬局',
+    orderNote: '',
+    menus: {
+      A: [{ name: '島豆腐のゴーヤチャンプル', note: '若々しいあなたには、シャキッと元気の一皿を。', photo: P.goya }],
+      B: [{ name: 'シンプルだしまき玉子', note: '予備軍には、まずやさしい味でひと息。', photo: P.dashimaki }],
+      C: [{ name: '島唐辛子ぎょうざ', note: '境界線でゆれるあなたには、ピリッと一発、気合いを。', photo: P.gyoza }],
+      D: [{ name: '紅芋コロッケ', note: 'どっしり構えた立派な{S}には、ホクホクの紅芋を。', photo: P.beniimo }],
+      E: [{ name: '沖縄そば', note: '国宝級には、とっておきの一杯を。', photo: P.soba }]
+    }
+  };
+
+  var SESSION_N = 6;        // 1回の診断で出す質問数
+  var MAX_PER_DEPT = 2;     // 同じ診察科から出す質問の上限(偏り防止)
+  var IDLE_MS = 120000;     // 操作がないまま経つと最初の画面に戻る(ミリ秒)
+  var LOADING_MS = 2400;    // 「診断中」演出の長さ(ミリ秒)
+  var ADVANCE_MS = 1700;    // 回答後、先生のひとことを読んでから自動で次へ進むまで(ミリ秒)
+  var DEFAULT_SELF = 30;    // 自己申告スライダーの初期値(%)
+
+  var CLINIC = SHOP.clinic || ((SHOP.name ? SHOP.name + ' ' : '') + 'おぢおば総合クリニック');
+  var MODES = { oji: 'おぢさん', oba: 'おばさん', both: 'おぢおば' };
+  var DOCTORS = {
+    oji: { short: 'おぢ川先生', full: 'おぢ川 よいしょ' },
+    oba: { short: 'おば山先生', full: 'おば山 どっこいしょ' },
+    both: { short: '院長先生', full: 'おぢ川 よいしょ ／ おば山 どっこいしょ' }
+  };
+  var KIMI = { oji: '貴公子', oba: '貴婦人', both: '達人' };
+  var DEPTS = ['言動科', '流行科', 'デジタル科', '身体科', '生活科'];
+  var MAXV = 2;             // 1問あたりの最高点
+  var VALUES = [2, 1, 0];   // 点数(強い順)。各設問の a:[…] の並びと対応します
+
+  /* ===== 質問のプール(毎回ここから SESSION_N 問をランダムに出題します) =====
+     who = 'oji' ならおぢさん向け、'oba' ならおばさん向け。書かなければ共通です。
+           「おぢさん度を測る」= 共通 + oji、「おばさん度を測る」= 共通 + oba、
+           「どっちも気になる」= すべて、の中から出題します。
+     d  = 診察科(0:言動 1:流行 2:デジタル 3:身体 4:生活)
+     a  = 選択肢の文言(2点 / 1点 / 0点の順)
+     hi = 2点・1点のときの先生のひとこと、lo = 0点のときのひとこと
+     g  = ことば解説(新しい言葉が出る問いだけ)
+     u  = 「そもそも知らない」選択肢(2点扱い)、un = そのときの先生のひとこと */
+  var QUESTIONS = [
+    /* ---------- 共通 ---------- */
+    { d: 0, t: '「昔は〜だったんだよ」と、つい言ってしまう。',
+      a: ['口ぐせになっている', '言った覚えがある', '言わない'],
+      hi: '出ました、{S}の代名詞。ちなみに「昔」は、たいてい10年以上前です。',
+      lo: '今を生きていますね。素敵です。' },
+    { d: 0, t: '「最近の若い人は〜」と言いかけて、飲み込んだことがある。',
+      a: ['しょっちゅうある', '言ってしまったこともある', 'ない'],
+      hi: '飲み込めたのは大人の対応です。次は、言わずに済ませましょう。',
+      lo: '若い世代に寄り添える、貴重なタイプです。' },
+
+    { d: 1, t: '「エモい」「チルい」を使って、微妙な空気になったことがある。',
+      a: ['何度もある', '一度や二度ある', 'ない'],
+      g: '「エモい」は しみじみ心に響く、「チルい」は まったり落ち着く、という意味の若者言葉です。',
+      u: 'そもそも意味を知らない',
+      un: '知らないのは健全です。覚えると使いたくなるので、要注意です。',
+      hi: 'あの沈黙は、優しさでできていました。',
+      lo: '無理に使わない判断、大正解です。' },
+    { d: 1, t: '最近の曲より、青春時代の曲のほうがいいと思う。',
+      a: ['断然、あの頃の曲', 'そう思うことがある', 'そうは思わない'],
+      hi: 'あの頃の曲は、人生のBGMですよね。たしかに名曲ぞろいです。',
+      lo: '今の曲も楽しめる、耳の若い方です。' },
+    { d: 1, t: '懐かしの番組や曲が流れると、つい出演者や歌手の豆知識を話してしまう。',
+      a: ['止まらなくなる', 'つい話してしまう', '話さない'],
+      hi: '豆知識は、聞く側が「へえ」と言えば完成します。',
+      lo: '静かに聴き入る、渋い楽しみ方です。' },
+
+    { d: 2, t: 'LINEの文末に、つい「。」や絵文字(😊👍)を付ける。',
+      a: ['毎回付けている', '付けることがある', '付けない'],
+      hi: '若い世代には、句点がちょっと威厳に見えるそうです。',
+      lo: '文末の空気も、ちゃんと読めていますね。' },
+    { d: 2, t: '生成AIにも、「お世話になっております」から書き始める。',
+      a: ['毎回書いている', '書いたことがある', '書かない'],
+      g: '生成AIは、質問すると文章や答えを作ってくれるAIのこと。ChatGPTやClaudeなどがあります。',
+      u: 'AIは使ったことがない',
+      un: 'これから使う楽しみがありますね。聞けば何でも答えてくれる、頼れる相談相手です。',
+      hi: '礼儀正しさは美徳です。AIも悪い気はしないはずです。',
+      lo: 'AIとも、フラットに付き合えていますね。' },
+    { d: 2, t: 'スマホの写真が数千枚たまったまま、整理していない。',
+      a: ['数千枚たまっている', 'けっこうたまっている', 'こまめに整理している'],
+      hi: '整理していない写真は、未来の自分への贈り物です。',
+      lo: '整理上手ですね。うらやましい限りです。' },
+
+    { d: 3, t: '立ち上がるときに、「よいしょ」と声が出る。',
+      a: ['毎回出る', 'ときどき出る', '出ない'],
+      hi: '掛け声は、体からの正直な報告です。',
+      lo: '無言で動ける軽やかさ、うらやましい限りです。' },
+    { d: 3, t: '健康診断の結果は、まず「C」の数を数える。',
+      a: ['毎回数えている', '数えたことがある', '数えない'],
+      hi: '健診の話題は、{S}同士の社交辞令です。',
+      lo: '健康に自信がおありなのですね。すばらしい。' },
+    { d: 3, t: '飲み会や遠出のあと、疲れが翌々日まで残る。',
+      a: ['毎回、翌々日まで残る', 'ときどき残る', '翌日には元気'],
+      hi: '回復は、年々「あとで届くもの」になっていきます。',
+      lo: '回復力が高いですね。うらやましい限りです。' },
+
+    { d: 4, t: '新しい店より、行きつけの「いつもの席」が落ち着く。',
+      a: ['断然、行きつけ', 'どちらかといえば行きつけ', '新しい店のほうが好き'],
+      hi: '今日のこのお店も、そのうち行きつけになるかもしれませんね。',
+      lo: '新規開拓の精神、まだまだ燃えています。' },
+    { d: 4, t: '休日の予定が「家でゆっくり」だと、わりと最高だと思う。',
+      a: ['最高の休日だと思う', 'わりとそう思う', '外に出たい派'],
+      hi: 'それは成熟の証です。最高の休日です。',
+      lo: 'アクティブな休日、うらやましい限りです。' },
+
+    /* ---------- おぢさん向け ---------- */
+    { who: 'oji', d: 0, t: '聞かれていないのに、武勇伝を語りがち。',
+      a: ['語りたくて仕方ない', '語った覚えがある', '語らない'],
+      hi: '武勇伝は、話すたびに少しずつ盛られていくそうです。',
+      lo: '謙虚ですね。でも実は、お持ちなのでは？' },
+    { who: 'oji', d: 0, t: '頼まれていないのに、後輩や若い人にアドバイスをしてしまう。',
+      a: ['気づけば語っている', 'つい口を出してしまう', '聞かれるまで言わない'],
+      hi: 'アドバイスは、聞かれてから出すと、いっそう感謝されます。',
+      lo: '聞き上手ですね。若い人に慕われるタイプです。' },
+    { who: 'oji', d: 0, t: 'ダジャレを思いつくと、言わずにいられない。',
+      a: ['毎回、言わずにいられない', 'ときどき言ってしまう', '思いついても言わない'],
+      hi: 'ダジャレは、心の余裕の表れです。スベっても、笑いは笑いです。',
+      lo: '飲み込める大人です。心の中では、きっと光っています。' },
+    { who: 'oji', d: 0, t: '若い人を飲みに誘うとき、迷惑じゃないかと気にしつつ誘ってしまう。',
+      a: ['いつも気にしている', '気にすることがある', '気にせず誘う'],
+      hi: '気にかけられるのは、立派な気配りです。',
+      lo: '堂々と誘える、頼れる先輩です。' },
+
+    { who: 'oji', d: 2, t: 'スマホの文字入力が面倒で、つい電話や音声入力で済ませたくなる。',
+      a: ['ほぼ電話や音声で済ませる', '面倒に感じることがある', '入力は苦にならない'],
+      hi: '電話は、声の温度が伝わる、いい手段です。',
+      lo: '入力が速い、現代の達人ですね。' },
+
+    { who: 'oji', d: 4, t: '趣味(釣り・ゴルフ・車・カメラなど)の道具選びに、つい凝ってしまう。',
+      a: ['道具選びがいちばん楽しい', 'つい凝ってしまう', '道具にはこだわらない'],
+      hi: '道具選びは、趣味の半分です。',
+      lo: '身軽でいいですね。道具より腕前で勝負するタイプです。' },
+    { who: 'oji', d: 4, t: '飲み会の最後は、〆のラーメンや〆の一品がないと終われない。',
+      a: ['〆がないと終われない', 'ときどき食べたくなる', '〆はいらない'],
+      hi: '〆の一品は、{S}の締めくくりの儀式です。',
+      lo: '満足して帰れる、健康的な食べ方です。' },
+    { who: 'oji', d: 4, t: 'ビールや缶コーヒーなどの「いつもの銘柄」が決まっている。',
+      a: ['譲れない銘柄がある', 'なんとなく決まっている', '何でもいい'],
+      hi: 'いつもの銘柄は、{S}の相棒です。',
+      lo: 'こだわらない自由さ、素敵です。' },
+
+    /* ---------- おばさん向け ---------- */
+    { who: 'oba', d: 0, t: '知らない人にも、つい世間話で話しかけてしまう。',
+      a: ['初対面でも盛り上がる', 'ときどき話しかける', '話しかけない'],
+      hi: '世間話は、街を明るくする才能です。',
+      lo: '静かな時間も大切にできる方ですね。' },
+    { who: 'oba', d: 0, t: '「あれ、あれ」と言って、言葉や名前が出てこないことがある。',
+      a: ['毎日ある', 'ときどきある', 'ない'],
+      hi: '「あれ」で通じるのは、長年のつながりの証です。',
+      lo: '記憶力が抜群ですね。すばらしい。' },
+
+    { who: 'oba', d: 2, t: '写真を撮るとき、つい「はい、チーズ」と声をかけてしまう。',
+      a: ['必ず声をかける', 'つい言ってしまう', '言わない'],
+      hi: '「はい、チーズ」は、笑顔を引き出す魔法の言葉です。',
+      lo: '自然な表情を撮れる、写真上手です。' },
+
+    { who: 'oba', d: 3, t: 'テレビで「体にいい」と聞くと、すぐ試したくなる。',
+      a: ['すぐに試す', 'ときどき試す', '試さない'],
+      hi: '健康への関心は、元気の源です。ほどほどに楽しみましょう。',
+      lo: '冷静で、慎重な判断力ですね。' },
+    { who: 'oba', d: 3, t: 'お出かけの靴は、見た目より歩きやすさで選ぶ。',
+      a: ['絶対に歩きやすさ', 'どちらかといえば歩きやすさ', '見た目を優先する'],
+      hi: '足元の快適さは、一日の元気を左右します。',
+      lo: 'おしゃれ心を忘れない、素敵なこだわりです。' },
+
+    { who: 'oba', d: 4, t: 'バッグに、飴やお菓子を入れていて、つい配りたくなる。',
+      a: ['いつも常備している', 'ときどき入れている', '入れていない'],
+      hi: '「飴ちゃん」は、場を和ませる最強の外交官です。',
+      lo: '身軽でスマートなバッグですね。' },
+    { who: 'oba', d: 4, t: 'スーパーのチラシやアプリで、特売をチェックするのが日課だ。',
+      a: ['毎日チェックしている', 'ときどきチェックする', '見ない'],
+      hi: 'お得情報のアンテナは、家計を守る力です。',
+      lo: '値段より気分で選べる、ゆとりがありますね。' },
+    { who: 'oba', d: 4, t: 'お裾分けやお土産を、つい持たせたくなる。',
+      a: ['必ず持たせたくなる', 'ときどき持たせる', 'あまりしない'],
+      hi: 'お裾分けは、あなたの優しさのかたちです。',
+      lo: 'さっぱりした、気持ちのいい付き合い方です。' },
+    { who: 'oba', d: 4, t: 'ポイ活やふるさと納税の話になると、熱く語ってしまう。',
+      a: ['語りだすと止まらない', 'つい語ってしまう', '特に語らない'],
+      g: 'ポイ活は、ポイントを集めてお得に暮らすこと。ふるさと納税は、自治体に寄付して、お礼の品がもらえる制度です。',
+      hi: 'お得情報は、{S}同士の共通言語です。',
+      lo: 'ポイントより気分で選ぶ、自由なタイプですね。' }
+  ];
+
+  /* ===== 検査結果(診察科ごとに1項目。値 = 点数の割合 × max、inv は逆向き) =====
+     LAB_OBA は、おばさん診断のときだけ差し替える項目(診察科番号 → 項目) */
+  var LAB = [
+    { name: '昔話・武勇伝濃度', unit: 'mg/dL', max: 120, lo: 0, hi: 30 },
+    { name: '流行キャッチアップ力', unit: '%', max: 100, lo: 60, hi: 100, inv: true },
+    { name: '句点・絵文字使用率', unit: '%', max: 100, lo: 0, hi: 20 },
+    { name: '「よいしょ」指数', unit: 'pt', max: 80, lo: 0, hi: 30 },
+    { name: '「いつもの」依存度', unit: '%', max: 100, lo: 0, hi: 40 }
+  ];
+  var LAB_OBA = {
+    0: { name: '世間話・おしゃべり指数', unit: 'pt', max: 100, lo: 0, hi: 30 },
+    3: { name: '「どっこいしょ」指数', unit: 'pt', max: 80, lo: 0, hi: 30 },
+    4: { name: 'お得情報アンテナ感度', unit: '%', max: 100, lo: 0, hi: 40 }
+  };
+
+  /* ===== 二つ名(診察科ごと [強い, 控えめ])。NICKS_OBA は、おばさん診断のときだけ差し替え ===== */
+  var NICKS = [
+    ['武勇伝ファイター', '昔話の語り部見習い'],
+    ['昭和・平成の守り人', '流行ウォッチャー(遠巻き)'],
+    ['句点の{K}', 'スタンプ迷子'],
+    ['よいしょマスター', '掛け声予備軍'],
+    ['「いつもの」の守護神', '定位置の住人']
+  ];
+  var NICKS_OBA = {
+    0: ['井戸端会議の名手', '世間話の見習い'],
+    3: ['どっこいしょ名人', '掛け声予備軍'],
+    4: ['特売の目利き', 'お得アンテナ見習い']
+  };
+  var NICK_NONE = '令和ネイティブ';
+
+  /* ===== 判定 ===== */
+  var GRADES = [
+    { letter: 'A', sub: '異常なし',
+      title: '{S}成分、ほぼ検出されず',
+      banner: 'おめでとうございます！\n「異常なし」と認定します',
+      body: '驚くほど若々しい結果です。ここまで潔白だと、回答を盛っていないか心配になります。',
+      karte: '特記事項なし。あまりに健康で、逆に怪しい。',
+      rx: ['今のまま、新しいことをおもしろがり続けましょう。'] },
+    { letter: 'B', sub: '軽度の所見あり',
+      title: '{S}予備軍',
+      body: '「あ、今の{S}っぽかったかな」と気づける時期です。気づけているうちは、まだ引き返せます。',
+      karte: 'ときどき「よいしょ」の前兆あり。ご本人は気づいている模様。',
+      rx: ['「よいしょ」が出そうになったら、そっと飲み込んでみましょう。'] },
+    { letter: 'C', sub: '要経過観察',
+      title: '{S}境界型',
+      body: 'いちばん「自分は違う」と言いたくなるゾーンです。強く否定するほど、{S}っぽさは増していきます。',
+      karte: 'ご本人は「まだ若い」と主張。周囲の見解とは、一致せず。',
+      rx: ['「まだ若い」と言いたくなったら、一度お茶を飲みましょう。'] },
+    { letter: 'D', sub: '要精密検査(行きつけの店で)',
+      title: '立派な{S}',
+      body: '堂々たる{S}です。昔話も「よいしょ」も、すべて人生経験の勲章。胸を張って名乗りましょう。',
+      karte: '{S}成分、安定して高値。ご本人の受容も良好。',
+      rx: ['武勇伝は、3分以内に笑いに変えたら勝ちです。'] },
+    { letter: 'E', sub: '要保護(国宝級)',
+      title: '重要無形{S}文化財',
+      banner: '認定証\nあなたを「{TITLE}」に認定します\n{DATE}　院長',
+      body: '貴重な存在です。「昔は〜」には、若い世代が知らない物語が詰まっています。ただし、長いと料理が冷めます。',
+      karte: '貴重な生き字引。昭和が抜けていない。保護と、料理が冷める前の話の切り上げが必要。',
+      rx: ['「昔は〜」は、料理が届く前に終えるのが理想です。'] }
+  ];
+
+  var LOADING_MSGS = [
+    'カルテを用意しています…',
+    '「昔は〜」の回数を集計中…',
+    '武勇伝の持ち時間を計測中…',
+    'ポイントカードの枚数を数えています…',
+    '「よいしょ」の音量を測定中…'
+  ];
+
+  /* ===== 状態 ===== */
+  var session = [];         // 今回出題する質問(プールからランダムに選ばれる)
+  var N = SESSION_N;
+  var S = MODES.oji;
+  var modeKey = 'oji';
+  var selfPct = DEFAULT_SELF;
+  var ticketNo = '000';
+  var idx = 0;
+  var answers = [];
+  var unk = [];             // 「そもそも知らない」を選んだ問いは true
+  var cur = 'start';
+  var zoomLevel = 0;
+  var idleTimer = null, loadTimer = null, msgTimer = null, advTimer = null, raf = null;
+  var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  function $(id) { return document.getElementById(id); }
+  function fill(s) { return s.replace(/\{S\}/g, S); }
+  function clamp(x, lo, hi) { return Math.max(lo, Math.min(hi, x)); }
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  function svgEl(tag, attrs) {
+    var e = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  // プールからランダムに SESSION_N 問を選ぶ(同じ診察科は MAX_PER_DEPT 問まで)
+  function pickSession() {
+    var pool = QUESTIONS.filter(function (q) { return !q.who || modeKey === 'both' || q.who === modeKey; });
+    var order = shuffle(pool.map(function (_, i) { return i; }));
+    var cnt = {}, out = [];
+    order.forEach(function (i) {
+      var q = pool[i];
+      if (out.length < SESSION_N && (cnt[q.d] || 0) < MAX_PER_DEPT) {
+        cnt[q.d] = (cnt[q.d] || 0) + 1;
+        out.push(q);
+      }
+    });
+    return out;
+  }
+
+  var screens = { start: $('s-start'), self: $('s-self'), quiz: $('s-quiz'), loading: $('s-loading'), result: $('s-result') };
+
+  function reiwa() {
+    var d = new Date();
+    return '令和' + (d.getFullYear() - 2018) + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日';
+  }
+  function reiwaShowa() {
+    return reiwa() + '(昭和' + (new Date().getFullYear() - 1925) + '年)';
+  }
+  $('today').textContent = reiwaShowa();
+  $('clinicName').textContent = CLINIC;
+
+  /* ===== 文字サイズ(標準 → 大 → 特大) ===== */
+  var ZCLS = ['', 'z1', 'z2'], ZLBL = ['標準', '大', '特大'];
+  $('btnSize').addEventListener('click', function () {
+    var w = $('wrap');
+    if (ZCLS[zoomLevel]) w.classList.remove(ZCLS[zoomLevel]);
+    zoomLevel = (zoomLevel + 1) % ZCLS.length;
+    if (ZCLS[zoomLevel]) w.classList.add(ZCLS[zoomLevel]);
+    $('btnSize').textContent = '文字サイズ：' + ZLBL[zoomLevel];
+  });
+
+  function show(which) {
+    cur = which;
+    clearTimeout(advTimer);
+    for (var k in screens) screens[k].hidden = (k !== which);
+    var s = screens[which];
+    s.classList.remove('enter');
+    void s.offsetWidth;
+    s.classList.add('enter');
+    armIdle();
+    try { window.scrollTo(0, 0); } catch (e) {}
+  }
+
+  /* ===== 放置で最初に戻る ===== */
+  function armIdle() {
+    clearTimeout(idleTimer);
+    if (cur === 'start') return;
+    idleTimer = setTimeout(resetAll, IDLE_MS);
+  }
+  ['pointerdown', 'keydown', 'touchstart'].forEach(function (ev) {
+    document.addEventListener(ev, armIdle, { passive: true });
+  });
+
+  function setSelf(v) {
+    $('selfRange').value = String(v);
+    $('selfOut').textContent = String(v);
+  }
+
+  function resetAll() {
+    clearTimeout(loadTimer); clearTimeout(advTimer); clearInterval(msgTimer);
+    if (raf) cancelAnimationFrame(raf);
+    session = []; answers = []; unk = []; idx = 0;
+    setSelf(DEFAULT_SELF);
+    $('confetti').textContent = '';
+    $('more').open = false;
+    show('start');
+  }
+
+  /* ===== スタート → 自己申告 ===== */
+  var startBtns = document.querySelectorAll('.start-btn');
+  Array.prototype.forEach.call(startBtns, function (b) {
+    b.addEventListener('click', function () {
+      modeKey = MODES[b.dataset.mode] ? b.dataset.mode : 'oji';
+      S = MODES[modeKey];
+      $('selfTitle').textContent = 'あなたの「' + S + '度」は、何%だと思いますか？';
+      setSelf(DEFAULT_SELF);
+      show('self');
+    });
+  });
+  $('selfRange').addEventListener('input', function () {
+    $('selfOut').textContent = $('selfRange').value;
+  });
+  $('btnSelfBack').addEventListener('click', function () { show('start'); });
+  $('btnSelf').addEventListener('click', function () {
+    selfPct = clamp(Number($('selfRange').value) || 0, 0, 100);
+    session = pickSession();
+    N = session.length;
+    answers = []; unk = []; idx = 0;
+    buildTicks();
+    $('who').textContent = DOCTORS[modeKey].short;
+    renderQ(false);
+    show('quiz');
+  });
+
+  /* ===== 問診 ===== */
+  var ticksBox = $('ticks'), ansBox = $('answers');
+  function buildTicks() {
+    ticksBox.textContent = '';
+    for (var i = 0; i < N; i++) ticksBox.appendChild(el('i'));
+  }
+
+  VALUES.forEach(function (v) {
+    var b = el('button', 'ans');
+    b.type = 'button';
+    b.setAttribute('aria-pressed', 'false');
+    b.dataset.v = String(v);
+    b.appendChild(el('span', 'dot'));
+    b.appendChild(el('span', 'lbl', ''));
+    b.addEventListener('click', function () { choose(v); });
+    ansBox.appendChild(b);
+  });
+  // 「そもそも知らない」ボタン(用意されている問いだけ表示。2点扱い)
+  (function () {
+    var ub = el('button', 'ans ans-unk');
+    ub.type = 'button';
+    ub.setAttribute('aria-pressed', 'false');
+    ub.dataset.u = '1';
+    ub.dataset.v = String(MAXV);
+    ub.appendChild(el('span', 'dot'));
+    ub.appendChild(el('span', 'lbl', ''));
+    ub.appendChild(el('span', 'qmark', '？'));
+    ub.addEventListener('click', function () { choose(MAXV, true); });
+    ansBox.appendChild(ub);
+  })();
+
+  function renderQ(animate) {
+    var q = session[idx];
+    $('qDept').textContent = DEPTS[q.d];
+    $('qNum').textContent = (idx + 1) + ' / ' + N;
+    var ticks = ticksBox.children;
+    for (var i = 0; i < ticks.length; i++) {
+      ticks[i].className = i < idx ? 'done' : (i === idx ? 'cur' : '');
+    }
+    $('qText').textContent = fill(q.t);
+    $('qGloss').hidden = !q.g;
+    $('qGlossText').textContent = q.g || '';
+    var a = answers[idx];
+    var btns = ansBox.children;
+    for (var j = 0; j < btns.length; j++) {
+      var isU = btns[j].dataset.u === '1';
+      if (isU) {
+        btns[j].hidden = !q.u;
+        btns[j].querySelector('.lbl').textContent = q.u || '';
+      } else {
+        btns[j].querySelector('.lbl').textContent = q.a[MAXV - Number(btns[j].dataset.v)];
+      }
+      var on = a != null && (isU ? !!unk[idx] : (!unk[idx] && Number(btns[j].dataset.v) === a));
+      btns[j].setAttribute('aria-pressed', String(on));
+    }
+    var quip = $('quip');
+    if (a == null) {
+      quip.className = 'empty';
+      quip.textContent = '選ぶと、先生がひとこと添えて次へ進みます。';
+    } else {
+      quip.className = '';
+      quip.textContent = fill((unk[idx] && q.un) ? q.un : (a >= 1 ? q.hi : q.lo));
+    }
+    $('btnNext').disabled = (a == null);
+    $('btnNext').textContent = idx === N - 1 ? '診断書を受け取る' : '次へ';
+    $('btnBack').disabled = (idx === 0);
+    if (animate) {
+      var qb = $('qbox');
+      qb.classList.remove('enter'); void qb.offsetWidth; qb.classList.add('enter');
+    }
+  }
+
+  function goNext() {
+    clearTimeout(advTimer);
+    if (cur !== 'quiz' || answers[idx] == null) return;
+    if (idx < N - 1) { idx++; renderQ(true); }
+    else startLoading();
+  }
+
+  function choose(v, isUnknown) {
+    answers[idx] = v;
+    unk[idx] = !!isUnknown;
+    renderQ(false);
+    var note = $('note');
+    note.classList.remove('pop'); void note.offsetWidth; note.classList.add('pop');
+    clearTimeout(advTimer);
+    advTimer = setTimeout(goNext, ADVANCE_MS);
+  }
+
+  $('btnBack').addEventListener('click', function () {
+    clearTimeout(advTimer);
+    if (idx > 0) { idx--; renderQ(true); }
+  });
+  $('btnNext').addEventListener('click', goNext);
+
+  /* ===== 診断中(診察番号の呼び出し) ===== */
+  function startLoading() {
+    ticketNo = String(Math.floor(Math.random() * 900) + 100);
+    $('boardNo').textContent = ticketNo;
+    show('loading');
+    var k = 0, msg = $('loadMsg');
+    msg.textContent = LOADING_MSGS[0];
+    clearInterval(msgTimer);
+    msgTimer = setInterval(function () {
+      k = (k + 1) % LOADING_MSGS.length;
+      msg.textContent = LOADING_MSGS[k];
+    }, 650);
+    clearTimeout(loadTimer);
+    loadTimer = setTimeout(function () {
+      clearInterval(msgTimer);
+      buildResult();
+      show('result');
+      animateResult();
+    }, reduce ? 700 : LOADING_MS);
+  }
+
+  /* ===== ゲージ(静的パーツ) ===== */
+  var CX = 170, CY = 160, R = 120;
+  function pt(t, r) { return [CX - r * Math.cos(Math.PI * t), CY - r * Math.sin(Math.PI * t)]; }
+  (function buildGauge() {
+    var segs = $('gSegs'), letters = $('gLetters');
+    for (var g = 0; g < 5; g++) {
+      var a = pt(g * 0.2 + 0.006, R), b = pt((g + 1) * 0.2 - 0.006, R);
+      segs.appendChild(svgEl('path', {
+        'class': 'seg seg' + g,
+        d: 'M' + a[0].toFixed(2) + ' ' + a[1].toFixed(2) + ' A' + R + ' ' + R + ' 0 0 1 ' + b[0].toFixed(2) + ' ' + b[1].toFixed(2)
+      }));
+      var p = pt(0.1 + g * 0.2, 148);
+      var tx = svgEl('text', { 'class': 'gl', x: p[0].toFixed(2), y: p[1].toFixed(2), id: 'gl' + g });
+      tx.textContent = GRADES[g].letter;
+      letters.appendChild(tx);
+    }
+  })();
+
+  /* ===== 結果 ===== */
+  var result = null;
+
+  function gapText(diff) {
+    if (diff >= 40) return '認めたくない度：最高。周りは温かく見守っています。';
+    if (diff >= 20) return '認めたくない度：高。「まだ若い」は、ちょっと盛られているようです。';
+    if (diff >= 5) return '認めたくない度：中。おおむね、自分のことが見えています。';
+    if (diff >= -4) return '自己申告とほぼ一致。自分をよく分かっている方です。';
+    return '認めたくない度：マイナス。もっと自信を持って大丈夫です。';
+  }
+
+  function buildLab(catSum, catCnt) {
+    var box = $('lab');
+    box.textContent = '';
+    var head = el('div', 'lab-row lab-head');
+    head.appendChild(el('span', '', '検査項目'));
+    head.appendChild(el('span', '', '結果'));
+    head.appendChild(el('span', '', '判定'));
+    box.appendChild(head);
+    for (var d = 0; d < LAB.length; d++) {
+      if (!catCnt[d]) continue;            // 今回出題されなかった診察科は載せない
+      var L = (modeKey === 'oba' && LAB_OBA[d]) || LAB[d];
+      var ratio = catSum[d] / (catCnt[d] * MAXV);
+      var v = Math.round((L.inv ? (1 - ratio) : ratio) * L.max);
+      var flag = v > L.hi ? 'H' : (v < L.lo ? 'L' : '');
+      var row = el('div', 'lab-row' + (flag ? ' f' + flag : ''));
+      var nm = el('div', 'lab-name');
+      nm.appendChild(el('b', '', L.name));
+      nm.appendChild(el('small', '', '基準値 ' + L.lo + '〜' + L.hi));
+      var val = el('div', 'lab-val');
+      val.appendChild(el('b', '', String(v)));
+      val.appendChild(el('small', '', L.unit));
+      var fl = el('div', 'lab-flag');
+      fl.appendChild(el('span', flag ? 'flag-' + flag : 'flag-ok', flag || '—'));
+      row.appendChild(nm); row.appendChild(val); row.appendChild(fl);
+      box.appendChild(row);
+    }
+  }
+
+  function buildResult() {
+    var total = 0, catSum = [0, 0, 0, 0, 0], catCnt = [0, 0, 0, 0, 0], top = -1, topV = 0;
+    for (var i = 0; i < N; i++) {
+      var v = answers[i] || 0, d = session[i].d;
+      total += v;
+      catSum[d] += v;
+      catCnt[d]++;
+      if (v > topV) { topV = v; top = i; }
+    }
+    var pct = Math.round(total / (N * MAXV) * 100);
+    var gi = pct < 20 ? 0 : pct < 40 ? 1 : pct < 60 ? 2 : pct < 80 ? 3 : 4;
+    var G = GRADES[gi];
+    result = { pct: pct, gi: gi };
+
+    $('rTitleLabel').textContent = S + '度 診断書';
+    $('rDate').textContent = reiwaShowa();
+    $('rNo').textContent = '診察番号 ' + ticketNo + '　' + CLINIC;
+    $('rCap').textContent = S + '度';
+    $('gauge').setAttribute('aria-label', S + '度メーター ' + pct + '%、判定' + G.letter);
+    $('stampLetter').textContent = G.letter;
+    $('rSub').textContent = G.sub;
+    $('rHead').textContent = fill(G.title);
+    $('rBody').textContent = fill(G.body);
+    $('rRx').textContent = fill(G.rx[0]);
+
+    // お店のメニュー(処方薬)。その判定に設定があるときだけ表示
+    var picks = (SHOP.menus && SHOP.menus[G.letter]) || [];
+    var shopRx = $('shopRx');
+    if (picks.length) {
+      var m = picks[Math.floor(Math.random() * picks.length)];
+      shopRx.hidden = false;
+      $('shopRxShop').textContent = SHOP.pharmacy || (SHOP.name ? SHOP.name + ' 薬局' : '');
+      $('shopRxName').textContent = fill(m.name) + (m.price ? '　' + m.price : '');
+      $('shopRxNote').textContent = m.note ? fill(m.note) : '';
+      $('shopRxOrder').textContent = SHOP.orderNote || '';
+      var photo = $('shopRxPhoto');
+      if (m.photo) {
+        photo.src = m.photo;
+        photo.alt = fill(m.name);
+        photo.hidden = false;
+      } else {
+        photo.hidden = true;
+      }
+    } else {
+      shopRx.hidden = true;
+    }
+
+    // 判定ごとの帯(A: おめでとう / E: 認定証)
+    var banner = $('rBanner');
+    if (G.banner) {
+      banner.hidden = false;
+      banner.className = 'banner ' + G.letter;
+      banner.textContent = fill(G.banner).replace('{TITLE}', fill(G.title)).replace('{DATE}', reiwa());
+    } else {
+      banner.hidden = true;
+      banner.className = 'banner';
+    }
+
+    // 二つ名(出題された診察科のうち、割合がいちばん高いもの)
+    var best = -1, bestR = -1;
+    for (var c = 0; c < catCnt.length; c++) {
+      if (!catCnt[c]) continue;
+      var r = catSum[c] / (catCnt[c] * MAXV);
+      if (r > bestR || (r === bestR && catCnt[c] > catCnt[best])) { best = c; bestR = r; }
+    }
+    var nick = NICK_NONE;
+    if (total > 0 && best >= 0) {
+      nick = ((modeKey === 'oba' && NICKS_OBA[best]) || NICKS[best])[bestR >= 0.75 ? 0 : 1].replace('{K}', KIMI[modeKey]);
+    }
+    $('rNickV').textContent = nick;
+
+    // 自覚ギャップ
+    var diff = pct - selfPct;
+    $('gapSelfV').textContent = selfPct + '%';
+    $('gapRealV').textContent = pct + '%';
+    $('gapBig').textContent = 'ギャップ ' + (diff > 0 ? '+' : (diff < 0 ? '−' : '±')) + Math.abs(diff) + 'pt';
+    $('gapMsg').textContent = gapText(diff);
+
+    // くわしい結果(折りたたみの中)
+    buildLab(catSum, catCnt);
+    var chief = $('rChief');
+    chief.textContent = '';
+    if (top >= 0) {
+      chief.appendChild(document.createTextNode(fill(session[top].t)));
+      chief.appendChild(el('small', '', 'いちばん強く出た症状です(回答: ' + labelFor(top, answers[top]) + ')'));
+    } else {
+      chief.appendChild(document.createTextNode('自覚症状は見当たりませんでした。'));
+    }
+    var karte = $('rKarte');
+    karte.textContent = '';
+    karte.appendChild(el('b', '', '【カルテ】'));
+    karte.appendChild(document.createTextNode(fill(G.karte)));
+    $('rDoctor').textContent = DOCTORS[modeKey].full;
+    $('more').open = false;
+
+    // 初期状態へ
+    $('confetti').textContent = '';
+    $('stamp').classList.remove('on');
+    $('needle').setAttribute('transform', 'rotate(0 170 160)');
+    $('rPct').textContent = '0';
+    $('rBar').style.width = '0';
+    for (var g = 0; g < 5; g++) $('gl' + g).setAttribute('class', 'gl');
+  }
+  function labelFor(qi, v) {
+    var q = session[qi];
+    if (unk[qi] && q.u) return q.u;
+    return q.a[MAXV - v] || '';
+  }
+
+  /* ===== 紙吹雪(判定AとEだけ) ===== */
+  function confetti(gi) {
+    var box = $('confetti');
+    box.textContent = '';
+    var colors = gi === 4
+      ? ['var(--mustard)', 'var(--red)', 'var(--g-d)', 'var(--mustard)']
+      : ['var(--g-a)', 'var(--g-b)', 'var(--mustard)', 'var(--g-a)'];
+    for (var i = 0; i < 44; i++) {
+      var p = el('i');
+      p.style.left = (Math.random() * 100).toFixed(1) + '%';
+      p.style.background = colors[i % colors.length];
+      p.style.animationDelay = (Math.random() * 1.2).toFixed(2) + 's';
+      p.style.animationDuration = (2.4 + Math.random() * 1.6).toFixed(2) + 's';
+      box.appendChild(p);
+    }
+    setTimeout(function () { box.textContent = ''; }, 6000);
+  }
+
+  /* ===== 結果の演出(針の動きは判定ごとに違う) ===== */
+  function animateResult() {
+    var pct = result.pct, gi = result.gi;
+    var needle = $('needle'), num = $('rPct');
+    function setVal(p) {
+      needle.setAttribute('transform', 'rotate(' + (clamp(p, 0, 103) / 100 * 180).toFixed(2) + ' 170 160)');
+      num.textContent = String(Math.round(clamp(p, 0, 100)));
+    }
+    function finish() {
+      setVal(pct);
+      $('gl' + gi).setAttribute('class', 'gl cur');
+      $('stamp').classList.add('on');
+      if (!reduce && (gi === 0 || gi === 4)) confetti(gi);
+    }
+    if (reduce) {
+      $('rBar').style.width = pct + '%';
+      finish();
+      return;
+    }
+    requestAnimationFrame(function () { $('rBar').style.width = pct + '%'; });
+
+    var total, valueAt;
+    if (gi === 2) {
+      // 境界型: 針が行ったり来たりして迷ってから止まる
+      var w = [0, pct + 24, pct - 20, pct + 10, pct - 5, pct].map(function (x) { return clamp(x, 0, 100); });
+      var seg = 500;
+      total = seg * (w.length - 1);
+      valueAt = function (t) {
+        var s = Math.min(w.length - 2, Math.floor(t / seg));
+        var k = clamp((t - s * seg) / seg, 0, 1);
+        var e = 0.5 - 0.5 * Math.cos(Math.PI * k);
+        return w[s] + (w[s + 1] - w[s]) * e;
+      };
+    } else {
+      // それ以外: 行き過ぎてから戻る
+      total = 1700;
+      valueAt = function (t) {
+        var k = Math.min(1, t / total), c1 = 1.7, c3 = c1 + 1;
+        var e = 1 + c3 * Math.pow(k - 1, 3) + c1 * Math.pow(k - 1, 2);
+        return pct * e;
+      };
+    }
+    var t0 = null;
+    function step(ts) {
+      if (t0 === null) t0 = ts;
+      var t = ts - t0;
+      if (t >= total) { finish(); return; }
+      setVal(valueAt(t));
+      raf = requestAnimationFrame(step);
+    }
+    raf = requestAnimationFrame(step);
+  }
+
+  $('btnAgain').addEventListener('click', resetAll);
+
+  setSelf(DEFAULT_SELF);
+})();
+</script>

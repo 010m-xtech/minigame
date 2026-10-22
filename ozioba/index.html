@@ -357,6 +357,7 @@ input[type="range"]::-moz-range-thumb { box-sizing: border-box; width: 42px; hei
 @media (max-width: 420px) {
   .lab-row { grid-template-columns: minmax(0, 1fr) 4.8em 2.4em; padding-inline: 8px; }
   .lab-val b { font-size: 22px; }
+  .lab-name b { font-size: 15px; }
   .stamp { width: 78px; height: 78px; }
   .stamp b { font-size: 38px; }
   .verdict-top { gap: 12px; }
@@ -418,8 +419,9 @@ img, svg { max-width: 100%; }
   .answers { gap: 8px; }
   .ans { min-height: 58px; padding: 6px 12px; font-size: clamp(18px, 4.8vw, 21px); }
   .ans .dot { width: 24px; height: 24px; }
-  .note { margin-top: 10px; min-height: 0; padding: 8px 12px; }
-  .note p { font-size: 15px; line-height: 1.5; }
+  .note { display: block; margin-top: 10px; min-height: 0; padding: 8px 12px; }
+  .note .who { display: inline-block; margin: 0 8px 0 0; }
+  .note p { display: inline; font-size: 15px; line-height: 1.5; }
   .nav { margin-top: 12px; }
   #s-quiz .fine { display: none; }
 
@@ -588,10 +590,10 @@ img, svg { max-width: 100%; }
 
       <div class="shop-rx" id="shopRx" hidden>
         <div class="shop-rx-head"><span class="rxmark">Rx</span><b>処方薬</b><span class="shop-rx-shop" id="shopRxShop"></span></div>
+        <p class="shop-rx-name" id="shopRxName"></p>
         <div class="shop-rx-body">
           <img class="shop-rx-photo" id="shopRxPhoto" alt="" hidden>
           <div class="shop-rx-text">
-            <p class="shop-rx-name" id="shopRxName"></p>
             <p class="shop-rx-note" id="shopRxNote"></p>
             <p class="shop-rx-order" id="shopRxOrder"></p>
           </div>
@@ -949,12 +951,12 @@ window.OJIBA_PHOTOS = {
   }
   // 診断書の文: \n の位置で必ず改行(行は折り返さず、はみ出すときは文字サイズを下げる。下限 minPx)
   var lineJobs = [];
-  function setLines(target, box, text, minPx) {
+  function setLines(target, box, text, minPx, force) {
     target.textContent = '';
     box.style.fontSize = '';
     box.classList.remove('fixed-lines');
     lineJobs = lineJobs.filter(function (j) { return j.box !== box; });
-    if (text.indexOf('\n') < 0) { target.textContent = text; return; }
+    if (text.indexOf('\n') < 0 && !force) { target.textContent = text; return; }
     box.classList.add('fixed-lines');
     text.split('\n').forEach(function (ln, i) {
       if (i) target.appendChild(document.createElement('br'));
@@ -1332,7 +1334,7 @@ window.OJIBA_PHOTOS = {
       var m = picks[Math.floor(Math.random() * picks.length)];
       shopRx.hidden = false;
       $('shopRxShop').textContent = SHOP.pharmacy || (SHOP.name ? SHOP.name + ' 薬局' : '');
-      $('shopRxName').textContent = fill(m.name) + (m.price ? '　' + m.price : '');
+      setLines($('shopRxName'), $('shopRxName'), fill(m.name) + (m.price ? '　' + m.price : ''), 16, true);
       $('shopRxNote').textContent = m.note ? fill(m.note) : '';
       $('shopRxOrder').textContent = SHOP.orderNote || '';
       var photo = $('shopRxPhoto');
@@ -1398,7 +1400,12 @@ window.OJIBA_PHOTOS = {
     var kt = el('span', 'kt', '');
     karte.appendChild(kt);
     setLines(kt, karte, fill(G.karte), 12);
-    $('rDoctor').textContent = DOCTORS[modeKey].full;
+    var docBox = $('rDoctor');
+    docBox.textContent = '';
+    DOCTORS[modeKey].full.split(' ／ ').forEach(function (nm, i) {
+      if (i) docBox.appendChild(document.createTextNode(' ／ '));
+      docBox.appendChild(el('span', 'nw', nm));
+    });
     $('more').open = false;
 
     // 初期状態へ
@@ -1519,6 +1526,7 @@ window.OJIBA_PHOTOS = {
     function canBreak(cur, nx, acc, depth, prev) {
       if (depth > 0) return false;                                   // かぎ括弧の中では切らない
       if (/\s$/.test(cur) || /^\s/.test(nx)) return false;
+      if (/^[「『]/.test(nx) && acc >= 2 && !/[「『(（]$/.test(cur)) return true;   // 括弧の前で切れる
       if (/^[、。,.\uFF01\uFF1F!?」』)）…ー〜~]/.test(nx)) return false;   // 行頭に来てはいけないもの
       if (/[「『(（]$/.test(cur)) return false;                       // 行末に来てはいけないもの
       if (/^[、。\uFF01\uFF1F!?]$/.test(cur)) return true;
@@ -1527,6 +1535,7 @@ window.OJIBA_PHOTOS = {
       if (PART[cur] && !PART[nx] && !/^[ぁ-ん]$/.test(nx) && !/^(いえ|いう|いっ|いわ)/.test(nx)) return true;
       if (acc >= 4 && cur.length >= 2 && nx.length >= 2 && /^[一-龥ァ-ヶー]/.test(nx) && !PART[cur]) return true; // 長い複合語(1文字の語の直後は切らない)
       if (acc >= 9 && cur.length >= 2 && nx.length >= 2) return true;   // 切れ目のない長い連なりは、語の境目で切る
+      if (acc >= 10 && !/^[ぁ-ん]$/.test(cur)) return true;            // それでも長いときの最後の手段(語の途中は避ける)
       return false;
     }
     function phrasify(root) {
@@ -1538,12 +1547,22 @@ window.OJIBA_PHOTOS = {
       }
       nodes.forEach(function (t) {
         var parts = [], toks = Array.from(seg.segment(t.nodeValue)).map(function (s) { return s.segment; });
+        var text = t.nodeValue, offs = [], o = 0, noBreak = [];
+        toks.forEach(function (x) { offs.push(o); o += x.length; });
+        var KEEP = /お[ぢじ]さん|おばさん|お[ぢじ]おば|おぢ川|おば山|だしまき玉子|沖縄そば|島唐辛子|紅芋/g, km;
+        while ((km = KEEP.exec(text))) {
+          for (var q = 0; q < toks.length; q++) {
+            var en = offs[q] + toks[q].length;
+            if (en > km.index && en < km.index + km[0].length) noBreak[q] = true;   // 語の内側では切らない
+          }
+        }
         var acc = 0, depth = 0;
         toks.forEach(function (cur, k) {
-          parts.push(cur);
+          // 閉じかっこのすぐ後ろの助詞(「へえ」と)は、行の頭に離れないようにする
+          parts.push(/[」』)）]$/.test(cur) && toks[k + 1] && toks[k + 1].length === 1 && /^[ぁ-ん]$/.test(toks[k + 1]) ? cur + '\u2060' : cur);
           acc += cur.length;
           depth += (cur.match(OPEN) || []).length - (cur.match(CLOSE) || []).length;
-          if (k < toks.length - 1 && canBreak(cur, toks[k + 1], acc, depth, toks[k - 1])) { parts.push(null); acc = 0; }
+          if (k < toks.length - 1 && !noBreak[k] && canBreak(cur, toks[k + 1], acc, depth, toks[k - 1])) { parts.push(null); acc = 0; }
         });
         if (parts.indexOf(null) < 0) return;
         var frag = document.createDocumentFragment();

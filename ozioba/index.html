@@ -192,6 +192,9 @@ input[type="range"]::-moz-range-thumb { box-sizing: border-box; width: 42px; hei
 .qtext .ln { display: block; width: max-content; white-space: nowrap; }
 .fixed-lines { white-space: nowrap !important; text-wrap: nowrap !important; }
 .fixed-lines .ln { white-space: nowrap !important; }
+.honest .lines { display: inline-block; }
+.karte b { display: block; margin-bottom: 2px; }
+.note p, .gloss span, .loading .msg { text-wrap: balance; }
 .qtext { font-size: clamp(24px, 6vw, 34px); font-weight: 900; line-height: 1.5; margin: 0 0 22px; text-wrap: pretty; min-height: 3em; }
 .gloss { display: grid; gap: 2px; margin: -6px 0 20px; padding: 10px 14px; background: var(--paper-2); border-left: 6px solid var(--mustard); border-radius: 4px 10px 10px 4px; font-size: 17px; font-weight: 700; line-height: 1.6; text-wrap: pretty; }
 .gloss b { font-size: 13px; letter-spacing: .14em; color: var(--ink-soft); }
@@ -472,7 +475,7 @@ img, svg { max-width: 100%; }
       <span class="tag">2026年版</span>
       <h1>おぢおば<span class="hl">診断</span></h1>
       <p class="lead"><span class="ln">「自分はまだ若い」と思っているあなた。</span><span class="ln">たった6問で、こっそり測定します。</span></p>
-      <p class="honest"><b>お願い</b>盛らずに、正直にお答えください。先生にはお見通しです。</p>
+      <p class="honest fixed-lines" data-fit="13"><b>お願い</b><span class="lines"><span class="ln">盛らずに、正直にお答えください。</span><br><span class="ln">先生にはお見通しです。</span></span></p>
       <svg class="ecg" viewBox="0 0 600 60" aria-hidden="true"><path pathLength="100" d="M0 32 H110 l8 -6 l10 6 H190 l7 6 l11 -32 l13 50 l9 -24 H320 l9 -7 l12 7 H430 l7 6 l11 -32 l13 50 l9 -24 H600"></path></svg>
 
       <div class="ticket">
@@ -495,7 +498,7 @@ img, svg { max-width: 100%; }
     <section class="screen paper" id="s-self" hidden>
       <span class="tag">まずは自己申告</span>
       <h2 class="self-title" id="selfTitle"></h2>
-      <p class="self-sub">診断のあとで、答え合わせをします。盛らずに、正直にどうぞ。</p>
+      <p class="self-sub fixed-lines" data-fit="13"><span class="ln">診断のあとで、答え合わせをします。</span><br><span class="ln">盛らずに、正直にどうぞ。</span></p>
       <div class="self-big"><span id="selfOut">30</span><small>%</small></div>
       <div class="self-box">
         <input type="range" id="selfRange" min="0" max="100" step="5" value="30" aria-label="自己申告のパーセント">
@@ -528,7 +531,7 @@ img, svg { max-width: 100%; }
         <button type="button" class="btn btn-ghost" id="btnBack">戻る</button>
         <button type="button" class="btn btn-primary" id="btnNext" disabled>次へ</button>
       </div>
-      <p class="fine">盛らずに、正直にお答えください。しばらく操作がないと、最初の画面に戻ります。</p>
+      <p class="fine fixed-lines" data-fit="12"><span class="ln">盛らずに、正直にお答えください。</span><br><span class="ln">しばらく操作が無いと、最初の画面に戻ります。</span></p>
     </section>
 
     <!-- 診断中 -->
@@ -621,9 +624,9 @@ img, svg { max-width: 100%; }
 
       <div class="actions">
         <button type="button" class="btn btn-primary block" id="btnAgain">もういちど診断する</button>
-        <p class="hint">質問は毎回入れ替わります。ご同席の方もどうぞ。</p>
+        <p class="hint fixed-lines" data-fit="12"><span class="ln">質問は毎回入れ替わります。</span><br><span class="ln">ご同席の方もどうぞ。</span></p>
       </div>
-      <p class="disclaimer">※ お楽しみ用です。医学的な根拠はありません。しばらく操作がないと、最初の画面に戻ります。</p>
+      <p class="disclaimer fixed-lines" data-fit="11"><span class="ln">※お楽しみ用です。医学的な根拠はありません。</span><br><span class="ln">しばらく操作が無いと、最初の画面に戻ります。</span></p>
     </section>
   </main>
 </div>
@@ -874,30 +877,30 @@ window.OJIBA_PHOTOS = {
   var GRADES = [
     { letter: 'A', sub: '異常なし',
       title: '{S}成分、ほぼ検出されず',
-      banner: 'おめでとうございます！\n「異常なし」と認定します',
-      body: '驚くほど若々しい結果です。ここまで潔白だと、回答を盛っていないか心配になります。',
-      karte: '特記事項なし。あまりに健康で、逆に怪しい。',
-      rx: ['今のまま、新しいことをおもしろがり続けましょう。'] },
+      banner: 'おめでとうございます！\n「異常なし」と認定します。',
+      body: '驚くほど若々しい結果です。\nここまで潔白だと、\n回答を盛っていないか心配になります。',
+      karte: '特記事項なし。\nあまりに健康で、逆に怪しい。',
+      rx: ['今のまま、新しいことを\nおもしろがり続けましょう。'] },
     { letter: 'B', sub: '軽度の所見あり',
       title: '{S}予備軍',
-      body: '「あ、今の{S}っぽかったかな」と気づける時期です。気づけているうちは、まだ引き返せます。',
-      karte: 'ときどき「よいしょ」の前兆あり。ご本人は気づいている模様。',
-      rx: ['「よいしょ」が出そうになったら、そっと飲み込んでみましょう。'] },
+      body: '「あ、今の{S}っぽかったかな」\nと気づける時期です。\n気づけているうちは、まだ引き返せます。',
+      karte: 'ときどき「よいしょ」の前兆あり。\nご本人は気づいている模様。',
+      rx: ['「よいしょ」が出そうになったら、\nそっと飲み込んでみましょう。'] },
     { letter: 'C', sub: '要経過観察',
       title: '{S}境界型',
-      body: 'いちばん「自分は違う」と言いたくなるゾーンです。強く否定するほど、{S}っぽさは増していきます。',
-      karte: 'ご本人は「まだ若い」と主張。周囲の見解とは、一致せず。',
-      rx: ['「まだ若い」と言いたくなったら、一度お茶を飲みましょう。'] },
+      body: 'いちばん「自分は違う」と\n言いたくなるゾーンです。\n強く否定するほど、\n{S}っぽさは増していきます。',
+      karte: 'ご本人は「まだ若い」と主張。\n周囲の見解とは、一致せず。',
+      rx: ['「まだ若い」と言いたくなったら、\n一度お茶を飲みましょう。'] },
     { letter: 'D', sub: '要精密検査(行きつけの店で)',
       title: '立派な{S}',
-      body: '堂々たる{S}です。昔話も「よいしょ」も、すべて人生経験の勲章。胸を張って名乗りましょう。',
-      karte: '{S}成分、安定して高値。ご本人の受容も良好。',
-      rx: ['武勇伝は、3分以内に笑いに変えたら勝ちです。'] },
+      body: '堂々たる{S}です。\n昔話も「よいしょ」も、\nすべて人生経験の勲章。\n胸を張って名乗りましょう。',
+      karte: '{S}成分、安定して高値。\nご本人の受容も良好。',
+      rx: ['武勇伝は、3分以内に\n笑いに変えたら勝ちです。'] },
     { letter: 'E', sub: '要保護(国宝級)',
       title: '重要無形{S}文化財',
       banner: 'あなたを\n「{TITLE}」\nに認定します。',
       body: '貴重すぎる存在です。\n「昔は〜」には、若い世代が知らない物語が詰まっています。\nただし、長いと料理も若者も冷めます。',
-      karte: '貴重な生き字引。昭和が抜けていない。保護と、料理が冷める前の話の切り上げが必要。',
+      karte: '貴重な生き字引。昭和が抜けていない。\n保護と、料理が冷める前の\n話の切り上げが必要。',
       rx: ['「昔は〜」は、\n料理が届く前に終えるのが理想です。'] }
   ];
 
@@ -981,6 +984,10 @@ window.OJIBA_PHOTOS = {
     }
   }
   function fitAllLines() { lineJobs.forEach(fitLineJob); }
+  // HTML に直接書いた改行つきの文言(data-fit = 最小の文字サイズ)
+  Array.prototype.forEach.call(document.querySelectorAll('[data-fit]'), function (b) {
+    lineJobs.push({ box: b, target: b, min: parseFloat(b.getAttribute('data-fit')) || 12 });
+  });
   function fitQText() {
     var box = $('qText');
     if (!box.getBoundingClientRect || !window.getComputedStyle) return;
@@ -1064,7 +1071,7 @@ window.OJIBA_PHOTOS = {
     s.classList.add('enter');
     armIdle();
     try { window.scrollTo(0, 0); } catch (e) {}
-    if (which === 'result') fitAllLines();
+    fitAllLines();
   }
 
   /* ===== 放置で最初に戻る ===== */
@@ -1098,7 +1105,7 @@ window.OJIBA_PHOTOS = {
     b.addEventListener('click', function () {
       modeKey = MODES[b.dataset.mode] ? b.dataset.mode : 'oji';
       S = MODES[modeKey];
-      $('selfTitle').textContent = 'あなたの「' + S + '度」は、何%だと思いますか？';
+      setLines($('selfTitle'), $('selfTitle'), 'あなたの「' + S + '度」は、\n何%だと思いますか？', 18);
       setSelf(DEFAULT_SELF);
       show('self');
     });
@@ -1257,10 +1264,10 @@ window.OJIBA_PHOTOS = {
 
   function gapText(diff) {
     if (diff >= 40) return '認めたくない度：最高。\n周りは温かく見守っています。';
-    if (diff >= 20) return '認めたくない度：高。「まだ若い」は、ちょっと盛られているようです。';
-    if (diff >= 5) return '認めたくない度：中。おおむね、自分のことが見えています。';
-    if (diff >= -4) return '自己申告とほぼ一致。自分をよく分かっている方です。';
-    return '認めたくない度：マイナス。もっと自信を持って大丈夫です。';
+    if (diff >= 20) return '認めたくない度：高。\n「まだ若い」は、\nちょっと盛られているようです。';
+    if (diff >= 5) return '認めたくない度：中。\nおおむね、自分のことが見えています。';
+    if (diff >= -4) return '自己申告とほぼ一致。\n自分をよく分かっている方です。';
+    return '認めたくない度：マイナス。\nもっと自信を持って大丈夫です。';
   }
 
   function buildLab(catSum, catCnt) {
@@ -1383,7 +1390,9 @@ window.OJIBA_PHOTOS = {
     var karte = $('rKarte');
     karte.textContent = '';
     karte.appendChild(el('b', '', '【カルテ】'));
-    karte.appendChild(document.createTextNode(fill(G.karte)));
+    var kt = el('span', 'kt', '');
+    karte.appendChild(kt);
+    setLines(kt, karte, fill(G.karte), 12);
     $('rDoctor').textContent = DOCTORS[modeKey].full;
     $('more').open = false;
 
@@ -1486,6 +1495,7 @@ window.OJIBA_PHOTOS = {
     if (document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', refitQText);
   }
   if (window.addEventListener) window.addEventListener('load', refitQText);
+  if ($('more').addEventListener) $('more').addEventListener('toggle', fitAllLines);
   window.refitQTextLater = function () { setTimeout(refitQText, 250); setTimeout(refitQText, 1200); };
   if (window.addEventListener) window.addEventListener('resize', refitQText);
 

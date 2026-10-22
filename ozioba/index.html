@@ -424,6 +424,19 @@ img, svg { max-width: 100%; }
   .note p { display: inline; font-size: 15px; line-height: 1.5; }
   .nav { margin-top: 12px; }
   #s-quiz .fine { display: none; }
+  .in-quiz .clinic-bar { display: none; }   /* 質問中は上のバーを隠して、縦の余裕をつくる */
+  .in-quiz { padding-top: 10px; }
+  #s-quiz.paper { padding: 10px 12px 12px; }
+  .quiz-head { margin-bottom: 4px; }
+  .ticks { margin-bottom: 8px; }
+  .qtext { margin-bottom: 8px; }
+  .answers { gap: 6px; }
+  .ans { min-height: 52px; padding-block: 4px; }
+  .gloss { margin: -2px 0 8px; padding: 5px 10px; font-size: 13.5px; line-height: 1.45; }
+  .note { margin-top: 8px; padding: 6px 10px; }
+  .note p { font-size: 14px; line-height: 1.45; }
+  .nav { margin-top: 8px; }
+  .nav .btn { min-height: 48px; }
 
   /* 診断書: 判定・メーター・処方薬が最初の1画面に入る */
   .r-head { padding-bottom: 4px; }
@@ -1074,6 +1087,7 @@ window.OJIBA_PHOTOS = {
     s.classList.add('enter');
     armIdle();
     try { window.scrollTo(0, 0); } catch (e) {}
+    try { if (document.body && document.body.classList) document.body.classList[which === 'quiz' ? 'add' : 'remove']('in-quiz'); } catch (e) {}
     fitAllLines();
   }
 
@@ -1161,6 +1175,7 @@ window.OJIBA_PHOTOS = {
 
   function renderQ(animate) {
     var q = session[idx];
+    try { window.scrollTo(0, 0); } catch (e) {}
     $('qDept').textContent = DEPTS[q.d];
     $('qNum').textContent = (idx + 1) + ' / ' + N;
     var ticks = ticksBox.children;
@@ -1213,6 +1228,8 @@ window.OJIBA_PHOTOS = {
     renderQ(false);
     var note = $('note');
     note.classList.remove('pop'); void note.offsetWidth; note.classList.add('pop');
+    // 画面の下にある「先生のひとこと」と「次へ」が見切れないよう、必要なぶんだけスクロールする
+    try { if ($('btnNext').scrollIntoView) $('btnNext').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) {}
     clearTimeout(advTimer);
     advTimer = setTimeout(goNext, ADVANCE_MS);
   }
@@ -1334,7 +1351,7 @@ window.OJIBA_PHOTOS = {
       var m = picks[Math.floor(Math.random() * picks.length)];
       shopRx.hidden = false;
       $('shopRxShop').textContent = SHOP.pharmacy || (SHOP.name ? SHOP.name + ' 薬局' : '');
-      setLines($('shopRxName'), $('shopRxName'), fill(m.name) + (m.price ? '　' + m.price : ''), 16, true);
+      setLines($('shopRxName'), $('shopRxName'), fill(m.name) + (m.price ? '　' + m.price : ''), 12, true);
       $('shopRxNote').textContent = m.note ? fill(m.note) : '';
       $('shopRxOrder').textContent = SHOP.orderNote || '';
       var photo = $('shopRxPhoto');
@@ -1521,7 +1538,7 @@ window.OJIBA_PHOTOS = {
     // 改行してよい位置: 助詞のあと・句読点のあと・「・」のあと・長い複合語の切れ目だけ。
     // 「若い|人」「回|答」のような、語の途中では切らない。
     var PART = { 'は': 1, 'が': 1, 'を': 1, 'に': 1, 'へ': 1, 'で': 1, 'と': 1, 'も': 1, 'の': 1, 'や': 1, 'ね': 1, 'よ': 1,
-                 'って': 1, 'から': 1, 'まで': 1, 'より': 1, 'など': 1, 'ので': 1, 'けど': 1 };
+                 'って': 1, 'から': 1, 'まで': 1, 'より': 1, 'など': 1, 'ので': 1, 'けど': 1, 'ば': 1 };
     var OPEN = /[「『(（]/g, CLOSE = /[」』)）]/g;
     function canBreak(cur, nx, acc, depth, prev) {
       if (depth > 0) return false;                                   // かぎ括弧の中では切らない

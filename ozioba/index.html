@@ -343,6 +343,7 @@ input[type="range"]::-moz-range-thumb { box-sizing: border-box; width: 42px; hei
 .flag-ok { color: var(--ink-soft); }
 .lab-row.fH, .lab-row.fL { background: var(--paper-2); }
 .chief { margin: 0; padding: 12px 14px; background: var(--paper-2); border-left: 6px solid var(--red); border-radius: 4px 10px 10px 4px; font-weight: 700; text-wrap: pretty; }
+.chief small .nw, .nw { white-space: nowrap; }
 .chief small { display: block; color: var(--ink-soft); font-size: 15px; margin-top: 4px; }
 .karte { margin: 14px 0 0; padding: 10px 14px; border: 2px dashed var(--ink-soft); border-radius: 8px; font-family: var(--font-seal); font-weight: 700; font-size: 17px; line-height: 1.7; text-wrap: pretty; }
 .karte b { font-weight: 800; letter-spacing: .1em; margin-right: .5em; }
@@ -1383,7 +1384,11 @@ window.OJIBA_PHOTOS = {
     chief.textContent = '';
     if (top >= 0) {
       chief.appendChild(document.createTextNode(fill(session[top].t).replace(/\n/g, '')));
-      chief.appendChild(el('small', '', 'いちばん強く出た症状です(回答: ' + labelFor(top, answers[top]) + ')'));
+      var sm = el('small', '', '');
+      sm.appendChild(el('span', 'nw', 'いちばん強く出た症状です'));
+      sm.appendChild(document.createElement('br'));
+      sm.appendChild(el('span', 'nw', '(回答：' + labelFor(top, answers[top]) + ')'));
+      chief.appendChild(sm);
     } else {
       chief.appendChild(document.createTextNode('自覚症状は見当たりませんでした。'));
     }
@@ -1506,25 +1511,39 @@ window.OJIBA_PHOTOS = {
     var seg = new Intl.Segmenter('ja', { granularity: 'word' });
     var SKIP = { SCRIPT: 1, STYLE: 1, TEXTAREA: 1, INPUT: 1 };
     var busy = false;
-    function glue(prev, next) {
-      if (/^[、。,.!?!?」』)）…ー〜~]/.test(next)) return true;       // 行頭に来てはいけないもの
-      if (/[「『(（]$/.test(prev)) return true;                       // 行末に来てはいけないもの
-      if (/^[ぁ-ん]{1,2}$/.test(next)) return true;                    // 助詞・活用語尾
+    // 改行してよい位置: 助詞のあと・句読点のあと・「・」のあと・長い複合語の切れ目だけ。
+    // 「若い|人」「回|答」のような、語の途中では切らない。
+    var PART = { 'は': 1, 'が': 1, 'を': 1, 'に': 1, 'へ': 1, 'で': 1, 'と': 1, 'も': 1, 'の': 1, 'や': 1, 'ね': 1, 'よ': 1,
+                 'って': 1, 'から': 1, 'まで': 1, 'より': 1, 'など': 1, 'ので': 1, 'けど': 1 };
+    var OPEN = /[「『(（]/g, CLOSE = /[」』)）]/g;
+    function canBreak(cur, nx, acc, depth, prev) {
+      if (depth > 0) return false;                                   // かぎ括弧の中では切らない
+      if (/\s$/.test(cur) || /^\s/.test(nx)) return false;
+      if (/^[、。,.\uFF01\uFF1F!?」』)）…ー〜~]/.test(nx)) return false;   // 行頭に来てはいけないもの
+      if (/[「『(（]$/.test(cur)) return false;                       // 行末に来てはいけないもの
+      if (/^[、。\uFF01\uFF1F!?]$/.test(cur)) return true;
+      if (cur === '・') return true;
+      if (PART[cur] && /^[ぁ-ん]$/.test(prev || '')) return false;     // 「と|って」のように、動詞・語の途中の助詞では切らない
+      if (PART[cur] && !PART[nx] && !/^[ぁ-ん]$/.test(nx) && !/^(いえ|いう|いっ|いわ)/.test(nx)) return true;
+      if (acc >= 4 && cur.length >= 2 && nx.length >= 2 && /^[一-龥ァ-ヶー]/.test(nx) && !PART[cur]) return true; // 長い複合語(1文字の語の直後は切らない)
+      if (acc >= 9 && cur.length >= 2 && nx.length >= 2) return true;   // 切れ目のない長い連なりは、語の境目で切る
       return false;
     }
     function phrasify(root) {
       var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), nodes = [], n;
       while ((n = w.nextNode())) {
         var p = n.parentNode;
-        if (!p || SKIP[p.nodeName] || (p.classList && p.classList.contains('ln')) || !/[\u3040-\u30ff\u4e00-\u9fff]{2}/.test(n.nodeValue)) continue;
+        if (!p || SKIP[p.nodeName] || (p.classList && (p.classList.contains('ln') || p.classList.contains('nw'))) || !/[\u3040-\u30ff\u4e00-\u9fff]{2}/.test(n.nodeValue)) continue;
         nodes.push(n);
       }
       nodes.forEach(function (t) {
-        var parts = [], prev = '';
-        Array.from(seg.segment(t.nodeValue)).forEach(function (s) {
-          var cur = s.segment;
-          if (parts.length && !glue(prev, cur) && !/\s$/.test(prev) && !/^\s/.test(cur)) parts.push(null);
-          parts.push(cur); prev = cur;
+        var parts = [], toks = Array.from(seg.segment(t.nodeValue)).map(function (s) { return s.segment; });
+        var acc = 0, depth = 0;
+        toks.forEach(function (cur, k) {
+          parts.push(cur);
+          acc += cur.length;
+          depth += (cur.match(OPEN) || []).length - (cur.match(CLOSE) || []).length;
+          if (k < toks.length - 1 && canBreak(cur, toks[k + 1], acc, depth, toks[k - 1])) { parts.push(null); acc = 0; }
         });
         if (parts.indexOf(null) < 0) return;
         var frag = document.createDocumentFragment();

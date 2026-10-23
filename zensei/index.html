@@ -163,12 +163,6 @@
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     #warp { display: block; width: 100%; height: 100%; }
     #toast-video { position: absolute; left: 0; top: 0; width: 2px; height: 2px; opacity: 0; pointer-events: none; }
-    .video-caption {
-      position: absolute; left: 0; right: 0; bottom: 14%; text-align: center;
-      font-size: 1.05rem; letter-spacing: .3em; color: #fff;
-      text-shadow: 0 0 12px rgba(120,200,255,.9), 0 0 30px rgba(120,200,255,.6);
-      animation: caption 2.4s ease-in-out infinite; pointer-events: none;
-    }
     @keyframes caption { 0%,100% { opacity: .35; } 50% { opacity: 1; } }
     .skip {
       position: absolute; left: 16px; top: max(16px, env(safe-area-inset-top));
@@ -177,11 +171,6 @@
       opacity: 0; pointer-events: none; transition: opacity .5s;
     }
     .skip.visible { opacity: 1; pointer-events: auto; }
-    #tap-play {
-      position: absolute; inset: 0; display: none; place-items: center; background: rgba(0,0,0,.55);
-      color: #fff; font: inherit; font-size: 1.2rem; font-weight: 700; border: none; cursor: pointer;
-    }
-    #tap-play.show { display: grid; }
 
     #flash { position: fixed; inset: 0; z-index: 200; background: #fff; opacity: 0; pointer-events: none; }
     #flash.on { opacity: 1; }
@@ -288,26 +277,16 @@
     }
     @keyframes shoot { 0% { opacity: 0; translate: 0 0; } 15% { opacity: 1; } 100% { opacity: 0; translate: 260px 182px; } }
 
-    #sound-btn {
-      position: fixed; top: max(12px, env(safe-area-inset-top)); right: 12px; z-index: 150;
-      width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,.3);
-      background: rgba(0,0,0,.4); color: #fff; font-size: 1.05rem; cursor: pointer;
-      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-    }
 
     /* ---------- 磨き込み：動画オーバーレイ ---------- */
     .year-wrap { position: absolute; left: 0; right: 0; top: 18%; text-align: center; pointer-events: none; color: #fff; text-shadow: 0 0 16px rgba(120,200,255,.95), 0 0 40px rgba(120,200,255,.6); }
     .year-num { font-size: 3.4rem; font-weight: 900; letter-spacing: .06em; font-variant-numeric: tabular-nums; line-height: 1.1; }
     .year-num small { font-size: 1.1rem; margin-left: 4px; letter-spacing: .1em; }
-    .year-era { font-size: 1.05rem; letter-spacing: .35em; margin-top: 6px; opacity: 0; transition: opacity .8s; }
-    .year-era.on { opacity: 1; }
-    .video-caption { bottom: 12%; }
 
 
     /* ---------- テロップ（年号）：絵本の見返しのような静かな金文字 ---------- */
     #video-screen::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 42%; pointer-events: none;
       background: linear-gradient(to top, rgba(14,14,38,.74), rgba(14,14,38,.38) 45%, rgba(14,14,38,0)); }
-    .video-caption { display: none !important; }
     .year-wrap { top: auto; bottom: max(7%, calc(env(safe-area-inset-bottom) + 28px)); z-index: 2; color: var(--cream, #fbf1d4);
       text-shadow: 0 1px 14px rgba(14,12,34,.7), 0 0 26px rgba(244,213,132,.32); display: flex; flex-direction: column; align-items: center; gap: 12px; }
     .year-wrap::before, .year-wrap::after { content: ""; display: block; width: min(46vw, 190px); height: 1px; order: 0;
@@ -348,11 +327,6 @@
     .gate-hint { font-size: .9rem; color: #d8d1f5; animation: caption 2.2s ease-in-out infinite; }
 
     /* ---------- 磨き込み：結果 ---------- */
-    .era-chip {
-      position: absolute; left: 10px; bottom: 10px; z-index: 2; padding: 4px 11px; border-radius: 14px;
-      font-size: .74rem; font-weight: 700; letter-spacing: .06em; color: #fff;
-      background: rgba(0,0,0,.55); border: 1px solid rgba(255,255,255,.35); backdrop-filter: blur(4px);
-    }
     .hero-img-container .shine {
       position: absolute; top: 0; bottom: 0; left: -60%; width: 40%; z-index: 1; pointer-events: none;
       background: linear-gradient(100deg, transparent, rgba(255,255,255,.35), transparent); transform: skewX(-18deg);
@@ -373,7 +347,7 @@
       --display: 'Shippori Mincho', 'Hiragino Mincho ProN', 'Yu Mincho', 'Noto Serif JP', serif;
     }
     h1, .eyebrow, .q-num, .q-text, .past-life-title, .menu-box-value, .menu-box-title, .gate-lead,
-    .video-caption, .year-num, .year-era, .btn, .label, .tag, .era-chip { font-family: var(--display); }
+    .year-num, .btn, .label, .tag { font-family: var(--display); }
 
     h1 {
       font-size: 2.7rem; font-weight: 800; letter-spacing: .2em; text-indent: .2em;
@@ -417,13 +391,10 @@
     .btn.ghost::before { border-color: rgba(244,213,132,.22); }
     .btn.ghost::after { display: none; }
     .btn.ghost:hover { background: rgba(244,213,132,.12); box-shadow: 0 0 20px rgba(233,189,92,.25); }
-    .btn:focus-visible, .option:focus-visible, select:focus-visible, .skip:focus-visible, #sound-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+    .btn:focus-visible, .option:focus-visible, select:focus-visible, .skip:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
     .back-link { color: #cdbf9a; letter-spacing: .08em; }
 
-    #sound-btn { display: none !important; }
-    #sound-btn.unused { display: grid; place-items: center; color: var(--gold); border-color: rgba(244,213,132,.45); background: rgba(13,16,38,.6); }
     .skip { font-family: var(--display); letter-spacing: .2em; border-color: rgba(244,213,132,.5); }
-    #tap-play { font-family: var(--display); letter-spacing: .3em; }
 
     /* パネル・入力 */
     .panel { border: 1px solid rgba(244,213,132,.28); border-radius: 20px; background: rgba(14,17,40,.82); box-shadow: 0 10px 40px rgba(0,0,0,.35), inset 0 0 0 4px rgba(14,17,40,.9), inset 0 0 0 5px rgba(244,213,132,.12); }
@@ -448,7 +419,6 @@
     .option.chosen .mark { background: var(--gold); border-color: var(--gold); color: var(--ink); }
 
     /* 動画・カード */
-    .video-caption { letter-spacing: .4em; text-indent: .4em; }
     .gate-lead { letter-spacing: .35em; text-indent: .35em; font-weight: 700; color: var(--cream); text-shadow: 0 0 16px rgba(233,189,92,.7); }
     .gate-hint { font-family: var(--display); letter-spacing: .25em; color: #d8cfae; }
 
@@ -477,7 +447,6 @@
     .menu-box-title { color: var(--amber); letter-spacing: .2em; font-weight: 700; }
     .menu-box-title::before { content: '✦ '; } .menu-box-title::after { content: ' ✦'; }
     .menu-box-value { font-weight: 800; letter-spacing: .06em; }
-    .era-chip { letter-spacing: .1em; font-weight: 700; }
 
 
     /* ================= 1画面にまとめた質問 ================= */
@@ -511,12 +480,6 @@
     }
     .q-block.open { border-color: rgba(244,213,132,.7); box-shadow: 0 0 22px rgba(233,189,92,.18), inset 0 0 0 3px rgba(14,17,40,.9), inset 0 0 0 4px rgba(244,213,132,.12); }
     .q-block.done:not(.open) { border-color: rgba(244,213,132,.5); }
-    .q-head {
-      display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 16px; text-align: left;
-      background: none; border: none; color: inherit; font: inherit; cursor: pointer;
-    }
-    .q-head:focus-visible { outline: 2px solid var(--gold); outline-offset: -4px; border-radius: 16px; }
-    .q-head-main { flex: 1; min-width: 0; }
     .q-block .q-num { margin-bottom: 3px; }
     .q-block .q-text { font-size: 1.02rem; margin-bottom: 0; }
     .q-answer { margin-top: 7px; font-size: .88rem; color: #a9a58f; letter-spacing: .04em; }
@@ -527,11 +490,6 @@
       transform: rotate(45deg) translateY(-2px); transition: transform .3s;
     }
     .q-block.open .chev { transform: rotate(-135deg) translateY(-2px); }
-    .q-panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .32s ease; }
-    .q-block.open .q-panel { grid-template-rows: 1fr; }
-    .q-panel-inner { min-height: 0; overflow: hidden; visibility: hidden; transition: visibility 0s .32s; }
-    .q-block.open .q-panel-inner { visibility: visible; transition-delay: 0s; }
-    .q-panel .options { padding: 0 12px 14px; }
 
 
     /* ================= スクロール無しの選択画面 ================= */
@@ -548,8 +506,6 @@
     #intro-screen select { padding: 10px 6px; font-size: .95rem; }
     #intro-screen .note { margin-top: 6px; font-size: .66rem; }
     #q-list { margin-top: 10px; gap: 8px; }
-    .q-head { padding: 9px 14px; }
-    .q-head-main { display: grid; grid-template-columns: auto 1fr; column-gap: 10px; align-items: baseline; }
     .q-block .q-num { grid-row: 1; grid-column: 1; margin: 0; font-size: .8rem; }
     .q-block .q-text { grid-row: 1; grid-column: 2; font-size: .92rem; line-height: 1.4; }
     .q-answer { grid-row: 2; grid-column: 2; margin-top: 3px; font-size: .8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -562,7 +518,7 @@
     @media (max-height: 760px) {
       #intro-screen .hero { padding-top: 6px; } #intro-screen h1 { font-size: 1.9rem; }
       #intro-screen .subtitle { margin: 3px 0 8px; } #q-list { gap: 6px; margin-top: 8px; }
-      .q-head { padding: 7px 12px; } .q-block .q-text { font-size: .88rem; line-height: 1.35; }
+      .q-block .q-text { font-size: .88rem; line-height: 1.35; }
       .start-bar { padding: 10px 20px max(12px, env(safe-area-inset-bottom)); }
     }
     @media (max-height: 700px) {
@@ -574,7 +530,7 @@
     @media (max-height: 600px) {
       #intro-screen h1 { font-size: 1.55rem; } #intro-screen .hero { padding-top: 2px; }
       #intro-screen .panel .label { display: none; } #intro-screen select { padding: 6px 4px; font-size: .85rem; }
-      .q-head { padding: 5px 10px; } .q-block .q-text { font-size: .8rem; } .q-answer { display: none; }
+      .q-block .q-text { font-size: .8rem; }
       .q-block.done .q-text { color: var(--gold); }
       .start-bar { padding-top: 6px; } .btn { padding: 11px 16px; font-size: 1rem; }
     }
@@ -627,7 +583,6 @@
       background: linear-gradient(180deg, #181a3d, #0d1028); border: 1px solid rgba(244,213,132,.45); border-bottom: none;
       border-radius: 20px; border-bottom: 1px solid rgba(244,213,132,.45); box-shadow: 0 14px 50px rgba(0,0,0,.6), inset 0 0 0 4px rgba(13,16,40,.9), inset 0 0 0 5px rgba(244,213,132,.1);
     }
-    .sheet-grip { display: none; }
     .sheet .option { animation: none; }
     .sheet-panel .q-num { margin-bottom: 4px; }
     .sheet-panel .q-text { font-size: 1.1rem; margin-bottom: 14px; }
@@ -740,7 +695,6 @@
   <div id="sheet" class="sheet" hidden>
     <div class="sheet-backdrop" id="sheet-backdrop"></div>
     <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheet-q">
-      <div class="sheet-grip" aria-hidden="true"></div>
       <div class="q-num" id="sheet-num"></div>
       <h2 class="q-text" id="sheet-q"></h2>
       <div class="options" id="sheet-options" role="radiogroup" aria-labelledby="sheet-q"></div>
@@ -749,18 +703,15 @@
 
   <!-- 動画 -->
   <div id="video-screen" role="dialog" aria-label="タイムスリップ演出">
-    <video id="toast-video" playsinline webkit-playsinline preload="auto">
+    <video id="toast-video" playsinline webkit-playsinline muted preload="auto">
       <source src="time-rewind.mp4" type="video/mp4">
-      <source src="time-rewind.webm" type="video/webm">
     </video>
     <canvas id="warp" aria-hidden="true"></canvas>
     <div class="year-wrap" aria-hidden="true">
       <div class="year-num" id="year-num"></div>
     </div>
-    <div class="video-caption">時を遡っています…</div>
     <button class="skip" id="skip-btn" type="button">スキップ</button>
   </div>
-  <button id="sound-btn" type="button" aria-label="効果音のオン・オフ" title="音のオン・オフ"></button>
   <div id="flash"></div>
   <div id="sparkles" aria-hidden="true"></div>
   <div class="toast" id="toast" role="status"></div>
@@ -907,9 +858,9 @@
       { year: 1925,  label: "港町の路地裏" },
       { year: 1347,  label: "王国の星見の塔" },
       { year: 1768,  label: "山奥のからくり屋敷" },
-      { year: -3000, label: "太古の深い森" },
+      { year: -3000 },
       { year: 1740,  label: "水の都ヴェネツィア" },
-      { year: -9999, label: "遥かなる銀河の彼方" },
+      { year: -9999 },
       { year: 1923,  label: "古書の街" }
     ];
     const QUESTION_COUNT = 4;
@@ -920,14 +871,6 @@
     const $ = (id) => document.getElementById(id);
     const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    function mulberry32(a) {
-      return function () {
-        a |= 0; a = (a + 0x6D2B79F5) | 0;
-        let t = Math.imul(a ^ (a >>> 15), 1 | a);
-        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-      };
-    }
     function shuffle(arr) {
       const a = arr.slice();
       for (let i = a.length - 1; i > 0; i--) {
@@ -941,72 +884,7 @@
       const t = $('toast'); t.textContent = msg; t.classList.add('show');
       clearTimeout(showToast._t); showToast._t = setTimeout(() => t.classList.remove('show'), 2200);
     }
-    function eraText(e) {
-      return e.year < 0 ? '紀元前 ' + Math.abs(e.year) + '年' : '西暦 ' + e.year + '年';
-    }
 
-    /* ---------- 効果音（WebAudio で合成。外部ファイル不要） ---------- */
-    const Sound = (function () {
-      let ctx = null, on = false;   // 音声は使わない（常にオフ）
-      function ac() {
-        if (!ctx) { try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return null; } }
-        if (ctx.state === 'suspended') ctx.resume();
-        return ctx;
-      }
-      function tone(freq, t0, dur, type, vol) {
-        const c = ac(); if (!c) return;
-        const o = c.createOscillator(), g = c.createGain();
-        o.type = type || 'sine'; o.frequency.value = freq;
-        const t = c.currentTime + t0;
-        g.gain.setValueAtTime(0, t);
-        g.gain.linearRampToValueAtTime(vol || .12, t + .02);
-        g.gain.exponentialRampToValueAtTime(.0001, t + dur);
-        o.connect(g).connect(c.destination); o.start(t); o.stop(t + dur + .05);
-      }
-      return {
-        get on() { return on; },
-        toggle() { return false; },
-        tap()    { if (on) { tone(880, 0, .18, 'sine', .1); tone(1320, .05, .22, 'sine', .06); } },
-        start()  { if (on) [523, 659, 784].forEach((f, i) => tone(f, i * .09, .5, 'triangle', .09)); },
-        flip()   { if (on) { tone(300, 0, .35, 'sawtooth', .05); tone(900, .1, .3, 'sine', .08); } },
-        warp(dur, T) {
-          if (!on) return function () {};
-          const c = ac(); if (!c) return function () {};
-          T = T || { clink: 1.0, tick: dur * .3 };
-          const now = c.currentTime, span = dur - T.tick;
-          let s1 = null;
-          if (!T.video) {
-          // 店内のざわめき（最初だけ）
-          const n1 = c.createBuffer(1, Math.floor(c.sampleRate * T.tick), c.sampleRate), d1 = n1.getChannelData(0);
-          for (let i = 0; i < d1.length; i++) d1[i] = Math.random() * 2 - 1;
-          s1 = c.createBufferSource(); s1.buffer = n1;
-          const f1 = c.createBiquadFilter(); f1.type = 'bandpass'; f1.frequency.value = 500; f1.Q.value = .8;
-          const g1 = c.createGain(); g1.gain.setValueAtTime(.025, now); g1.gain.linearRampToValueAtTime(0, now + T.tick);
-          s1.connect(f1).connect(g1).connect(c.destination); s1.start(now);
-          // 乾杯：グラスの高い音
-          tone(2637, T.clink, .7, 'sine', .08); tone(3322, T.clink + .01, .5, 'sine', .05); tone(1568, T.clink, .6, 'triangle', .05);
-          }
-          // 風切り（針が回り出してから高まる）
-          const len = Math.floor(c.sampleRate * span), buf = c.createBuffer(1, len, c.sampleRate), d = buf.getChannelData(0);
-          for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
-          const src = c.createBufferSource(); src.buffer = buf;
-          const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.2;
-          bp.frequency.setValueAtTime(180, now + T.tick); bp.frequency.exponentialRampToValueAtTime(3200, now + dur);
-          const g = c.createGain(); g.gain.setValueAtTime(0, now + T.tick);
-          g.gain.linearRampToValueAtTime(.1, now + T.tick + span * .85); g.gain.linearRampToValueAtTime(0, now + dur);
-          src.connect(bp).connect(g).connect(c.destination); src.start(now + T.tick);
-          // 針の音（だんだん速くなる）
-          let tt = T.tick, iv = .45;
-          while (tt < dur - .3) { tone(1700 + Math.random() * 400, tt, .05, 'square', .02); iv = Math.max(.05, iv * .9); tt += iv; }
-          const o = c.createOscillator(), og = c.createGain(); o.type = 'sine';
-          o.frequency.setValueAtTime(220, now + T.tick); o.frequency.exponentialRampToValueAtTime(1760, now + dur);
-          og.gain.setValueAtTime(.0001, now + T.tick); og.gain.linearRampToValueAtTime(.045, now + dur * .93); og.gain.linearRampToValueAtTime(0, now + dur);
-          o.connect(og).connect(c.destination); o.start(now + T.tick); o.stop(now + dur + .1);
-          return function () { try { src.stop(); if (s1) s1.stop(); o.stop(); } catch (e) {} };
-        },
-        reveal() { if (on) [523, 659, 784, 1047, 1319].forEach((f, i) => { tone(f, i * .11, 1.1, 'sine', .1); tone(f * 2, i * .11, .8, 'triangle', .03); }); }
-      };
-    })();
     function vibrate(ms) { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} }
 
     function setScreen(id) {
@@ -1018,10 +896,11 @@
     /* ============================================================
      *  診断ロジック
      *  - 選んだ選択肢ごとに「前世タイプ」へ加点（3/2/1点）
-     *  - 回答の組み合わせだけで決まる（生年月日・乱数は使わない）
+     *  - 回答の組み合わせ＋生年月日で決まる（乱数は使わない。同じ入力なら必ず同じ結果）
      * ============================================================ */
     // 採点：選んだ選択肢ごとに「その前世に近い度合い（1〜3点）」を足し、合計がいちばん高い前世が結果。
-    // 乱数や生年月日は使わない（同じ回答なら必ず同じ結果）。
+    // 生年月日は、誕生日（1年を10に区切った区間）に対応する前世へ +2.5 点。
+    // 答えが拮抗しているときに結果を動かす程度で、答えの傾向から大きくは外れない。乱数は使わない。
     // 同点のときだけ、選択肢への登場が少ないタイプ（＝その傾向がはっきり出た人）を優先し、
     // それでも並んだら回答の組み合わせから一意に決める。
     const TYPE_MEAN = (function () {
@@ -1036,6 +915,10 @@
         const sc = questionPool[q].options[opt].s;
         Object.keys(sc).forEach(t => { raw[t] += sc[t]; });
       });
+      if (birth && birth.m && birth.d) {
+        const doy = Math.round((Date.UTC(2001, birth.m - 1, birth.d) - Date.UTC(2001, 0, 1)) / 86400000);
+        raw[Math.floor(doy / 36.6) % results.length] += 2.5;
+      }
       const top = Math.max.apply(null, raw);
       const tied = raw.map((v, i) => (v === top ? i : -1)).filter(i => i >= 0);
       if (tied.length === 1) return tied[0];
@@ -1137,7 +1020,7 @@
     }
     function choose(k, i) {
       answers[k] = i;
-      Sound.tap(); vibrate(15);
+      vibrate(15);
       $('sheet-options').querySelectorAll('.option').forEach((o, idx) => { o.classList.toggle('chosen', idx === i); o.setAttribute('aria-checked', idx === i ? 'true' : 'false'); });
       const blk = $('qb-' + k);
       blk.querySelector('.q-answer').textContent = questionPool[questions[k]].options[i].t;
@@ -1161,9 +1044,9 @@
     function preloadResultImages() { /* IMGS で先読み済み */ }
 
     /* ============================================================
-     *  タイムスリップ演出（canvas）
-     *  金色の時計の輪が奥から迫り、針が反時計回りに巻き戻る。
-     *  前世のイラストが渦の中を流れ、年号が遡っていく。
+     *  タイムスリップ演出
+     *  動画（乾杯 → 時計が巻き戻る → 渦）を画面いっぱいに流し、年号を重ねる。
+     *  動画が再生できないときは、演出を飛ばしてカード画面へ進む。
      * ============================================================ */
     function startTimeSlip() {
       const picked = questions.map((q, k) => ({ q, opt: answers[k] }));
@@ -1171,438 +1054,48 @@
 
       const vs = $('video-screen'), skip = $('skip-btn');
       const cv = $('warp'), c = cv.getContext('2d');
-      const yearNum = $('year-num'), yearWrap = vs.querySelector('.year-wrap'), capEl = vs.querySelector('.video-caption');
+      const yearNum = $('year-num'), yearWrap = vs.querySelector('.year-wrap');
       const era = ERAS[lastResult], startYear = new Date().getFullYear();
-      const DUR = reduceMotion ? 4000 : 10000, DS = DUR / 1000, TAU = Math.PI * 2;
-      const clamp = (x, a, b) => Math.max(a === undefined ? 0 : a, Math.min(b === undefined ? 1 : b, x));
-      const smooth = (x) => x * x * (3 - 2 * x);
-      let W, H, DPR, L = {};
+      const clamp = (x) => Math.max(0, Math.min(1, x));
       const vid = $('toast-video');
-      let useVideo = !reduceMotion && !!vid && !vid.error && vid.networkState !== 3;   // 読み込み途中でも動画版で始める
-      let started = false, t0 = 0, stopSound = function () {}, raf = 0;
+      let W, H, raf = 0, started = false, bgc = null;
 
-      /* ---------- 描画ヘルパー ---------- */
-      function rr(g, x, y, w, h, r) {
-        g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
-        g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
-      }
-      // 縮小して描き、拡大して貼る＝軽量なぼかし（ctx.filter非対応のSafari対策）
-      function soft(f, fn) {
-        const cc = document.createElement('canvas'); cc.width = Math.ceil(W / f); cc.height = Math.ceil(H / f);
-        const g = cc.getContext('2d'); g.scale(1 / f, 1 / f); fn(g);
-        const mid = document.createElement('canvas'); mid.width = Math.ceil(W / 2); mid.height = Math.ceil(H / 2);
-        const mg = mid.getContext('2d'); mg.imageSmoothingEnabled = true; mg.imageSmoothingQuality = 'high';
-        mg.drawImage(cc, 0, 0, mid.width, mid.height);
-        return mid;
-      }
-      function bricks(g, x, y, w, h, bw, bh, rnd, pal) {
-        g.save(); g.beginPath(); g.rect(x, y, w, h); g.clip();
-        g.fillStyle = '#26160f'; g.fillRect(x, y, w, h);
-        const gap = bh * .09, rows = Math.ceil(h / bh) + 1;
-        for (let r = 0; r < rows; r++) {
-          const off = (r % 2) * bw / 2;
-          for (let cx = -bw; cx < w + bw; cx += bw) {
-            g.fillStyle = pal[Math.floor(rnd() * pal.length)];
-            g.fillRect(x + cx + off + gap, y + r * bh + gap, bw - gap * 2, bh - gap * 2);
-          }
-        }
-        g.restore();
-      }
-
-      function build() {
-        const rnd = mulberry32(11);
-        const pal = ['#8b4a36', '#9a5640', '#7d4130', '#a2604a', '#6f3a2c', '#935039'];
-        // 壁掛け時計のシーン：煉瓦の壁
-        const wl = document.createElement('canvas'); wl.width = W; wl.height = H;
-        const g = wl.getContext('2d');
-        bricks(g, 0, 0, W, H * .82, W * .2, W * .085, rnd, pal);
-        g.fillStyle = '#2a1c14'; g.fillRect(0, H * .8, W, H * .2);
-        g.drawImage(soft(4, (s) => {
-          s.fillStyle = '#34210f'; s.fillRect(0, H * .8, W, H * .03);
-          const cols = ['#3d5a3a', '#6b4a2a', '#2f4a63', '#7a5a3a'];
-          for (let i = 0; i < 10; i++) {
-            const x = W * (.04 + i * .1), h = H * (.07 + rnd() * .05), w = W * .045;
-            s.fillStyle = cols[i % 4]; rr(s, x, H * .8 - h, w, h, w * .3); s.fill();
-            s.fillRect(x + w * .3, H * .8 - h - H * .03, w * .4, H * .035);
-          }
-          s.fillStyle = 'rgba(240,225,195,.8)';
-          for (let i = 0; i < 4; i++) { s.beginPath(); s.ellipse(W * .82, H * (.9 - i * .014), W * .1, H * .008, 0, 0, TAU); s.fill(); }
-        }), 0, 0, W, H);
-        const vg = g.createRadialGradient(W / 2, H * .4, W * .15, W / 2, H * .4, H * .78);
-        vg.addColorStop(0, 'rgba(255,200,130,.20)'); vg.addColorStop(1, 'rgba(10,5,3,.7)');
-        g.fillStyle = vg; g.fillRect(0, 0, W, H);
-        L.wall = wl;
-
-        // 乾杯シーンの背景（ぼかし）
-        L.toast = soft(5, (s) => {
-          const bg = s.createLinearGradient(0, 0, 0, H);
-          bg.addColorStop(0, '#46291b'); bg.addColorStop(.6, '#5a3522'); bg.addColorStop(1, '#1f130d');
-          s.fillStyle = bg; s.fillRect(0, 0, W, H);
-          s.fillStyle = '#1c2c4a'; s.fillRect(0, H * .08, W * .3, H * .4);
-          s.fillStyle = 'rgba(255,220,150,.55)';
-          for (let i = 0; i < 7; i++) { s.beginPath(); s.arc(W * (.03 + rnd() * .24), H * (.12 + rnd() * .3), W * .012, 0, TAU); s.fill(); }
-          bricks(s, W * .32, 0, W * .68, H * .56, W * .18, W * .08, rnd, pal);
-          s.fillStyle = '#23302b'; s.fillRect(W * .62, H * .14, W * .22, H * .15);
-          s.strokeStyle = '#7b5436'; s.lineWidth = W * .012; s.strokeRect(W * .62, H * .14, W * .22, H * .15);
-          s.fillStyle = 'rgba(235,240,255,.35)';
-          for (let i = 0; i < 6; i++) { rr(s, W * (.06 + i * .05), H * .04, W * .03, H * .045, W * .01); s.fill(); }
-          // 奥の女性
-          s.fillStyle = '#2b1a14'; s.beginPath(); s.ellipse(W * .4, H * .36, W * .105, W * .125, 0, 0, TAU); s.fill();
-          s.fillStyle = '#e9bc9c'; s.beginPath(); s.arc(W * .405, H * .37, W * .08, 0, TAU); s.fill();
-          s.fillStyle = '#2b1a14'; s.beginPath(); s.arc(W * .4, H * .345, W * .085, Math.PI, TAU); s.fill();
-          s.fillStyle = '#f3e6d2'; rr(s, W * .27, H * .46, W * .28, H * .2, W * .06); s.fill();
-          // 奥の男性
-          s.fillStyle = '#d9a888'; s.beginPath(); s.arc(W * .83, H * .41, W * .062, 0, TAU); s.fill();
-          s.fillStyle = '#2a1a12'; s.beginPath(); s.arc(W * .83, H * .395, W * .065, Math.PI, TAU); s.fill();
-          s.fillStyle = '#6f8fb5'; rr(s, W * .71, H * .48, W * .26, H * .2, W * .05); s.fill();
-          // テーブル
-          const tb = s.createLinearGradient(0, H * .66, 0, H); tb.addColorStop(0, '#4a2a16'); tb.addColorStop(1, '#1b0f08');
-          s.fillStyle = tb; s.fillRect(0, H * .66, W, H * .34);
-          s.fillStyle = 'rgba(255,225,170,.45)';
-          s.beginPath(); s.ellipse(W * .2, H * .76, W * .12, H * .018, 0, 0, TAU); s.fill();
-          s.beginPath(); s.ellipse(W * .8, H * .78, W * .1, H * .016, 0, 0, TAU); s.fill();
-        });
-        L.bokeh = Array.from({ length: 16 }, () => ({ x: rnd() * W, y: rnd() * H * .5, r: W * (.03 + rnd() * .06), ph: rnd() * 6 }));
-        L.drops = Array.from({ length: 16 }, () => ({ a: -Math.PI * (.1 + rnd() * .8), v: W * (.25 + rnd() * .5), r: W * (.006 + rnd() * .01) }));
-        const gc = document.createElement('canvas'); gc.width = Math.ceil(W / 2); gc.height = Math.ceil(H / 2);
-        const gx = gc.getContext('2d'), gd = gx.createImageData(gc.width, gc.height), r2 = mulberry32(5);
-        for (let i = 0; i < gd.data.length; i += 4) { const v = 128 + (r2() + r2() + r2() - 1.5) * 46; gd.data[i] = gd.data[i + 1] = gd.data[i + 2] = v; gd.data[i + 3] = 255; }
-        gx.putImageData(gd, 0, 0); L.grain = gc;
-        L.arms = Array.from({ length: 30 }, (_, i) => ({
-          a0: i / 30 * TAU + rnd() * .3, tw: .5 + rnd() * 1.1, ph: rnd() * 6, wd: .5 + rnd() * 1.2,
-          col: ['rgba(140,185,255,.5)', 'rgba(205,228,255,.45)', 'rgba(255,190,110,.5)', 'rgba(244,213,132,.5)'][i % 4], dash: .6 + rnd() * 1.2
-        }));
-        L.stars = Array.from({ length: 230 }, () => ({ s0: rnd(), k: .5 + rnd(), a: rnd() * TAU, w: .6 + rnd() * 1.8, b: rnd() > .7 }));
-      }
       function fit() {
-        DPR = Math.min(window.devicePixelRatio || 1, 2);
+        const DPR = Math.min(window.devicePixelRatio || 1, 2);
         W = cv.width = Math.max(2, Math.round(innerWidth * DPR));
         H = cv.height = Math.max(2, Math.round(innerHeight * DPR));
-        build();
       }
-
-      /* ---------- ① 乾杯 ---------- */
-      function mug(x, y, mw, mh, dir, rot, sleeve, tm) {
-        c.save(); c.translate(x, y); c.rotate(rot); c.scale(dir, 1);
-        const w = mw, h = mh;
-        // 袖と手
-        c.fillStyle = sleeve; rr(c, w * .55, -h * .12, w * 1.4, h * .26, w * .08); c.fill();
-        c.fillStyle = '#e7b394'; c.beginPath(); c.ellipse(w * .74, h * .01, w * .2, h * .17, 0, 0, TAU); c.fill();
-        c.strokeStyle = '#b5826a'; c.lineWidth = w * .012;
-        for (let i = -1; i <= 1; i++) { c.beginPath(); c.moveTo(w * .6, h * (.01 + i * .06)); c.lineTo(w * .86, h * (.01 + i * .06)); c.stroke(); }
-        // 取っ手
-        c.lineCap = 'round'; c.strokeStyle = 'rgba(255,230,180,.6)'; c.lineWidth = w * .13;
-        c.beginPath(); c.moveTo(w / 2, -h * .3); c.bezierCurveTo(w * .98, -h * .34, w * .98, h * .24, w / 2, h * .2); c.stroke();
-        c.strokeStyle = 'rgba(255,255,255,.5)'; c.lineWidth = w * .025;
-        c.beginPath(); c.moveTo(w * .53, -h * .28); c.bezierCurveTo(w * .9, -h * .31, w * .9, h * .2, w * .53, h * .18); c.stroke();
-        // 本体
-        rr(c, -w / 2, -h / 2, w, h, w * .09);
-        c.save(); c.clip();
-        const bg = c.createLinearGradient(-w / 2, 0, w / 2, 0);
-        bg.addColorStop(0, '#f8c95e'); bg.addColorStop(.5, '#f1a82d'); bg.addColorStop(1, '#d6841a');
-        c.fillStyle = bg; c.fillRect(-w / 2, -h * .32, w, h);
-        c.fillStyle = '#fff7e6'; c.fillRect(-w / 2, -h / 2, w, h * .2);
-        for (let i = 0; i <= 6; i++) { c.beginPath(); c.arc(-w / 2 + w * i / 6, -h * .3, w * .09, 0, TAU); c.fill(); }
-        c.fillStyle = 'rgba(255,255,255,.38)'; c.fillRect(-w * .34, -h * .26, w * .07, h * .62);
-        c.fillStyle = 'rgba(255,245,210,.7)';
-        for (let i = 0; i < 9; i++) {
-          const fy = ((tm * .22 + i * .117) % 1); c.beginPath();
-          c.arc(-w * .35 + (i * 37 % 70) / 100 * w, h * .42 - fy * h * .7, w * .012, 0, TAU); c.fill();
-        }
-        c.fillStyle = 'rgba(255,255,255,.26)'; c.fillRect(-w / 2, h * .38, w, h * .12);
-        c.restore();
-        c.fillStyle = '#fffaf0';
-        for (let i = 0; i < 5; i++) { c.beginPath(); c.arc(-w * .38 + i * w * .19, -h / 2, w * .1, 0, TAU); c.fill(); }
-        c.strokeStyle = 'rgba(70,35,10,.55)'; c.lineWidth = w * .02; rr(c, -w / 2, -h / 2, w, h, w * .09); c.stroke();
-        c.restore();
-      }
-      function drawToast(t, alpha) {
-        const tm = t * DS, tc = 1.0, mw = W * .3, mh = W * .4;
-        const zoom = 1 + .07 * clamp(t / .24);
-        const k = Math.max(0, tm - tc);
-        const sh = tm > tc ? Math.exp(-k * 9) : 0;
-        c.save(); c.globalAlpha = alpha;
-        c.translate(W / 2, H / 2); c.scale(zoom, zoom);
-        c.translate(-W / 2 + Math.sin(tm * 70) * W * .006 * sh, -H / 2 + Math.cos(tm * 60) * W * .005 * sh);
-        c.drawImage(L.toast, 0, 0, W, H);
-        c.globalCompositeOperation = 'lighter';
-        for (const b of L.bokeh) {
-          const a = .3 + .12 * Math.sin(tm * 1.6 + b.ph), gr = c.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
-          gr.addColorStop(0, 'rgba(255,205,120,' + a.toFixed(3) + ')'); gr.addColorStop(1, 'rgba(255,205,120,0)');
-          c.fillStyle = gr; c.beginPath(); c.arc(b.x, b.y, b.r, 0, TAU); c.fill();
-        }
-        c.globalCompositeOperation = 'source-over';
-        let D;
-        if (tm < tc) D = mw + (W * .95 - mw) * Math.pow(1 - tm / tc, 3);
-        else D = mw * (1 + .06 * Math.exp(-k * 7) * Math.sin(k * 22));
-        const my = H * .6 + Math.sin(tm * 2) * H * .004, rot = .13 * Math.pow(1 - clamp(tm / tc), 2);
-        mug(W / 2 - D / 2, my, mw, mh, -1, -rot, '#6f8fb5', tm);
-        mug(W / 2 + D / 2, my, mw, mh, 1, rot, '#efe2c8', tm);
-        if (k > 0 && k < .7) {   // 乾杯の火花としぶき
-          const px = W / 2, py = my - mh * .12, a = 1 - k / .7;
-          const gl = c.createRadialGradient(px, py, 0, px, py, W * .22 * (.4 + k));
-          gl.addColorStop(0, 'rgba(255,250,220,' + (.8 * a).toFixed(3) + ')'); gl.addColorStop(1, 'rgba(255,220,140,0)');
-          c.fillStyle = gl; c.fillRect(px - W * .3, py - W * .3, W * .6, W * .6);
-          c.strokeStyle = 'rgba(255,246,214,' + a.toFixed(3) + ')'; c.lineWidth = 2.5 * DPR; c.lineCap = 'round';
-          for (let i = 0; i < 12; i++) {
-            const an = i / 12 * TAU, r1 = W * .05 + k * W * .1, r2 = r1 + W * (.05 + .12 * (1 - k / .7));
-            c.beginPath(); c.moveTo(px + Math.cos(an) * r1, py + Math.sin(an) * r1); c.lineTo(px + Math.cos(an) * r2, py + Math.sin(an) * r2); c.stroke();
-          }
-          c.fillStyle = 'rgba(255,248,230,' + a.toFixed(3) + ')';
-          for (const d of L.drops) { c.beginPath(); c.arc(px + Math.cos(d.a) * d.v * k, py + Math.sin(d.a) * d.v * k + W * .6 * k * k, d.r, 0, TAU); c.fill(); }
-        }
-        c.restore();
-      }
-
-      /* ---------- ② 壁掛け時計 ---------- */
-      const ROMAN = ['XII', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI'];
-      function hand(len, wd, ang, col, sp) {
-        c.save(); c.rotate(ang); c.fillStyle = col; c.beginPath();
-        c.moveTo(-len * .18, 0); c.lineTo(-len * .14, -wd * .45); c.lineTo(0, -wd * .55);
-        c.lineTo(len * (sp - .06), -wd * .18); c.lineTo(len * (sp + .02), -wd * .62); c.lineTo(len, 0);
-        c.lineTo(len * (sp + .02), wd * .62); c.lineTo(len * (sp - .06), wd * .18);
-        c.lineTo(0, wd * .55); c.lineTo(-len * .14, wd * .45); c.closePath(); c.fill(); c.restore();
-      }
-      // 巻き戻る針の角度（t の関数。反時計回り＝角度が減る）
-      function rewind(t) {
-        const rw = clamp((t - .41) / .51), rp = .51 * DS * (1.5 * rw + 10 * rw * rw * rw);
-        return { rp: rp, w: 1.5 + 30 * rw * rw };
-      }
-      function clock(R, t) {
-        const rwd = rewind(t);
-        c.save();
-        c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = R * .12; c.shadowOffsetX = R * .04; c.shadowOffsetY = R * .06;
-        const wg = c.createLinearGradient(-R, -R, R, R);
-        wg.addColorStop(0, '#7a4e32'); wg.addColorStop(.45, '#4a2b19'); wg.addColorStop(1, '#2e190e');
-        c.fillStyle = wg; c.beginPath(); c.arc(0, 0, R * 1.2, 0, TAU); c.fill(); c.restore();
-        c.strokeStyle = 'rgba(255,205,150,.3)'; c.lineWidth = R * .014; c.beginPath(); c.arc(0, 0, R * 1.15, Math.PI * 1.08, Math.PI * 1.68); c.stroke();
-        c.strokeStyle = 'rgba(0,0,0,.45)'; c.lineWidth = R * .025; c.beginPath(); c.arc(0, 0, R * 1.015, 0, TAU); c.stroke();
-        const fg = c.createRadialGradient(-R * .2, -R * .25, R * .1, 0, 0, R);
-        fg.addColorStop(0, '#efe4c8'); fg.addColorStop(.7, '#e6d8b6'); fg.addColorStop(1, '#cbb78a');
-        c.fillStyle = fg; c.beginPath(); c.arc(0, 0, R * 1.015, 0, TAU); c.fill();
-        c.strokeStyle = 'rgba(42,28,20,.75)'; c.lineWidth = R * .012; c.beginPath(); c.arc(0, 0, R * 1.2, 0, TAU); c.stroke();
-        const ig = c.createRadialGradient(0, 0, R * .84, 0, 0, R);
-        ig.addColorStop(0, 'rgba(60,35,15,0)'); ig.addColorStop(1, 'rgba(60,35,15,.38)');
-        c.fillStyle = ig; c.beginPath(); c.arc(0, 0, R, 0, TAU); c.fill();
-        c.strokeStyle = '#241a14'; c.lineCap = 'butt';
-        for (let k = 0; k < 60; k++) {
-          const a = k / 60 * TAU, mj = k % 5 === 0, co = Math.cos(a), si = Math.sin(a);
-          c.lineWidth = R * (mj ? .014 : .006);
-          c.beginPath(); c.moveTo(co * R * (mj ? .88 : .91), si * R * (mj ? .88 : .91)); c.lineTo(co * R * .955, si * R * .955); c.stroke();
-        }
-        c.fillStyle = '#1c1511'; c.textAlign = 'center'; c.textBaseline = 'middle';
-        c.font = '700 ' + (R * .17) + 'px "Times New Roman", Georgia, serif';
-        for (let k = 0; k < 12; k++) {
-          const a = k / 12 * TAU - Math.PI / 2;
-          c.save(); c.translate(Math.cos(a) * R * .72, Math.sin(a) * R * .72); c.rotate(a + Math.PI / 2); c.fillText(ROMAN[k], 0, 0); c.restore();
-        }
-        // 針が回り始めると波紋が広がる（動画の渦のイメージ）
-        const ri = smooth(clamp((t - .42) / .12));
-        if (ri > 0) {
-          c.save(); c.globalCompositeOperation = 'lighter'; c.lineCap = 'round';
-          for (let i = 0; i < 14; i++) {
-            const r = R * 1.2 * (((i + .5) / 14 + rwd.rp * .02) % 1), f = 1 - r / (R * 1.2);
-            c.strokeStyle = 'rgba(255,246,214,' + (.4 * ri * f).toFixed(3) + ')'; c.lineWidth = R * (.006 + .02 * (1 - f));
-            const a0 = -rwd.rp * (.5 + i * .06) + i * 1.7;
-            c.beginPath(); c.arc(0, 0, r, a0, a0 + 1.6 + .8 * Math.sin(i * 2.1)); c.stroke();
-            c.strokeStyle = 'rgba(244,213,132,' + (.22 * ri * f).toFixed(3) + ')'; c.lineWidth = R * .005;
-            c.beginPath(); c.arc(0, 0, r, 0, TAU); c.stroke();
-          }
-          c.restore();
-        }
-        const mA = (10 / 60) * TAU - Math.PI / 2 - rwd.rp, hA = ((10 + 10 / 60) / 12) * TAU - Math.PI / 2 - rwd.rp / 12;
-        const step = .035 * clamp(rwd.w / 6, 0, 4);
-        if (step > .01) for (let k = 6; k >= 1; k--) {   // 針の残像（反時計回りに進むので、後ろ＝時計回り側）
-          c.globalAlpha = .32 * (1 - k / 7); hand(R * .8, R * .05, mA + k * step, '#14110f', .84);
-        }
-        c.globalAlpha = 1;
-        hand(R * .52, R * .09, hA, '#14110f', .7);
-        hand(R * .8, R * .05, mA, '#14110f', .84);
-        const cg = c.createRadialGradient(-R * .01, -R * .01, 0, 0, 0, R * .05);
-        cg.addColorStop(0, '#fff0b0'); cg.addColorStop(1, '#a8741c');
-        c.fillStyle = cg; c.beginPath(); c.arc(0, 0, R * .045, 0, TAU); c.fill();
-        const gl = c.createLinearGradient(-R, -R, R * .4, R * .4);
-        gl.addColorStop(0, 'rgba(255,255,255,.28)'); gl.addColorStop(.5, 'rgba(255,255,255,.05)'); gl.addColorStop(1, 'rgba(255,255,255,0)');
-        c.fillStyle = gl; c.beginPath(); c.arc(0, 0, R, 0, TAU); c.fill();
-      }
-      // 動画（9:16）を画面いっぱいに敷いたときの座標
-      function vgeo() {
-        const vw = (useVideo && vid.videoWidth) || 720, vh = (useVideo && vid.videoHeight) || 1280;
-        const sc = Math.max(W / vw, H / vh), dw = vw * sc, dh = vh * sc, x0 = (W - dw) / 2, y0 = (H - dh) / 2;
-        return { x0: x0, y0: y0, dw: dw, dh: dh, cx: x0 + dw * .525, cy: y0 + dh * .48, R: dw * .472, ky: .853 };
-      }
-      function drawVideo() { const g = vgeo(); c.drawImage(vid, g.x0, g.y0, g.dw, g.dh); }
-      let bgc = null;
-      function drawFullVideo() {
+      // 縦長の動画：細い画面は全面に、横長の画面は中央に置いて左右は動画の色をぼかして延ばす
+      function drawVideo() {
         const vw = vid.videoWidth || 720, vh = vid.videoHeight || 1280;
-        if (W / H <= .75) { drawVideo(); return; }
-        // 横長の画面：縦長の動画をそのまま中央に。左右は動画の色をぼかして延ばす
+        if (W / H <= .75) {
+          const sc = Math.max(W / vw, H / vh), dw = vw * sc, dh = vh * sc;
+          c.drawImage(vid, (W - dw) / 2, (H - dh) / 2, dw, dh); return;
+        }
         if (!bgc) { bgc = document.createElement('canvas'); bgc.width = 18; bgc.height = 32; }
-        const bg = bgc.getContext('2d'); bg.drawImage(vid, 0, 0, 18, 32);
+        bgc.getContext('2d').drawImage(vid, 0, 0, 18, 32);
         c.save(); c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
         c.drawImage(bgc, 0, 0, W, H); c.fillStyle = 'rgba(14,16,40,.45)'; c.fillRect(0, 0, W, H); c.restore();
         const sc = H / vh, dw = vw * sc; c.drawImage(vid, (W - dw) / 2, 0, dw, H);
       }
-      function drawWall(t, alpha, offX) {
-        const g = vgeo(), R = g.R, ccx = g.cx, ccy = g.cy;
-        const pz = clamp((t - .37) / .25), zmax = Math.hypot(W, H) / 2 * 1.25 / R;
-        const s = Math.exp(Math.log(zmax) * Math.pow(pz, 1.6));
-        const cp = 1 - Math.pow(1 - clamp(pz * 1.6), 3);
-        const camx = W / 2 + (ccx - W / 2) * cp, camy = H / 2 + (ccy - H / 2) * cp;
-        const x = clamp((t - .30) / .09);                       // 動画から描画の時計へ：金色の光で入れ替える
-        const clockA = useVideo ? smooth(clamp((x - .3) / .35)) : 1;
-        const ky = g.ky + (1 - g.ky) * smooth(clamp(pz * 1.3));  // 斜めから見た楕円 → ズームで正円へ
-        c.save(); c.globalAlpha = alpha;
-        c.translate(W / 2 + offX, H / 2); c.scale(s, s); c.translate(-camx, -camy);
-        if (useVideo) c.drawImage(vid, g.x0, g.y0, g.dw, g.dh); else c.drawImage(L.wall, 0, 0, W, H);
-        c.translate(ccx, ccy); c.scale(1, ky); c.globalAlpha = alpha * clockA; clock(R, t);
-        c.restore();
-        if (useVideo && x > 0 && x < 1) {
-          const sx = W / 2 + offX + (ccx - camx) * s, sy = H / 2 + (ccy - camy) * s, gl = Math.sin(Math.PI * x);
-          c.save(); c.globalCompositeOperation = 'lighter';
-          const rg = c.createRadialGradient(sx, sy, 0, sx, sy, R * s * (.5 + 1.5 * x));
-          rg.addColorStop(0, 'rgba(255,238,180,' + (.85 * gl).toFixed(3) + ')'); rg.addColorStop(1, 'rgba(255,220,140,0)');
-          c.fillStyle = rg; c.fillRect(0, 0, W, H);
-          c.strokeStyle = 'rgba(255,236,170,' + (.8 * (1 - x)).toFixed(3) + ')'; c.lineWidth = 3 * DPR;
-          c.beginPath(); c.ellipse(sx, sy, R * s * (.3 + 1.5 * x), R * s * (.3 + 1.5 * x) * ky, 0, 0, TAU); c.stroke();
-          c.restore();
-        }
-      }
 
-      /* ---------- ③ 星雲のトンネル ---------- */
-      function drawTunnel(t, alpha) {
-        const u = clamp((t - .58) / .42), tp = .42 * DS * (.5 * u + 1.8 * u * u);
-        const cx = W / 2, cy = H / 2, R = Math.hypot(W, H) / 2, m = Math.min(W, H);
-        c.save(); c.globalAlpha = alpha;
-        c.fillStyle = '#03050e'; c.fillRect(0, 0, W, H);
-        const bg = c.createRadialGradient(cx, cy, 0, cx, cy, R);
-        bg.addColorStop(0, '#1b2a5c'); bg.addColorStop(.35, '#0c1433'); bg.addColorStop(1, '#03050e');
-        c.fillStyle = bg; c.fillRect(0, 0, W, H);
-        c.globalCompositeOperation = 'lighter'; c.lineCap = 'round'; c.lineJoin = 'round';
-        const r0 = R * .02, N = 26;
-        for (const a of L.arms) {
-          c.beginPath();
-          for (let j = 0; j <= N; j++) {
-            const rr_ = r0 * Math.exp(j / N * Math.log(R * 1.2 / r0));
-            const th = a.a0 - tp * .15 - a.tw * Math.log(rr_ / r0) + Math.sin(rr_ / R * 9 + a.ph + tp * .7) * .18;
-            const x = cx + Math.cos(th) * rr_, y = cy + Math.sin(th) * rr_;
-            if (j) c.lineTo(x, y); else c.moveTo(x, y);
-          }
-          c.strokeStyle = a.col; c.lineWidth = m * .011 * a.wd; c.shadowColor = a.col; c.shadowBlur = 9 * DPR;
-          c.setLineDash([R * .06 * a.dash, R * .035]); c.lineDashOffset = -tp * R * .9;
-          c.stroke();
-        }
-        c.setLineDash([]); c.shadowBlur = 0;
-        for (const s of L.stars) {   // 流れる星の粒
-          const fr = (s.s0 + tp * .22 * s.k) % 1, rr_ = Math.pow(fr, 1.7) * R * 1.1;
-          const len = (.008 + .05 * u) * R * (.3 + fr * 2) + 2 * DPR, co = Math.cos(s.a), si = Math.sin(s.a);
-          c.strokeStyle = (s.b ? 'rgba(170,200,255,' : 'rgba(255,255,255,') + (.2 + .8 * fr).toFixed(3) + ')';
-          c.lineWidth = s.w * DPR * (.5 + fr);
-          c.beginPath(); c.moveTo(cx + co * rr_, cy + si * rr_); c.lineTo(cx + co * (rr_ + len), cy + si * (rr_ + len)); c.stroke();
-        }
-        for (let i = 0; i < 7; i++) {   // 金色の輪が迫ってくる
-          const fr = (i / 7 + tp * .1) % 1, r = fr * fr * R * 1.05;
-          c.strokeStyle = 'rgba(255,236,170,' + ((1 - fr) * .8 * Math.min(1, fr * 5)).toFixed(3) + ')';
-          c.lineWidth = (1.5 + fr * 5) * DPR; c.beginPath(); c.arc(cx, cy, r, 0, TAU); c.stroke();
-        }
-        // 時計の針の残像（トンネルの中でもまだ巻き戻っている）
-        const hv = clamp((t - .58) / .04) * (1 - clamp((t - .68) / .2));
-        if (hv > 0) {
-          const rwd = rewind(t), Rh = m * .3;
-          c.save(); c.translate(cx, cy); c.globalAlpha = alpha * hv; c.shadowColor = 'rgba(255,240,200,.9)'; c.shadowBlur = 14 * DPR;
-          c.strokeStyle = 'rgba(255,244,210,.9)'; c.lineWidth = Rh * .02; c.beginPath(); c.arc(0, 0, Rh, 0, TAU); c.stroke();
-          const mA = (10 / 60) * TAU - Math.PI / 2 - rwd.rp, hA = ((10 + 10 / 60) / 12) * TAU - Math.PI / 2 - rwd.rp / 12;
-          hand(Rh * .92, Rh * .06, mA, 'rgba(255,248,225,.95)', .84); hand(Rh * .6, Rh * .1, hA, 'rgba(255,240,200,.95)', .7);
-          c.restore();
-        }
-        const gr = R * (.04 + .9 * u * u * u), cg = c.createRadialGradient(cx, cy, 0, cx, cy, gr);
-        cg.addColorStop(0, 'rgba(255,252,240,.95)'); cg.addColorStop(.4, 'rgba(210,225,255,.45)'); cg.addColorStop(1, 'rgba(160,190,255,0)');
-        c.fillStyle = cg; c.beginPath(); c.arc(cx, cy, gr, 0, TAU); c.fill();
-        c.restore();
-      }
-
-      /* ---------- 進行 ---------- */
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       vs.classList.add('show');
       fit();
       window.addEventListener('resize', fit);
       yearNum.innerHTML = startYear + '<small>年</small>';
-      yearWrap.style.opacity = 0; capEl.style.visibility = 'hidden';
+      yearWrap.style.opacity = 0;
       skip.classList.remove('visible');
       const skipTimer = setTimeout(() => skip.classList.add('visible'), 1500);
       finished = false;
-      function begin() {
-        if (started) return;
-        started = true; t0 = performance.now();
-        stopSound = useVideo ? function () {} : Sound.warp(DS, { clink: 1.0, tick: .4 * DS, video: false });   // 動画版は動画自身の音を使う
-      }
-      if (useVideo) {
-        vid.addEventListener('playing', begin, { once: true });
-        try { if (vid.readyState < 2) vid.load(); } catch (e) {}
-        vid.muted = true;
-        try { vid.currentTime = 0; } catch (e) {}
-        const pp = vid.play();
-        if (pp && pp.catch) pp.catch(() => {
-          vid.muted = true;
-          const p2 = vid.play();
-          if (p2 && p2.catch) p2.catch(() => { useVideo = false; begin(); });
-        });
-        const waitMax = setTimeout(() => { if (!started) { useVideo = false; begin(); } }, 8000);   // 8秒たっても再生できない時だけ描画版へ
-        vid.addEventListener('playing', () => clearTimeout(waitMax), { once: true });
-        Array.prototype.forEach.call(vid.querySelectorAll('source'), (so) => so.addEventListener('error', () => {
-          if (!started && vid.networkState === 3) { clearTimeout(waitMax); useVideo = false; begin(); }
-        }));
-      } else begin();
-
-      function frame(now) {
-        if (!started) { c.fillStyle = '#000'; c.fillRect(0, 0, W, H); raf = requestAnimationFrame(frame); return; }
-        let t = clamp((now - t0) / DUR);
-        const dbg = typeof window.__warpT === 'number';
-        if (useVideo && !dbg) t = clamp(vid.currentTime / (vid.duration || 10));
-        if (dbg) t = window.__warpT;
-        c.globalAlpha = 1; c.fillStyle = '#000'; c.fillRect(0, 0, W, H);
-        if (useVideo) drawFullVideo();
-        else if (t < .67) {
-          if (useVideo) {
-            if (t < .32) drawVideo();
-            else { if (!vid.paused) vid.pause(); drawWall(t, 1, 0); }
-          } else if (t < .34) {
-            const p = smooth(clamp((t - .2) / .14));
-            if (p < 1) for (let g = 2; g >= 0; g--) { c.save(); c.translate(-p * W - g * W * .03 * p, 0); drawToast(t, g ? .26 : 1); c.restore(); }
-            if (p > 0) for (let g = 2; g >= 0; g--) drawWall(t, g ? .26 : 1, (1 - p) * W + g * W * .03 * (1 - p));
-          } else drawWall(t, 1, 0);
-        }
-        const a3 = useVideo ? 0 : smooth(clamp((t - .56) / .1));
-        if (a3 > 0) {
-          drawTunnel(t, a3);
-          const fl = Math.min(1, Math.pow(Math.sin(Math.PI * a3), .7) * 1.1);   // 一度、真っ白な光を通して入れ替える
-          if (fl > 0) { c.fillStyle = 'rgba(255,250,235,' + fl.toFixed(3) + ')'; c.fillRect(0, 0, W, H); }
-        }
-        if (!useVideo && t > .3 && L.grain) {   // 絵本のイラストと同じ紙の質感を重ねる
-          c.save(); c.globalCompositeOperation = 'soft-light'; c.globalAlpha = .55 * smooth(clamp((t - .3) / .1));
-          c.drawImage(L.grain, 0, 0, W, H); c.restore();
-        }
-        // 年号
-        const yS = useVideo ? .37 : .39;   // 動画版は時計が回り始める瞬間（光の切り替え）から
-        yearWrap.style.opacity = clamp((t - yS) / .06);
-        capEl.style.visibility = t > yS ? 'visible' : 'hidden';
-        const pc = clamp((t - (yS + .01)) / (useVideo ? .50 : .48)), e = Math.pow(pc, 2.2);
-        if (era.year === -9999 && t > .86) yearNum.textContent = '∞';
-        else {
-          const y = t > .88 ? era.year : Math.round(startYear + (era.year - startYear) * e);
-          yearNum.innerHTML = y < 0 ? '<small class="bc">B.C.</small>' + Math.abs(y) : y + '<small>年</small>';
-        }
-        // 白い光に包まれて終わる
-        if (!useVideo && t > .9) { const k = Math.pow((t - .9) / .1, 1.4); c.fillStyle = 'rgba(255,252,240,' + k.toFixed(3) + ')'; c.fillRect(0, 0, W, H); }
-        if ((t >= .995 || (useVideo && vid.ended)) && !dbg) finishWarp(); else raf = requestAnimationFrame(frame);
-      }
 
       function finishWarp() {
         if (finished) return;
         finished = true;
-        cancelAnimationFrame(raf); clearTimeout(skipTimer); stopSound();
+        cancelAnimationFrame(raf); clearTimeout(skipTimer); clearTimeout(waitMax);
         window.removeEventListener('resize', fit);
-        capEl.style.visibility = ''; yearWrap.style.opacity = '';
+        try { vid.pause(); } catch (e) {}
+        yearWrap.style.opacity = '';
         const flash = $('flash');
         flash.className = 'on';
         setTimeout(() => {
@@ -1613,6 +1106,35 @@
         }, reduceMotion ? 0 : 300);
       }
       skip.onclick = finishWarp;
+
+      // 再生できないとき（読み込み失敗・8秒待っても始まらない）は演出を飛ばす
+      const waitMax = setTimeout(() => { if (!started) finishWarp(); }, 8000);
+      if (reduceMotion || !vid || vid.error || vid.networkState === 3) { finishWarp(); return; }
+      vid.addEventListener('playing', () => { started = true; clearTimeout(waitMax); }, { once: true });
+      Array.prototype.forEach.call(vid.querySelectorAll('source'), (so) => so.addEventListener('error', () => {
+        if (!started && vid.networkState === 3) finishWarp();
+      }));
+      try { if (vid.readyState < 2) vid.load(); } catch (e) {}
+      vid.muted = true;
+      try { vid.currentTime = 0; } catch (e) {}
+      const pp = vid.play();
+      if (pp && pp.catch) pp.catch(() => finishWarp());
+
+      function frame() {
+        if (!started) { c.fillStyle = '#000'; c.fillRect(0, 0, W, H); raf = requestAnimationFrame(frame); return; }
+        const t = clamp(vid.currentTime / (vid.duration || 10));
+        c.fillStyle = '#000'; c.fillRect(0, 0, W, H);
+        drawVideo();
+        // 年号：時計が回り始める瞬間（光の切り替え）から遡る
+        yearWrap.style.opacity = clamp((t - .37) / .06);
+        const e = Math.pow(clamp((t - .38) / .50), 2.2);
+        if (era.year === -9999 && t > .86) yearNum.textContent = '∞';
+        else {
+          const y = t > .88 ? era.year : Math.round(startYear + (era.year - startYear) * e);
+          yearNum.innerHTML = y < 0 ? '<small class="bc">B.C.</small>' + Math.abs(y) : y + '<small>年</small>';
+        }
+        if (t >= .995 || vid.ended) finishWarp(); else raf = requestAnimationFrame(frame);
+      }
       raf = requestAnimationFrame(frame);
     }
 
@@ -1629,13 +1151,13 @@
       const t = $('tarot');
       if (t.classList.contains('flip')) return;
       t.classList.add('flip');
-      Sound.flip(); vibrate(25);
+      vibrate(25);
       setTimeout(() => {
         const flash = $('flash');
         flash.className = 'on';
         setTimeout(() => {
           showResult(lastResult);
-          Sound.reveal(); vibrate([30, 40, 60]);
+          vibrate([30, 40, 60]);
           requestAnimationFrame(() => { flash.className = 'fade'; });
           setTimeout(() => { flash.className = ''; }, 1400);
         }, reduceMotion ? 0 : 250);
@@ -1745,19 +1267,10 @@
       setTimeout(spawn, 1500);
     })();
 
-    // 効果音ボタン
-    const soundBtn = $('sound-btn');
-    const ICON_ON = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z" fill="currentColor" fill-opacity=".25"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>';
-    const ICON_OFF = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z" fill="currentColor" fill-opacity=".25"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></svg>';
-    function syncSoundBtn() { soundBtn.innerHTML = Sound.on ? ICON_ON : ICON_OFF; }
-    syncSoundBtn();
-    soundBtn.addEventListener('click', () => {
-      Sound.toggle(); syncSoundBtn(); Sound.tap();
-    });
     $('tarot').addEventListener('click', flipCard);
     $('sheet-backdrop').addEventListener('click', () => closeSheet());
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSheet(); });
-    $('start-btn').addEventListener('click', () => { Sound.start(); startQuiz(); });
+    $('start-btn').addEventListener('click', () => { startQuiz(); });
     $('retry-btn').addEventListener('click', resetQuiz);
 
     // テスト用に公開（本番影響なし）

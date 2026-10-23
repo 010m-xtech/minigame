@@ -168,8 +168,11 @@ h1 .hl { background: linear-gradient(transparent 62%, var(--mustard) 62%, var(--
 .self-sub { margin: 0; color: var(--ink-soft); font-weight: 700; }
 .self-big { text-align: center; font-family: var(--font-display); font-size: clamp(80px, 24vw, 132px); line-height: 1.1; margin: 10px 0 0; font-variant-numeric: tabular-nums; }
 .self-big small { font-size: .4em; margin-left: 4px; }
-.self-box { margin-top: 4px; }
-.self-scale { display: flex; justify-content: space-between; font-size: 15px; font-weight: 900; color: var(--ink-soft); margin: -2px 0 22px; }
+.self-opts { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 6px; }
+.self-opt { min-height: 64px; padding: 0; border: 3px solid var(--ink); border-radius: 12px; background: var(--paper); color: var(--ink); font: inherit; font-size: clamp(17px, 5vw, 22px); font-weight: 900; box-shadow: 0 3px 0 var(--ink); cursor: pointer; }
+.self-opt:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.self-opt[aria-pressed="true"] { background: var(--teal); color: var(--on-teal); }
+.self-scale { display: flex; justify-content: space-between; font-size: 15px; font-weight: 900; color: var(--ink-soft); margin: 8px 0 22px; }
 input[type="range"] { display: block; width: 100%; min-width: 0; height: 48px; margin: 0; -webkit-appearance: none; appearance: none; background: transparent; cursor: pointer; }
 input[type="range"]::-webkit-slider-runnable-track { box-sizing: border-box; height: 20px; border: 2px solid var(--ink); border-radius: 999px; background: linear-gradient(90deg, var(--g-a), var(--g-b), var(--g-c), var(--g-d), var(--g-e)); }
 input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; box-sizing: border-box; width: 42px; height: 42px; margin-top: -12px; border-radius: 50%; background: var(--paper); border: 3px solid var(--ink); box-shadow: 0 3px 0 var(--ink); }
@@ -198,7 +201,7 @@ input[type="range"]::-moz-range-thumb { box-sizing: border-box; width: 42px; hei
 .note p, .gloss span, .loading .msg { text-wrap: balance; }
 .qtext { font-size: clamp(24px, 6vw, 34px); font-weight: 900; line-height: 1.5; margin: 0 0 22px; text-wrap: pretty; min-height: 3em; }
 .gloss { display: grid; gap: 2px; margin: -6px 0 20px; padding: 10px 14px; background: var(--paper-2); border-left: 6px solid var(--mustard); border-radius: 4px 10px 10px 4px; font-size: 17px; font-weight: 700; line-height: 1.6; text-wrap: pretty; }
-.gloss b { font-size: 13px; letter-spacing: .14em; color: var(--ink-soft); }
+.gloss b { font-size: 14px; letter-spacing: .14em; color: var(--ink-soft); }
 .answers { display: grid; grid-template-columns: 1fr; gap: 12px; }
 .ans-unk { border-style: dashed; }
 .ans {
@@ -225,7 +228,7 @@ input[type="range"]::-moz-range-thumb { box-sizing: border-box; width: 42px; hei
 @keyframes pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 .nav { display: flex; gap: 12px; margin-top: 22px; }
 .nav .btn-primary { flex: 1; }
-.nav .btn-ghost { min-width: 104px; }
+.nav .btn-ghost { min-width: 124px; border-width: 3px; font-weight: 900; }
 .fine { margin: 16px 0 0; font-size: 14px; color: var(--ink-soft); }
 
 /* ---- loading ---- */
@@ -333,10 +336,10 @@ input[type="range"]::-moz-range-thumb { box-sizing: border-box; width: 42px; hei
 .lab-head span:nth-child(3) { text-align: center; }
 .lab-name { min-width: 0; }
 .lab-name b { display: block; font-size: 17px; line-height: 1.4; }
-.lab-name small { display: block; font-size: 13px; color: var(--ink-soft); font-weight: 700; line-height: 1.4; }
+.lab-name small { display: block; font-size: 14px; color: var(--ink-soft); font-weight: 700; line-height: 1.4; }
 .lab-val { text-align: right; font-variant-numeric: tabular-nums; line-height: 1.2; }
 .lab-val b { display: block; font-family: var(--font-display); font-weight: 400; font-size: 26px; }
-.lab-val small { font-size: 13px; color: var(--ink-soft); font-weight: 700; }
+.lab-val small { font-size: 14px; color: var(--ink-soft); font-weight: 700; }
 .lab-flag { text-align: center; }
 .lab-flag span { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; font-weight: 900; font-size: 17px; }
 .flag-H { background: var(--red); color: var(--on-red); }
@@ -353,7 +356,7 @@ input[type="range"]::-moz-range-thumb { box-sizing: border-box; width: 42px; hei
 
 .actions { display: grid; gap: 8px; margin-top: 22px; }
 .actions .hint { margin: 0; text-align: center; font-size: 15px; font-weight: 700; color: var(--ink-soft); }
-.disclaimer { margin: 16px 0 0; font-size: 13px; color: var(--ink-soft); line-height: 1.6; }
+.disclaimer { margin: 16px 0 0; font-size: 14px; color: var(--ink-soft); line-height: 1.6; }
 
 @media (max-width: 420px) {
   .lab-row { grid-template-columns: minmax(0, 1fr) 4.8em 2.4em; padding-inline: 8px; }
@@ -389,7 +392,7 @@ img, svg { max-width: 100%; }
   body { padding-block: 8px 20px; }
   .clinic-bar { flex-wrap: nowrap; margin-bottom: 8px; }
   .clinic-bar .today { display: none; }
-  .brand { gap: 6px; font-size: 13px; white-space: nowrap; }
+  .brand { gap: 6px; font-size: 14px; white-space: nowrap; }
   .brand svg { width: 26px; height: 26px; }
   .size-btn { min-height: 40px; padding: 0 12px; font-size: 14px; white-space: nowrap; flex: none; box-shadow: 0 2px 0 var(--ink); }
   .paper { padding: 14px 14px 16px; box-shadow: 4px 4px 0 var(--shadow); }
@@ -433,17 +436,18 @@ img, svg { max-width: 100%; }
   .qtext { margin-bottom: 18px; }
   .answers { gap: 12px; }
   .ans { min-height: 68px; padding: 6px 14px; font-size: clamp(20px, 5.8vw, 23px); }
-  .gloss { margin: -6px 0 14px; padding: 8px 12px; font-size: 15px; line-height: 1.5; }
+  .gloss { margin: -6px 0 14px; padding: 8px 12px; font-size: 16px; line-height: 1.5; }
   .note { margin-top: 14px; padding: 9px 12px; }
-  .note .who { font-size: 13px; }
+  .note .who { font-size: 14px; }
   .note p { font-size: 17px; line-height: 1.5; }
   .nav { margin-top: 14px; }
   .nav .btn { min-height: 58px; font-size: 20px; }
+  .nav .btn-ghost { min-width: 112px; }
   /* ことば解説つきの問いは、4つ目の選択肢もあるので少しだけ詰める */
   #s-quiz.dense .qtext { margin-bottom: 10px; }
   #s-quiz.dense .answers { gap: 7px; }
   #s-quiz.dense .ans { min-height: 54px; padding-block: 4px; font-size: clamp(18px, 5.2vw, 21px); }
-  #s-quiz.dense .gloss { margin: -2px 0 8px; padding: 5px 10px; font-size: 13.5px; line-height: 1.45; }
+  #s-quiz.dense .gloss { margin: -2px 0 8px; padding: 5px 10px; font-size: 14.5px; line-height: 1.45; }
   #s-quiz.dense .note { margin-top: 8px; padding: 6px 10px; }
   #s-quiz.dense .note p { font-size: 15px; }
   #s-quiz.dense .nav { margin-top: 8px; }
@@ -451,9 +455,9 @@ img, svg { max-width: 100%; }
 
   /* 診断書: 判定・メーター・処方薬が最初の1画面に入る */
   .r-head { padding-bottom: 4px; }
-  .r-clinic { font-size: 13px; }
+  .r-clinic { font-size: 15px; }
   .r-head h2 { font-size: 21px; margin-bottom: 4px; }
-  .r-meta { font-size: 12px; }
+  .r-meta { font-size: 14px; }
   .verdict-top { margin-top: 12px; gap: 14px; }
   .stamp { width: 74px; height: 74px; }
   .stamp small { font-size: 11px; }
@@ -477,7 +481,7 @@ img, svg { max-width: 100%; }
   .gap-msg { margin-top: 6px; font-size: 17px; line-height: 1.55; }
   .more { margin-top: 10px; }
   .actions { margin-top: 12px; }
-  .disclaimer { margin-top: 10px; font-size: 12px; }
+  .disclaimer { margin-top: 10px; font-size: 14px; }
 }
 </style>
 </head>
@@ -524,15 +528,19 @@ img, svg { max-width: 100%; }
       <h2 class="self-title" id="selfTitle"></h2>
       <p class="self-sub fixed-lines" data-fit="13"><span class="ln">診断のあとで、答え合わせをします。</span><br><span class="ln">盛らずに、正直にどうぞ。</span></p>
       <div class="self-big"><span id="selfOut">30</span><small>%</small></div>
-      <div class="self-box">
-        <input type="range" id="selfRange" min="0" max="100" step="5" value="30" aria-label="自己申告のパーセント">
-        <div class="self-scale"><span>ぜんぜん</span><span>ばっちり</span></div>
+      <div class="self-opts" id="selfOpts" role="group" aria-label="自己申告のパーセント">
+        <button type="button" class="self-opt" data-v="10">10%</button>
+        <button type="button" class="self-opt" data-v="30">30%</button>
+        <button type="button" class="self-opt" data-v="50">50%</button>
+        <button type="button" class="self-opt" data-v="70">70%</button>
+        <button type="button" class="self-opt" data-v="90">90%</button>
       </div>
+      <div class="self-scale"><span>ぜんぜん</span><span>ばっちり</span></div>
       <div class="self-nav">
         <button type="button" class="btn btn-ghost" id="btnSelfBack">戻る</button>
         <button type="button" class="btn btn-primary" id="btnSelf">この数字で申告する</button>
       </div>
-      <p class="fine">指でスライドして、数字を決めてください。</p>
+      <p class="fine">タッチして、数字を選んでください。</p>
     </section>
 
     <!-- 問診 -->
@@ -646,9 +654,9 @@ img, svg { max-width: 100%; }
 
       <div class="actions">
         <button type="button" class="btn btn-primary block" id="btnAgain">もういちど診断する</button>
-        <p class="hint fixed-lines" data-fit="12"><span class="ln">質問は毎回入れ替わります。</span><br><span class="ln">ご同席の方もどうぞ。</span></p>
+        <p class="hint fixed-lines" data-fit="14"><span class="ln">質問は毎回入れ替わります。</span><br><span class="ln">ご同席の方もどうぞ。</span></p>
       </div>
-      <p class="disclaimer fixed-lines" data-fit="11"><span class="ln">※お楽しみ用です。医学的な根拠はありません。</span><br><span class="ln">しばらく操作が無いと、最初の画面に戻ります。</span></p>
+      <p class="disclaimer fixed-lines" data-fit="12"><span class="ln">※お楽しみ用です。医学的な根拠はありません。</span><br><span class="ln">しばらく操作が無いと、最初の画面に戻ります。</span></p>
     </section>
   </main>
 </div>
@@ -1153,8 +1161,10 @@ window.OJIBA_PHOTOS = {
   });
 
   function setSelf(v) {
-    $('selfRange').value = String(v);
+    selfPct = Number(v);
     $('selfOut').textContent = String(v);
+    var opts = $('selfOpts').children;
+    for (var i = 0; i < opts.length; i++) opts[i].setAttribute('aria-pressed', String(Number(opts[i].dataset.v) === selfPct));
   }
 
   function resetAll() {
@@ -1178,12 +1188,13 @@ window.OJIBA_PHOTOS = {
       show('self');
     });
   });
-  $('selfRange').addEventListener('input', function () {
-    $('selfOut').textContent = $('selfRange').value;
+  $('selfOpts').addEventListener('click', function (e) {
+    var t = e.target;
+    while (t && t !== this && !(t.dataset && t.dataset.v)) t = t.parentNode;
+    if (t && t.dataset && t.dataset.v) setSelf(t.dataset.v);
   });
   $('btnSelfBack').addEventListener('click', function () { show('start'); });
   $('btnSelf').addEventListener('click', function () {
-    selfPct = clamp(Number($('selfRange').value) || 0, 0, 100);
     session = pickSession();
     N = session.length;
     answers = []; unk = []; idx = 0;
@@ -1261,7 +1272,6 @@ window.OJIBA_PHOTOS = {
     fitQuip();
     $('btnNext').disabled = (a == null);
     $('btnNext').textContent = idx === N - 1 ? '診断書を受け取る' : '次へ';
-    $('btnBack').disabled = (idx === 0);
     if (animate) {
       var qb = $('qbox');
       qb.classList.remove('enter'); void qb.offsetWidth; qb.classList.add('enter');
@@ -1289,7 +1299,7 @@ window.OJIBA_PHOTOS = {
 
   $('btnBack').addEventListener('click', function () {
     clearTimeout(advTimer);
-    if (idx > 0) { idx--; renderQ(true); }
+    if (idx > 0) { idx--; renderQ(true); } else { show('self'); }
   });
   $('btnNext').addEventListener('click', goNext);
 
@@ -1394,7 +1404,7 @@ window.OJIBA_PHOTOS = {
     $('stampLetter').textContent = G.letter;
     $('rSub').textContent = G.sub;
     $('rHead').textContent = fill(G.title);
-    setLines($('rBody'), $('rBody'), fill(G.body), 11);
+    setLines($('rBody'), $('rBody'), fill(G.body), 13);
 
     // お店のメニュー(処方薬)。その判定に設定があるときだけ表示
     var picks = (SHOP.menus && SHOP.menus[G.letter]) || [];
@@ -1404,7 +1414,7 @@ window.OJIBA_PHOTOS = {
       shopRx.hidden = false;
       $('shopRxShop').textContent = SHOP.pharmacy || (SHOP.name ? SHOP.name + ' 薬局' : '');
       setLines($('shopRxName'), $('shopRxName'), fill(m.name) + (m.price ? '　' + m.price : ''), 12, true);
-      setLines($('shopRxNote'), $('shopRxNote'), m.note ? fill(m.note) : '', 11);
+      setLines($('shopRxNote'), $('shopRxNote'), m.note ? fill(m.note) : '', 13);
       $('shopRxOrder').textContent = SHOP.orderNote || '';
       var photo = $('shopRxPhoto');
       if (m.photo) {
@@ -1436,7 +1446,7 @@ window.OJIBA_PHOTOS = {
     $('gapSelfV').textContent = selfPct + '%';
     $('gapRealV').textContent = pct + '%';
     $('gapBig').textContent = 'ギャップ ' + (diff > 0 ? '+' : (diff < 0 ? '−' : '±')) + Math.abs(diff) + 'pt';
-    setLines($('gapMsg'), $('gapMsg'), gapText(diff), 13);
+    setLines($('gapMsg'), $('gapMsg'), gapText(diff), 14);
 
     // くわしい結果(折りたたみの中)
     buildLab(catSum, catCnt);
@@ -1457,7 +1467,7 @@ window.OJIBA_PHOTOS = {
     karte.appendChild(el('b', '', '【カルテ】'));
     var kt = el('span', 'kt', '');
     karte.appendChild(kt);
-    setLines(kt, karte, fill(G.karte), 12);
+    setLines(kt, karte, fill(G.karte), 13);
     var docBox = $('rDoctor');
     docBox.textContent = '';
     DOCTORS[modeKey].full.split(' ／ ').forEach(function (nm, i) {

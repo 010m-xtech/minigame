@@ -640,7 +640,6 @@ img, svg { max-width: 100%; }
 
 
 
-      <p class="karte" id="rKarte"></p>
 
       <div class="actions">
         <button type="button" class="btn btn-primary block" id="btnAgain">もういちど診断する</button>
@@ -1447,14 +1446,6 @@ window.OJIBA_PHOTOS = {
     $('gapBig').textContent = 'ギャップ ' + (diff > 0 ? '+' : (diff < 0 ? '−' : '±')) + Math.abs(diff) + 'pt';
     setLines($('gapMsg'), $('gapMsg'), gapText(diff), 14);
 
-
-    // くわしい結果(折りたたみの中)
-    var karte = $('rKarte');
-    karte.textContent = '';
-    karte.appendChild(el('b', '', '【カルテ】'));
-    var kt = el('span', 'kt', '');
-    karte.appendChild(kt);
-    setLines(kt, karte, fill(G.karte), 13);
 
     // 初期状態へ
     $('confetti').textContent = '';

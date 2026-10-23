@@ -640,12 +640,7 @@ img, svg { max-width: 100%; }
 
 
 
-      <details class="more" id="more">
-        <summary>くわしく見る</summary>
-        <div class="more-body">
-          <p class="karte" id="rKarte"></p>
-        </div>
-      </details>
+      <p class="karte" id="rKarte"></p>
 
       <div class="actions">
         <button type="button" class="btn btn-primary block" id="btnAgain">もういちど診断する</button>
@@ -1460,7 +1455,6 @@ window.OJIBA_PHOTOS = {
     var kt = el('span', 'kt', '');
     karte.appendChild(kt);
     setLines(kt, karte, fill(G.karte), 13);
-    $('more').open = false;
 
     // 初期状態へ
     $('confetti').textContent = '';
@@ -1562,7 +1556,6 @@ window.OJIBA_PHOTOS = {
     if (document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', refitQText);
   }
   if (window.addEventListener) window.addEventListener('load', refitQText);
-  if ($('more').addEventListener) $('more').addEventListener('toggle', fitAllLines);
   window.refitQTextLater = function () { setTimeout(refitQText, 250); setTimeout(refitQText, 1200); };
   if (window.addEventListener) window.addEventListener('resize', refitQText);
 

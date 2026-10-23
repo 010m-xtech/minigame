@@ -489,7 +489,6 @@
     #intro-screen .hero { padding: 14px 0 0; }
     #intro-screen .magic { width: 230px; height: 230px; margin: -115px 0 0 -115px; }
     #intro-screen h1 { font-size: 2.1rem; margin-bottom: 2px; }
-    #intro-screen .eyebrow { font-size: .62rem; margin-bottom: 2px; }
     /* 1行目「…前世を占います。」がちょうど1行に収まる大きさで、必ず「。」で改行 */
     #intro-screen .subtitle { font-family: var(--display); font-weight: 500; letter-spacing: .08em; text-indent: .08em; color: var(--cream, #fbf1d4); text-shadow: 0 0 14px rgba(233,189,92,.35); font-size: min(.9rem, calc((100vw - 44px) / 26.6)); line-height: 1.7; margin: 6px 0 10px; white-space: nowrap; text-wrap: nowrap; }
     #intro-screen .marquee { margin: 0 0 10px; }
@@ -515,7 +514,7 @@
       .start-bar { padding: 10px 20px max(12px, env(safe-area-inset-bottom)); }
     }
     @media (max-height: 700px) {
-      #intro-screen .magic, #intro-screen .eyebrow, #intro-screen .note { display: none; }
+      #intro-screen .magic, #intro-screen .note { display: none; }
       #intro-screen select { padding: 8px 6px; } #intro-screen .panel { padding: 9px 12px; }
       .q-answer { font-size: .74rem; margin-top: 1px; } .btn { padding: 14px 18px; }
     }
@@ -610,7 +609,6 @@
             <path d="M100 30 L108 92 L170 100 L108 108 L100 170 L92 108 L30 100 L92 92 Z"/>
           </g>
         </svg>
-        <div class="eyebrow">PAST LIFE READING</div>
         <h1 id="app-title">前世診断</h1>
       </div>
       <p class="subtitle">普段の何気ない行動から、あなたの前世を占います。<br>直感でお答えください。</p>

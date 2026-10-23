@@ -639,12 +639,10 @@ img, svg { max-width: 100%; }
       </div>
 
 
+
       <details class="more" id="more">
-        <summary>くわしい検査結果を見る</summary>
+        <summary>くわしく見る</summary>
         <div class="more-body">
-          <div class="block-title">検査結果</div>
-          <div class="lab" id="lab" role="table" aria-label="検査結果"></div>
-          <p class="fine">※ 基準値は当院調べです(根拠はありません)。</p>
           <div class="block-title">主訴</div>
           <p class="chief" id="rChief"></p>
           <p class="karte" id="rKarte"></p>
@@ -731,11 +729,11 @@ window.OJIBA_PHOTOS = {
      u  = 「そもそも知らない」選択肢(2点扱い)、un = そのときの先生のひとこと */
   var QUESTIONS = [
     /* ---------- 共通 ---------- */
-    { d: 0, t: '「昔は〜だった」と言ったことがある。',
+    { d: 0, t: '「昔は〜だった」と、\n言ったことがある。',
       a: ['口ぐせになっている', '言った覚えがある', '言わない'],
       hi: '出ました、{S}の代名詞！',
       lo: '今を生きていますね。' },
-    { d: 0, t: '「最近の若者は〜」と言ったことがある。',
+    { d: 0, t: '「最近の若者は〜」と、\n言ったことがある。',
       a: ['しょっちゅうある', '言ってしまったこともある', 'ない'],
       hi: '飲み込めたのは大人の対応です。',
       lo: '若者に寄り添える貴重な方です。' },
@@ -743,7 +741,7 @@ window.OJIBA_PHOTOS = {
       a: ['断然、あの頃の曲', 'そう思うことがある', 'そうは思わない'],
       hi: 'あの頃の曲は、人生のBGMです。',
       lo: '今の曲も楽しめる若い耳です。' },
-    { d: 1, t: '懐かしの番組で、豆知識やウンチクを披露することがある。',
+    { d: 1, t: '懐かしの番組で、豆知識や\nウンチクを披露することがある。',
       a: ['止まらなくなる', 'つい話してしまう', '話さない'],
       hi: '豆知識は「へえ」で完成します。',
       lo: '静かに聴き入る、渋い楽しみ方。' },
@@ -844,11 +842,11 @@ window.OJIBA_PHOTOS = {
       a: ['ほぼ電話で済ませる', '面倒に感じることがある', '入力は苦にならない'],
       hi: '電話は声の温度が伝わります。',
       lo: '入力が速い、現代の達人！' },
-    { who: 'oji', d: 4, t: '趣味(釣り・車など)の道具に、つい凝ってしまう。',
+    { who: 'oji', d: 4, t: '趣味（釣り・車など）の道具に、つい凝ってしまう。',
       a: ['道具選びがいちばん楽しい', 'つい凝ってしまう', '道具にはこだわらない'],
       hi: '道具選びは趣味の半分です。',
       lo: '腕前で勝負するタイプですね。' },
-    { who: 'oji', d: 4, t: '飲み会は、〆のラーメンや一品がないと終われない。',
+    { who: 'oji', d: 4, t: '〆のラーメンや一品がないと、\n飲み会が終われない。',
       a: ['〆がないと終われない', 'ときどき食べたくなる', '〆はいらない'],
       hi: '〆は{S}の締めくくりの儀式。',
       lo: '健康的な食べ方ですね。' },
@@ -984,8 +982,16 @@ window.OJIBA_PHOTOS = {
     box.classList.remove('fixed');
     box.classList.remove('wrapfb');
     var single = text.indexOf('\n') < 0;
+    var lns = single ? [text] : text.split('\n');
+    if (single && text.length > 14) {          // 長い問いは、読点「、」で2行に分ける(中央にいちばん近い「、」)
+      var best = -1, mid = text.length / 2;
+      for (var ci = 0; ci < text.length - 1; ci++) {
+        if (text.charAt(ci) === '、' && ci >= 3 && text.length - ci - 1 >= 4 && (best < 0 || Math.abs(ci + 1 - mid) < Math.abs(best + 1 - mid))) best = ci;
+      }
+      if (best >= 0) { lns = [text.slice(0, best + 1), text.slice(best + 1)]; single = false; }
+    }
     box.classList.add('fixed');
-    (single ? [text] : text.split('\n')).forEach(function (ln) {
+    lns.forEach(function (ln) {
       var s = document.createElement('span');
       s.className = 'ln';
       s.textContent = ln;
@@ -1173,7 +1179,6 @@ window.OJIBA_PHOTOS = {
     session = []; answers = []; unk = []; idx = 0;
     setSelf(DEFAULT_SELF);
     $('confetti').textContent = '';
-    $('more').open = false;
     show('start');
   }
 
@@ -1448,8 +1453,8 @@ window.OJIBA_PHOTOS = {
     $('gapBig').textContent = 'ギャップ ' + (diff > 0 ? '+' : (diff < 0 ? '−' : '±')) + Math.abs(diff) + 'pt';
     setLines($('gapMsg'), $('gapMsg'), gapText(diff), 14);
 
+
     // くわしい結果(折りたたみの中)
-    buildLab(catSum, catCnt);
     var chief = $('rChief');
     chief.textContent = '';
     if (top >= 0) {

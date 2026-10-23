@@ -303,6 +303,20 @@
     .year-era.on { opacity: 1; }
     .video-caption { bottom: 12%; }
 
+
+    /* ---------- テロップ（年号）：絵本の見返しのような静かな金文字 ---------- */
+    #video-screen::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 42%; pointer-events: none;
+      background: linear-gradient(to top, rgba(14,14,38,.74), rgba(14,14,38,.38) 45%, rgba(14,14,38,0)); }
+    .video-caption { display: none !important; }
+    .year-wrap { top: auto; bottom: max(7%, calc(env(safe-area-inset-bottom) + 28px)); z-index: 2; color: var(--cream, #fbf1d4);
+      text-shadow: 0 1px 14px rgba(14,12,34,.7), 0 0 26px rgba(244,213,132,.32); display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .year-wrap::before, .year-wrap::after { content: ""; display: block; width: min(46vw, 190px); height: 1px; order: 0;
+      background: linear-gradient(90deg, transparent, rgba(244,213,132,.85), transparent); }
+    .year-wrap::after { order: 2; }
+    .year-num { order: 1; font-size: 2.7rem; font-weight: 500; letter-spacing: .14em; text-indent: .14em; line-height: 1; font-variant-numeric: lining-nums tabular-nums; }
+    .year-num small.bc { margin: 0 .55em 0 0; font-size: .85rem; letter-spacing: .24em; }
+    .year-num small { font-size: .95rem; font-weight: 500; margin-left: 6px; letter-spacing: .2em; color: var(--gold, #f4d584); }
+
     /* ---------- 磨き込み：カードめくり ---------- */
     #gate-screen { gap: 22px; text-align: center; }
     .gate-lead { font-size: 1.05rem; letter-spacing: .3em; color: #f1ecff; text-shadow: 0 0 14px rgba(190,160,255,.9); }
@@ -435,7 +449,6 @@
 
     /* 動画・カード */
     .video-caption { letter-spacing: .4em; text-indent: .4em; }
-    .year-num { font-weight: 800; }
     .gate-lead { letter-spacing: .35em; text-indent: .35em; font-weight: 700; color: var(--cream); text-shadow: 0 0 16px rgba(233,189,92,.7); }
     .gate-hint { font-family: var(--display); letter-spacing: .25em; color: #d8cfae; }
 
@@ -666,7 +679,6 @@
         <div class="hero-img-container reveal" style="--i:1">
           <img id="res-img" src="" alt="">
           <span class="shine"></span>
-          <span class="era-chip" id="res-era"></span>
         </div>
         <div class="past-life-title reveal" style="--i:3" id="res-title"></div>
         <div class="story-box reveal" style="--i:4" id="res-story"></div>
@@ -1540,7 +1552,7 @@
         if (era.year === -9999 && t > .86) yearNum.textContent = '∞';
         else {
           const y = t > .88 ? era.year : Math.round(startYear + (era.year - startYear) * e);
-          yearNum.innerHTML = (y < 0 ? '紀元前 ' : '') + Math.abs(y) + '<small>年</small>';
+          yearNum.innerHTML = y < 0 ? '<small class="bc">B.C.</small>' + Math.abs(y) : y + '<small>年</small>';
         }
         // 白い光に包まれて終わる
         if (!useVideo && t > .9) { const k = Math.pow((t - .9) / .1, 1.4); c.fillStyle = 'rgba(255,252,240,' + k.toFixed(3) + ')'; c.fillRect(0, 0, W, H); }
@@ -1594,7 +1606,6 @@
 
     function showResult(idx) {
       const r = results[idx];
-      $('res-era').textContent = eraText(ERAS[idx]) + ' ・ ' + ERAS[idx].label;
       document.body.classList.add('is-result');
       $('result-screen').style.setProperty('--accent', r.accent);
       const img = $('res-img');

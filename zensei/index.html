@@ -608,6 +608,9 @@
     @media (max-height: 700px) { #intro-screen h1 { font-size: 1.6rem; } #intro-screen .hero { padding-top: 2px; padding-bottom: 0; } #intro-screen .panel { padding: 7px 12px; } #intro-screen .panel .label { display: none; } #q-list { gap: 5px; margin-top: 6px; } .q-block { padding: 6px 10px 7px; } .q-block .q-field { margin-top: 4px; } .btn { padding: 12px 16px; } }
     @media (max-height: 600px) { #intro-screen h1 { display: none; } }
 
+    /* スタートボタンの上の余白を、質問どうしの間隔に回す */
+    #intro-screen #q-list { flex: 1 1 auto; justify-content: space-evenly; gap: 6px; min-height: 0; }
+
     /* 選択肢のシート */
     .sheet { position: fixed; inset: 0; z-index: 180; }
     .sheet[hidden] { display: none; }

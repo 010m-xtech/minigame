@@ -611,17 +611,17 @@
     /* 選択肢のシート */
     .sheet { position: fixed; inset: 0; z-index: 180; }
     .sheet[hidden] { display: none; }
-    .sheet-backdrop { position: absolute; inset: 0; background: rgba(3,4,12,.62); opacity: 0; transition: opacity .28s; backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
-    .sheet.show .sheet-backdrop { opacity: 1; }
+    .sheet { display: flex; align-items: center; justify-content: center; padding: 16px max(16px, env(safe-area-inset-left)); }
+    .sheet[hidden] { display: none; }
+    .sheet-backdrop { position: absolute; inset: 0; background: rgba(3,4,12,.66); }
     .sheet-panel {
-      position: absolute; left: 50%; bottom: 0; width: min(100%, 480px); max-height: 88dvh; overflow-y: auto;
-      transform: translate(-50%, 102%); transition: transform .3s cubic-bezier(.2,.8,.2,1);
-      padding: 10px 18px max(20px, env(safe-area-inset-bottom));
+      position: relative; width: min(100%, 460px); max-height: 86dvh; overflow-y: auto;
+      padding: 18px 16px 16px;
       background: linear-gradient(180deg, #181a3d, #0d1028); border: 1px solid rgba(244,213,132,.45); border-bottom: none;
-      border-radius: 22px 22px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,.5), inset 0 0 0 4px rgba(13,16,40,.9), inset 0 0 0 5px rgba(244,213,132,.1);
+      border-radius: 20px; border-bottom: 1px solid rgba(244,213,132,.45); box-shadow: 0 14px 50px rgba(0,0,0,.6), inset 0 0 0 4px rgba(13,16,40,.9), inset 0 0 0 5px rgba(244,213,132,.1);
     }
-    .sheet.show .sheet-panel { transform: translate(-50%, 0); }
-    .sheet-grip { width: 40px; height: 4px; border-radius: 4px; background: rgba(244,213,132,.45); margin: 0 auto 12px; }
+    .sheet-grip { display: none; }
+    .sheet .option { animation: none; }
     .sheet-panel .q-num { margin-bottom: 4px; }
     .sheet-panel .q-text { font-size: 1.1rem; margin-bottom: 14px; }
     .sheet-panel .options { gap: 9px; }
@@ -1118,13 +1118,13 @@
         list.appendChild(b);
       });
       lastFocus = document.activeElement;
-      const sh = $('sheet'); sh.hidden = false;
-      requestAnimationFrame(() => { sh.classList.add('show'); const f = list.querySelector('.chosen') || list.querySelector('.option'); if (f) f.focus({ preventScroll: true }); });
+      const sh = $('sheet'); sh.hidden = false; sh.classList.add('show');
+      const f = list.querySelector('.chosen') || list.querySelector('.option'); if (f) f.focus({ preventScroll: true });
     }
     function closeSheet(instant) {
       const sh = $('sheet'); if (sh.hidden) return;
       sh.classList.remove('show');
-      if (instant || reduceMotion) sh.hidden = true; else setTimeout(() => { if (!sh.classList.contains('show')) sh.hidden = true; }, 280);
+      sh.hidden = true;
       if (lastFocus && lastFocus.focus) { try { lastFocus.focus({ preventScroll: true }); } catch (e) {} }
     }
     function choose(k, i) {
@@ -1134,7 +1134,7 @@
       const blk = $('qb-' + k);
       blk.querySelector('.q-answer').textContent = questionPool[questions[k]].options[i].t;
       updateStartBtn();
-      setTimeout(() => closeSheet(), reduceMotion ? 0 : 220);
+      setTimeout(() => closeSheet(), 90);   // 選んだ印が見えてから、ぱっと閉じる
     }
     function updateStartBtn() {
       const left = answers.filter(a => a === null).length, btn = $('start-btn');

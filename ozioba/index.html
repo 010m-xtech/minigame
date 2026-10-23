@@ -454,29 +454,28 @@ img, svg { max-width: 100%; }
   .r-clinic { font-size: 13px; }
   .r-head h2 { font-size: 21px; margin-bottom: 4px; }
   .r-meta { font-size: 12px; }
-  .banner { margin-top: 8px; padding: 4px 10px; font-size: 15px; line-height: 1.4; }
-  .verdict-top { margin-top: 10px; gap: 12px; }
-  .stamp { width: 64px; height: 64px; }
+  .verdict-top { margin-top: 12px; gap: 14px; }
+  .stamp { width: 74px; height: 74px; }
   .stamp small { font-size: 11px; }
-  .stamp b { font-size: 30px; }
-  .verdict-top .sub { font-size: 14px; }
-  .verdict-top h3 { font-size: clamp(19px, 5.6vw, 26px); margin-block: 0 4px; }
-  .nick b { font-size: 15px; padding: 0 10px; }
-  .gauge-box { max-width: 250px; }
+  .stamp b { font-size: 36px; }
+  .verdict-top .sub { font-size: 15px; }
+  .verdict-top h3 { font-size: clamp(21px, 6.2vw, 28px); margin-block: 0 4px; }
+  .nick b { font-size: 17px; padding: 0 10px; }
+  .gauge-box { max-width: 290px; }
   .meter { margin-top: 0; gap: 0; }
   .pct { padding-bottom: 0; }
-  .pct .cap { font-size: 13px; }
-  .pct .num { font-size: clamp(44px, 12.5vw, 56px); }
-  .r-body { margin-top: 8px; font-size: 16px; line-height: 1.55; }
+  .pct .cap { font-size: 15px; }
+  .pct .num { font-size: clamp(52px, 15vw, 66px); }
+  .r-body { margin-top: 10px; font-size: 18px; line-height: 1.6; }
   .r-body.fixed-lines { margin-inline: -8px; }
-  .shop-rx { margin-top: 10px; padding: 8px 12px 10px; }
+  .shop-rx { margin-top: 12px; padding: 10px 12px 12px; }
   .shop-rx-body { margin-top: 4px; gap: 12px; }
-  .shop-rx-photo { width: 84px; }
-  .shop-rx-note { font-size: 15px; line-height: 1.45; }
-  .gapcard { margin-top: 10px; padding: 8px 12px; }
-  .gap-tile b { font-size: 26px; }
-  .gap-msg { margin-top: 4px; font-size: 15px; line-height: 1.5; }
-  .rx1 { margin-top: 10px; padding: 8px 12px; font-size: 15px; line-height: 1.5; }
+  .shop-rx-photo { width: 96px; }
+  .shop-rx-note { font-size: 17px; line-height: 1.5; }
+  .gapcard { margin-top: 12px; padding: 10px 12px; }
+  .gap-tile b { font-size: 30px; }
+  .gap-msg { margin-top: 6px; font-size: 17px; line-height: 1.55; }
+  .rx1 { margin-top: 12px; padding: 10px 12px; font-size: 17px; line-height: 1.55; }
   .more { margin-top: 10px; }
   .actions { margin-top: 12px; }
   .disclaimer { margin-top: 10px; font-size: 12px; }
@@ -581,7 +580,6 @@ img, svg { max-width: 100%; }
         <h2 id="rTitleLabel"></h2>
         <div class="r-meta"><span id="rNo"></span><span id="rDate"></span></div>
       </div>
-      <div class="banner" id="rBanner" hidden></div>
 
       <div class="verdict-top">
         <div class="stamp" id="stamp" aria-hidden="true"><small>判定</small><b id="stampLetter">A</b></div>
@@ -731,22 +729,22 @@ window.OJIBA_PHOTOS = {
       a: ['口ぐせになっている', '言った覚えがある', '言わない'],
       hi: '出ました、{S}の代名詞！',
       lo: '今を生きていますね。' },
-    { d: 0, t: '「最近の若者は〜」と言いかけて飲み込む。',
+    { d: 0, t: '「最近の若者は〜」と、つい言いたくなる。',
       a: ['しょっちゅうある', '言ってしまったこともある', 'ない'],
       hi: '飲み込めたのは大人の対応です。',
       lo: '若者に寄り添える貴重な方です。' },
-    { d: 1, t: '「エモい」「チルい」を使って、微妙な空気に。',
+    { d: 1, t: 'つい「エモい」「チルい」と言って、微妙な空気になる。',
       a: ['何度もある', '一度や二度ある', 'ない'],
       g: '「エモい」は しみじみ心に響く、「チルい」は まったり落ち着く、という意味の若者言葉です。',
       u: 'そもそも意味を知らない',
       un: '知らないのは健全です。',
       hi: 'あの沈黙は、優しさでした。',
       lo: '無理に使わないのが正解です。' },
-    { d: 1, t: '最近の曲より、青春時代の曲が好き。',
+    { d: 1, t: '最近の曲より、青春時代の曲をつい聴いてしまう。',
       a: ['断然、あの頃の曲', 'そう思うことがある', 'そうは思わない'],
       hi: 'あの頃の曲は、人生のBGMです。',
       lo: '今の曲も楽しめる若い耳です。' },
-    { d: 1, t: '懐かしの番組で、出演者の豆知識を語る。',
+    { d: 1, t: '懐かしの番組を見ると、つい豆知識を話してしまう。',
       a: ['止まらなくなる', 'つい話してしまう', '話さない'],
       hi: '豆知識は「へえ」で完成します。',
       lo: '静かに聴き入る、渋い楽しみ方。' },
@@ -754,22 +752,22 @@ window.OJIBA_PHOTOS = {
       a: ['毎回付けている', '付けることがある', '付けない'],
       hi: '句点は、威厳に見えるそうです。',
       lo: '文末の空気も読めています。' },
-    { d: 2, t: '生成AIにも「お世話になります」と書く。',
+    { d: 2, t: '生成AIにも、つい「お世話になります」と書く。',
       a: ['毎回書いている', '書いたことがある', '書かない'],
       g: 'AI(生成AI)は、質問すると文章や答えを作ってくれるAIのこと。ChatGPTやClaudeなどがあります。',
       u: 'AIは使ったことがない',
       un: 'これから使う楽しみがありますね。',
       hi: '礼儀正しさは美徳です。',
       lo: 'AIともフラットな関係ですね。' },
-    { d: 2, t: 'スマホの写真が数千枚たまったまま。',
+    { d: 2, t: 'スマホの写真が数千枚でも、つい整理しない。',
       a: ['数千枚たまっている', 'けっこうたまっている', 'こまめに整理している'],
       hi: '未来の自分への贈り物です。',
       lo: '整理上手、うらやましい。' },
-    { d: 3, t: '立ち上がるとき、つい「よいしょ」と言う。',
+    { d: 3, t: '立ち上がるとき、つい「よいしょ」と言ってしまう。',
       a: ['毎回出る', 'ときどき出る', '出ない'],
       hi: '掛け声は、体の正直な報告です。',
       lo: '無言で動ける軽やかさ！' },
-    { d: 3, t: '健康診断の結果は、まず「C」を数える。',
+    { d: 3, t: '健康診断の結果は、つい「C」の数を数えてしまう。',
       a: ['毎回数えている', '数えたことがある', '数えない'],
       hi: '健診の話題は{S}の社交辞令。',
       lo: '健康に自信がおありですね。' },
@@ -777,21 +775,21 @@ window.OJIBA_PHOTOS = {
       a: ['毎回、翌々日まで残る', 'ときどき残る', '翌日には元気'],
       hi: '回復は「あとで届くもの」です。',
       lo: '回復力が高いですね。' },
-    { d: 4, t: '新しい店より、いつもの店が落ち着く。',
+    { d: 4, t: '新しい店より、つい「いつもの店」に行ってしまう。',
       a: ['断然、行きつけ', 'どちらかといえば行きつけ', '新しい店のほうが好き'],
       hi: 'このお店も行きつけに？',
       lo: '新規開拓の精神、健在です。' },
-    { d: 4, t: '休日は「家でゆっくり」が最高。',
+    { d: 4, t: '休日は「家でゆっくり」が、いちばん幸せだと思う。',
       a: ['最高の休日だと思う', 'わりとそう思う', '外に出たい派'],
       hi: 'それは成熟の証、最高です。',
       lo: 'アクティブでうらやましい。' },
 
     /* ---------- おぢさん向け ---------- */
-    { who: 'oji', d: 0, t: '聞かれてないのに、武勇伝を語りがち。',
+    { who: 'oji', d: 0, t: '聞かれてないのに、つい武勇伝を語ってしまう。',
       a: ['語りたくて仕方ない', '語った覚えがある', '語らない'],
       hi: '武勇伝は、話すたび盛られます。',
       lo: '謙虚ですね。実はお持ちでは？' },
-    { who: 'oji', d: 0, t: '頼まれてないのに、つい助言してしまう。',
+    { who: 'oji', d: 0, t: '頼まれてないのに、若い人につい助言してしまう。',
       a: ['気づけば語っている', 'つい口を出してしまう', '聞かれるまで言わない'],
       hi: '聞かれてから出すと感謝されます。',
       lo: '聞き上手で慕われるタイプです。' },
@@ -799,41 +797,41 @@ window.OJIBA_PHOTOS = {
       a: ['毎回、言わずにいられない', 'ときどき言ってしまう', '思いついても言わない'],
       hi: 'ダジャレは心の余裕の表れです。',
       lo: '飲み込める大人ですね。' },
-    { who: 'oji', d: 0, t: '若い人を飲みに誘う時、迷惑かと気にする。',
+    { who: 'oji', d: 0, t: '若い人を飲みに誘う時、迷惑かとつい気にしてしまう。',
       a: ['いつも気にしている', '気にすることがある', '気にせず誘う'],
       hi: '気にかけられるのは立派な気配り。',
       lo: '堂々と誘える頼れる先輩です。' },
-    { who: 'oji', d: 2, t: 'スマホの文字入力が面倒で、電話で済ます。',
+    { who: 'oji', d: 2, t: 'スマホの文字入力が面倒で、つい電話で済ませてしまう。',
       a: ['ほぼ電話で済ませる', '面倒に感じることがある', '入力は苦にならない'],
       hi: '電話は声の温度が伝わります。',
       lo: '入力が速い、現代の達人！' },
-    { who: 'oji', d: 4, t: '趣味(釣り・車など)の道具に、つい凝る。',
+    { who: 'oji', d: 4, t: '趣味(釣り・車など)の道具に、つい凝ってしまう。',
       a: ['道具選びがいちばん楽しい', 'つい凝ってしまう', '道具にはこだわらない'],
       hi: '道具選びは趣味の半分です。',
       lo: '腕前で勝負するタイプですね。' },
-    { who: 'oji', d: 4, t: '飲み会は〆の一品がないと終われない。',
+    { who: 'oji', d: 4, t: '飲み会は、〆のラーメンや一品がないと終われない。',
       a: ['〆がないと終われない', 'ときどき食べたくなる', '〆はいらない'],
       hi: '〆は{S}の締めくくりの儀式。',
       lo: '健康的な食べ方ですね。' },
-    { who: 'oji', d: 4, t: 'ビールやコーヒーは、いつもの銘柄がある。',
+    { who: 'oji', d: 4, t: 'ビールや缶コーヒーは、つい同じ銘柄を選ぶ。',
       a: ['譲れない銘柄がある', 'なんとなく決まっている', '何でもいい'],
       hi: 'いつもの銘柄は{S}の相棒です。',
       lo: 'こだわらない自由さ、素敵です。' },
 
     /* ---------- おばさん向け ---------- */
-    { who: 'oba', d: 0, t: '知らない人にも、つい話しかける。',
+    { who: 'oba', d: 0, t: '知らない人にも、つい話しかけてしまう。',
       a: ['初対面でも盛り上がる', 'ときどき話しかける', '話しかけない'],
       hi: '世間話は街を明るくする才能！',
       lo: '静かな時間も大切にできる方。' },
-    { who: 'oba', d: 0, t: '「あれ」と言って、名前が出てこない。',
+    { who: 'oba', d: 0, t: 'つい「あれ」と言って、言葉や名前が出てこない。',
       a: ['毎日ある', 'ときどきある', 'ない'],
       hi: '「あれ」で通じるのは絆の証です。',
       lo: '記憶力が抜群ですね。' },
-    { who: 'oba', d: 2, t: '写真を撮るとき、「はい、チーズ」と言う。',
+    { who: 'oba', d: 2, t: '写真を撮るとき、つい「はい、チーズ」と言ってしまう。',
       a: ['必ず声をかける', 'つい言ってしまう', '言わない'],
       hi: 'チーズは笑顔を引き出す魔法です。',
       lo: '自然な表情を撮れる写真上手。' },
-    { who: 'oba', d: 3, t: 'テレビの「体にいい」を、すぐ試したくなる。',
+    { who: 'oba', d: 3, t: 'テレビで「体にいい」と聞くと、すぐ試したくなる。',
       a: ['すぐに試す', 'ときどき試す', '試さない'],
       hi: '健康への関心は元気の源です。',
       lo: '冷静で慎重な判断力ですね。' },
@@ -845,7 +843,7 @@ window.OJIBA_PHOTOS = {
       a: ['いつも常備している', 'ときどき入れている', '入れていない'],
       hi: '「飴ちゃん」は最強の外交官です。',
       lo: '身軽でスマートなバッグですね。' },
-    { who: 'oba', d: 4, t: 'スーパーの特売チェックが日課だ。',
+    { who: 'oba', d: 4, t: 'スーパーの特売を、毎日チェックしてしまう。',
       a: ['毎日チェックしている', 'ときどきチェックする', '見ない'],
       hi: '特売アンテナは家計を守る力！',
       lo: '気分で選べるゆとりがありますね。' },
@@ -853,7 +851,7 @@ window.OJIBA_PHOTOS = {
       a: ['必ず持たせたくなる', 'ときどき持たせる', 'あまりしない'],
       hi: 'お裾分けは、優しさのかたちです。',
       lo: 'さっぱりした付き合い方ですね。' },
-    { who: 'oba', d: 4, t: 'ポイ活やふるさと納税を熱く語る。',
+    { who: 'oba', d: 4, t: 'ポイ活やふるさと納税を、つい熱く語ってしまう。',
       a: ['語りだすと止まらない', 'つい語ってしまう', '特に語らない'],
       g: 'ポイ活は、ポイントを集めてお得に暮らすこと。ふるさと納税は、自治体に寄付して、お礼の品がもらえる制度です。',
       hi: 'お得情報は{S}の共通言語です。',
@@ -969,6 +967,12 @@ window.OJIBA_PHOTOS = {
       box.classList.add('wrapfb');
       box.style.fontSize = '';
       box.textContent = text;
+      // 3行にならないよう、文字サイズを少しずつ下げる(下限17px)
+      var fs = parseFloat(window.getComputedStyle(box).fontSize) || 21, guard2 = 0;
+      while (guard2++ < 20 && fs > 17 && box.getBoundingClientRect().height > fs * 1.45 * 2.3) {
+        fs -= 0.5;
+        box.style.fontSize = fs + 'px';
+      }
     }
     if (!noLater && window.refitQTextLater) window.refitQTextLater();
   }
@@ -1386,17 +1390,6 @@ window.OJIBA_PHOTOS = {
       }
     } else {
       shopRx.hidden = true;
-    }
-
-    // 判定ごとの帯(A: おめでとう / E: 認定証)
-    var banner = $('rBanner');
-    if (G.banner) {
-      banner.hidden = false;
-      banner.className = 'banner ' + G.letter;
-      banner.textContent = fill(G.banner).replace('{TITLE}', fill(G.title)).replace('{DATE}', reiwa());
-    } else {
-      banner.hidden = true;
-      banner.className = 'banner';
     }
 
     // 二つ名(出題された診察科のうち、割合がいちばん高いもの)

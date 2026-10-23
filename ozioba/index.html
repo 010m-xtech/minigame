@@ -643,10 +643,7 @@ img, svg { max-width: 100%; }
       <details class="more" id="more">
         <summary>くわしく見る</summary>
         <div class="more-body">
-          <div class="block-title">主訴</div>
-          <p class="chief" id="rChief"></p>
           <p class="karte" id="rKarte"></p>
-          <p class="doctor"><span>担当医</span><b id="rDoctor"></b><i class="hanko">印</i></p>
         </div>
       </details>
 
@@ -687,7 +684,7 @@ window.OJIBA_PHOTOS = {
   var P = window.OJIBA_PHOTOS || {};
   var SHOP = {
     name: 'マルト',
-    clinic: 'マルト総合クリニック',
+    clinic: 'マルトクリニック　高齢科',
     pharmacy: 'マルト薬局',
     orderNote: '',
     menus: {
@@ -1455,30 +1452,12 @@ window.OJIBA_PHOTOS = {
 
 
     // くわしい結果(折りたたみの中)
-    var chief = $('rChief');
-    chief.textContent = '';
-    if (top >= 0) {
-      chief.appendChild(document.createTextNode(fill(session[top].t).replace(/\n/g, '')));
-      var sm = el('small', '', '');
-      sm.appendChild(el('span', 'nw', 'いちばん強く出た症状です'));
-      sm.appendChild(document.createElement('br'));
-      sm.appendChild(el('span', 'nw', '(回答：' + labelFor(top, answers[top]) + ')'));
-      chief.appendChild(sm);
-    } else {
-      chief.appendChild(document.createTextNode('自覚症状は見当たりませんでした。'));
-    }
     var karte = $('rKarte');
     karte.textContent = '';
     karte.appendChild(el('b', '', '【カルテ】'));
     var kt = el('span', 'kt', '');
     karte.appendChild(kt);
     setLines(kt, karte, fill(G.karte), 13);
-    var docBox = $('rDoctor');
-    docBox.textContent = '';
-    DOCTORS[modeKey].full.split(' ／ ').forEach(function (nm, i) {
-      if (i) docBox.appendChild(document.createTextNode(' ／ '));
-      docBox.appendChild(el('span', 'nw', nm));
-    });
     $('more').open = false;
 
     // 初期状態へ

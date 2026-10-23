@@ -200,7 +200,7 @@ input[type="range"]::-moz-range-thumb { box-sizing: border-box; width: 42px; hei
 .karte b { display: block; margin-bottom: 2px; }
 .note p, .gloss span, .loading .msg { text-wrap: balance; }
 .qtext { font-size: clamp(24px, 6vw, 34px); font-weight: 900; line-height: 1.5; margin: 0 0 22px; text-wrap: pretty; min-height: 3em; }
-.gloss { display: grid; gap: 2px; margin: -6px 0 20px; padding: 10px 14px; background: var(--paper-2); border-left: 6px solid var(--mustard); border-radius: 4px 10px 10px 4px; font-size: 17px; font-weight: 700; line-height: 1.6; text-wrap: pretty; }
+.gloss { display: grid; gap: 2px; margin: 14px 0 0; padding: 10px 14px; background: var(--paper-2); border-left: 6px solid var(--mustard); border-radius: 4px 10px 10px 4px; font-size: 17px; font-weight: 700; line-height: 1.6; text-wrap: pretty; }
 .gloss b { font-size: 14px; letter-spacing: .14em; color: var(--ink-soft); }
 .answers { display: grid; grid-template-columns: 1fr; gap: 12px; }
 .ans-unk { border-style: dashed; }
@@ -436,7 +436,7 @@ img, svg { max-width: 100%; }
   .qtext { margin-bottom: 18px; }
   .answers { gap: 12px; }
   .ans { min-height: 68px; padding: 6px 14px; font-size: clamp(20px, 5.8vw, 23px); }
-  .gloss { margin: -6px 0 14px; padding: 8px 12px; font-size: 16px; line-height: 1.5; }
+  .gloss { margin: 12px 0 0; padding: 8px 12px; font-size: 16px; line-height: 1.5; }
   .note { margin-top: 14px; padding: 9px 12px; }
   .note .who { font-size: 14px; }
   .note p { font-size: 17px; line-height: 1.5; }
@@ -447,7 +447,7 @@ img, svg { max-width: 100%; }
   #s-quiz.dense .qtext { margin-bottom: 10px; }
   #s-quiz.dense .answers { gap: 7px; }
   #s-quiz.dense .ans { min-height: 54px; padding-block: 4px; font-size: clamp(18px, 5.2vw, 21px); }
-  #s-quiz.dense .gloss { margin: -2px 0 8px; padding: 5px 10px; font-size: 14.5px; line-height: 1.45; }
+  #s-quiz.dense .gloss { margin: 10px 0 0; padding: 6px 10px; font-size: 15px; line-height: 1.45; }
   #s-quiz.dense .note { margin-top: 8px; padding: 6px 10px; }
   #s-quiz.dense .note p { font-size: 15px; }
   #s-quiz.dense .nav { margin-top: 8px; }
@@ -552,7 +552,6 @@ img, svg { max-width: 100%; }
       <div class="ticks" id="ticks" aria-hidden="true"></div>
       <div class="qbox" id="qbox">
         <h2 class="qtext" id="qText"></h2>
-        <p class="gloss" id="qGloss" hidden><b>ことば解説</b><span id="qGlossText"></span></p>
         <div class="answers" id="answers" role="group" aria-label="回答"></div>
         <div class="note" id="note" aria-live="polite">
           <span class="who" id="who">おぢ川先生</span>
@@ -563,6 +562,7 @@ img, svg { max-width: 100%; }
         <button type="button" class="btn btn-ghost" id="btnBack">戻る</button>
         <button type="button" class="btn btn-primary" id="btnNext" disabled>次へ</button>
       </div>
+        <p class="gloss" id="qGloss" hidden><b>ことば解説</b><span id="qGlossText"></span></p>
       <p class="fine fixed-lines" data-fit="12"><span class="ln">盛らずに、正直にお答えください。</span><br><span class="ln">しばらく操作が無いと、最初の画面に戻ります。</span></p>
     </section>
 
@@ -800,7 +800,7 @@ window.OJIBA_PHOTOS = {
       a: ['撮ったことがない', 'たまに撮る', 'よく撮る'],
       g: '「映える」は、写真や見た目が華やかで、SNSで注目されそうなこと。',
       u: 'そもそも意味を知らない',
-      un: '料理をきれいに撮ることです。',
+      un: '知らないのは健全です。',
       hi: '最初の一枚も立派な映え活。',
       lo: '映えの達人ですね。' },
     { d: 1, trend: true, t: '生成AIを、使ったことがありますか？',
@@ -814,7 +814,7 @@ window.OJIBA_PHOTOS = {
       a: ['なんとなく知っている', '意味はわかる', '普通に使っている'],
       g: '「ミーム」は、ネットで広まって流行する、画像・動画・言葉のこと。',
       u: 'そもそも知らない',
-      un: 'ネットの流行語のようなものです。',
+      un: '知らないのは健全です。',
       hi: '情報感度は高めです。',
       lo: 'ネット文化にも強いですね。' },
 
@@ -1248,7 +1248,8 @@ window.OJIBA_PHOTOS = {
     }
     renderQText(fill(q.t));
     $('s-quiz').classList.toggle('dense', !!(q.g || q.u));
-    $('qGloss').hidden = !q.g;
+    var gdone = answers[idx] != null;
+    $('qGloss').hidden = !(q.g && gdone);
     $('qGlossText').textContent = q.g || '';
     var a = answers[idx];
     var btns = ansBox.children;
@@ -1294,9 +1295,10 @@ window.OJIBA_PHOTOS = {
     var note = $('note');
     note.classList.remove('pop'); void note.offsetWidth; note.classList.add('pop');
     // 画面の下にある「先生のひとこと」と「次へ」が見切れないよう、必要なぶんだけスクロールする
-    try { if ($('btnNext').scrollIntoView) $('btnNext').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) {}
+    var gl = session[idx] && session[idx].g;
+    try { var tgt = gl ? $('qGloss') : $('btnNext'); if (tgt.scrollIntoView) tgt.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) {}
     clearTimeout(advTimer);
-    advTimer = setTimeout(goNext, ADVANCE_MS);
+    advTimer = setTimeout(goNext, gl ? ADVANCE_MS + 3000 : ADVANCE_MS);   // ことば解説があるときは、読む時間を長めに
   }
 
   $('btnBack').addEventListener('click', function () {

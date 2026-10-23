@@ -1128,7 +1128,7 @@
       const smooth = (x) => x * x * (3 - 2 * x);
       let W, H, DPR, L = {};
       const vid = $('toast-video');
-      let useVideo = !reduceMotion && !!vid && vid.readyState >= 2 && !vid.error;
+      let useVideo = !reduceMotion && !!vid && !vid.error && vid.networkState !== 3;   // 読み込み途中でも動画版で始める
       let started = false, t0 = 0, stopSound = function () {}, raf = 0;
 
       /* ---------- 描画ヘルパー ---------- */
@@ -1488,6 +1488,7 @@
       }
       if (useVideo) {
         vid.addEventListener('playing', begin, { once: true });
+        try { if (vid.readyState < 2) vid.load(); } catch (e) {}
         vid.muted = !Sound.on;
         try { vid.currentTime = 0; } catch (e) {}
         const pp = vid.play();
@@ -1496,7 +1497,11 @@
           const p2 = vid.play();
           if (p2 && p2.catch) p2.catch(() => { useVideo = false; begin(); });
         });
-        setTimeout(() => { if (!started) { useVideo = false; begin(); } }, 1800);   // 再生できなければ描画版へ
+        const waitMax = setTimeout(() => { if (!started) { useVideo = false; begin(); } }, 8000);   // 8秒たっても再生できない時だけ描画版へ
+        vid.addEventListener('playing', () => clearTimeout(waitMax), { once: true });
+        Array.prototype.forEach.call(vid.querySelectorAll('source'), (so) => so.addEventListener('error', () => {
+          if (!started && vid.networkState === 3) { clearTimeout(waitMax); useVideo = false; begin(); }
+        }));
       } else begin();
 
       function frame(now) {

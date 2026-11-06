@@ -289,8 +289,8 @@ input[type="range"]::-moz-range-thumb { box-sizing: border-box; width: 42px; hei
 .seg0 { stroke: var(--g-a); } .seg1 { stroke: var(--g-b); } .seg2 { stroke: var(--g-c); } .seg3 { stroke: var(--g-d); } .seg4 { stroke: var(--g-e); }
 .gauge .gl { fill: var(--ink-soft); font-family: var(--font-display); font-size: 15px; text-anchor: middle; dominant-baseline: central; }
 .gauge .gl.cur { fill: var(--ink); font-size: 22px; }
-.gauge #needle path { fill: var(--ink); }
-.gauge .hub { fill: var(--ink); }
+.gauge #needle path:first-child { fill: url(#gNeedle); }
+.gauge .hub { }
 .gauge .hub-dot { fill: var(--mustard); }
 .pct { text-align: center; padding-bottom: 6px; }
 .pct .cap { font-weight: 900; font-size: 15px; letter-spacing: .08em; line-height: 1.3; }
@@ -483,6 +483,196 @@ img, svg { max-width: 100%; }
   .actions { margin-top: 12px; }
   .disclaimer { margin-top: 10px; font-size: 14px; }
 }
+
+/* ===== 3D(診断中のカプセル) ===== */
+.pill3d { display: block; width: 100%; max-width: 360px; height: 190px; margin: 2px auto 0; }
+.loading.has3d .ecg { display: none; }
+@media (max-width: 480px) { .pill3d { height: 170px; } }
+
+/* ===== 紙の診断書(紙の目・端の影) ===== */
+#s-result.paper, #s-quiz.paper {
+  background-color: #FCFAF3;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .22' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .47 0 0 0 0 .33 0 0 0 .14 -.04'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .36 0 0 0 0 .27 0 0 0 .16 -.02'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse 85% 75% at 50% 42%, rgba(255, 255, 255, 0) 62%, rgba(150, 120, 70, .09) 100%);
+  border: 1px solid rgba(17, 35, 58, .16);
+  border-radius: 3px;
+  box-shadow:
+    0 1px 1px rgba(17, 35, 58, .10),
+    0 3px 6px rgba(17, 35, 58, .08),
+    0 16px 30px -8px rgba(17, 35, 58, .30),
+    inset 0 0 0 1px rgba(255, 255, 255, .6);
+}
+/* 紙の下端の、わずかな反り影 */
+#s-result.paper::after, #s-quiz.paper::after {
+  content: ""; position: absolute; left: 6%; right: 6%; bottom: -2px; height: 14px; z-index: -1;
+  border-radius: 50%; box-shadow: 0 10px 14px -6px rgba(17, 35, 58, .35);
+}
+
+/* ===== 判定ハンコ(朱肉のかすれ・にじみ) ===== */
+.stamp {
+  color: #C3302A; border-color: #C3302A;
+  mix-blend-mode: multiply;
+  text-shadow: 0 0 .6px rgba(195, 48, 42, .95), 0 0 2px rgba(195, 48, 42, .35);
+  box-shadow: 0 0 1.5px rgba(195, 48, 42, .55), inset 0 0 1.5px rgba(195, 48, 42, .55);
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='k'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 -16 0 0 0 10.4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23k)'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.045' numOctaves='2' seed='11'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 -2.6 0 0 0 2.25'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E");
+  -webkit-mask-composite: source-in;
+          mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='k'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 -16 0 0 0 10.4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23k)'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.045' numOctaves='2' seed='11'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 -2.6 0 0 0 2.25'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E");
+          mask-composite: intersect;
+  -webkit-mask-size: 160px 160px; mask-size: 160px 160px;
+}
+
+/* ===== 処方薬 = マルト薬局の薬袋 ===== */
+.shop-rx.bag {
+  position: relative; margin-top: 22px; padding: 16px 16px 12px;
+  color: var(--ink);
+  background-color: #FFFEFA;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .4 0 0 0 0 .38 0 0 0 .10 -.02'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    linear-gradient(90deg, rgba(17, 35, 58, .06), rgba(17, 35, 58, 0) 6%, rgba(17, 35, 58, 0) 94%, rgba(17, 35, 58, .06));
+  border: 1px solid rgba(17, 35, 58, .14); border-top: 0; border-radius: 0 0 6px 6px;
+  box-shadow: 0 1px 1px rgba(17, 35, 58, .08), 0 8px 16px -6px rgba(17, 35, 58, .28);
+}
+/* 上端: ギザギザの圧着(シール)部分 */
+.bag-crimp {
+  position: absolute; left: -1px; right: -1px; top: -9px; height: 10px;
+  background:
+    linear-gradient(-45deg, #FFFEFA 5px, transparent 0) 0 100% / 10px 10px repeat-x,
+    linear-gradient(45deg, #FFFEFA 5px, transparent 0) 0 100% / 10px 10px repeat-x;
+  filter: drop-shadow(0 -.5px 0 rgba(17, 35, 58, .22));
+}
+.shop-rx.bag::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 9px;
+  background: repeating-linear-gradient(180deg, rgba(17, 35, 58, .07) 0 1px, transparent 1px 3px);
+}
+.bag-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 0 8px; border-bottom: 2px solid var(--teal); }
+.bag-kind {
+  background: var(--teal); color: var(--on-teal); font-family: var(--font-seal); font-weight: 800;
+  font-size: 20px; letter-spacing: .32em; padding: 2px 6px 2px 13px; border-radius: 3px; line-height: 1.35;
+}
+.bag-to { display: inline-flex; align-items: baseline; gap: 6px; font-size: 13px; color: var(--ink-soft); font-weight: 700; white-space: nowrap; }
+.bag-to b { font-size: 18px; color: var(--ink); font-weight: 900; padding: 0 12px; border-bottom: 1.5px solid var(--ink-soft); }
+.shop-rx.bag .shop-rx-name { margin: 10px 0 8px; color: var(--ink); }
+.shop-rx.bag .shop-rx-body { margin-top: 0; gap: 14px; }
+.bag-window {
+  position: relative; flex: none; display: block; width: clamp(96px, 28vw, 132px); aspect-ratio: 1;
+  border-radius: 10px; overflow: hidden; background: #fff;
+  box-shadow: 0 0 0 4px #fff, 0 0 0 5px rgba(17, 35, 58, .18), inset 0 0 0 1px rgba(17, 35, 58, .18);
+}
+.bag-window .shop-rx-photo { width: 100%; height: 100%; border: 0; border-radius: 0; }
+.bag-window::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background: linear-gradient(118deg, rgba(255, 255, 255, .55) 0%, rgba(255, 255, 255, .14) 30%, rgba(255, 255, 255, 0) 31%,
+    rgba(255, 255, 255, 0) 64%, rgba(255, 255, 255, .20) 65%, rgba(255, 255, 255, 0) 78%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .5), inset 0 -6px 12px rgba(17, 35, 58, .12);
+}
+.shop-rx.bag .shop-rx-note { color: var(--ink); }
+.bag-usage { margin: 12px 0 0; padding: 9px 0 0; border-top: 1px dashed rgba(17, 35, 58, .32); display: grid; gap: 5px; }
+.bag-usage div { display: flex; align-items: center; gap: 10px; }
+.bag-usage dt {
+  flex: none; font-weight: 900; color: var(--teal); border: 1.5px solid var(--teal); border-radius: 3px;
+  padding: 0 6px; font-size: 13px; line-height: 1.6; letter-spacing: .1em;
+}
+.bag-usage dd { margin: 0; font-weight: 700; font-size: 16px; white-space: nowrap; }
+.bag-foot {
+  margin-top: 10px; padding-top: 8px; border-top: 2px solid var(--teal); color: var(--teal);
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  font-family: var(--font-seal); font-weight: 800; font-size: 18px; letter-spacing: .14em;
+}
+@media (max-width: 480px) {
+  .shop-rx.bag { margin-top: 20px; padding: 14px 13px 11px; }
+  .bag-kind { font-size: 18px; }
+  .bag-to b { font-size: 17px; padding: 0 10px; }
+  .bag-window { width: 96px; }
+  .bag-usage dd { font-size: 15px; }
+}
+@media (max-width: 350px) {
+  .shop-rx.bag { padding: 13px 11px 10px; }
+  .shop-rx.bag .shop-rx-body { gap: 11px; }
+  .bag-window { width: 78px; border-radius: 8px; }
+  .bag-to small:first-child { display: none; }
+  .bag-usage div { gap: 7px; }
+  .bag-usage dd { font-size: 14px; }
+}
+
+/* ===== メーター(金属のふち・ガラスのツヤ) ===== */
+.gauge { filter: drop-shadow(0 6px 7px rgba(17, 35, 58, .22)); }
+.gauge .seg-hi { fill: none; stroke: rgba(255, 255, 255, .26); stroke-width: 4; stroke-linecap: butt; }
+.gauge .seg-lo { fill: none; stroke: rgba(17, 35, 58, .13); stroke-width: 5; }
+.gauge .g-num { fill: #6A7782; font-family: var(--font-body); font-weight: 900; font-size: 10.5px; text-anchor: middle; dominant-baseline: central; }
+.gauge .g-brand { fill: #8A949C; font-family: var(--font-seal); font-weight: 800; font-size: 8.5px; letter-spacing: .26em; text-anchor: middle; }
+.gauge .g-unit { fill: #9AA3AA; font-family: var(--font-body); font-weight: 700; font-size: 9px; letter-spacing: .2em; text-anchor: middle; }
+.gauge .tk { stroke: rgba(17, 35, 58, .38); stroke-width: 1.2; stroke-linecap: round; }
+.gauge .tk-major { stroke: rgba(17, 35, 58, .7); stroke-width: 2.4; }
+.gauge .gl { fill: #4A5A68; }
+.gauge .gl.cur { fill: var(--ink); }
+
+/* ===== 問診票(質問画面) ===== */
+.form-title {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+  padding: 0 2px 6px; margin: 0 0 10px; border-bottom: 3px double rgba(17, 35, 58, .7);
+}
+.form-title b { font-family: var(--font-seal); font-weight: 800; font-size: 22px; letter-spacing: .5em; margin-right: -.5em; color: var(--ink); }
+.form-title span { font-family: var(--font-seal); font-weight: 800; font-size: 13px; letter-spacing: .12em; color: var(--ink-soft); white-space: nowrap; }
+#s-quiz .dept { gap: 6px; }
+#s-quiz .dept .label { letter-spacing: .1em; }
+#s-quiz .dept b {
+  background: transparent; color: var(--teal); border: 0; border-bottom: 1.5px solid var(--ink-soft); border-radius: 0;
+  font-family: var(--font-seal); font-weight: 800; font-size: 17px; padding: 0 10px 0 6px;
+}
+#s-quiz .count { font-family: var(--font-seal); font-weight: 800; font-size: 15px; letter-spacing: .06em; color: var(--ink-soft); }
+/* 進み具合: 記入欄の小さな四角 */
+#s-quiz .ticks { counter-reset: tk; gap: 5px; }
+#s-quiz .ticks i {
+  height: 18px; border: 1.5px solid rgba(17, 35, 58, .55); border-radius: 2px; background: rgba(255, 255, 255, .55);
+  display: grid; place-items: center; font-style: normal; font-size: 11px; font-weight: 900; color: var(--ink-soft);
+}
+#s-quiz .ticks i::before { counter-increment: tk; content: counter(tk); }
+#s-quiz .ticks i.done { background: var(--teal); border-color: var(--teal); color: #fff; }
+#s-quiz .ticks i.cur { background: rgba(240, 180, 41, .28); border-color: var(--ink); color: var(--ink); }
+/* 問い: 記入用の罫線の上に */
+#s-quiz .qtext {
+  line-height: 1.45; padding: 0;
+  background-image: linear-gradient(to bottom, transparent calc(100% - 1.5px), rgba(17, 35, 58, .26) 0);
+  background-size: 100% 1.45em; background-position: 0 0; background-repeat: repeat-y;
+}
+/* 回答: チェック欄つきの選択肢。選ぶと赤ペンのチェック */
+#s-quiz .ans {
+  background: rgba(255, 255, 255, .72); border: 1.5px solid rgba(17, 35, 58, .55); border-radius: 6px;
+  box-shadow: 0 1px 0 rgba(17, 35, 58, .10);
+}
+#s-quiz .ans:hover { background: rgba(255, 255, 255, .9); }
+#s-quiz .ans .dot {
+  width: 26px; height: 26px; border: 2px solid var(--ink); border-radius: 3px; background: #fff; position: relative; color: transparent;
+}
+#s-quiz .ans[aria-pressed="true"] { background: rgba(18, 120, 108, .09); color: var(--ink); border: 2px solid var(--teal); box-shadow: inset 0 0 0 1px rgba(18, 120, 108, .25); }
+#s-quiz .ans[aria-pressed="true"] .dot { background: #fff; color: transparent; }
+#s-quiz .ans[aria-pressed="true"] .dot::after {
+  content: ""; position: absolute; left: -3px; top: -11px; width: 36px; height: 36px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M6 21 C9 23 12 27 15 32 C20 20 27 11 37 3' fill='none' stroke='%23C3302A' stroke-width='5.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+@media (prefers-reduced-motion: no-preference) {
+  #s-quiz .ans[aria-pressed="true"] .dot::after { animation: penCheck .28s ease-out both; }
+}
+@keyframes penCheck { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+#s-quiz .ans-unk { border-style: dashed; }
+/* 先生のひとこと: 所見欄 */
+#s-quiz .note {
+  background: rgba(240, 180, 41, .10); border: 0; border-left: 4px solid var(--mustard); border-radius: 2px 8px 8px 2px;
+  box-shadow: inset 0 0 0 1px rgba(17, 35, 58, .08);
+}
+#s-quiz .note .who { background: transparent; color: var(--ink-soft); border: 1px solid rgba(17, 35, 58, .45); border-radius: 3px; font-family: var(--font-seal); font-weight: 800; }
+#s-quiz .gloss { background: rgba(255, 255, 255, .7); }
+@media (max-width: 480px) {
+  .form-title { margin-bottom: 6px; padding-bottom: 4px; }
+  .form-title b { font-size: 19px; }
+  .form-title span { font-size: 12px; }
+  #s-quiz .ticks i { height: 16px; font-size: 10px; }
+  #s-quiz .ans .dot { width: 24px; height: 24px; }
+  #s-quiz .ans[aria-pressed="true"] .dot::after { width: 31px; height: 31px; top: -9px; left: -2px; }
+}
 </style>
 </head>
 <body>
@@ -545,6 +735,7 @@ img, svg { max-width: 100%; }
 
     <!-- 問診 -->
     <section class="screen paper" id="s-quiz" hidden>
+      <div class="form-title" aria-hidden="true"><b>問診票</b><span id="formClinic">マルトクリニック</span></div>
       <div class="quiz-head">
         <span class="dept"><span class="label">診察科</span><b id="qDept"></b></span>
         <span class="count" id="qNum"></span>
@@ -570,6 +761,7 @@ img, svg { max-width: 100%; }
     <section class="screen paper loading" id="s-loading" hidden>
       <span class="label">ただいま診断中</span>
       <h2>診断書を作成しています</h2>
+      <canvas class="pill3d" id="pill3d" aria-hidden="true" hidden></canvas>
       <div class="board">
         <div class="cap">ただいまの診察番号</div>
         <div class="no" id="boardNo">000</div>
@@ -599,12 +791,106 @@ img, svg { max-width: 100%; }
 
       <div class="meter">
         <div class="gauge-box">
-          <svg class="gauge" id="gauge" viewBox="0 0 340 186" role="img" aria-label="おぢさん度メーター">
+          <svg class="gauge" id="gauge" viewBox="-2 -12 344 200" role="img" aria-label="おぢさん度メーター">
+            <defs>
+              <radialGradient id="gFace" cx="170" cy="150" r="160" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#FFFFFC"/><stop offset=".6" stop-color="#FAF7EF"/><stop offset=".9" stop-color="#EFE9DC"/><stop offset="1" stop-color="#DCD4C2"/>
+              </radialGradient>
+              <linearGradient id="gChrome" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#FFFFFF"/><stop offset=".08" stop-color="#E9EDF0"/><stop offset=".2" stop-color="#9BA4AB"/>
+                <stop offset=".32" stop-color="#F7F9FA"/><stop offset=".5" stop-color="#C3CAD0"/><stop offset=".68" stop-color="#727C84"/>
+                <stop offset=".86" stop-color="#D9DEE2"/><stop offset="1" stop-color="#8C959C"/>
+              </linearGradient>
+              <linearGradient id="gChromeSide" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".35" stop-color="#fff" stop-opacity="0"/>
+                <stop offset=".7" stop-color="#11233A" stop-opacity="0"/><stop offset="1" stop-color="#11233A" stop-opacity=".35"/>
+              </linearGradient>
+              <linearGradient id="gBase" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#F4F6F7"/><stop offset=".18" stop-color="#D3D9DD"/><stop offset=".55" stop-color="#AEB6BC"/><stop offset="1" stop-color="#7A848B"/>
+              </linearGradient>
+              <linearGradient id="gGlass" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".38" stop-color="#fff" stop-opacity=".1"/><stop offset=".40" stop-color="#fff" stop-opacity="0"/>
+                <stop offset=".9" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity=".12"/>
+              </linearGradient>
+              <linearGradient id="gNeedle" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#4A6382"/><stop offset=".48" stop-color="#1F3550"/><stop offset=".52" stop-color="#0B1726"/><stop offset="1" stop-color="#13263D"/>
+              </linearGradient>
+              <radialGradient id="gHub" cx=".36" cy=".3" r=".85">
+                <stop offset="0" stop-color="#FFFFFF"/><stop offset=".25" stop-color="#E3E8EB"/><stop offset=".6" stop-color="#9AA3AA"/><stop offset="1" stop-color="#4E585F"/>
+              </radialGradient>
+              <radialGradient id="gScrew" cx=".35" cy=".3" r=".9">
+                <stop offset="0" stop-color="#FFFFFF"/><stop offset=".45" stop-color="#C2C9CE"/><stop offset="1" stop-color="#5E686F"/>
+              </radialGradient>
+              <filter id="gBlur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.2"/></filter>
+              <filter id="gSoft" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation=".5"/></filter>
+              <filter id="gInner" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="6"/></filter>
+              <filter id="gGrain" x="0" y="0" width="100%" height="100%">
+                <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="5"/>
+                <feColorMatrix values="0 0 0 0 .3  0 0 0 0 .26  0 0 0 0 .2  0 0 0 .14 -.03"/>
+              </filter>
+              <filter id="gBrush" x="0" y="0" width="100%" height="100%">
+                <feTurbulence type="fractalNoise" baseFrequency=".004 .9" numOctaves="2" seed="9"/>
+                <feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1.1 -.42"/>
+              </filter>
+              <filter id="gBrushDark" x="0" y="0" width="100%" height="100%">
+                <feTurbulence type="fractalNoise" baseFrequency=".003 .7" numOctaves="2" seed="21"/>
+                <feColorMatrix values="0 0 0 0 .1  0 0 0 0 .14  0 0 0 0 .2  0 0 0 .9 -.46"/>
+              </filter>
+              <clipPath id="gFaceClip"><path d="M12 160 A158 158 0 0 1 328 160 Z"/></clipPath>
+              <clipPath id="gBaseClip"><rect x="-1" y="157" width="342" height="19" rx="5"/></clipPath>
+            </defs>
+
+            <!-- 文字盤(エナメル) -->
+            <path d="M12 160 A158 158 0 0 1 328 160 Z" fill="url(#gFace)"/>
+            <g clip-path="url(#gFaceClip)">
+              <rect x="10" y="0" width="320" height="162" filter="url(#gGrain)"/>
+              <path d="M12 160 A158 158 0 0 1 328 160" fill="none" stroke="rgba(17,35,58,.32)" stroke-width="18" filter="url(#gInner)"/>
+            </g>
+            <!-- 印刷: 目盛り・数字・銘板 -->
+            <g id="gTicks"></g>
+            <g id="gNums"></g>
+            <text class="g-brand" x="170" y="137">MARUTO CLINIC</text>
             <g id="gSegs"></g>
             <g id="gLetters"></g>
-            <g id="needle" transform="rotate(0 170 160)"><path d="M170 153 L64 160 L170 167 Z"></path></g>
-            <circle class="hub" cx="170" cy="160" r="11"></circle>
-            <circle class="hub-dot" cx="170" cy="160" r="4"></circle>
+
+            <!-- 針 -->
+            <g id="needleSh" transform="translate(3 5) rotate(4 170 160)" filter="url(#gBlur)"><path d="M184 160 L170 151.5 L48 160 L170 168.5 Z" fill="rgba(17,35,58,.42)"/><circle cx="181" cy="160" r="7" fill="rgba(17,35,58,.42)"/></g>
+            <g id="needle" transform="rotate(4 170 160)">
+              <path d="M184 160 L170 151.5 L48 160 L170 168.5 Z"/>
+              <path d="M170 152.6 L50 160 L170 160 Z" fill="rgba(255,255,255,.2)"/>
+              <circle cx="181" cy="160" r="7" fill="#13263D"/><circle cx="181" cy="160" r="7" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="1"/>
+            </g>
+
+            <!-- ガラス -->
+            <path d="M12 160 A158 158 0 0 1 328 160 Z" fill="url(#gGlass)" pointer-events="none"/>
+            <path d="M36 116 A152 152 0 0 1 246 20 A172 172 0 0 0 56 124 Z" fill="#fff" opacity=".2" pointer-events="none"/>
+            <path d="M47.31 100.16 A136.5 136.5 0 0 1 151.00 24.83" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity=".7" filter="url(#gSoft)"/>
+            <path d="M12.5 160 A157.5 157.5 0 0 1 327.5 160" fill="none" stroke="rgba(17,35,58,.28)" stroke-width="2.5"/>
+
+            <!-- 金属のふち(クローム) -->
+            <path d="M6 160 A164 164 0 0 1 334 160" fill="none" stroke="url(#gChrome)" stroke-width="12"/>
+            <path d="M6 160 A164 164 0 0 1 334 160" fill="none" stroke="url(#gChromeSide)" stroke-width="12"/>
+            <path d="M67.80 29.19 A166 166 0 0 1 272.20 29.19" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".9"/>
+            <path d="M0 160 A170 170 0 0 1 340 160" fill="none" stroke="rgba(17,35,58,.55)" stroke-width="1"/>
+            <path d="M11.4 160 A158.6 158.6 0 0 1 328.6 160" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1"/>
+
+            <!-- 台座(ヘアライン仕上げ)とネジ -->
+            <rect x="-1" y="157" width="342" height="19" rx="5" fill="url(#gBase)"/>
+            <g clip-path="url(#gBaseClip)">
+              <rect x="-1" y="157" width="342" height="19" filter="url(#gBrush)"/>
+              <rect x="-1" y="157" width="342" height="19" filter="url(#gBrushDark)"/>
+            </g>
+            <path d="M3 157.8 H337" stroke="rgba(255,255,255,.95)" stroke-width="1.2"/>
+            <rect x="-.5" y="157.5" width="341" height="18" rx="4.5" fill="none" stroke="rgba(17,35,58,.45)"/>
+            <g class="g-screw" transform="translate(14 166.5)"><circle r="5.2" fill="url(#gScrew)" stroke="rgba(17,35,58,.5)" stroke-width=".8"/><path d="M-3 -.6 H3 M-.6 -3 V3" stroke="rgba(17,35,58,.6)" stroke-width="1.3" transform="rotate(20)"/></g>
+            <g class="g-screw" transform="translate(326 166.5)"><circle r="5.2" fill="url(#gScrew)" stroke="rgba(17,35,58,.5)" stroke-width=".8"/><path d="M-3 -.6 H3 M-.6 -3 V3" stroke="rgba(17,35,58,.6)" stroke-width="1.3" transform="rotate(-35)"/></g>
+
+            <!-- 軸 -->
+            <circle cx="172" cy="163.5" r="15" fill="rgba(17,35,58,.38)" filter="url(#gBlur)"/>
+            <circle class="hub" cx="170" cy="160" r="13.5" fill="url(#gHub)" stroke="#4C565C" stroke-width="1"/>
+            <circle cx="170" cy="160" r="9" fill="none" stroke="rgba(17,35,58,.25)" stroke-width="1"/>
+            <circle class="hub-dot" cx="170" cy="160" r="4"/>
+            <circle cx="166.2" cy="155.8" r="2.6" fill="#fff" opacity=".85"/>
           </svg>
         </div>
         <div class="pct">
@@ -616,16 +902,25 @@ img, svg { max-width: 100%; }
 
       <p class="r-body" id="rBody"></p>
 
-      <div class="shop-rx" id="shopRx" hidden>
-        <div class="shop-rx-head"><span class="rxmark">Rx</span><b>処方薬</b><span class="shop-rx-shop" id="shopRxShop"></span></div>
+      <div class="shop-rx bag" id="shopRx" hidden>
+        <div class="bag-crimp" aria-hidden="true"></div>
+        <div class="bag-head">
+          <span class="bag-kind">内服薬</span>
+          <span class="bag-to"><small>お名前</small><b>あなた</b><small>様</small></span>
+        </div>
         <p class="shop-rx-name" id="shopRxName"></p>
         <div class="shop-rx-body">
-          <img class="shop-rx-photo" id="shopRxPhoto" alt="" hidden>
+          <span class="bag-window" id="shopRxWin" hidden><img class="shop-rx-photo" id="shopRxPhoto" alt="" hidden></span>
           <div class="shop-rx-text">
             <p class="shop-rx-note" id="shopRxNote"></p>
             <p class="shop-rx-order" id="shopRxOrder"></p>
           </div>
         </div>
+        <dl class="bag-usage">
+          <div><dt>用法</dt><dd class="nw">温かいうちに、ゆっくり服用</dd></div>
+          <div><dt>用量</dt><dd class="nw">1回1皿（おかわり可）</dd></div>
+        </dl>
+        <div class="bag-foot"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><rect x="7" y="2" width="6" height="16" rx="1.5" fill="currentColor"/><rect x="2" y="7" width="16" height="6" rx="1.5" fill="currentColor"/></svg><span id="shopRxShop"></span></div>
       </div>
 
       <div class="gapcard">
@@ -682,11 +977,11 @@ window.OJIBA_PHOTOS = {
     pharmacy: 'マルト薬局',
     orderNote: '',
     menus: {
-      A: [{ name: '島豆腐のゴーヤチャンプル', note: '若々しいあなたには、シャキッと元気の一皿を。', photo: P.goya }],
-      B: [{ name: 'シンプルだしまき玉子', note: '予備軍には、まずやさしい味でひと息。', photo: P.dashimaki }],
-      C: [{ name: '島唐辛子ぎょうざ', note: '境界線でゆれるあなたには、ピリッと一発、気合いを。', photo: P.gyoza }],
+      A: [{ name: '島豆腐のゴーヤチャンプル', note: '若々しいあなたには、\nシャキッと元気の\n一皿を。', photo: P.goya }],
+      B: [{ name: 'シンプルだしまき玉子', note: '予備軍には、\nまずやさしい味で\nひと息。', photo: P.dashimaki }],
+      C: [{ name: '島唐辛子ぎょうざ', note: '境界線でゆれる\nあなたには、\nピリッと一発、\n気合いを。', photo: P.gyoza }],
       D: [{ name: '紅芋コロッケ', note: 'どっしり構えた\n立派な{S}には、\nホクホクの紅芋を。', photo: P.beniimo }],
-      E: [{ name: '沖縄そば', note: '国宝級には、とっておきの一杯を。', photo: P.soba }]
+      E: [{ name: '沖縄そば', note: '国宝級には、\nとっておきの\n一杯を。', photo: P.soba }]
     }
   };
 
@@ -1132,6 +1427,7 @@ window.OJIBA_PHOTOS = {
   }
   $('today').textContent = reiwaShowa();
   $('clinicName').textContent = CLINIC;
+  if ($('formClinic')) $('formClinic').textContent = CLINIC;
 
   function show(which) {
     cur = which;
@@ -1235,7 +1531,7 @@ window.OJIBA_PHOTOS = {
     var q = session[idx];
     try { window.scrollTo(0, 0); } catch (e) {}
     $('qDept').textContent = DEPTS[q.d];
-    $('qNum').textContent = (idx + 1) + ' / ' + N;
+    $('qNum').textContent = '問' + (idx + 1) + ' ／ 全' + N + '問';
     var ticks = ticksBox.children;
     for (var i = 0; i < ticks.length; i++) {
       ticks[i].className = i < idx ? 'done' : (i === idx ? 'cur' : '');
@@ -1306,6 +1602,7 @@ window.OJIBA_PHOTOS = {
     ticketNo = String(Math.floor(Math.random() * 900) + 100);
     $('boardNo').textContent = ticketNo;
     show('loading');
+    if (window.ojiba3d && window.ojiba3d.ready) window.ojiba3d.start(reduce ? 700 : LOADING_MS);
     var k = 0, msg = $('loadMsg');
     msg.textContent = LOADING_MSGS[0];
     clearInterval(msgTimer);
@@ -1316,6 +1613,7 @@ window.OJIBA_PHOTOS = {
     clearTimeout(loadTimer);
     loadTimer = setTimeout(function () {
       clearInterval(msgTimer);
+      if (window.ojiba3d) window.ojiba3d.stop();
       buildResult();
       show('result');
       animateResult();
@@ -1324,7 +1622,7 @@ window.OJIBA_PHOTOS = {
 
   /* ===== ゲージ(静的パーツ) ===== */
   var CX = 170, CY = 160, R = 120;
-  function pt(t, r) { return [CX - r * Math.cos(Math.PI * t), CY - r * Math.sin(Math.PI * t)]; }
+  function pt(t, r) { var a = Math.PI * (4 + 172 * t) / 180; return [CX - r * Math.cos(a), CY - r * Math.sin(a)]; }   // 針と同じく 4°〜176° に割り付け
   (function buildGauge() {
     var segs = $('gSegs'), letters = $('gLetters');
     for (var g = 0; g < 5; g++) {
@@ -1333,10 +1631,33 @@ window.OJIBA_PHOTOS = {
         'class': 'seg seg' + g,
         d: 'M' + a[0].toFixed(2) + ' ' + a[1].toFixed(2) + ' A' + R + ' ' + R + ' 0 0 1 ' + b[0].toFixed(2) + ' ' + b[1].toFixed(2)
       }));
+      segs.appendChild(svgEl('path', {
+        'class': 'seg-hi',
+        d: 'M' + pt(g * 0.2 + 0.006, R + 7)[0].toFixed(2) + ' ' + pt(g * 0.2 + 0.006, R + 7)[1].toFixed(2) + ' A' + (R + 7) + ' ' + (R + 7) + ' 0 0 1 ' + pt((g + 1) * 0.2 - 0.006, R + 7)[0].toFixed(2) + ' ' + pt((g + 1) * 0.2 - 0.006, R + 7)[1].toFixed(2)
+      }));
+      segs.appendChild(svgEl('path', {
+        'class': 'seg-lo',
+        d: 'M' + pt(g * 0.2 + 0.006, R - 9)[0].toFixed(2) + ' ' + pt(g * 0.2 + 0.006, R - 9)[1].toFixed(2) + ' A' + (R - 9) + ' ' + (R - 9) + ' 0 0 1 ' + pt((g + 1) * 0.2 - 0.006, R - 9)[0].toFixed(2) + ' ' + pt((g + 1) * 0.2 - 0.006, R - 9)[1].toFixed(2)
+      }));
       var p = pt(0.1 + g * 0.2, 148);
       var tx = svgEl('text', { 'class': 'gl', x: p[0].toFixed(2), y: p[1].toFixed(2), id: 'gl' + g });
       tx.textContent = GRADES[g].letter;
       letters.appendChild(tx);
+    }
+    // 目盛りの数字(20%ごと)
+    var nums = $('gNums');
+    for (var nv = 20; nv <= 80; nv += 20) {
+      var np = pt(nv / 100, 76);
+      var nt = svgEl('text', { 'class': 'g-num', x: np[0].toFixed(2), y: np[1].toFixed(2) });
+      nt.textContent = String(nv);
+      nums.appendChild(nt);
+    }
+    // 目盛り(5%ごと。20%ごとに長い線)
+    var ticks = $('gTicks');
+    for (var v = 0; v <= 100; v += 5) {
+      var major = v % 20 === 0, t = v / 100;
+      var p1 = pt(t, major ? 88 : 93), p2 = pt(t, 101);
+      ticks.appendChild(svgEl('line', { 'class': major ? 'tk tk-major' : 'tk', x1: p1[0].toFixed(2), y1: p1[1].toFixed(2), x2: p2[0].toFixed(2), y2: p2[1].toFixed(2) }));
     }
   })();
 
@@ -1412,15 +1733,17 @@ window.OJIBA_PHOTOS = {
       shopRx.hidden = false;
       $('shopRxShop').textContent = SHOP.pharmacy || (SHOP.name ? SHOP.name + ' 薬局' : '');
       setLines($('shopRxName'), $('shopRxName'), fill(m.name) + (m.price ? '　' + m.price : ''), 12, true);
-      setLines($('shopRxNote'), $('shopRxNote'), m.note ? fill(m.note) : '', 13);
+      setLines($('shopRxNote'), $('shopRxNote'), m.note ? fill(m.note) : '', 12);
       $('shopRxOrder').textContent = SHOP.orderNote || '';
       var photo = $('shopRxPhoto');
       if (m.photo) {
         photo.src = m.photo;
         photo.alt = fill(m.name);
         photo.hidden = false;
+        $('shopRxWin').hidden = false;
       } else {
         photo.hidden = true;
+        $('shopRxWin').hidden = true;
       }
     } else {
       shopRx.hidden = true;
@@ -1450,7 +1773,8 @@ window.OJIBA_PHOTOS = {
     // 初期状態へ
     $('confetti').textContent = '';
     $('stamp').classList.remove('on');
-    $('needle').setAttribute('transform', 'rotate(0 170 160)');
+    $('needle').setAttribute('transform', 'rotate(4 170 160)');
+    $('needleSh').setAttribute('transform', 'translate(3 5) rotate(4 170 160)');
     $('rPct').textContent = '0';
     $('rBar').style.width = '0';
     for (var g = 0; g < 5; g++) $('gl' + g).setAttribute('class', 'gl');
@@ -1483,12 +1807,30 @@ window.OJIBA_PHOTOS = {
   function animateResult() {
     var pct = result.pct, gi = result.gi;
     var needle = $('needle'), num = $('rPct');
+    var needleSh = $('needleSh');
+    function setAngle(p) {
+      var a = (4 + clamp(p, -2, 103) / 100 * 172).toFixed(2);   // 0%と100%でも針が台に隠れないよう、両端を少し内側に
+      needle.setAttribute('transform', 'rotate(' + a + ' 170 160)');
+      needleSh.setAttribute('transform', 'translate(3 5) rotate(' + a + ' 170 160)');
+    }
     function setVal(p) {
-      needle.setAttribute('transform', 'rotate(' + (clamp(p, 0, 103) / 100 * 180).toFixed(2) + ' 170 160)');
+      setAngle(p);
       num.textContent = String(Math.round(clamp(p, 0, 100)));
+    }
+    function wobble() {           // 止まったあと、針がわずかに揺れて落ち着く
+      var w0 = null;
+      function wstep(ts) {
+        if (w0 === null) w0 = ts;
+        var t = ts - w0;
+        if (t > 900) { setAngle(pct); return; }
+        setAngle(pct + 1.8 * Math.exp(-t / 260) * Math.sin(t / 55));
+        raf = requestAnimationFrame(wstep);
+      }
+      raf = requestAnimationFrame(wstep);
     }
     function finish() {
       setVal(pct);
+      if (!reduce) wobble();
       $('gl' + gi).setAttribute('class', 'gl cur');
       $('stamp').classList.add('on');
       if (!reduce && (gi === 0 || gi === 4)) confetti(gi);
@@ -1619,6 +1961,210 @@ window.OJIBA_PHOTOS = {
     busy = true; phrasify(root); busy = false;
     mo.observe(root, { childList: true, subtree: true, characterData: true });
   })();
+})();
+</script>
+<script>
+/* ===== 3D: 処方カプセル(WebGL・外部ライブラリなし) =====
+   診断中の画面で、ツヤのあるカプセルが回転し、最後にパカッと開いて粒が飛び出す。
+   WebGLが使えない端末では何もせず、従来の心電図の演出のまま。 */
+(function () {
+  var canvas = document.getElementById('pill3d');
+  var section = document.getElementById('s-loading');
+  var api = { ready: false, start: function () {}, stop: function () {} };
+  window.ojiba3d = api;
+  if (!canvas || !section) return;
+  var gl;
+  try { gl = canvas.getContext('webgl', { antialias: true, alpha: true, premultipliedAlpha: true }) || canvas.getContext('experimental-webgl'); } catch (e) { gl = null; }
+  if (!gl) return;
+
+  /* ---- 行列 ---- */
+  function I() { return [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]; }
+  function mul(a, b) {
+    var o = new Array(16);
+    for (var c = 0; c < 4; c++) for (var r = 0; r < 4; r++) {
+      o[c * 4 + r] = a[r] * b[c * 4] + a[4 + r] * b[c * 4 + 1] + a[8 + r] * b[c * 4 + 2] + a[12 + r] * b[c * 4 + 3];
+    }
+    return o;
+  }
+  function T(x, y, z) { var m = I(); m[12] = x; m[13] = y; m[14] = z; return m; }
+  function S(s) { var m = I(); m[0] = m[5] = m[10] = s; return m; }
+  function RX(a) { var c = Math.cos(a), s = Math.sin(a); return [1,0,0,0, 0,c,s,0, 0,-s,c,0, 0,0,0,1]; }
+  function RY(a) { var c = Math.cos(a), s = Math.sin(a); return [c,0,-s,0, 0,1,0,0, s,0,c,0, 0,0,0,1]; }
+  function RZ(a) { var c = Math.cos(a), s = Math.sin(a); return [c,s,0,0, -s,c,0,0, 0,0,1,0, 0,0,0,1]; }
+  function persp(fov, asp, n, f) {
+    var t = 1 / Math.tan(fov / 2), nf = 1 / (n - f);
+    return [t / asp,0,0,0, 0,t,0,0, 0,0,(f + n) * nf,-1, 0,0,2 * f * n * nf,0];
+  }
+
+  /* ---- シェーダ ---- */
+  var VS = 'attribute vec3 p;attribute vec3 n;attribute vec2 uv;uniform mat4 M,V,P;varying vec3 vN,vW;varying vec2 vUv;' +
+    'void main(){vec4 w=M*vec4(p,1.);vW=w.xyz;vN=mat3(M)*n;vUv=uv;gl_Position=P*V*w;}';
+  var FS = 'precision mediump float;varying vec3 vN,vW;varying vec2 vUv;uniform vec3 col,eye;uniform float useTex,alpha;uniform sampler2D tex;' +
+    'void main(){vec3 N=normalize(vN);vec3 Vd=normalize(eye-vW);' +
+    'vec3 base=col;if(useTex>.5){float t=texture2D(tex,vUv).a;base=mix(base,vec3(1.),t*.92);}' +
+    'vec3 L1=normalize(vec3(.55,.8,.75)),L2=normalize(vec3(-.8,.25,-.4));' +
+    'float d1=max(dot(N,L1),0.),d2=max(dot(N,L2),0.);' +
+    'float sky=N.y*.5+.5;vec3 amb=mix(vec3(.30,.27,.24),vec3(.62,.70,.72),sky);' +
+    'vec3 c=base*(amb*.75+d1*.85+d2*.22);' +
+    'float s1=pow(max(dot(N,normalize(L1+Vd)),0.),90.);float s2=pow(max(dot(N,normalize(L2+Vd)),0.),40.);' +
+    'float fr=pow(1.-max(dot(N,Vd),0.),3.);' +
+    'c+=vec3(1.)*(s1*1.1+s2*.25)+vec3(.85,.95,1.)*fr*.35;' +
+    'gl_FragColor=vec4(pow(c,vec3(.95))*alpha,alpha);}';
+  var SVS = 'attribute vec3 p;uniform mat4 V,P;uniform vec3 c;uniform vec2 sz;varying vec2 q;void main(){q=p.xz;gl_Position=P*V*vec4(c+vec3(p.x*sz.x,0.,p.z*sz.y),1.);}';
+  var SFS = 'precision mediump float;varying vec2 q;uniform float k;void main(){float d=length(q);float a=smoothstep(1.,0.,d)*.30*k;gl_FragColor=vec4(vec3(.07,.14,.23)*a,a);}';
+
+  function prog(vs, fs) {
+    function sh(t, s) { var o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o)); return o; }
+    var p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error('link');
+    return p;
+  }
+  function buf(data, isIndex) {
+    var b = gl.createBuffer(), t = isIndex ? gl.ELEMENT_ARRAY_BUFFER : gl.ARRAY_BUFFER;
+    gl.bindBuffer(t, b); gl.bufferData(t, isIndex ? new Uint16Array(data) : new Float32Array(data), gl.STATIC_DRAW); return b;
+  }
+
+  /* ---- 形: 回転体(レース)。prof = [[r, y, nr, ny], ...] ---- */
+  function lathe(prof, seg) {
+    var P = [], N = [], U = [], X = [], rows = prof.length;
+    for (var i = 0; i < rows; i++) {
+      for (var j = 0; j <= seg; j++) {
+        var a = j / seg * Math.PI * 2, ca = Math.cos(a), sa = Math.sin(a), q = prof[i];
+        P.push(q[0] * ca, q[1], q[0] * sa); N.push(q[2] * ca, q[3], q[2] * sa); U.push(j / seg, q.length > 4 ? q[4] : i / (rows - 1));
+      }
+    }
+    for (i = 0; i < rows - 1; i++) for (j = 0; j < seg; j++) {
+      var a0 = i * (seg + 1) + j, b0 = a0 + seg + 1;
+      X.push(a0, b0, a0 + 1, b0, b0 + 1, a0 + 1);
+    }
+    return { p: buf(P), n: buf(N), uv: buf(U), i: buf(X, true), count: X.length };
+  }
+  // カプセルの片側(下向き)。r=半径、len=円柱部の長さ。y=0が合わせ目
+  function halfProfile(r, len, flip) {
+    var pr = [], k, steps = 18;
+    for (k = 0; k <= steps; k++) {           // 先端の半球(極→赤道)
+      var t = -Math.PI / 2 + (k / steps) * (Math.PI / 2);
+      pr.push([r * Math.cos(t), -len + r * Math.sin(t), Math.cos(t), Math.sin(t), 0.85 + 0.15 * (1 - k / steps)]);
+    }
+    for (k = 1; k <= 6; k++) pr.push([r, -len + len * k / 6, 1, 0, 0.85 - 0.7 * k / 6]);   // 円柱(印字はここ)
+    pr.push([r * 0.94, 0, 0, 1, 0.08]);                                                     // 合わせ目のふち
+    pr.push([0.001, 0, 0, 1, 0]);
+    if (flip) pr = pr.map(function (q) { return [q[0], -q[1], q[2], -q[3], q[4]]; }).reverse();
+    return pr;
+  }
+  function sphere(r, seg) {
+    var pr = [];
+    for (var k = 0; k <= seg; k++) { var t = -Math.PI / 2 + Math.PI * k / seg; pr.push([Math.max(r * Math.cos(t), 0.0001), r * Math.sin(t), Math.cos(t), Math.sin(t)]); }
+    return lathe(pr, seg * 2);
+  }
+
+  var main, shadowP, bottom, top, grain, quad, texObj, loc = {}, sloc = {};
+  try {
+    main = prog(VS, FS); shadowP = prog(SVS, SFS);
+    bottom = lathe(halfProfile(0.5, 0.62, false), 64);
+    top = lathe(halfProfile(0.53, 0.70, true), 64);
+    grain = sphere(0.075, 10);
+    quad = { p: buf([-1,0,-1, 1,0,-1, 1,0,1, -1,0,-1, 1,0,1, -1,0,1]) };
+    ['p','n','uv'].forEach(function (k) { loc[k] = gl.getAttribLocation(main, k); });
+    ['M','V','P','col','eye','useTex','alpha','tex'].forEach(function (k) { loc[k] = gl.getUniformLocation(main, k); });
+    sloc.p = gl.getAttribLocation(shadowP, 'p');
+    ['V','P','c','sz','k'].forEach(function (k) { sloc[k] = gl.getUniformLocation(shadowP, k); });
+
+    // カプセルに印字する「マルト」(白)
+    var tc = document.createElement('canvas'); tc.width = 512; tc.height = 128;
+    var cx = tc.getContext('2d');
+    cx.clearRect(0, 0, 512, 128);
+    cx.fillStyle = '#fff'; cx.textAlign = 'center'; cx.textBaseline = 'middle';
+    cx.font = '900 34px "Zen Maru Gothic","Hiragino Maru Gothic ProN","Hiragino Sans",sans-serif';
+    cx.save(); cx.translate(128, 64); cx.rotate(Math.PI); cx.fillText('マルト', 0, 0); cx.restore();
+    cx.save(); cx.translate(384, 64); cx.rotate(Math.PI); cx.fillText('マルト', 0, 0); cx.restore();
+    texObj = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, texObj);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tc);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  } catch (e) { return; }
+
+  var COL_TOP = [0.07, 0.47, 0.42], COL_BOT = [0.94, 0.71, 0.16];
+  var GRAIN_COLS = [[0.18,0.62,0.56],[0.55,0.75,0.31],[0.94,0.71,0.16],[0.93,0.49,0.18],[0.83,0.19,0.16],[0.98,0.98,0.96]];
+  var grains = [];
+  for (var g = 0; g < 22; g++) {
+    var ang = Math.random() * Math.PI * 2, el = (Math.random() - 0.3) * 1.4;
+    grains.push({ d: [Math.cos(ang) * Math.cos(el), Math.sin(el) + 0.5, Math.sin(ang) * Math.cos(el)], sp: 0.9 + Math.random() * 1.1,
+      c: GRAIN_COLS[g % GRAIN_COLS.length], s: 0.7 + Math.random() * 0.7 });
+  }
+
+  function draw(mesh, M, col, useTex, alpha, V, P, eye) {
+    gl.useProgram(main);
+    gl.bindBuffer(gl.ARRAY_BUFFER, mesh.p); gl.enableVertexAttribArray(loc.p); gl.vertexAttribPointer(loc.p, 3, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, mesh.n); gl.enableVertexAttribArray(loc.n); gl.vertexAttribPointer(loc.n, 3, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, mesh.uv); gl.enableVertexAttribArray(loc.uv); gl.vertexAttribPointer(loc.uv, 2, gl.FLOAT, false, 0, 0);
+    gl.uniformMatrix4fv(loc.M, false, M); gl.uniformMatrix4fv(loc.V, false, V); gl.uniformMatrix4fv(loc.P, false, P);
+    gl.uniform3fv(loc.col, col); gl.uniform3fv(loc.eye, eye); gl.uniform1f(loc.useTex, useTex); gl.uniform1f(loc.alpha, alpha);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, texObj); gl.uniform1i(loc.tex, 0);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.i); gl.drawElements(gl.TRIANGLES, mesh.count, gl.UNSIGNED_SHORT, 0);
+  }
+
+  var raf = 0, t0 = 0, dur = 2400, running = false, W = 0, H = 0;
+  function resize() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var w = Math.round(canvas.clientWidth * dpr), h = Math.round(canvas.clientHeight * dpr);
+    if (w && h && (w !== W || h !== H)) { canvas.width = W = w; canvas.height = H = h; }
+  }
+  function ease(x) { return x < 0 ? 0 : x > 1 ? 1 : 1 - Math.pow(1 - x, 3); }
+
+  function frame(now) {
+    if (!running) return;
+    resize();
+    var el = (now - t0) / 1000, u = Math.min((now - t0) / dur, 1);
+    gl.viewport(0, 0, W, H);
+    gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    var eye = [0, 0.5, 4.6];
+    var V = mul(RX(0.13), T(-eye[0], -eye[1], -eye[2]));
+    var P = persp(0.62, W / H, 0.1, 50);
+
+    var open = ease((u - 0.68) / 0.26);                 // 終盤に開く
+    var bob = Math.sin(el * 2.4) * 0.06 * (1 - open);
+    var spin = el * 2.6 + open * 1.2;
+    // カプセル全体の向き: 斜めに傾けて回転
+    var base = mul(T(0, 0.12 + bob, 0), mul(RY(spin), mul(RZ(1.15 - open * 0.2), RX(0.18))));
+
+    // 影
+    gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); gl.disable(gl.DEPTH_TEST);
+    gl.useProgram(shadowP);
+    gl.bindBuffer(gl.ARRAY_BUFFER, quad.p); gl.enableVertexAttribArray(sloc.p); gl.vertexAttribPointer(sloc.p, 3, gl.FLOAT, false, 0, 0);
+    gl.uniformMatrix4fv(sloc.V, false, V); gl.uniformMatrix4fv(sloc.P, false, P);
+    gl.uniform3fv(sloc.c, [0, -0.95, 0]); gl.uniform2fv(sloc.sz, [1.2 + open * 0.3, 0.4 + open * 0.06]); gl.uniform1f(sloc.k, 1 - bob * 2);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+    gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL);
+    gl.disable(gl.CULL_FACE);
+    var gap = open * 0.55;
+    draw(bottom, mul(base, T(0, -gap * 0.55, 0)), COL_BOT, 0, 1, V, P, eye);
+    draw(top, mul(base, T(0, 0.06 + gap * 0.55, 0)), COL_TOP, 1, 1, V, P, eye);
+
+    // 粒(開いたあとに飛び出す)
+    if (open > 0.02) {
+      for (var i = 0; i < grains.length; i++) {
+        var q = grains[i], d = open * q.sp;
+        var gx = q.d[0] * d * 0.95, gy = 0.1 + q.d[1] * d * 0.55 - d * d * 0.12, gz = q.d[2] * d * 0.7;
+        var a = Math.min(1, open * 3);
+        draw(grain, mul(T(gx, gy, gz), mul(S(q.s * (0.4 + open * 0.6)), RY(el * 3 + i))), q.c, 0, a, V, P, eye);
+      }
+    }
+    if (u < 1 || running) raf = requestAnimationFrame(frame);
+  }
+
+  api.start = function (ms) {
+    dur = Math.max(600, (ms || 2400) - 150);
+    section.classList.add('has3d');
+    canvas.hidden = false;
+    running = true; t0 = performance.now();
+    cancelAnimationFrame(raf); raf = requestAnimationFrame(frame);
+  };
+  api.stop = function () { running = false; cancelAnimationFrame(raf); };
+  api.ready = true;
 })();
 </script>
 </body>

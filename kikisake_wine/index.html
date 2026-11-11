@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0b0809">
+<title>ひとしずく — プロトタイプ ①〜④</title>
+<style>
+  :root{
+    --ink:#f4ead9; --ink-dim:rgba(244,234,217,.66); --ink-faint:rgba(244,234,217,.32);
+    --accent:#e8b77a; --bg:#0b0809; --you:#f6cf95; --shop:#cfe0ff;
+    --mincho:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP","Noto Serif CJK JP",serif;
+    --sans:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Noto Sans CJK JP",system-ui,sans-serif;
+    --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hidden;
+    font-family:var(--sans);-webkit-font-smoothing:antialiased;overscroll-behavior:none;touch-action:none;
+    -webkit-user-select:none;user-select:none}
+  #gl{position:fixed;inset:0;width:100%;height:100%;display:block}
+  #app{position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:min(100vw,480px);
+    pointer-events:none}
+  #app *{pointer-events:auto}
+  #app .passive, #app .passive *{pointer-events:none}
+
+  header{position:absolute;z-index:5;transition:opacity .6s;top:calc(var(--safe-t) + 10px);left:20px;right:16px;display:flex;
+    justify-content:flex-end;align-items:center}
+  .lang{display:flex;border:1px solid var(--ink-faint);border-radius:999px;overflow:hidden}
+  .lang button{all:unset;font-size:14px;letter-spacing:.08em;height:48px;padding:0 16px;display:flex;
+    align-items:center;color:var(--ink-dim);cursor:pointer}
+  .lang button[aria-pressed="true"]{background:rgba(244,234,217,.14);color:var(--ink)}
+
+  .screen{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .45s ease,visibility 0s .45s}
+  .screen.on{opacity:1;visibility:visible;transition:opacity .45s ease .1s,visibility 0s}
+
+  /* ① 選ぶ */
+  .s1-info{position:absolute;left:0;right:0;bottom:calc(var(--safe-b) + 112px);text-align:center;padding:0 20px}
+  .wname{font-family:var(--mincho);font-size:23px;line-height:1.4;letter-spacing:.03em;margin:0;
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+    text-shadow:0 2px 18px rgba(0,0,0,.6);transition:opacity .25s, transform .25s}
+  .wmeta{margin:10px 0 0;font-size:15px;line-height:1.5;color:var(--ink-dim);letter-spacing:.03em;
+    display:flex;align-items:center;justify-content:center;overflow:hidden;transition:opacity .25s, transform .25s}
+  .measure{visibility:hidden;bottom:auto;top:-2000px}
+  .measure .wname,.measure .wmeta{display:block;height:auto}
+  .swapping .wname,.swapping .wmeta{opacity:0;transform:translateY(6px)}
+  .dots{display:flex;justify-content:center;gap:9px;margin-top:20px}
+  .dots i{width:6px;height:6px;border-radius:50%;background:var(--ink-faint);transition:all .3s}
+  .dots i.on{background:var(--ink);width:18px;border-radius:3px}
+  .swipe-hint{position:absolute;left:0;right:0;height:0;transition:opacity .6s}
+  .swipe-hint.gone{opacity:0}
+  .chev{position:absolute;top:0;font-family:var(--mincho);font-size:44px;line-height:1;color:var(--ink-dim);
+    transform:translateY(-50%);animation:nudge 2.4s ease-in-out infinite}
+  .chev.l{left:14px}.chev.r{right:14px;animation-name:nudgeR}
+  @keyframes nudge{0%,100%{transform:translate(0,-50%)}50%{transform:translate(-5px,-50%)}}
+  @keyframes nudgeR{0%,100%{transform:translate(0,-50%)}50%{transform:translate(5px,-50%)}}
+
+  .primary{position:absolute;left:20px;right:20px;bottom:calc(var(--safe-b) + 24px);height:62px;border:0;
+    border-radius:31px;font:inherit;font-size:19px;letter-spacing:.14em;color:#1a0f0c;cursor:pointer;
+    background:linear-gradient(180deg,#f6dcb2,#d9a668);box-shadow:0 10px 40px -8px rgba(232,183,122,.55),
+    inset 0 1px 0 rgba(255,255,255,.6);transition:transform .15s}
+  .primary:active,.cta:active{transform:scale(.97)}
+
+  /* ② 感じる */
+  .prompt{position:absolute;left:0;right:0;top:calc(var(--safe-t) + 74px);text-align:center;font-family:var(--mincho);font-size:22px;
+    line-height:1.6;letter-spacing:.08em;padding:0 24px;transition:opacity .4s}
+  .field{position:absolute;touch-action:none}
+  .axis{position:absolute;pointer-events:none;transition:opacity .5s}
+  .axis.h{left:8%;right:8%;top:50%;height:1px;background:linear-gradient(90deg,transparent,rgba(244,234,217,.22),transparent)}
+  .axis.v{top:6%;bottom:6%;left:50%;width:1px;background:linear-gradient(180deg,transparent,rgba(244,234,217,.22),transparent)}
+  .lbl{position:absolute;font-size:17px;letter-spacing:.1em;color:var(--ink);white-space:nowrap;
+    padding:6px 12px;border-radius:999px;background:rgba(14,9,10,.55);backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);transition:opacity .4s,color .2s,background .2s;pointer-events:none}
+  .lbl.hot{color:#1a0f0c;background:rgba(246,220,178,.92)}
+  .lbl.t{transform:translate(-50%,-100%)} .lbl.b{transform:translate(-50%,0)}
+  .lbl.l{transform:translate(-100%,-50%)} .lbl.r{transform:translate(0,-50%)}
+  .retouch{position:absolute;left:0;right:0;text-align:center;font-size:14px;color:var(--ink-dim);
+    letter-spacing:.08em;transition:opacity .4s}
+
+  .ask{position:absolute;left:20px;right:20px;bottom:calc(var(--safe-b) + 96px);text-align:center;
+    transition:opacity .4s, transform .4s}
+  .ask h2{font-family:var(--mincho);font-weight:400;font-size:22px;letter-spacing:.08em;margin:0 0 18px}
+  .term{border-bottom:1px dashed var(--accent);cursor:pointer;padding-bottom:2px;position:relative}
+  .term::after{content:"";position:absolute;left:-10px;right:-10px;top:-16px;bottom:-16px}
+  .tip{font-size:15px;line-height:1.6;color:var(--ink-dim);margin:-6px 0 16px;min-height:0;transition:opacity .3s}
+  .choices{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .choices button{height:60px;border-radius:16px;border:1px solid rgba(244,234,217,.28);font:inherit;
+    font-size:18px;letter-spacing:.06em;color:var(--ink);background:rgba(30,20,20,.55);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);cursor:pointer;transition:all .2s}
+  .choices button:active{transform:scale(.96)}
+  .choices button.sel{background:rgba(246,220,178,.95);color:#1a0f0c;border-color:transparent}
+
+  .back{position:absolute;left:16px;bottom:calc(var(--safe-b) + 24px);height:56px;padding:0 20px 0 14px;
+    border-radius:28px;border:1px solid var(--ink-faint);background:rgba(14,9,10,.5);color:var(--ink-dim);
+    font:inherit;font-size:16px;letter-spacing:.1em;display:flex;align-items:center;gap:6px;cursor:pointer}
+  .back svg{width:20px;height:20px}
+  .cta{position:absolute;left:136px;right:16px;bottom:calc(var(--safe-b) + 24px);height:56px;border:0;
+    border-radius:28px;font:inherit;font-size:17px;letter-spacing:.12em;color:#1a0f0c;cursor:pointer;
+    background:linear-gradient(180deg,#f6dcb2,#d9a668);box-shadow:0 10px 34px -10px rgba(232,183,122,.55),
+    inset 0 1px 0 rgba(255,255,255,.6);transition:transform .15s}
+
+  /* ③ 重ねる */
+  .mk{position:absolute;width:0;height:0;pointer-events:none;transition:opacity .3s}
+  .mk span{position:absolute;top:0;transform:translateY(-50%);font-size:14px;letter-spacing:.08em;white-space:nowrap;
+    padding:4px 10px;border-radius:999px;background:rgba(14,9,10,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+  .mk.you span{color:var(--you);border:1px solid rgba(246,207,149,.5)}
+  .mk.shop span{color:var(--shop);border:1px solid rgba(207,224,255,.5)}
+  .mk.toL span{right:18px} .mk.toR span{left:18px}
+  .mk i{display:none;position:absolute;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%}
+  .mk.you i{background:var(--you)} .mk.shop i{border:2px solid var(--shop)}
+  .nogl .mk i{display:block}
+  .stack{position:absolute;left:24px;right:24px;bottom:calc(var(--safe-b) + 100px);text-align:center}
+  .scale{max-width:300px;margin:0 auto 18px}
+  .track{position:relative;height:24px}
+  .track::before{content:"";position:absolute;left:8%;right:8%;top:50%;height:1px;background:rgba(244,234,217,.35)}
+  .track u{position:absolute;top:50%;width:5px;height:5px;margin:-2.5px 0 0 -2.5px;border-radius:50%;background:rgba(244,234,217,.45)}
+  .sy{position:absolute;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;
+    background:var(--you);box-shadow:0 0 12px var(--you)}
+  .ss{position:absolute;top:50%;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;
+    border:1.5px solid var(--shop);box-shadow:0 0 10px rgba(207,224,255,.55);opacity:0;
+    transition:left .9s cubic-bezier(.3,.7,.2,1) .15s, opacity .4s}
+  .revealed .ss{opacity:1}
+  .ticks{display:grid;grid-template-columns:repeat(3,1fr);font-size:14px;color:var(--ink-dim);margin-top:4px;letter-spacing:.04em}
+  .rv{opacity:0;transform:translateY(8px);transition:opacity .6s ease .35s, transform .6s ease .35s}
+  .revealed .rv{opacity:1;transform:none}
+  .revealed .rv2{transition-delay:.65s}
+  .cmt,.desc,.dname,.dwhy,.trend,.card .cn,.card .ct{word-break:keep-all;overflow-wrap:anywhere;text-wrap:balance}
+  .cmt{font-family:var(--mincho);font-weight:400;font-size:21px;line-height:1.6;letter-spacing:.05em;margin:0 0 10px}
+  .desc{font-size:15px;line-height:1.75;color:rgba(244,234,217,.74);margin:0}
+
+  /* ④ 合う一品 */
+  #dish{position:absolute;overflow:visible;transform:translateY(12px);transition:transform .9s cubic-bezier(.2,.7,.2,1) .1s}
+  #s4.on #dish{transform:none}
+  .kicker{font-size:14px;letter-spacing:.16em;color:var(--ink-dim);margin-bottom:8px}
+  .dname{font-family:var(--mincho);font-weight:400;font-size:24px;letter-spacing:.06em;margin:0 0 10px;line-height:1.45}
+  .dwhy{font-size:15px;line-height:1.75;color:rgba(244,234,217,.74);margin:0}
+  .st{fill:none;stroke:rgba(255,248,236,.55);stroke-width:6;stroke-linecap:round;opacity:0;
+    transform-box:fill-box;transform-origin:50% 100%;animation:steam 3.6s ease-in-out infinite}
+  .st.d2{animation-delay:1.2s}.st.d3{animation-delay:2.4s}
+  @keyframes steam{0%{opacity:0;transform:translateY(8px) scaleY(.7)}25%{opacity:.9}70%{opacity:.35}
+    100%{opacity:0;transform:translateY(-22px) scaleY(1.15)}}
+  .tw{transform-box:fill-box;transform-origin:center;animation:tw 2.8s ease-in-out infinite}
+  .tw.d2{animation-delay:.9s}.tw.d3{animation-delay:1.8s}
+  @keyframes tw{0%,100%{opacity:0;transform:scale(.3)}50%{opacity:1;transform:scale(1)}}
+  .sw{transform-box:fill-box;transform-origin:50% 90%;animation:sw 4.5s ease-in-out infinite}
+  .sw.d2{animation-delay:-2s}
+  @keyframes sw{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+
+  /* ④ スタッフへ・次の一杯 */
+  .staff-btn{display:inline-flex;align-items:center;gap:8px;height:48px;margin-top:12px;padding:0 18px;border-radius:24px;
+    border:1px solid rgba(246,220,178,.55);background:rgba(14,9,10,.45);color:#f6dcb2;font:inherit;font-size:15px;
+    letter-spacing:.06em;cursor:pointer}
+  .staff-btn svg{width:18px;height:18px}
+  .sugg{margin-top:16px;padding-top:14px;border-top:1px solid rgba(244,234,217,.14)}
+  .trend{font-family:var(--mincho);font-size:16px;line-height:1.6;color:#f6dcb2;margin:0 0 8px}
+  .sugg-h{font-size:14px;letter-spacing:.1em;color:var(--ink-dim);margin-bottom:10px}
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .cards.one{grid-template-columns:1fr}
+  .card{display:grid;grid-template-columns:18px 1fr;grid-template-areas:"sw tag" "nm nm";column-gap:8px;row-gap:2px;
+    align-items:center;align-content:center;min-height:64px;padding:8px 12px;
+    border-radius:16px;border:1px solid rgba(244,234,217,.26);background:rgba(30,20,20,.55);color:var(--ink);
+    font:inherit;text-align:left;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .card:active{transform:scale(.97)}
+  .card i{grid-area:sw;width:16px;height:16px;border-radius:50%;box-shadow:inset 0 -3px 6px rgba(0,0,0,.35),0 0 12px rgba(255,220,180,.15)}
+  .card .ct{grid-area:tag;font-size:14px;color:var(--ink-dim);letter-spacing:.04em}
+  .card .cn{grid-area:nm;font-size:15px;line-height:1.35;word-break:keep-all;overflow-wrap:anywhere}
+
+  /* スタッフに見せる全画面 */
+  .staff{position:fixed;inset:0;z-index:30;background:#050404;color:#fff8ec;display:flex;flex-direction:column;
+    padding:calc(var(--safe-t) + 18px) 24px calc(var(--safe-b) + 24px);transition:opacity .3s}
+  .staff .inner{width:min(100%,440px);margin:0 auto;flex:1;display:flex;flex-direction:column;justify-content:center;text-align:center}
+  .staff .hint{font-size:15px;color:rgba(255,248,236,.8);letter-spacing:.06em;margin:0}
+  .staff .lab{font-size:15px;letter-spacing:.2em;color:#f6dcb2;margin:34px 0 8px}
+  .staff .big{font-family:var(--mincho);font-weight:600;font-size:38px;line-height:1.3;margin:0;color:#fff;
+    word-break:keep-all;overflow-wrap:anywhere}
+  .staff .mid{font-family:var(--mincho);font-weight:600;font-size:28px;line-height:1.4;margin:0;color:#fff;
+    word-break:keep-all;overflow-wrap:anywhere}
+  .staff .sub{font-size:17px;color:rgba(255,248,236,.82);margin:6px 0 0}
+  .staff .rule{height:1px;background:rgba(255,248,236,.25);margin:30px 0 0}
+  .staff .close{height:60px;width:min(100%,440px);margin:0 auto;border-radius:30px;border:0;font:inherit;font-size:18px;
+    letter-spacing:.12em;color:#1a0f0c;background:#f6dcb2;cursor:pointer}
+  .staff .x{position:absolute;top:calc(var(--safe-t) + 10px);right:12px;width:52px;height:52px;border-radius:26px;
+    border:1px solid rgba(255,248,236,.4);background:transparent;color:#fff;font-size:26px;line-height:1;cursor:pointer}
+
+  /* オープニング */
+  .opening{position:absolute;inset:0;z-index:10;transition:opacity .6s}
+  .op-brand{position:absolute;left:0;right:0;text-align:center;opacity:0;transform:translateY(8px);
+    transition:opacity .8s ease,transform .8s ease}
+  .op-brand.in{opacity:1;transform:none}
+  .op-brand svg{width:18px;height:24px;color:var(--accent);margin-bottom:10px}
+  .op-brand h1{font-family:var(--mincho);font-weight:400;font-size:34px;letter-spacing:.32em;margin:0 0 0 .32em}
+  .op-brand p{font-size:15px;letter-spacing:.12em;color:var(--ink-dim);margin:14px 0 0}
+  .op-skip{position:absolute;left:0;right:0;bottom:calc(var(--safe-b) + 30px);text-align:center;font-size:13px;
+    letter-spacing:.14em;color:rgba(244,234,217,.55)}
+  body.op header{opacity:0;pointer-events:none}
+
+  /* 背の低い画面(SE など) */
+  @media (max-height:720px){
+    .cmt{font-size:18px;line-height:1.5;margin-bottom:6px}
+    .desc{font-size:14px;line-height:1.55}
+    .stack{bottom:calc(var(--safe-b) + 94px)}
+    .scale{margin-bottom:10px}
+    #s4 .kicker{display:none}
+    .dname{font-size:21px;margin-bottom:4px}
+    .dwhy{font-size:14px;line-height:1.6}
+    .staff-btn{margin-top:8px}
+    .sugg{margin-top:10px;padding-top:10px}
+    .card{min-height:56px}
+    .trend{font-size:15px;margin-bottom:4px}
+    .sugg-h{margin-bottom:8px}
+  }
+
+  .hide{opacity:0 !important;pointer-events:none !important;visibility:hidden}
+  .sample{position:absolute;left:0;right:0;bottom:calc(var(--safe-b) + 4px);text-align:center;font-size:12px;
+    color:rgba(244,234,217,.58);letter-spacing:.08em}
+
+  /* WebGL が使えない端末向けの簡易表示 */
+  #fallback{display:none;position:fixed;left:0;pointer-events:none}
+  .nogl #fallback{display:block}
+  .nogl #gl{background:radial-gradient(60% 45% at 30% 20%,rgba(255,170,90,.22),transparent 70%),#0b0809}
+
+  @media (prefers-reduced-motion:reduce){
+    .chev,.tw,.sw{animation:none}
+    .st{animation:none;opacity:.35}
+  }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<svg id="fallback" viewBox="-60 -150 120 280" aria-hidden="true">
+  <defs><clipPath id="bowl"><path d="M-46-130 C-50-60-52-10-30 6 C-14 16 14 16 30 6 C52-10 50-60 46-130Z"/></clipPath></defs>
+  <rect id="fbLiquid" x="-60" y="-60" width="120" height="80" clip-path="url(#bowl)" fill="#7a0c16"/>
+  <path d="M-46-130 C-50-60-52-10-30 6 C-14 16 14 16 30 6 C52-10 50-60 46-130" fill="none" stroke="rgba(255,240,220,.55)" stroke-width="1.2"/>
+  <path d="M-3 12 L-3 110 M3 12 L3 110" stroke="rgba(255,240,220,.45)" stroke-width="1"/>
+  <ellipse cx="0" cy="112" rx="40" ry="6" fill="none" stroke="rgba(255,240,220,.45)" stroke-width="1"/>
+</svg>
+
+<div id="app">
+  <header>
+    <div class="lang" role="group" aria-label="Language">
+      <button data-lang="ja" aria-pressed="true">日本語</button>
+      <button data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </header>
+
+  <!-- ① 選ぶ -->
+  <section class="screen on" id="s1" aria-label="選ぶ">
+    <div class="swipe-hint passive" id="swipeHint"><span class="chev l">‹</span><span class="chev r">›</span></div>
+    <div class="s1-info passive" id="info">
+      <h1 class="wname" id="wname"></h1>
+      <p class="wmeta" id="wmeta"></p>
+      <div class="dots" id="dots"></div>
+    </div>
+    <button class="primary" id="go" data-i18n="go">これを飲んでいます</button>
+  </section>
+
+  <!-- ② 感じる -->
+  <section class="screen" id="s2" aria-label="感じる">
+    <div class="prompt passive" id="prompt"></div>
+    <div class="field" id="field">
+      <div class="axis h"></div><div class="axis v"></div>
+    </div>
+    <div class="lbl t" id="lT"></div><div class="lbl b" id="lB"></div>
+    <div class="lbl l" id="lL"></div><div class="lbl r" id="lR"></div>
+    <div class="retouch passive hide" id="retouch" data-i18n="retouch">指を置き直すと、やり直せます</div>
+    <div class="ask hide" id="ask">
+      <h2 id="askQ"></h2>
+      <div class="tip hide" id="tip"></div>
+      <div class="choices" id="choices"></div>
+    </div>
+    <button class="back" id="back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg><span data-i18n="back">戻る</span></button>
+  </section>
+
+  <!-- ③ 重ねる -->
+  <section class="screen" id="s3" aria-label="重ねる">
+    <div class="mk you toL" id="mkYou"><i></i><span data-i18n="you">あなた</span></div>
+    <div class="mk shop toR" id="mkShop"><i></i><span data-i18n="shop">お店</span></div>
+    <div class="stack passive" id="s3stack">
+      <div class="scale"><div class="track" id="track"><u style="left:16.67%"></u><u style="left:50%"></u><u style="left:83.33%"></u><b class="sy" id="scYou"></b><b class="ss" id="scShop"></b></div>
+        <div class="ticks" id="ticks"></div></div>
+      <h2 class="cmt rv" id="cmt"></h2>
+      <p class="desc rv rv2" id="desc"></p>
+    </div>
+    <button class="back" id="back3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg><span data-i18n="back">戻る</span></button>
+    <button class="cta" id="toDish" data-i18n="toDish">合う一品へ</button>
+  </section>
+
+  <!-- ④ 合う一品 -->
+  <section class="screen" id="s4" aria-label="合う一品">
+    <svg id="dish" class="passive" viewBox="0 0 320 230" aria-hidden="true">
+      <defs>
+        <radialGradient id="shadowG"><stop offset="0" stop-color="#000" stop-opacity=".75"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+        <radialGradient id="poolG" cx=".45" cy=".5"><stop offset="0" stop-color="#ffcf8f" stop-opacity=".22"/><stop offset="1" stop-color="#ffcf8f" stop-opacity="0"/></radialGradient>
+        <linearGradient id="plateG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e6dccb"/><stop offset=".55" stop-color="#a99d8b"/><stop offset="1" stop-color="#5e554b"/></linearGradient>
+        <radialGradient id="wellG" cx=".38" cy=".3" r=".8"><stop offset="0" stop-color="#f2eadc"/><stop offset="1" stop-color="#9c9180"/></radialGradient>
+        <linearGradient id="meatG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d98273"/><stop offset="1" stop-color="#9a3d38"/></linearGradient>
+        <linearGradient id="searG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#94522f"/><stop offset="1" stop-color="#4f2414"/></linearGradient>
+        <linearGradient id="rareG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7d3326"/><stop offset=".5" stop-color="#d4706a"/><stop offset="1" stop-color="#7d3326"/></linearGradient>
+        <radialGradient id="oysterG" cx=".4" cy=".35"><stop offset="0" stop-color="#f6f1e6"/><stop offset="1" stop-color="#a99f8a"/></radialGradient>
+        <linearGradient id="batterG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6cf78"/><stop offset="1" stop-color="#c3843a"/></linearGradient>
+        <linearGradient id="salmonG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffa577"/><stop offset="1" stop-color="#e0683f"/></linearGradient>
+        <linearGradient id="fryG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f7d888"/><stop offset="1" stop-color="#d3963c"/></linearGradient>
+        <linearGradient id="cupG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8e2a22"/><stop offset=".45" stop-color="#b8443a"/><stop offset="1" stop-color="#5a1812"/></linearGradient>
+      </defs>
+      <ellipse cx="150" cy="150" rx="160" ry="80" fill="url(#poolG)"/>
+      <ellipse cx="172" cy="182" rx="150" ry="36" fill="url(#shadowG)"/>
+      <ellipse cx="160" cy="162" rx="128" ry="50" fill="url(#plateG)"/>
+      <ellipse cx="160" cy="159" rx="94" ry="35" fill="url(#wellG)"/>
+      <path d="M44 150 A128 50 0 0 1 170 112" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.6" stroke-linecap="round"/>
+      <g id="food"></g>
+    </svg>
+    <div class="stack" id="s4stack">
+      <div class="kicker passive" data-i18n="pairLabel">この一杯に合う一品</div>
+      <h2 class="dname passive" id="dname"></h2>
+      <p class="dwhy passive" id="dwhy"></p>
+      <div class="sugg" id="sugg">
+        <p class="trend hide" id="trend"></p>
+        <div class="sugg-h" data-i18n="suggH">次はこちらもいかがでしょう</div>
+        <div class="cards" id="cards"></div>
+      </div>
+    </div>
+    <button class="back" id="back4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg><span data-i18n="back">戻る</span></button>
+    <button class="cta" id="next" data-i18n="next">次の一杯へ</button>
+  </section>
+
+  <!-- オープニング -->
+  <div class="opening hide" id="opening">
+    <div class="op-brand passive" id="opBrand">
+      <svg viewBox="0 0 12 16" aria-hidden="true"><path d="M6 1.2C6 1.2 1.2 7.6 1.2 10.6a4.8 4.8 0 0 0 9.6 0C10.8 7.6 6 1.2 6 1.2Z" fill="currentColor" fill-opacity=".25" stroke="currentColor" stroke-width="1.1"/></svg>
+      <h1>ひとしずく</h1><p data-i18n="opSub"></p>
+    </div>
+    <div class="op-skip passive" data-i18n="skip"></div>
+  </div>
+  <div class="s1-info measure passive" id="measure" aria-hidden="true"><h1 class="wname"></h1><p class="wmeta"></p></div>
+</div>
+
+<div class="staff hide" id="staff" role="dialog" aria-modal="true">
+  <button class="x" id="staffX" aria-label="Close">×</button>
+  <div class="inner">
+    <p class="hint" data-i18n="staffHint"></p>
+    <p class="lab">ご注文 · ORDER</p>
+    <h2 class="big" id="stDish"></h2><p class="sub" id="stDishEn"></p>
+    <div class="rule"></div>
+    <p class="lab">ワイン · WINE</p>
+    <h3 class="mid" id="stWine"></h3><p class="sub" id="stWineEn"></p>
+  </div>
+  <button class="close" id="staffClose" data-i18n="close">閉じる</button>
+</div>
+
+<script>
+"use strict";
+/* ============================================================
+   設定値(提案・比較・傾向・起動演出)
+   距離は 0–1 に揃えた「軽重・果実味・渋み/酸味」の重みつきユークリッド距離
+   ============================================================ */
+const CONFIG = {
+  compare:{ same:0.15, sameThird:0.25, little:0.35, thirdWeight:0.8 }, // ③ の一言コメント
+  suggest:{
+    weight:{ heavy:1.0, fruit:1.0, third:0.6 },
+    thirdAcrossTypes:0,     // thirdKind が違うとき(渋み/酸味/甘み)の third の重み。意味が違うので比べない
+    excludeTasted:true,     // 今夜すでに選んだワインは、候補が足りる限り外す
+    contrastMin:0.35,       // 対照的な1本として出す最小の距離。下回れば近い1本だけ出す
+  },
+  trend:{ lo:0.40, hi:0.60, minGlasses:2 },  // 2杯目から傾向の一言を添える
+  opening:{ dur:2.9, dropAt:0.55, landAt:1.25, fillDur:1.1 },
+};
+/* ============================================================
+   データ(店側が更新する部分。将来は表計算から書き出す想定)
+   body / fruit: 店の評価 1–5   third: 3つ目の質問の値 1–3(意味は thirdKind: tannin=渋み / acid=酸味 / sweet=甘み)
+   id: 英数字の短い識別子(重複不可)
+   color: 液体の色(リニア RGB)  light: 産地の光の色
+   desc: ③で出す説明(2文以内)   dish: ④の一品(art = 下の DISH_ART のキー)
+   ============================================================ */
+const WINES = [
+  /* メニュー写真(黒板)から選定。 1. Tenute Neirano Asti — アスティDOCG(モスカート・ビアンコ100%、甘口スパークリング)。
+        商品ごとの資料は見つからず、アスティDOCGの標準的な特徴(Consorzio / Decanter / Wine Folly)から設定 */
+  {id:"asti", thirdKind:"sweet", type:"spark", name:{ja:"テヌーテ ネイラーノ アスティ",en:"Tenute Neirano Asti"},
+   meta:{ja:"モスカート · ピエモンテ · ネイラーノ",en:"Moscato · Piedmont · Neirano"},
+   color:[0.86,0.74,0.34], light:[1.00,0.84,0.58], body:1, fruit:5, third:3,
+   desc:{ja:"白い花や桃を思わせる、華やかな香りの甘口スパークリング。アルコールは低めで、軽やかに楽しめます。",
+         en:"A sweet sparkling wine with fragrant white-flower and peach aromas. Low in alcohol and light on the palate."},
+   dish:{art:"tiramisu", name:{ja:"ピスタチオのティラミス",en:"Pistachio tiramisu"},
+         why:{ja:"やさしい甘さと泡が、ピスタチオの香ばしさを軽やかに引き立てます。",en:"Gentle sweetness and bubbles lift the nutty pistachio."}}},
+  /* 2. Florio Gran Chef Marsala — アンブラ・デミセッコ(白ブドウ、ほどよい甘口)、17%、料理にも使われるマルサラ */
+  {id:"marsala", thirdKind:"sweet", type:"fort", name:{ja:"マルサラ グランシェフ",en:"Marsala Gran Chef"},
+   meta:{ja:"白ブドウ · シチリア · フローリオ",en:"White grapes · Sicily · Florio"},
+   color:[0.60,0.25,0.040], light:[1.00,0.64,0.30], body:5, fruit:4, third:2,
+   desc:{ja:"シチリアの酒精強化ワイン、マルサラ。ほどよい甘さとほんのりした酸味で、料理に深いコクを添えます。",
+         en:"Marsala, Sicily's fortified wine, in a medium-sweet style with a touch of sharpness. It adds rich depth to cooking."},
+   dish:{art:"duck", name:{ja:"鴨胸肉のロースト",en:"Roast duck breast"},
+         why:{ja:"まろやかな甘みとコクが、鴨の濃い旨みを包み込みます。",en:"Its mellow sweetness and depth wrap around the rich duck."}}},
+  /* 3. Farnese (Fantini) Casale Vecchio — モンテプルチアーノ・ダブルッツォ、樽熟成、フルボディ、タンニンはやわらか */
+  {id:"montepulciano", thirdKind:"tannin", type:"red",   name:{ja:"モンテプルチアーノ ダブルッツォ カサーレ ヴェッキオ",en:"Montepulciano d'Abruzzo Casale Vecchio"},
+   meta:{ja:"モンテプルチアーノ · アブルッツォ · ファルネーゼ",en:"Montepulciano · Abruzzo · Farnese"},
+   color:[0.32,0.012,0.065], light:[0.98,0.50,0.34], body:4, fruit:4, third:2,
+   desc:{ja:"熟した赤い果実とスパイスの香りに、やわらかな渋み。濃さがありながら、口当たりはなめらかです。",
+         en:"Ripe red fruit and spice, with soft tannins. Rich in body, yet smooth on the palate."},
+   dish:{art:"steak", name:{ja:"黒毛和牛のタリアータ",en:"Wagyu tagliata"},
+         why:{ja:"熟した果実味とやわらかな渋みが、牛肉の旨みを受け止めます。",en:"Ripe fruit and soft tannins meet the savoury beef."}}},
+  /* 4. Roberto Sarotto Excelsius — ピエモンテ・シャルドネDOC、辛口、13.5%、ステンレスタンクとバリックで熟成 */
+  {id:"excelsius", thirdKind:"acid", type:"white", name:{ja:"エクセルシウス ピエモンテ シャルドネ",en:"Excelsius Piemonte Chardonnay"},
+   meta:{ja:"シャルドネ · ピエモンテ · サロット",en:"Chardonnay · Piedmont · Sarotto"},
+   color:[0.80,0.76,0.38], light:[0.72,0.84,1.00], body:3, fruit:3, third:2,
+   desc:{ja:"ステンレスタンクとバリックで熟成させた、辛口のシャルドネ。バランスがよく、魚料理や繊細なチーズに寄り添います。",
+         en:"A dry Chardonnay aged in steel and barrique. Balanced and elegant, it suits fish and delicate cheeses."},
+   dish:{art:"salmon", name:{ja:"トキシラズのムニエル バターソース",en:"Pan-fried chum salmon, butter sauce"},
+         why:{ja:"樽由来のまろやかさが、バターソースのコクとよく合います。",en:"Barrel-aged roundness matches the richness of the butter sauce."}}},
+];
+
+{ const ids=WINES.map(w=>w.id); if(new Set(ids).size!==ids.length||ids.some(i=>!/^[a-z0-9_]+$/i.test(i||""))) console.error("WINES: id が重複または不正です", ids); }
+const T = {
+  ja:{go:"これを飲んでいます",
+      prompt:"ひとくち飲んで、<br>グラスに指を置いてください",
+      L:{t:"さらり",b:"どっしり",l:"すっきり",r:"果実たっぷり"},
+      retouch:"指を置き直すと、やり直せます",
+      third:{
+        tannin:{q:'<span class="term" data-term="tannin">渋み</span>は?', o:["なめらか","ほどよい","しっかり"], tip:"赤ワインを飲んだあと、口の中がきゅっと乾く感じ。"},
+        acid:{q:'<span class="term" data-term="acid">酸味</span>は?', o:["まろやか","ほどよい","キリッと"], tip:"口の中がじゅわっと潤う、みずみずしさ。"},
+        sweet:{q:'<span class="term" data-term="sweet">甘み</span>は?', o:["控えめ","ほどよい","たっぷり"], tip:"飲んだあと、口の中に残るやさしい甘さ。"}},
+      you:"あなた",shop:"お店",toDish:"合う一品へ",pairLabel:"この一杯に合う一品",next:"次の一杯へ",
+      back:"戻る",sample:"プロトタイプ · 味の評価は仮の値です",
+      staffBtn:"この一品をスタッフに伝える",staffHint:"この画面をスタッフにお見せください",close:"閉じる",
+      suggH:"次はこちらもいかがでしょう",near:"近い味わい",far:"ひと味ちがう",
+      opSub:"ひとくちの感覚を、ことばに。",skip:"タップでスキップ",
+      trend:"今夜は、{x}|ワインが好みのようです",
+      tr:{lf:"軽やかで|果実味のある",lc:"軽やかで、すっきりした",ff:"しっかりとして|果実味のある",fc:"しっかりとして、すっきりした",
+          l:"軽やかな",f:"しっかりとした",fr:"果実味のある",c:"すっきりした",b:"バランスのよい"},
+      cmp:{same:"お店とほぼ同じ感覚です",little:"少し",much:"",
+        lighter:"お店の評価より、{m}軽やかに|感じられたようです",
+        fuller:"お店の評価より、{m}どっしり|感じられたようです",
+        fruitier:"お店の評価より、{m}果実味を|強く感じられたようです",
+        crisper:"お店の評価より、{m}すっきり|感じられたようです",
+        tanMore:"渋みを、お店より|{m}しっかり|感じられたようです",
+        tanLess:"渋みを、お店より|{m}なめらかに|感じられたようです",
+        acMore:"酸味を、お店より|{m}キリッと|感じられたようです",
+        acLess:"酸味を、お店より|{m}まろやかに|感じられたようです",
+        swMore:"甘みを、お店より|{m}しっかり|感じられたようです",
+        swLess:"甘みを、お店より|{m}控えめに|感じられたようです"}},
+  en:{go:"I'm drinking this",
+      prompt:"Take a sip,<br>then touch the glass",
+      L:{t:"Light",b:"Full",l:"Crisp",r:"Fruity"},
+      retouch:"Touch again to change",
+      third:{
+        tannin:{q:'How was the <span class="term" data-term="tannin">tannin</span>?', o:["Smooth","Medium","Firm"], tip:"The drying grip you feel in your mouth after red wine."},
+        acid:{q:'How was the <span class="term" data-term="acid">acidity</span>?', o:["Soft","Medium","Bright"], tip:"The mouth-watering freshness."},
+        sweet:{q:'How was the <span class="term" data-term="sweet">sweetness</span>?', o:["Light","Medium","Rich"], tip:"The gentle sweetness that lingers after a sip."}},
+      you:"You",shop:"House",toDish:"A dish to match",pairLabel:"A dish for this glass",next:"Next glass",
+      back:"Back",sample:"Prototype · taste ratings are provisional",
+      staffBtn:"Show this dish to staff",staffHint:"Please show this screen to a staff member",close:"Close",
+      suggH:"You might also enjoy",near:"Similar",far:"Contrasting",
+      opSub:"Put your first sip into words.",skip:"Tap to skip",
+      trend:"Tonight you seem to enjoy {x} wines.",
+      tr:{lf:"light, fruity",lc:"light, crisp",ff:"full, fruity",fc:"full, crisp",
+          l:"light",f:"full-bodied",fr:"fruity",c:"crisp",b:"well-balanced"},
+      cmp:{same:"You taste it almost exactly as the house does.",little:"a little ",much:"",
+        lighter:"It felt {m}lighter to you than the house rates it.",
+        fuller:"It felt {m}fuller to you than the house rates it.",
+        fruitier:"You picked up {m}more fruit than the house does.",
+        crisper:"It tasted {m}crisper to you than to the house.",
+        tanMore:"The tannins felt {m}firmer to you than to the house.",
+        tanLess:"The tannins felt {m}smoother to you than to the house.",
+        acMore:"The acidity felt {m}brighter to you than to the house.",
+        acLess:"The acidity felt {m}softer to you than to the house.",
+        swMore:"The sweetness felt {m}richer to you than to the house.",
+        swLess:"The sweetness felt {m}lighter to you than to the house."}},
+};
+
+/* ============================================================
+   ④ 料理のイラスト(SVG。皿の上に載せる部分だけ)
+   steam: 湯気を出す高さ(y)。null なら冷たい料理
+   ============================================================ */
+const sparkle=(x,y,s,cls)=>`<g transform="translate(${x} ${y}) scale(${s})"><path class="tw ${cls||""}" d="M0-6L1.3-1.3 6 0 1.3 1.3 0 6-1.3 1.3-6 0-1.3-1.3Z" fill="#fff"/></g>`;
+const leaf=(x,y,rx,ry,r,c)=>`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" transform="rotate(${r} ${x} ${y})" fill="${c}"/>`;
+const DISH_ART = {
+  duck:{steam:118, svg:`
+    <path d="M96 170q34 14 74 10q36-3 60-15" stroke="#6b1220" stroke-width="5" fill="none" stroke-linecap="round" opacity=".85"/>
+    ${[0,1,2,3,4,5].map(i=>`<g transform="translate(${116+i*16} ${138+i*5}) rotate(-14)">
+      <path d="M-30 4C-30-8 30-12 32 0C32 8-28 14-30 4Z" fill="url(#meatG)" stroke="#5a2414" stroke-width="1"/>
+      <path d="M-30 4C-30-8 30-12 32 0" fill="none" stroke="#3a180c" stroke-width="5" stroke-linecap="round"/>
+      <path d="M-28 1C-24-6 26-9 30-2" fill="none" stroke="#e8c9a4" stroke-width="1.6" opacity=".8"/></g>`).join("")}
+    <circle cx="106" cy="168" r="4.5" fill="#4d0d24"/><circle cx="216" cy="166" r="4.5" fill="#4d0d24"/><circle cx="226" cy="160" r="3.5" fill="#4d0d24"/>
+    <path d="M196 124q12-8 22-3" stroke="#5f8a3c" stroke-width="2.5" fill="none"/>
+    ${leaf(206,120,5,2.4,-25,"#6f9a48")}${leaf(214,121,5,2.4,10,"#5f8a3c")}`},
+
+  steak:{steam:112, svg:`
+    <path d="M96 150Q100 120 160 116Q222 120 224 148Q220 172 160 176Q100 172 96 150Z" fill="#3a1a0f"/>
+    <path d="M104 146Q110 124 160 121Q212 124 216 144Q210 160 160 162Q110 160 104 146Z" fill="url(#searG)"/>
+    ${[0,1,2,3].map(k=>`<path d="M${124+k*24} 127L${108+k*24} 157" stroke="#200d06" stroke-width="5" stroke-linecap="round" opacity=".8"/>`).join("")}
+    <g transform="translate(136 174) rotate(-6)"><rect x="-24" y="-10" width="48" height="20" rx="6" fill="#3a1a0f"/><rect x="-20" y="-6" width="40" height="12" rx="4" fill="url(#rareG)"/></g>
+    <g transform="translate(186 175) rotate(5)"><rect x="-24" y="-10" width="48" height="20" rx="6" fill="#3a1a0f"/><rect x="-20" y="-6" width="40" height="12" rx="4" fill="url(#rareG)"/></g>
+    <path d="M204 112l30-14" stroke="#4d6e34" stroke-width="2.4" stroke-linecap="round"/>
+    ${[0,1,2,3,4].map(k=>`<path d="M${208+k*5} ${110-k*2.3}l-3-6M${208+k*5} ${110-k*2.3}l4 5" stroke="#5f8a3c" stroke-width="1.6" stroke-linecap="round"/>`).join("")}
+    ${sparkle(150,134,0.7)}${sparkle(178,140,0.5,"d2")}`},
+
+  salmon:{steam:null, svg:`
+    <g transform="translate(160 150) scale(1 .5)">
+      ${[0,1,2,3,4,5,6].map(i=>`<g transform="rotate(${i*360/7}) translate(0 -42)"><ellipse rx="17" ry="36" fill="url(#salmonG)"/>
+        <path d="M-10-20q10 8 20 0M-12-4q12 8 24 0M-10 12q10 8 20 0" stroke="#ffe0cc" stroke-width="2" fill="none" opacity=".75"/></g>`).join("")}
+      <circle r="18" fill="url(#salmonG)"/><circle r="10" fill="none" stroke="#ffe0cc" stroke-width="2" opacity=".7"/>
+    </g>
+    <g class="sw"><path d="M146 146l-10-12M146 146l-2-14M146 146l8-10" stroke="#6f9a48" stroke-width="1.6" stroke-linecap="round"/></g>
+    <g class="sw d2"><path d="M178 154l-6-12M178 154l4-13M178 154l11-8" stroke="#5f8a3c" stroke-width="1.6" stroke-linecap="round"/></g>
+    ${[[120,160],[200,146],[188,170],[136,138]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="3" fill="#3d5a24"/>`).join("")}
+    <ellipse cx="226" cy="168" rx="15" ry="7" fill="#f2cf4f"/><ellipse cx="226" cy="168" rx="11" ry="4.8" fill="#fbe58a"/>
+    ${sparkle(164,138,0.8)}${sparkle(140,160,0.5,"d2")}${sparkle(196,160,0.6,"d3")}`},
+
+  tiramisu:{steam:null, svg:`
+    <ellipse cx="160" cy="176" rx="74" ry="13" fill="#000" opacity=".3"/>
+    <ellipse cx="160" cy="168" rx="70" ry="14" fill="#f4efe6"/>
+    <ellipse cx="160" cy="167" rx="58" ry="10.5" fill="#e4dccb"/>
+    <path d="M122 142V166L196 166V142Z" fill="#f2e6c4"/>
+    <path d="M122 150H196V154H122Z" fill="#6b4226"/><path d="M122 158H196V161H122Z" fill="#6b4226" opacity=".85"/>
+    <path d="M122 154H196V158H122Z" fill="#fbf3dc"/><path d="M122 146H196V150H122Z" fill="#fbf3dc"/>
+    <path d="M196 142L212 136V160L196 166Z" fill="#cdb98c"/>
+    <path d="M122 142L138 136H212L196 142Z" fill="#9fb86a"/>
+    <path d="M138 136H212L196 142H122Z" fill="#a9c273"/>
+    ${Array.from({length:34},(_,i)=>{const x=130+((i*53)%76),y=139+((i*17)%5);return `<circle cx="${x}" cy="${y}" r="1.6" fill="${i%3?"#7f9a4c":"#c6dc92"}"/>`}).join("")}
+    ${[[150,138],[172,140],[188,137]].map(([x,y])=>`<ellipse cx="${x}" cy="${y}" rx="4.2" ry="2.4" fill="#6f8f3c"/><ellipse cx="${x-1}" cy="${y-.6}" rx="1.6" ry=".9" fill="#d9ebb0" opacity=".7"/>`).join("")}
+    <path d="M122 142L196 142" stroke="#fff" stroke-width="1" opacity=".25"/>
+    ${sparkle(178,134,0.7)}${sparkle(132,140,0.5,"d2")}`},
+};
+function steamSVG(y){
+  if(y==null) return "";
+  return `<g style="filter:blur(1.6px)">${[[140,""],[160,"d2"],[180,"d3"]].map(([x,c],i)=>
+    `<path class="st ${c}" d="M${x} ${y}c-7-9 7-18 0-27c-7-9 7-18 0-27"/>`).join("")}</g>`;
+}
+
+/* ============================================================
+   状態
+   ============================================================ */
+const S = {
+  lang:"ja", screen:1, idx:0, phase:"touch", // ②の phase: touch | ask
+  answer:{heavy:null,fruit:null,third:null}, touching:false, lastInteract:performance.now(),
+  seq0:0, landed:false, merged:false, close:false, fit:[],
+  round:0, history:[],          // 今夜の記録(端末のメモリ内だけ。保存・送信しない)
+  opening:false, op0:0, opLanded:false,
+};
+const $ = id => document.getElementById(id);
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- テキスト ---------- */
+function applyLang(){
+  const t=T[S.lang]; document.documentElement.lang=S.lang;
+  document.querySelectorAll("[data-i18n]").forEach(el=>{ if(typeof t[el.dataset.i18n]==="string") el.innerHTML=t[el.dataset.i18n]; });
+  document.querySelectorAll(".lang button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.lang===S.lang));
+  $("prompt").innerHTML=t.prompt;
+  $("lT").textContent=t.L.t; $("lB").textContent=t.L.b; $("lL").textContent=t.L.l; $("lR").textContent=t.L.r;
+  fitInfo(); renderWineText(); renderAsk(); renderS3(); renderS4(); layout();
+}
+
+/* ①のワイン名・産地:狭い画面では文字を縮め、それでも入らなければ2行に折り返す。
+   全ワインの中で最も高い行に合わせて高さを固定し、切り替えてもレイアウトを動かさない。 */
+function fitOne(el,base,min){
+  el.style.whiteSpace="nowrap";
+  for(let s=base;s>=min;s-=0.5){ el.style.fontSize=s+"px"; if(el.scrollWidth<=el.clientWidth+0.5) return {size:s,wrap:false}; }
+  el.style.whiteSpace="normal"; el.style.fontSize=min+"px"; return {size:min,wrap:true};
+}
+function fitInfo(){
+  const m=$("measure"), mn=m.children[0], mm=m.children[1];
+  let hN=0,hM=0; S.fit=WINES.map(w=>{
+    mn.textContent=w.name[S.lang]; mm.textContent=w.meta[S.lang];
+    const n=fitOne(mn,23,17), mt=fitOne(mm,15,14);
+    hN=Math.max(hN,mn.offsetHeight); hM=Math.max(hM,mm.offsetHeight);
+    return {n,mt};
+  });
+  $("wname").style.height=hN+"px"; $("wmeta").style.height=hM+"px";
+}
+function renderWineText(){
+  const w=WINES[S.idx], f=S.fit[S.idx];
+  const n=$("wname"), m=$("wmeta");
+  n.textContent=w.name[S.lang]; m.textContent=w.meta[S.lang];
+  if(f){ n.style.fontSize=f.n.size+"px"; n.style.whiteSpace=f.n.wrap?"normal":"nowrap";
+         m.style.fontSize=f.mt.size+"px"; m.style.whiteSpace=f.mt.wrap?"normal":"nowrap"; }
+  [...$("dots").children].forEach((d,i)=>d.classList.toggle("on",i===S.idx));
+}
+const thirdKind=()=>WINES[S.idx].thirdKind;
+function renderAsk(){
+  const t=T[S.lang];
+  const k=t.third[thirdKind()], opts=k.o;
+  $("askQ").innerHTML = k.q;
+  $("choices").innerHTML = opts.map((o,i)=>`<button data-v="${i}" class="${S.answer.third===i?'sel':''}">${o}</button>`).join("");
+  $("tip").classList.add("hide");
+}
+WINES.forEach(()=>$("dots").appendChild(document.createElement("i")));
+document.querySelectorAll(".lang button").forEach(b=>b.onclick=()=>{S.lang=b.dataset.lang; applyLang();});
+
+/* ---------- ③ 比較:入力 0–1 と店のデータ 1–5(third は 1–3)を同じ 0–1 に揃える ---------- */
+function shopVals(){
+  const w=WINES[S.idx];
+  return {heavy:(w.body-1)/4, fruit:(w.fruit-1)/4, third:(w.third-1)/2};
+}
+function youVals(){
+  const a=S.answer;
+  return {heavy:a.heavy??0.5, fruit:a.fruit??0.5, third:(a.third??1)/2};
+}
+function compare(){
+  const u=youVals(), s=shopVals(), c=T[S.lang].cmp;
+  const dh=u.heavy-s.heavy, df=u.fruit-s.fruit, dt=u.third-s.third;
+  const C=CONFIG.compare, TH=C.same;
+  S.close = Math.hypot(dh,df) < TH;
+  if(Math.abs(dh)<TH && Math.abs(df)<TH && Math.abs(dt)<C.sameThird) return c.same;
+  const kind=thirdKind();
+  const cand=[
+    {v:Math.abs(dh), k: dh<0?"lighter":"fuller"},
+    {v:Math.abs(df), k: df>0?"fruitier":"crisper"},
+    {v:Math.abs(dt)*C.thirdWeight, k: {tannin:["tanLess","tanMore"],acid:["acLess","acMore"],sweet:["swLess","swMore"]}[kind][dt>0?1:0]},
+  ].filter(x=>x.v>=TH).sort((a,b)=>b.v-a.v);
+  if(!cand.length) return c.same;
+  const top=cand[0], m = top.v<C.little ? c.little : c.much;
+  return c[top.k].replace("{m}",m);
+}
+/* 日本語は句読点の後と、文言中の | の位置だけで折り返す(keep-all と組み合わせる) */
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const brk=s=>esc(s).replace(/([、。・])/g,"$1<wbr>").replace(/\|/g,"<wbr>");
+function renderS3(){
+  const t=T[S.lang], w=WINES[S.idx];
+  const opts=t.third[thirdKind()].o;
+  $("ticks").innerHTML=opts.map(o=>`<span>${o}</span>`).join("");
+  $("cmt").innerHTML=brk(compare());
+  $("desc").innerHTML=brk(w.desc[S.lang]);
+  placeScale($("s3").classList.contains("revealed"));
+}
+function placeScale(revealed){
+  const pos=i=>((i*2+1)/6*100)+"%";
+  const yi=S.answer.third??1, si=WINES[S.idx].third-1;
+  $("scYou").style.left=pos(yi);
+  $("scShop").style.left=revealed?pos(si):pos(yi);
+}
+function renderS4(){
+  const d=WINES[S.idx].dish, art=DISH_ART[d.art], t=T[S.lang];
+  $("food").innerHTML=art.svg+steamSVG(art.steam);
+  $("dname").innerHTML=brk(d.name[S.lang]); $("dwhy").innerHTML=brk(d.why[S.lang]);
+  // 次の一杯
+  const sg=suggest();
+  $("cards").classList.toggle("one",sg.length===1);
+  $("cards").innerHTML=sg.map(x=>{const w=WINES[x.i];
+    return `<button class="card" data-i="${x.i}"><i style="background:${swatch(w.color)}"></i>
+      <span class="ct">${x.kind==="near"?t.near:t.far}</span><span class="cn">${esc(w.name[S.lang]).replace(/・/g,"・<wbr>")}</span></button>`;}).join("");
+  const tr=trendText();
+  $("trend").classList.toggle("hide",!tr); $("trend").innerHTML=tr?brk(tr):"";
+}
+/* ワインの液体色(リニア)→ 見本の丸 */
+function swatch(c){
+  const g=v=>Math.round(Math.pow(Math.min(1,v),1/2.2)*255);
+  const hi=c.map(v=>g(v*1.25)).join(","), lo=c.map(v=>g(v*0.45)).join(",");
+  return `radial-gradient(circle at 35% 30%, rgb(${hi}), rgb(${lo}))`;
+}
+/* 提案:今の入力と、各ワインの店のデータとの距離 */
+function wineDist(u, w, curKind){
+  const W=CONFIG.suggest.weight, s={heavy:(w.body-1)/4, fruit:(w.fruit-1)/4, third:(w.third-1)/2};
+  const wt = (w.thirdKind===curKind) ? W.third : CONFIG.suggest.thirdAcrossTypes;
+  return Math.sqrt(W.heavy*(u.heavy-s.heavy)**2 + W.fruit*(u.fruit-s.fruit)**2 + wt*(u.third-s.third)**2);
+}
+function suggest(){
+  const u=youVals(), kind=thirdKind(), cfg=CONFIG.suggest;
+  let list=WINES.map((w,i)=>({i,d:wineDist(u,w,kind)})).filter(x=>x.i!==S.idx);
+  if(cfg.excludeTasted){
+    const tasted=new Set(S.history.filter(Boolean).map(h=>h.id));
+    const rest=list.filter(x=>!tasted.has(WINES[x.i].id)); if(rest.length>=2) list=rest;
+  }
+  list.sort((a,b)=>a.d-b.d);
+  const out=[{...list[0],kind:"near"}];
+  const far=list[list.length-1];
+  if(list.length>1 && far.d>=cfg.contrastMin) out.push({...far,kind:"far"});
+  return out;
+}
+/* 傾向:今夜の入力(あなたの感覚)の平均から一言 */
+function trendText(){
+  const H=S.history.filter(Boolean), c=CONFIG.trend;
+  if(H.length<c.minGlasses) return "";
+  const avg=k=>H.reduce((a,h)=>a+h[k],0)/H.length;
+  const hv=avg("heavy"), fr=avg("fruit");
+  const L=hv<c.lo, F=hv>c.hi, Fr=fr>c.hi, Cr=fr<c.lo;
+  const key = L&&Fr?"lf": L&&Cr?"lc": F&&Fr?"ff": F&&Cr?"fc": L?"l": F?"f": Fr?"fr": Cr?"c":"b";
+  const t=T[S.lang]; return t.trend.replace("{x}",t.tr[key]);
+}
+/* スタッフに見せる全画面 */
+function openStaff(){
+  const w=WINES[S.idx], d=w.dish;
+  $("stDish").textContent=d.name.ja; $("stDishEn").textContent=d.name.en;
+  $("stWine").textContent=w.name.ja; $("stWineEn").textContent=w.name.en;
+  $("staff").classList.remove("hide");
+  fitOne($("stDish"),38,24);
+  poke();
+}
+function closeStaff(){ $("staff").classList.add("hide"); }
+
+/* ============================================================
+   液体の物理(ばね)と演出パラメータ
+   ============================================================ */
+const P = {
+  tilt:0, tiltV:0, tiltT:0, wave:0.012, offX:0,
+  pour:1, colA:WINES[0].color.slice(), colB:WINES[0].color.slice(),
+  light:WINES[0].light.slice(), lightT:WINES[0].light.slice(),
+  heavy:0.5, heavyT:0.5, fruit:0.5, fruitT:0.5,
+  touch:[0,0,0], touchT:9, touchA:0, touchAT:0,
+  bubbles:0, bubblesT:0,
+  // ③ の光
+  mA:[0,0], mB:[0,0], markA:0, markB:0, link:0, drop:[0,0,0], rip:[0,0,0], ripT:9,
+  level:0.5, expo:1,
+  glass:{x:0,y:0,s:1}, glassT:{x:0,y:0,s:1},
+};
+function wineDefaults(){
+  const w=WINES[S.idx];
+  P.heavyT=(w.body-1)/4; P.fruitT=(w.fruit-1)/4; P.lightT=w.light.slice(); P.bubblesT = w.type==="spark"?1:0;
+}
+
+/* ---------- レイアウト(CSS px) ---------- */
+let VW=0,VH=0,AW=0,AX=0,DPR=1,RS=1;
+const RIM=1.3, E=0.17;
+function headerBottom(){ return document.querySelector("header").getBoundingClientRect().bottom + 14; }
+function layout(){
+  VW=innerWidth; VH=innerHeight; AW=Math.min(VW,480); AX=(VW-AW)/2;
+  const g=P.glassT;
+  if(S.screen===1){
+    const it=$("info").getBoundingClientRect().top, hb=headerBottom()+8;
+    g.s=Math.min(AW*0.50, VH*0.235, (it-14-hb)/(RIM+0.2+1.13)); g.x=AX+AW/2; g.y=Math.min(VH*0.43, it-14-1.13*g.s);
+  }else if(S.screen===2 && S.phase==="touch"){
+    // 背の低い画面では、上の文言と下のボタンの間に収める(通常の画面では従来どおり)
+    const pb=$("prompt").getBoundingClientRect().bottom+48, fb=VH-96;
+    g.s=Math.min(AW*0.52, VH*0.22, (fb-pb)/(RIM+0.12+1.13)); g.x=AX+AW/2;
+    g.y=Math.max(Math.min(VH*0.57, fb-1.13*g.s), pb+(RIM+0.12)*g.s);
+  }else if(S.screen===2){
+    g.s=Math.min(AW*0.46, VH*0.19); g.x=AX+AW/2; g.y=VH*0.40;
+  }else if(S.screen===3){
+    const st=$("s3stack").getBoundingClientRect().top, hb=headerBottom()+(VH<720?0:8), gap=VH<720?12:18;
+    g.s=Math.min(AW*0.50, (st-gap-hb)/(RIM+0.12+1.16)); g.x=AX+AW/2; g.y=st-gap-1.16*g.s;
+  }else{
+    const st=$("s4stack").getBoundingClientRect().top, hb=headerBottom();
+    let dw=AW*0.82, dh=dw*230/320;
+    let top=st-8-dh*(214/230);
+    if(top<hb){ const k=(st-8-hb)/(dh*(214/230)); dw*=k; dh*=k; top=hb; }
+    const plateCY=top+dh*(162/230), footY=plateCY-dh*(28/230);
+    const d=$("dish");
+    g.s=Math.min(AW*0.20, (footY-hb)/(1.10+RIM+0.2)); g.x=AX+AW*0.85; g.y=footY-1.10*g.s;
+    const solo = g.s < AW*0.14;          // 背の低い画面:グラスを外へ逃がし、料理を中央に
+    if(solo){ g.x=AX+AW*1.6; }
+    d.style.left=(solo?(AW-dw)/2-dw*0.03:-AW*0.02)+"px"; d.style.top=top+"px"; d.style.width=dw+"px"; d.style.height=dh+"px";
+  }
+  if(S.screen===1) $("swipeHint").style.top = (g.y - 0.55*g.s) + "px";
+  if(S.screen===2){
+    const fx = g.x - AX, half = 0.62*g.s, top = g.y - (RIM+0.12)*g.s, bot = g.y + 0.06*g.s;
+    const f=$("field"); f.style.left=(fx-half)+"px"; f.style.width=(2*half)+"px"; f.style.top=top+"px"; f.style.height=(bot-top)+"px";
+    const mid=(top+bot)/2;
+    place("lT", fx, top-6); place("lB", fx, bot+8); place("lL", fx-half+4, mid); place("lR", fx+half-4, mid);
+    $("lL").style.left = Math.max(parseFloat($("lL").style.left), $("lL").offsetWidth + 6) + "px";
+    $("lR").style.left = Math.min(parseFloat($("lR").style.left), AW - $("lR").offsetWidth - 6) + "px";
+    $("retouch").style.top = (g.y + 1.24*g.s) + "px";
+  }
+}
+function place(id,x,y){ const e=$(id); e.style.left=x+"px"; e.style.top=y+"px"; }
+/* グラスの入力範囲(②の field と同じ)の 0–1 座標 → 画面座標。アニメーション中のグラスに追従する */
+function fieldXY(nx,ny){
+  const g=P.glass, half=0.62*g.s, top=g.y-(RIM+0.12)*g.s, bot=g.y+0.06*g.s;
+  return [g.x+P.offX-half+nx*2*half, top+ny*(bot-top)];
+}
+
+/* ============================================================
+   WebGL
+   ============================================================ */
+const canvas=$("gl");
+const gl = canvas.getContext("webgl",{antialias:false,alpha:false,premultipliedAlpha:false,powerPreference:"low-power"});
+let prog, U={};
+const VS=`attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}`;
+const FS=`
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+uniform vec2 uRes; uniform float uTime;
+uniform vec3 uGlass;          // x,y(ボウル底, px, y上向き), scale(px/単位)
+uniform vec2 uLight;          // 光源位置 px
+uniform vec3 uLightCol;
+uniform vec3 uColA, uColB; uniform float uPour;
+uniform float uTilt, uWave, uHeavy, uFruit, uBubbles;
+uniform vec3 uTouch; uniform float uTouchT;
+uniform float uTint;          // 赤=1 / 白・ロゼ=0 系の濃さ
+uniform vec3 uMarkA, uMarkB;  // ③ あなた / お店 (x,y,強さ)
+uniform float uLink;          // ③ 2点を結ぶ光
+uniform vec3 uDrop;           // ③ 落ちるしずく
+uniform vec3 uRip; uniform float uRipT; // ③ 波紋
+uniform float uLevel, uExpo;  // 液量(起動演出で満ちる)/ 全体の明るさ
+const float RIM=1.3; const float E=0.17; const float RM=0.5;
+
+float hash(vec2 p){ p=fract(p*vec2(123.34,456.21)); p+=dot(p,p+45.32); return fract(p.x*p.y); }
+float bowlR(float y){
+  float t=clamp(y/RIM,0.,1.);
+  if(t<0.45){ float u=(0.45-t)/0.45; return RM*sqrt(max(0.,1.-u*u)); }
+  return mix(RM, RM*0.74, smoothstep(0.45,1.0,t));
+}
+vec3 sat(vec3 c, float s){ float l=dot(c,vec3(0.299,0.587,0.114)); return max(mix(vec3(l),c,s),0.); }
+
+void main(){
+  vec2 fc=gl_FragCoord.xy;
+  vec2 uv=fc/uRes;
+  float sc=uGlass.z;
+  vec2 p=(fc-uGlass.xy)/sc;
+  float px=1.4/sc;
+  float t=uTime;
+
+  /* ---------- 背景:壁・ろうそくの光・テーブル ---------- */
+  vec2 lp=(fc-uLight)/uRes.y;
+  float ld=length(lp);
+  float flick=0.92+0.05*sin(t*7.3)+0.03*sin(t*13.1+1.7);
+  float lum=0.20+1.3*exp(-ld*ld*3.0)*flick;
+  vec3 col=vec3(0.004,0.003,0.0035);
+  col+=uLightCol*(0.26*exp(-ld*ld*12.0)+0.014*exp(-ld*3.0))*flick;
+  float tableY=-1.13;
+  float onTable=smoothstep(tableY+0.02, tableY-0.02, p.y);
+  float tz=clamp((tableY-p.y)/1.6,0.,1.);
+  vec3 tableCol=vec3(0.020,0.013,0.011)+uLightCol*0.05*(1.-tz)*exp(-pow(lp.x*2.2,2.));
+  col=mix(col, tableCol, onTable);
+  col+=uLightCol*0.035*exp(-pow((p.y-tableY)/0.012,2.))*exp(-pow(p.x*0.6,2.));
+  for(int i=0;i<7;i++){
+    float fi=float(i);
+    vec2 bp=vec2(fract(hash(vec2(fi,1.3))+t*0.006*(0.5+hash(vec2(fi,7.)))), 0.45+0.5*hash(vec2(fi,3.1)));
+    bp.y+=0.03*sin(t*0.3+fi);
+    float r=0.025+0.05*hash(vec2(fi,9.2));
+    float d=length((uv-bp)*vec2(uRes.x/uRes.y,1.));
+    col+=uLightCol*0.035*smoothstep(r,r*0.8,d)*(0.5+0.5*sin(t*0.5+fi*2.));
+  }
+
+  /* ---------- 卓上の影と、ワイン色の集光 ---------- */
+  float side=clamp((uLight.x-uGlass.x)/sc,-2.,2.);
+  vec2 sh=(p-vec2(-side*0.22,tableY-0.02))/vec2(0.62,0.075);
+  col*=1.-0.55*exp(-dot(sh,sh)*1.4)*onTable;
+  vec3 wineNow=mix(uColA,uColB,smoothstep(0.,1.,uPour));
+  vec2 ca=(p-vec2(-side*0.32,tableY-0.035))/vec2(0.34,0.05);
+  col+=sat(wineNow,1.4)*uLightCol*0.55*exp(-dot(ca,ca)*2.0)*onTable*flick*smoothstep(0.,0.3,uLevel);
+
+  /* ---------- 脚とプレート ---------- */
+  float stemTop=0.03, stemBot=-1.08;
+  if(p.y<stemTop && p.y>stemBot-0.02){
+    float sr=0.028+0.06*smoothstep(-0.18,0.04,p.y)+0.035*pow(smoothstep(-0.92,-1.08,p.y),2.);
+    float ax=abs(p.x);
+    float in_=smoothstep(sr+px,sr-px,ax);
+    float n=ax/sr;
+    vec3 g=col*0.82+vec3(0.02)+uLightCol*(0.22*pow(n,6.)+0.30*exp(-pow((p.x/sr+0.45)/0.18,2.)));
+    col=mix(col,g,in_);
+  }
+  vec2 fp=(p-vec2(0.,-1.10))/vec2(0.43,0.43*E);
+  float fd=length(fp);
+  if(fd<1.05){
+    float in_=smoothstep(1.0+px*4.,1.0-px*4.,fd);
+    float ring=smoothstep(0.80,0.98,fd);
+    vec3 g=col*0.85+uLightCol*(0.05+0.40*ring*smoothstep(0.2,-0.6,fp.y*0.5+fp.x*side*0.3));
+    col=mix(col,g,in_);
+  }
+
+  /* ---------- ボウル ---------- */
+  float r=bowlR(p.y);
+  float rimR=bowlR(RIM);
+  vec2 rp=vec2(p.x/rimR,(p.y-RIM)/(rimR*E));
+  float inBowl=0.;
+  if(p.y>=0. && p.y<=RIM) inBowl=smoothstep(r+px,r-px,abs(p.x));
+  float inOpen=smoothstep(1.+px*3.,1.-px*3.,length(rp))*step(RIM,p.y);
+  float inGlass=max(inBowl,inOpen);
+
+  if(inGlass>0.){
+    float rr=max(r,0.001);
+    float nx=(p.y<=RIM)? clamp(p.x/rr,-1.,1.) : clamp(p.x/rimR,-1.,1.);
+    float ty=clamp(p.y/RIM,0.,1.);
+    vec3 g=col*0.88;
+    g+=uLightCol*0.30*pow(abs(nx),7.)*(0.4+0.6*ty);
+    g+=vec3(0.006,0.005,0.006);
+    g+=uLightCol*0.06*exp(-pow((nx-0.48)/0.10,2.))*smoothstep(0.2,0.7,ty);
+
+    /* ---- 液体 ---- */
+    float L=max(uLevel,0.001);
+    float rL=bowlR(L);
+    float spd=mix(3.6,1.9,uHeavy);
+    float wv=uWave*(sin(p.x*7.0-t*spd)*0.7+sin(p.x*13.0+t*spd*1.6)*0.3);
+    float mid=L+uTilt*p.x+wv;
+    float zx=sqrt(max(rL*rL-p.x*p.x,0.));
+    float front=mid-E*zx, back=mid+E*zx;
+    float inCol=smoothstep(rL+px,rL-px,abs(p.x));
+
+    float dens=mix(mix(0.25,0.9,uHeavy), mix(1.3,3.6,uHeavy), uTint);
+    float depth=clamp((front-p.y)/max(front,0.05),0.,1.);
+    float swirl=0.10*sin(p.x*14.+t*5.)+0.06*sin(p.y*22.-t*3.);
+    float m=smoothstep(-0.12,0.12,uPour*1.3-depth+swirl);
+    vec3 wine=mix(uColA,uColB,m);
+    wine=sat(wine,mix(0.80,1.30,uFruit))*mix(0.92,1.10,uFruit);
+
+    if(uLevel<0.004){
+    }else if(p.y<front && p.y>=0.){
+      float th=sqrt(max(r*r-p.x*p.x,0.))/RM;
+      float Tm=exp(-dens*(0.25+th*1.5));
+      vec3 body=wine*(0.06+1.9*Tm*lum)+wine*wine*0.10;
+      body+=sat(wine,1.5)*0.55*pow(abs(nx),3.)*exp(-dens*0.35)*lum;
+      body+=sat(wine,1.3)*0.35*exp(-(front-p.y)/0.035)*lum;
+      body*=0.75+0.25*smoothstep(0.,0.25,p.y);
+      if(uBubbles>0.01){
+        for(int i=0;i<10;i++){
+          float fi=float(i);
+          float bx=(hash(vec2(fi,2.))-0.5)*1.3*rL;
+          float by=fract(hash(vec2(fi,5.))+t*(0.10+0.08*hash(vec2(fi,8.))))*front;
+          bx+=0.01*sin(t*3.+fi);
+          float d=length(p-vec2(bx,by));
+          body+=vec3(1.,0.95,0.85)*uBubbles*0.6*smoothstep(0.012,0.004,d)*lum;
+        }
+      }
+      g=mix(g,body,inBowl);
+    }else if(p.y>=front && p.y<=back){
+      float z=(p.y-mid)/E;
+      float q=(p.x*p.x+z*z)/(rL*rL);
+      vec3 surf=wine*(0.20+0.9*exp(-dens*0.6)*lum)+wine*0.08;
+      vec2 hl=vec2(p.x+side*0.10, z-0.16);
+      surf+=uLightCol*0.55*exp(-dot(hl,hl)/0.012)*flick;
+      surf+=uLightCol*0.025*(0.5+0.5*sin(p.x*30.+z*18.-t*spd*2.));
+      surf+=uLightCol*0.40*smoothstep(0.80,1.0,q);
+      g=mix(g,surf,inCol*inGlass);
+    }
+
+    float hlL=exp(-pow((nx+0.64)/0.055,2.))*smoothstep(0.12,0.45,ty)*(1.-smoothstep(0.86,1.,ty));
+    float hlR=exp(-pow((nx-0.74)/0.03,2.))*smoothstep(0.30,0.6,ty)*(1.-smoothstep(0.8,0.95,ty));
+    float lside=smoothstep(-1.5,1.5,-side);
+    g+=uLightCol*(0.55*hlL*mix(0.5,1.,lside)+0.30*hlR*mix(1.,0.5,lside))*flick;
+    g+=uLightCol*0.12*exp(-pow(p.y/0.05,2.))*exp(-pow(p.x/0.2,2.));
+    col=mix(col,g,inGlass);
+  }
+  float rimLine=abs(length(rp)-1.)*rimR*E;
+  col+=uLightCol*0.65*smoothstep(px*2.,0.,rimLine)*(0.55+0.45*smoothstep(-0.2,1.,rp.y+0.5))*step(RIM-rimR*E*1.2,p.y);
+
+  /* ---------- 注ぎの流れ ---------- */
+  if(uPour<0.9){
+    float head=mix(9.,0.50,smoothstep(0.0,0.22,uPour));
+    float tail=mix(9.,0.50,smoothstep(0.45,0.88,uPour));
+    float w=0.022*(1.-smoothstep(0.55,0.9,uPour))+0.004;
+    float sx=p.x-0.012*sin(p.y*9.+t*14.);
+    if(p.y>head-0.02 && p.y<tail){
+      float a=smoothstep(w+px,w-px,abs(sx));
+      vec3 s=sat(uColB,1.2)*(0.5+1.4*lum)+uLightCol*0.5*exp(-pow((sx+w*0.3)/(w*0.35),2.));
+      col=mix(col,s,a);
+    }
+  }
+
+  /* ---------- ② 指の光 ---------- */
+  if(uTouch.z>0.001){
+    float d=length(fc-uTouch.xy)/sc;
+    float glow=exp(-d*d*90.)*0.9+exp(-d*d*8.)*0.18;
+    float rr=uTouchT*0.55;
+    float ring=exp(-pow((d-rr)/0.018,2.))*exp(-uTouchT*2.2);
+    col+=vec3(1.,0.86,0.62)*(glow+ring*0.6)*uTouch.z;
+  }
+
+  /* ---------- ③ あなた・お店・しずく ---------- */
+  vec3 warm=vec3(1.,0.80,0.52), cool=vec3(0.78,0.88,1.0);
+  if(uLink>0.001){
+    vec2 pa=fc-uMarkA.xy, ba=uMarkB.xy-uMarkA.xy;
+    float h=clamp(dot(pa,ba)/max(dot(ba,ba),1.),0.,1.);
+    float dl=length(pa-ba*h)/sc;
+    float flow=0.6+0.4*sin(h*24.-t*5.);
+    col+=mix(warm,cool,h)*exp(-pow(dl/0.005,2.))*0.55*flow*uLink;
+  }
+  if(uMarkA.z>0.001){
+    float d=length(fc-uMarkA.xy)/sc;
+    col+=warm*(exp(-d*d*140.)*1.0+exp(-d*d*10.)*0.14)*uMarkA.z*(0.92+0.08*sin(t*3.));
+  }
+  if(uMarkB.z>0.001){
+    float d=length(fc-uMarkB.xy)/sc;
+    float ring=exp(-pow((d-0.034)/0.007,2.));
+    col+=cool*(ring*0.95+exp(-d*d*200.)*0.6+exp(-d*d*10.)*0.08)*uMarkB.z;
+  }
+  if(uRip.z>0.001){
+    float d=length(fc-uRip.xy)/sc; float rr=uRipT*0.42;
+    col+=cool*exp(-pow((d-rr)/0.012,2.))*exp(-uRipT*2.4)*0.8*uRip.z;
+    col+=cool*exp(-pow((d-rr*0.6)/0.010,2.))*exp(-uRipT*3.0)*0.4*uRip.z;
+  }
+  if(uDrop.z>0.001){
+    vec2 q=(fc-uDrop.xy)/sc;
+    float body=smoothstep(0.020,0.013,length(q*vec2(1.,0.62)));
+    float trail=exp(-pow(q.x/0.004,2.))*step(0.,q.y)*exp(-q.y*9.);
+    col=mix(col,vec3(0.95,0.97,1.0),body*uDrop.z*0.9);
+    col+=cool*(trail*0.5+exp(-dot(q,q)*400.)*0.4)*uDrop.z;
+  }
+
+  /* ---------- 仕上げ ---------- */
+  vec2 vq=(uv-vec2(0.5,0.55))*vec2(uRes.x/uRes.y,1.);
+  col*=1.-0.6*smoothstep(0.25,0.95,length(vq));
+  col*=uExpo;
+  col=1.-exp(-col*1.6);
+  col=pow(col,vec3(1./2.2));
+  col+=(hash(fc+fract(t*13.))-0.5)*0.022;
+  gl_FragColor=vec4(col,1.);
+}`;
+
+function compile(type,src){ const s=gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s);
+  if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; }
+let GL_OK=false;
+try{
+  if(!gl) throw new Error("no webgl");
+  prog=gl.createProgram();
+  gl.attachShader(prog,compile(gl.VERTEX_SHADER,VS)); gl.attachShader(prog,compile(gl.FRAGMENT_SHADER,FS));
+  gl.linkProgram(prog); if(!gl.getProgramParameter(prog,gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+  gl.useProgram(prog);
+  const b=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,b);
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+  const a=gl.getAttribLocation(prog,"a"); gl.enableVertexAttribArray(a); gl.vertexAttribPointer(a,2,gl.FLOAT,false,0,0);
+  ["uRes","uTime","uGlass","uLight","uLightCol","uColA","uColB","uPour","uTilt","uWave","uHeavy","uFruit",
+   "uBubbles","uTouch","uTouchT","uTint","uMarkA","uMarkB","uLink","uDrop","uRip","uRipT","uLevel","uExpo"].forEach(n=>U[n]=gl.getUniformLocation(prog,n));
+  GL_OK=true;
+}catch(e){ console.warn(e); document.documentElement.classList.add("nogl"); }
+
+function resize(){
+  DPR=Math.min(devicePixelRatio||1,2);
+  const w=Math.round(innerWidth*DPR*RS), h=Math.round(innerHeight*DPR*RS);
+  if(canvas.width!==w||canvas.height!==h){ canvas.width=w; canvas.height=h; }
+  fitInfo(); renderWineText(); layout();
+}
+addEventListener("resize",resize);
+
+/* ============================================================
+   ① 選ぶ:スワイプ
+   ============================================================ */
+let drag=null, swiped=false;
+const s1=$("s1");
+s1.addEventListener("pointerdown",e=>{
+  if(e.target.closest("button")) return;
+  drag={x0:e.clientX,x:e.clientX,t:performance.now(),v:0}; s1.setPointerCapture(e.pointerId); poke();
+});
+s1.addEventListener("pointermove",e=>{
+  if(!drag) return; const now=performance.now(), dx=e.clientX-drag.x;
+  drag.v = dx/Math.max(now-drag.t,8); drag.x=e.clientX; drag.t=now;
+  P.offX = (drag.x-drag.x0)*0.25;
+  P.tiltT = Math.max(-0.45,Math.min(0.45,-drag.v*0.35)); poke();
+});
+const endDrag=e=>{
+  if(!drag) return; const dx=drag.x-drag.x0; drag=null; P.tiltT=0;
+  if(Math.abs(dx)>40) choose(S.idx + (dx<0?1:-1));
+};
+s1.addEventListener("pointerup",endDrag); s1.addEventListener("pointercancel",endDrag);
+addEventListener("keydown",e=>{ if(S.screen!==1) return;
+  if(e.key==="ArrowRight") choose(S.idx+1); if(e.key==="ArrowLeft") choose(S.idx-1); });
+
+function choose(i){
+  i=(i+WINES.length)%WINES.length; if(i===S.idx) return;
+  const dir = i>S.idx?1:-1;
+  P.colA = currentWineColor(); P.colB = WINES[i].color.slice(); P.pour=0;
+  P.tiltV += dir*-1.6; P.wave=Math.min(0.05,P.wave+0.03);
+  S.idx=i; wineDefaults();
+  if(!swiped){ swiped=true; $("swipeHint").classList.add("gone"); }
+  $("info").classList.add("swapping");
+  setTimeout(()=>{ renderWineText(); $("info").classList.remove("swapping"); },220);
+  if(navigator.vibrate) try{navigator.vibrate(8);}catch(_){}
+}
+function currentWineColor(){ const m=smooth(P.pour); return P.colA.map((a,k)=>a+(P.colB[k]-a)*m); }
+const smooth=x=>x*x*(3-2*x);
+
+$("go").onclick=()=>{ S.round++; goScreen(2); };
+
+/* ============================================================
+   ② 感じる:グラスに指を置く
+   ============================================================ */
+const field=$("field");
+function fieldPoint(e){
+  const r=field.getBoundingClientRect();
+  const nx=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));
+  const ny=Math.max(0,Math.min(1,(e.clientY-r.top)/r.height));
+  return {nx,ny,x:e.clientX,y:e.clientY};
+}
+function onTouch(e){
+  const f=fieldPoint(e);
+  P.fruitT=f.nx; P.heavyT=f.ny;
+  P.touch[0]=f.x; P.touch[1]=f.y; P.touchAT=1;
+  ["lT","lB","lL","lR"].forEach(id=>$(id).classList.remove("hot"));
+  if(f.ny<0.3) $("lT").classList.add("hot"); if(f.ny>0.7) $("lB").classList.add("hot");
+  if(f.nx<0.3) $("lL").classList.add("hot"); if(f.nx>0.7) $("lR").classList.add("hot");
+  poke();
+}
+field.addEventListener("pointerdown",e=>{
+  field.setPointerCapture(e.pointerId); S.touching=true; P.touchT=0;
+  P.wave=Math.min(0.045,P.wave+0.02);
+  if(S.phase==="ask"){ S.phase="touch"; S.answer.third=null; syncPhase(); }
+  document.querySelectorAll(".axis").forEach(a=>a.style.opacity=.25);
+  onTouch(e);
+});
+field.addEventListener("pointermove",e=>{ if(S.touching) onTouch(e); });
+const release=e=>{
+  if(!S.touching) return; S.touching=false; P.touchAT=0.35;
+  const f=fieldPoint(e); S.answer.heavy=f.ny; S.answer.fruit=f.nx;
+  ["lT","lB","lL","lR"].forEach(id=>$(id).classList.remove("hot"));
+  if(navigator.vibrate) try{navigator.vibrate(12);}catch(_){}
+  setTimeout(()=>{ if(!S.touching && S.screen===2){ S.phase="ask"; P.touchAT=0; renderAsk(); syncPhase(); } },350);
+};
+field.addEventListener("pointerup",release); field.addEventListener("pointercancel",release);
+
+$("choices").addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b) return;
+  S.answer.third=+b.dataset.v; renderAsk();
+  P.wave=Math.min(0.04,P.wave+0.015);
+  setTimeout(()=>{ if(S.screen===2) goScreen(3); },380);
+});
+$("askQ").addEventListener("click",e=>{
+  const term=e.target.closest(".term"); if(!term) return;
+  const tip=$("tip"); tip.textContent=T[S.lang].third[term.dataset.term].tip; tip.classList.toggle("hide");
+});
+$("back").onclick=()=>{
+  if(S.phase==="ask"){ S.phase="touch"; syncPhase(); return; }
+  goScreen(1);
+};
+
+/* ③ ④ のボタン */
+$("back3").onclick=()=>goScreen(2,{keep:true});
+$("toDish").onclick=()=>goScreen(4);
+$("back4").onclick=()=>goScreen(3,{settled:true});
+$("next").onclick=()=>goScreen(1);
+$("cards").addEventListener("click",e=>{ const b=e.target.closest(".card"); if(b) goScreen(1,{pourTo:+b.dataset.i}); });
+$("staffX").onclick=closeStaff; $("staffClose").onclick=closeStaff;
+
+function goScreen(n,opt={}){
+  S.screen=n;
+  [1,2,3,4].forEach(i=>$("s"+i).classList.toggle("on",i===n));
+  if(n===1){
+    P.touchAT=0;
+    if(opt.pourTo!=null && opt.pourTo!==S.idx){   // 提案から:そのワインを注いで始める
+      P.colA=currentWineColor(); P.colB=WINES[opt.pourTo].color.slice(); P.pour=0;
+      S.idx=opt.pourTo; renderWineText(); renderAsk();
+    }
+    wineDefaults();
+  }
+  if(n===2){
+    if(opt.keep){ S.phase="ask"; P.heavyT=S.answer.heavy; P.fruitT=S.answer.fruit; renderAsk(); }
+    else{ S.phase="touch"; S.answer={heavy:null,fruit:null,third:null}; P.touchAT=0;
+      P.heavyT=0.5; P.fruitT=0.5; document.querySelectorAll(".axis").forEach(a=>a.style.opacity=1); }
+  }
+  if(n===3){
+    P.heavyT=S.answer.heavy; P.fruitT=S.answer.fruit; P.touchAT=0;
+    renderS3();
+    // 記録は、動きを減らす設定かどうかに関わらず、1杯ごとに必ず残す(同じ杯の上書きなので「戻る」でも二重にならない)
+    S.history[Math.max(0,S.round-1)]={id:WINES[S.idx].id, idx:S.idx, ...youVals()};
+    if(opt.settled || reduceMotion){
+      S.seq0=performance.now()-10000; S.landed=true; S.merged=true;
+      $("s3").classList.add("revealed"); placeScale(true);
+    }else{
+      S.seq0=performance.now(); S.landed=false; S.merged=false;
+      $("s3").classList.remove("revealed"); placeScale(false);
+    }
+  }
+  if(n===4){ renderS4(); }
+  P.wave=Math.min(0.05,P.wave+0.02); P.tiltV+=0.8;
+  syncPhase(); poke();
+}
+function syncPhase(){
+  const touch=S.phase==="touch", ask=S.phase==="ask";
+  $("prompt").classList.toggle("hide",!touch);
+  ["lT","lB","lL","lR"].forEach(id=>$(id).classList.toggle("hide",!touch));
+  document.querySelectorAll(".axis").forEach(a=>a.classList.toggle("hide",!touch));
+  $("retouch").classList.toggle("hide",!ask);
+  $("ask").classList.toggle("hide",!ask);
+  layout();
+}
+
+/* 端末の傾き(使える環境のみ。許可の確認が要る iOS では使わない) */
+if(window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission!=="function"){
+  addEventListener("deviceorientation",e=>{ if(e.gamma==null||drag) return;
+    P.tiltT=Math.max(-0.35,Math.min(0.35,-(e.gamma||0)/90)); });
+}
+
+/* ============================================================
+   ③ の演出:あなたの光 → しずくが落ちてお店の光 → 2点が光で結ばれる
+   ============================================================ */
+function stepCompare(now){
+  let tA=0,tB=0,tL=0;
+  if(S.screen===3){
+    const st=(now-S.seq0)/1000;
+    const u=youVals(), s=shopVals();
+    const A=fieldXY(u.fruit,u.heavy), B=fieldXY(s.fruit,s.heavy);
+    P.mA=A; P.mB=B;
+    tA = st>0.1?1:0;
+    if(st>0.45 && st<1.0){
+      const k=(st-0.45)/0.55, y0=P.glass.y-(RIM+0.7)*P.glass.s;
+      P.drop=[B[0], y0+(B[1]-y0)*k*k, 1];
+    }else P.drop[2]=0;
+    if(st>=1.0 && !S.landed){
+      S.landed=true;
+      P.wave=Math.min(0.06,P.wave+0.035); P.tiltV+=(B[0]<P.glass.x?1:-1)*0.9;
+      P.rip=[B[0],B[1],1]; P.ripT=0;
+      $("s3").classList.add("revealed"); placeScale(true);
+      if(navigator.vibrate) try{navigator.vibrate(10);}catch(_){}
+    }
+    tB = st>1.0?1:0; tL = st>1.3?1:0;
+    if(S.close && st>1.75 && !S.merged){
+      S.merged=true; P.rip=[(A[0]+B[0])/2,(A[1]+B[1])/2,1]; P.ripT=0; P.wave+=0.015;
+    }
+    // ラベル:左にある方を左側に出す
+    const youLeft = A[0] <= B[0];
+    const mY=$("mkYou"), mS=$("mkShop");
+    mY.style.left=(A[0]-AX)+"px"; mY.style.top=A[1]+"px";
+    mS.style.left=(B[0]-AX)+"px"; mS.style.top=B[1]+"px";
+    mY.classList.toggle("toL",youLeft); mY.classList.toggle("toR",!youLeft);
+    mS.classList.toggle("toR",youLeft); mS.classList.toggle("toL",!youLeft);
+  }else if(!S.opening) P.drop[2]=0;
+  return [tA,tB,tL];
+}
+
+/* ============================================================
+   起動演出:しずくが空のグラスに落ち、ワインが満ちて ① へ
+   ============================================================ */
+function startOpening(){
+  S.opening=true; S.op0=performance.now(); S.opLanded=false;
+  document.body.classList.add("op");
+  $("s1").classList.remove("on"); $("opening").classList.remove("hide");
+  P.level=0; P.expo=0;
+  const ob=$("opBrand"); ob.style.top=(P.glassT.y+1.2*P.glassT.s+14)+"px";
+  setTimeout(()=>ob.classList.add("in"),150);
+  $("opening").addEventListener("pointerdown",endOpening,{once:true});
+}
+function stepOpening(now){
+  if(!S.opening) return;
+  const c=CONFIG.opening, ot=(now-S.op0)/1000, g=P.glass;
+  P.expo=smooth(Math.min(1,ot/0.9));
+  if(ot>c.dropAt && ot<c.landAt){
+    const k=(ot-c.dropAt)/(c.landAt-c.dropAt), y0=-20, y1=g.y-0.05*g.s;
+    P.drop=[g.x, y0+(y1-y0)*k*k, 1];
+  }else P.drop[2]=0;
+  if(ot>=c.landAt && !S.opLanded){
+    S.opLanded=true; P.rip=[g.x,g.y-0.05*g.s,1]; P.ripT=0; P.wave=0.04; P.tiltV+=0.6;
+  }
+  if(ot>=c.landAt) P.level=0.5*(1-Math.pow(1-Math.min(1,(ot-c.landAt)/c.fillDur),3));
+  if(ot>=c.dur) endOpening();
+}
+function endOpening(){
+  if(!S.opening) return;
+  S.opening=false; P.level=0.5; P.expo=Math.max(P.expo,0.001); P.drop[2]=0;
+  document.body.classList.remove("op");
+  $("opening").classList.add("hide"); $("s1").classList.add("on");
+  poke();
+}
+
+/* ============================================================
+   ループ
+   ============================================================ */
+function poke(){ S.lastInteract=performance.now(); }
+let last=performance.now(), t0=last, frames=0, fpsT=last, lastDraw=0;
+const lerp=(a,b,k)=>a+(b-a)*k;
+function frame(now){
+  requestAnimationFrame(frame);
+  if(document.hidden) return;
+  // 8秒操作がなければ 30fps に落とす
+  const idle = now-S.lastInteract>8000;
+  if(idle && now-lastDraw<32) return;
+  const dt=Math.min(0.05,(now-last)/1000); last=now; lastDraw=now;
+
+  const k=1-Math.exp(-dt*7);
+  P.heavy=lerp(P.heavy,P.heavyT,1-Math.exp(-dt*5)); P.fruit=lerp(P.fruit,P.fruitT,1-Math.exp(-dt*5));
+  for(let i=0;i<3;i++) P.light[i]=lerp(P.light[i],P.lightT[i],1-Math.exp(-dt*2.5));
+  P.bubbles=lerp(P.bubbles,P.bubblesT,k);
+  P.touchA=lerp(P.touchA,P.touchAT,1-Math.exp(-dt*(P.touchAT>P.touchA?18:3)));
+  P.touchT+=dt; P.ripT+=dt;
+  for(const key of ["x","y","s"]) P.glass[key]=lerp(P.glass[key],P.glassT[key],1-Math.exp(-dt*6));
+  if(!drag) P.offX=lerp(P.offX,0,1-Math.exp(-dt*10));
+  if(P.pour<1) P.pour=Math.min(1,P.pour+dt/0.9);
+
+  stepOpening(now);
+  if(!S.opening){ P.expo=Math.min(1,P.expo+dt*2.5); }
+  const [tA,tB,tL]=stepCompare(now);
+  P.markA=lerp(P.markA,tA,1-Math.exp(-dt*(tA>P.markA?6:8)));
+  P.markB=lerp(P.markB,tB,1-Math.exp(-dt*(tB>P.markB?10:8)));
+  P.link=lerp(P.link,tL,1-Math.exp(-dt*4));
+  $("mkYou").style.opacity=P.markA; $("mkShop").style.opacity=P.markB;
+
+  const stiff=lerp(55,22,P.heavy), damp=lerp(3.5,6.5,P.heavy);
+  const sway = reduceMotion?0: 0.035*Math.sin(now/1000*0.9)+0.02*Math.sin(now/1000*1.7);
+  P.tiltV += ((P.tiltT+sway)-P.tilt)*stiff*dt - P.tiltV*damp*dt;
+  P.tilt += P.tiltV*dt;
+  P.tilt=Math.max(-0.6,Math.min(0.6,P.tilt));
+  P.wave = Math.max(reduceMotion?0.002:0.007, P.wave*Math.exp(-dt*lerp(1.6,2.8,P.heavy)) + Math.abs(P.tiltV)*dt*0.012);
+
+  if(!GL_OK){ fallbackDraw(); return; }
+  // 性能監視:最初の2秒で遅ければ解像度を下げる
+  frames++; if(now-fpsT>2000 && RS===1){ const fps=frames*1000/(now-fpsT); if(fps<40){ RS=0.7; resize(); } fpsT=Infinity; }
+
+  const cw=canvas.width, ch=canvas.height, sc=DPR*RS;
+  const X=x=>x*sc, Y=y=>ch-y*sc;
+  gl.viewport(0,0,cw,ch);
+  gl.uniform2f(U.uRes,cw,ch);
+  gl.uniform1f(U.uTime,(now-t0)/1000);
+  gl.uniform3f(U.uGlass,X(P.glass.x+P.offX), Y(P.glass.y), P.glass.s*sc);
+  gl.uniform2f(U.uLight,X(AX+AW*0.18+Math.sin(now/4000)*AW*0.03), Y(VH*0.10));
+  gl.uniform3f(U.uLightCol,...P.light);
+  gl.uniform3f(U.uColA,...P.colA); gl.uniform3f(U.uColB,...P.colB);
+  gl.uniform1f(U.uPour,P.pour);
+  gl.uniform1f(U.uTilt,P.tilt); gl.uniform1f(U.uWave,P.wave);
+  gl.uniform1f(U.uHeavy,P.heavy); gl.uniform1f(U.uFruit,P.fruit);
+  gl.uniform1f(U.uBubbles,P.bubbles);
+  gl.uniform3f(U.uTouch,X(P.touch[0]),Y(P.touch[1]),P.touchA);
+  gl.uniform1f(U.uTouchT,P.touchT);
+  const tint = {red:1,fort:0.5,rose:0.25}[WINES[S.idx].type] ?? 0;
+  P.tint = lerp(P.tint??tint, tint, k);
+  gl.uniform1f(U.uTint,P.tint);
+  gl.uniform3f(U.uMarkA,X(P.mA[0]),Y(P.mA[1]),P.markA);
+  gl.uniform3f(U.uMarkB,X(P.mB[0]),Y(P.mB[1]),P.markB);
+  gl.uniform1f(U.uLink,P.link);
+  gl.uniform3f(U.uDrop,X(P.drop[0]),Y(P.drop[1]),P.drop[2]);
+  gl.uniform3f(U.uRip,X(P.rip[0]),Y(P.rip[1]),P.ripT<3?1:0);
+  gl.uniform1f(U.uRipT,P.ripT);
+  gl.uniform1f(U.uLevel,P.level); gl.uniform1f(U.uExpo,P.expo);
+  gl.drawArrays(gl.TRIANGLES,0,3);
+}
+function fallbackDraw(){
+  const fb=$("fallback"), g=P.glass, h=g.s*2.8, w=h*120/280;
+  fb.style.width=w+"px"; fb.style.height=h+"px";
+  fb.style.left=(g.x-w/2)+"px"; fb.style.top=(g.y - h*(150/280))+"px";
+  const c=currentWineColor().map(v=>Math.round(Math.pow(Math.min(1,v*(1.3-P.heavy*0.5)),1/2.2)*255));
+  $("fbLiquid").setAttribute("fill",`rgb(${c})`);
+  $("fbLiquid").setAttribute("transform",`rotate(${P.tilt*-30})`);
+}
+
+/* 起動 */
+wineDefaults(); P.heavy=P.heavyT; P.fruit=P.fruitT; P.light=P.lightT.slice(); P.bubbles=P.bubblesT;
+applyLang(); resize();
+Object.assign(P.glass,P.glassT);
+if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{ fitInfo(); renderWineText(); layout(); });
+if(!reduceMotion) startOpening();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

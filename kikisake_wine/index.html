@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#0b0809">
-<title>ひとしずく</title>
+<title>ワイン相性診断</title>
 <script>
 /* ======================================================================
    お店のデータ ―― ここだけ書き換えれば、ワインと料理を差し替えられます
@@ -47,7 +47,7 @@
        "orange"       オレンジ          "white-sweet" 甘口の白      "fortified"  酒精強化
 
    【ロゴ】 shop.logo に、IMAGES のキー(透過 PNG。文字が白、背景が透明)を書くと、オープニングのタイトルと店名の位置にロゴが出ます
-           タイトルの位置はイタリアの三色、店名の位置は薄いベージュに塗られます。省略すると、文字(「ひとしずく」と店名)になります
+           タイトルの位置はイタリアの三色、店名の位置は薄いベージュに塗られます。省略すると、文字(「ワイン相性診断」と店名)になります
            差し替えは、フォルダに logo.png を入れて tools/make_images.py を実行します
 
    【画像(店の写真・料理の写真)】
@@ -100,7 +100,7 @@
         (未入力のワインは、起動時にコンソールへ一覧で出ます)
 
    【説明カードの見出し】 CONFIG.owner.tagline(オープニングには出ません。説明カードの見出しに使われ、show:false なら titleAlt。text は、{owner} が呼び名になります)
-        タイトル「ひとしずく」の下に、小さく出ます。長すぎると、画面を圧迫するので、30字くらいまでに
+        タイトル「ワイン相性診断」の下に、小さく出ます。長すぎると、画面を圧迫するので、30字くらいまでに
 
    【足元の表現】 CONFIG.foot   (テーブルは無く、グラスの足元に、接地の手がかりだけを重ねています)
         shadow   接地影の濃さ(足元の濃い影と、光と反対側へのびるやわらかい影。0〜1.5。1 が標準に近い)
@@ -127,13 +127,20 @@
         流れ    オープニング → 説明カード(CONFIG.intro。ログが有効なら、性別・年代の質問を含む)→ ① えらぶ → ② 感じる(はじめのご案内)→ 相性 → ③ お料理
         説明カード CONFIG.intro  このコンテンツが何かを、短く伝えるカード。その訪問の間は、一度だけ(ブラウザには保存しません)
                 見出し  title が空なら、CONFIG.owner.tagline の文言を使い回します(tagline が show:false のときは titleAlt)
-                lead    一言の説明(| で改行の候補)。steps  3つの手順(番号は自動)。start  主ボタンの文言(初期:はじめる)
+                lead    一言の説明(| で改行)。steps  3つの手順(番号は自動)。start  主ボタンの文言(初期:はじめる)
                 show:false で出しません(オープニングのあと、すぐ ① えらぶ へ)。
                 {owner} は店主の呼び名。ui.selectLead は、① えらぶ のときに舞台に出る一文
                 文言    「|」で行を区切ります。各行は、1行に収まる長さにしてください(収まらない行は、字間を詰め、最小15pxまで文字を縮めます。それでも収まらない行は、文言を短くしてください)
-                動き    文字が1行ずつ、左から右へ、すっとなぞるように現れ、主ボタンは最後に現れます。CONFIG.intro.pace(ミリ秒):
-                        lineMs(1行が現れるまで)/ gapMs(次の行が始まるまで。前の行の途中から始めてよい)/ pauseMs(③ と質問への入りの一言との間)/ chipMs(質問の行ごと)/ btnMs(最後の行のあと、主ボタンまで)/ scale(全体の倍率。0 ですぐ全部)
-                        標準で、質問なしは約5秒、質問ありは7秒以内。数字を大きくすると、ゆっくりになります
+                動き    現れ方は2種類です。質問に入るまでの文言(見出し・説明・手順)は、1文字ずつではなく、かたまりごとに、ふわっと現れます(ゆっくりしたフェードイン+ごく小さな上昇+ほんの少しのぼかし)。
+                        かたまりの単位:見出し(2行で1かたまり)/ 一言の説明(2行で1かたまり。「。」では分けません)/ 手順(①②③ が1つずつ。番号の丸と文は同時)。中の複数の行は、同時に現れます。
+                        見出しの下の細い線は、見出しが現れたあと、中央から左右へのびます。1文字ずつ現れるのは、質問への入りの一言「はじめに、2つだけ、聞かせてください」だけです(質問の補足は、かたまりで)。主ボタンは最後に現れます
+                        CONFIG.intro.tempo(ミリ秒)で、速さと間を変えます
+                        fadeMs       1つのかたまりが現れ終わるまで(初期 900)
+                        間(長い順)  leadInPauseMs 質問の一言の前の、一番大きな間(600)/ blockGapMs 話題の切れ目:見出し→説明→手順の始まり(600)/ stepGapMs 手順どうし(300)。間は、前のかたまりが現れ終わってから、次が始まるまで
+                        type         質問への入りの一言(1文字ずつ):cps 1秒に現れる文字数(8)/ commaMs 読点「、」での休み(250)/ charFadeMs 1文字のフェード(140)/ lineGapMs 1行目が現れ終わってから、2行目まで(300)
+                        chipMs 質問の行ごと(600)/ btnMs 最後のあと、主ボタンまで(500)/ scale 全体の倍率(0 ですぐ全部)/ replayScale 「つかいかた」などから開き直したときの倍率(0.4)
+                        間を長くしたいときは、その項目を大きく、短くしたいときは、小さくします。全体を、ゆっくり・速くしたいときは、scale を使います
+                        標準で、質問なしは約7秒、質問ありは約12秒(?debug=1 のとき、コンソールに、各かたまりの現れ始めの時刻と合計を出します)
                         途中でタップすると、残りが、すぐ全部出ます(そのタップでは、質問やボタンは反応しません)。「動きを減らす」設定では、はじめから全部
         利用者の区分 CONFIG.profile  説明カードの手順の下に、性別・年代の2問(タップで答える。両方に答えるまで、「はじめる」で先へ進めません。性別は「答えない」も、答えとして数えます)
                 show   "auto" ならログが有効なときだけ出します(ログが無効なら、質問も、通信も、保存もありません)。true でいつも、false で出しません
@@ -775,21 +782,20 @@ const SHOP_DATA = {
   .in-s li{display:flex;gap:12px;align-items:flex-start;font:16px/1.6 var(--mincho);letter-spacing:.04em;color:var(--ink)} .in-s .stx{flex:1;min-width:0}
   .in-s li i{flex:none;width:26px;height:26px;margin-top:1px;border:1px solid rgba(230,200,138,.8);border-radius:50%;font:normal 14px/24px var(--mincho);text-align:center;color:#f6e1ae}
   @media (max-height:700px){ .icard{padding:16px 18px 14px} .icard h2{font-size:18px;line-height:1.6} .icard h2::after{margin-top:10px} .in-l{margin-top:10px;line-height:1.6} .in-s{margin-top:12px;gap:7px} .intro{padding-top:calc(var(--safe-t) + 54px)} }
-  /* 文字が、1行ずつ、左から右へ、すっとなぞるように現れる(マスクの移動。端はやわらかくぼかす) */
+  /* 現れ方は2種類:かたまりごとに、ふわっと(.fb)/ 質問への入りの一言だけ、1文字ずつ(.ch) */
   .icard .ln{display:block;white-space:nowrap}
-  .icard .tx{display:inline-block;white-space:nowrap;
-    -webkit-mask-image:linear-gradient(90deg,#000 0,#000 40%,transparent 50%,transparent 100%);mask-image:linear-gradient(90deg,#000 0,#000 40%,transparent 50%,transparent 100%);
-    -webkit-mask-size:300% 100%;mask-size:300% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:100% 0;mask-position:100% 0;
-    transition:-webkit-mask-position var(--lm,.9s) cubic-bezier(.3,.5,.4,1),mask-position var(--lm,.9s) cubic-bezier(.3,.5,.4,1)}
-  .icard .tx.on{-webkit-mask-position:0 0;mask-position:0 0;animation:inglow var(--lm,.9s) ease-out}
-  @keyframes inglow{0%{text-shadow:0 0 14px rgba(255,238,205,.9),0 0 2px rgba(255,238,205,.5)}100%{text-shadow:0 0 0 rgba(255,238,205,0)}}
-  .icard .bar{display:block;width:34px;height:1px;background:rgba(230,200,138,.55);margin:14px auto 0;transform:scaleX(0);transform-origin:left center;transition:transform .8s ease-out}
+  .icard .tx{display:inline-block;white-space:nowrap}
+  .icard .fb{display:block;opacity:0;transform:translateY(6px);filter:blur(3px);transition:opacity var(--fd,1s) ease,transform var(--fd,1s) ease,filter var(--fd,1s) ease;will-change:opacity,transform}
+  .icard .fb.on{opacity:1;transform:none;filter:none}
+  .icard .ch{opacity:0;transition:opacity var(--cf,.14s) ease}
+  .icard .ch.on{opacity:1}
+  .icard .bar{display:block;width:34px;height:1px;background:rgba(230,200,138,.55);margin:14px auto 0;transform:scaleX(0);transform-origin:center center;transition:transform .8s ease-out}   /* 見出しのあと、中央から左右へのびる */
   .icard .bar.on{transform:none}
-  .icard .rv{opacity:0;transform:translateY(6px);transition:opacity 1s ease,transform 1s ease}
+  .icard .rv{opacity:0;transform:translateY(6px);transition:opacity var(--fd,1s) ease,transform var(--fd,1s) ease}
   .icard .rv.on{opacity:1;transform:none}
   .icard .rv:not(.on){pointer-events:none}
-  .icard.fast .tx,.icard.fast .rv,.icard.fast .bar{transition-duration:.2s!important;animation:none!important}
-  .rm .icard .tx,.rm .icard .rv,.rm .icard .bar{transition:none!important;animation:none!important}
+  .icard.fast .fb,.icard.fast .ch,.icard.fast .rv,.icard.fast .bar{transition-duration:.2s!important;animation:none!important}
+  .rm .icard .fb,.rm .icard .ch,.rm .icard .rv,.rm .icard .bar{transition:none!important;animation:none!important;filter:none!important}
   .mainbtn.need{opacity:.78;border-color:rgba(220,186,124,.45)} .mainbtn.need::after{animation:none}
   .pf-r.nudge{animation:pfn .9s ease} .pf-r.nudge .pchip{border-color:rgba(236,204,140,.95);box-shadow:0 0 10px rgba(230,190,120,.4)} .pf-r.nudge .pf-l{color:#f6e1ae}
   @keyframes pfn{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}60%{transform:translateX(5px)}}
@@ -1070,7 +1076,7 @@ const SHOP_DATA = {
   <!-- オープニング -->
   <div class="opening hide" id="opening">
     <div class="op-brand passive" id="opBrand">
-      <h1>ひとしずく</h1><div class="logo logo-title" role="img" aria-label="ひとしずく"></div>
+      <h1>ワイン相性診断</h1><div class="logo logo-title" role="img" aria-label="ワイン相性診断"></div>
     </div>
     <p class="op-shop passive hide" id="opShop"><b></b><span></span><i class="logo logo-shop" role="img" aria-label="salute ITALIAN TRATTORIA"></i></p>
     <div class="op-skip passive">タップでスキップ</div>
@@ -5836,17 +5842,17 @@ const CONFIG = {
   intro:{ show:true,                                  // false で、出さない(オープニングのあと、すぐ「えらぶ」へ)
     title:"",                                         // 見出し。空なら CONFIG.owner.tagline の文言を使い回す(tagline が off のときは titleAlt)
     titleAlt:"ひとくちの感覚を、ことばに。",
-    lead:"感じたことを選ぶだけ。|約2分の、小さな診断です",
+    lead:"感じたことを選ぶだけ。|約2分の、小さな診断です",   // 「|」で行を区切る。2行まとめて、同時に現れる
     steps:["気になるワインを、えらぶ","感じたものを、えらぶ","{owner}との相性と、お料理を見る"],
     start:"はじめる",
-    // 文字が、1行ずつ、左から右へ現れる動き(ミリ秒)。lineMs:1行が現れるまでの時間 / gapMs:次の行が始まるまでの間隔(前の行が現れている途中から始まる)
-    // pauseMs:③ と、質問への入りの一言との間 / chipMs:質問の行ごとの間隔 / btnMs:最後の行が現れ終わってから、主ボタンが現れるまで / scale:全体の倍率(0 なら、すぐ全部)
-    pace:{ lineMs:900, gapMs:450, pauseMs:600, chipMs:700, btnMs:700, scale:1 },
-    replayPace:0.4,  // (予備)説明カードを、2回目に開くときの scale
+    // 現れ方(ミリ秒):質問に入るまでの文言は、かたまりごとに、ふわっと(fadeMs)。質問への入りの一言だけ、1文字ずつ(type)。
+    //   間は、長いものから順に:leadInPauseMs(質問への入りの前)> blockGapMs(見出し→説明→手順の始まり)> stepGapMs(手順どうし)
+    //   type:{ cps 1秒の文字数 / commaMs 読点での休み / charFadeMs 1文字のフェード / lineGapMs 行の間 }  chipMs:質問の行ごと / btnMs:最後のあと、主ボタンまで / scale:全体の倍率(0 なら、すぐ全部)
+    tempo:{ fadeMs:900, blockGapMs:600, stepGapMs:300, leadInPauseMs:600, type:{ cps:8, commaMs:250, charFadeMs:140, lineGapMs:300 }, chipMs:600, btnMs:500, startMs:100, scale:1, replayScale:0.4 },
   },
   // 利用者の区分(性別・年代)の質問。説明カードの中に出す。大まかな区分だけで、お名前などは、うかがわない。変え方は、手順書【画面の操作】
   profile:{ show:"auto",   // "auto":ログが有効なときだけ / true:いつも / false:出さない(?profile=1 で確認できる。allowUrlSwitch が true のとき)
-    title:"はじめに、2つだけ、|聞かせてください",
+    title:"はじめに、2つだけ、|聞かせてください",   // 1文字ずつ現れる
     note:"ご回答は、お店の参考にだけ使います。|お名前などは、うかがいません",
     gender:{ t:"性別", o:[ ["m","男性"], ["f","女性"], ["na","答えない"] ] },
     age:{ t:"年代", noAnswer:false, o:[ ["u34","34歳以下"], ["o35","35歳以上"], ["na","答えない"] ] },   // noAnswer:false で「答えない」を外す
@@ -7434,14 +7440,17 @@ const INTRO={ on:false, seen:false, then:"", anim:false, eat:false, timers:[], p
 /* 性別・年代の質問を出すか:"auto" はログが有効なときだけ。確認用に ?profile=1 */
 let FORCE_PROF=false; try{ FORCE_PROF=sessionStorage.getItem("hs_prof")==="1"; sessionStorage.removeItem("hs_prof"); }catch(_){}
 function profOn(){ const v=(CONFIG.profile||{}).show; if(URLSW&&(QS.get("profile")==="1"||FORCE_PROF)) return true; return v===true || (v!==false && LOG_ON); }
-const IPACE={ lineMs:900, gapMs:450, pauseMs:600, chipMs:700, btnMs:700, scale:1 };
-const iLines=s=>String(s==null?"":s).split("|").map(x=>x.trim()).filter(Boolean);
-/* 文は、読み上げ用の1つの文(.sr)+見た目の行(| で区切る。1行ずつ .ln > .tx)にする。文字は、分割しない */
-const iBlock=s=>`<span class="sr">${esc(iLines(s).join(""))}</span><span aria-hidden="true">${iLines(s).map(l=>`<span class="ln"><span class="tx">${esc(l)}</span></span>`).join("")}</span>`;
+const ITEMPO={ fadeMs:900, blockGapMs:600, stepGapMs:300, leadInPauseMs:600, type:{ cps:8, commaMs:250, charFadeMs:140, lineGapMs:300 }, chipMs:600, btnMs:500, startMs:100, scale:1, replayScale:0.4 };
+/* 文言は、「|」で行を区切った文字列(または、行の配列) */
+const iLines=s=>{ const a=Array.isArray(s)?s:String(s==null?"":s).split("|"); return a.map(x=>String(typeof x==="string"?x:(x&&x.t)||"").trim()).filter(Boolean); };
+/* 文は、読み上げ用の1つの文(.sr)+見た目(aria-hidden)。mode="type" は、1文字ずつ(.ch)、それ以外は、かたまりで(.fb) */
+const iBlock=(s,mode)=>{ const L=iLines(s), ty=mode==="type";
+  const rows=L.map(t=>`<span class="ln"><span class="tx">${ty?Array.from(t).map(c=>`<span class="ch">${esc(c)}</span>`).join(""):esc(t)}</span></span>`).join("");
+  return `<span class="sr">${esc(L.join(""))}</span><span${ty?"":' class="fb"'} aria-hidden="true">${rows}</span>`; };
 function introAll(){
   INTRO.timers.forEach(clearTimeout); INTRO.timers=[]; INTRO.anim=false;
   const e=$("intro"); e.classList.add("fast");
-  e.querySelectorAll(".tx,.rv,.bar").forEach(x=>x.classList.add("on"));
+  e.querySelectorAll(".fb,.ch,.rv,.bar").forEach(x=>x.classList.add("on"));
   const mb=$("mainBtn"); mb.classList.add("rvon"); mb.classList.remove("rvwait");
 }
 function introFit(){
@@ -7471,37 +7480,45 @@ function introShow(force){
     const row=(k,q)=>{ const o=(q.o||[]).filter(x=>!(k==="a"&&q.noAnswer===false&&x[0]==="na"));
       return `<div class="pf-r rv" data-k="${k}"><span class="pf-l">${esc(q.t)}</span><div class="pf-c" role="radiogroup" aria-label="${esc(q.t)}">`+
         o.map(x=>`<button type="button" class="pchip" data-v="${esc(x[0])}" role="radio" aria-checked="false">${esc(x[1])}</button>`).join("")+`</div></div>`; };
-    pe.innerHTML=`<div class="pf-h"><b>${iBlock(P2.title||"")}</b></div>`+row("g",P2.gender||{t:"",o:[]})+row("a",P2.age||{t:"",o:[]})+(P2.note?`<p class="pf-n">${iBlock(P2.note)}</p>`:"");
+    pe.innerHTML=`<div class="pf-h"><b>${iBlock(P2.title||"","type")}</b></div>`+row("g",P2.gender||{t:"",o:[]})+row("a",P2.age||{t:"",o:[]})+(P2.note?`<p class="pf-n">${iBlock(P2.note)}</p>`:"");
   }
   const e=$("intro"); e.hidden=false; e.classList.remove("out","fast"); void e.offsetWidth; e.classList.add("in");
   document.documentElement.classList.add("introon");
-  e.querySelectorAll(".tx,.rv,.bar").forEach(x=>x.classList.remove("on"));
+  e.querySelectorAll(".fb,.ch,.rv,.bar").forEach(x=>x.classList.remove("on"));
   introFit(); requestAnimationFrame(introFit);
   if(force&&TOUR.on) tourEnd("skip");
   /* 1行ずつ、左から右へ。主ボタンは最後に */
   INTRO.timers.forEach(clearTimeout); INTRO.timers=[];
   const mb=$("mainBtn"); mb.classList.remove("rvon"); mb.classList.add("rvwait");
-  const P=Object.assign({},IPACE,C.pace||{}), k=(typeof P.scale==="number"?P.scale:1)*(force?(typeof C.replayPace==="number"?C.replayPace:0.4):1);
+  const T0=Object.assign({},ITEMPO,C.tempo||{}), T=Object.assign({},ITEMPO.type,T0.type||{}), k=(typeof T0.scale==="number"?T0.scale:1)*(force?(typeof T0.replayScale==="number"?T0.replayScale:0.4):1);
   if(reduceMotion||k<=0){ introAll(); }
   else{
-    const seq=[]; let c=150*k, lastEnd=0;
-    const at=(el,t,dur)=>{ seq.push([el,t]); lastEnd=Math.max(lastEnd,t+(dur==null?P.lineMs*k:dur)); };
-    const lines=(root)=>{ [...root.querySelectorAll(".tx")].forEach(t=>{ at(t,c); t.style.setProperty("--lm",P.lineMs*k+"ms"); c+=P.gapMs*k; }); };
-    lines($("inT")); { const bar=$("inT").querySelector(".bar"); seq.push([bar,c-P.gapMs*k+P.lineMs*k]); }   // 見出しが現れたあとに、線が伸びる
-    lines($("inL"));
-    let lastStep=0;
-    $("inS").querySelectorAll("li").forEach(li=>{ lastStep=c; at(li.querySelector("i"),c,P.lineMs*k*0.7); const t=li.querySelector(".tx"); t.style.setProperty("--lm",P.lineMs*k+"ms"); at(t,c+P.gapMs*k*0.45); c+=P.gapMs*k; });
+    const seq=[], plan=[], fd=T0.fadeMs*k; let c=T0.startMs*k, lastEnd=0;
+    e.style.setProperty("--fd",fd+"ms"); e.style.setProperty("--cf",(T.charFadeMs*k)+"ms");
+    const mark=t=>{ lastEnd=Math.max(lastEnd,t); };
+    /* かたまり:中の行は、同時に、ふわっと現れる */
+    const fade=(el,at)=>{ seq.push([el,at]); plan.push([el.textContent,Math.round(at)]); mark(at+fd); };
+    fade($("inT").querySelector(".fb"),c); c+=fd;
+    { const bar=$("inT").querySelector(".bar"); seq.push([bar,c]); mark(c+800*k); }   // 見出しが現れたあと、線が中央から伸びる
+    c+=T0.blockGapMs*k; fade($("inL").querySelector(".fb"),c); c+=fd+T0.blockGapMs*k;
+    const li=[...$("inS").querySelectorAll("li")];
+    li.forEach((x,i)=>{ seq.push([x.querySelector("i"),c]); fade(x.querySelector(".fb"),c); c+=fd+(i<li.length-1?T0.stepGapMs:(INTRO.prof?T0.leadInPauseMs:0))*k; });   // 番号の丸と文は、同時に
     if(INTRO.prof){
-      c=lastStep+P.pauseMs*k;
-      lines(pe.querySelector(".pf-h"));
-      pe.querySelectorAll(".pf-r").forEach((r,i)=>{ at(r,c,P.chipMs*k+400*k); c+=(i?P.gapMs*k:P.chipMs*k); });
-      const n=pe.querySelector(".pf-n"); if(n) lines(n);
+      /* 質問への入りの一言:1文字ずつ(読点で、少し止まる。行の間は lineGapMs) */
+      const L=[...pe.querySelector(".pf-h").querySelectorAll(".ln")]; let t=c;
+      L.forEach((ln,i)=>{ plan.push([ln.textContent,Math.round(t)]);
+        [...ln.querySelectorAll(".ch")].forEach(ch=>{ seq.push([ch,t]); t+=1000/T.cps*k; if(/[、,]/.test(ch.textContent)) t+=T.commaMs*k; });
+        mark(t+T.charFadeMs*k); if(i<L.length-1) t+=T.lineGapMs*k; });
+      c=t+T.lineGapMs*k;
+      const rows=[...pe.querySelectorAll(".pf-r")], c0=c; rows.forEach((r,i)=>{ seq.push([r,c0+i*T0.chipMs*k]); mark(c0+i*T0.chipMs*k+fd); });
+      const n=pe.querySelector(".pf-n .fb"); if(n) fade(n,c0+T0.chipMs*0.5*k);   // 補足は、かたまりで。チップと重ねる
     }
-    let btnAt=lastEnd+P.btnMs*k; if(INTRO.prof) btnAt=Math.min(btnAt,6800*k);
+    const btnAt=lastEnd+T0.btnMs*k;
     INTRO.timers.push(setTimeout(()=>{ mb.classList.add("rvon"); mb.classList.remove("rvwait"); INTRO.anim=false; },btnAt));
     INTRO.anim=true;
     seq.forEach(([el,t])=>INTRO.timers.push(setTimeout(()=>el.classList.add("on"),t)));
-    INTRO.btnAt=btnAt;
+    INTRO.btnAt=btnAt; INTRO.plan=plan;
+    if(DEBUG) console.log("[intro] 主ボタンが出るまで "+Math.round(btnAt)+"ms(質問"+(INTRO.prof?"あり":"なし")+")",plan.map(p=>p[1]+"ms "+p[0]).join(" / "));
   }
   introBtn();
   logEv("intro_view",{force:force?1:0, profile:INTRO.prof?1:0});

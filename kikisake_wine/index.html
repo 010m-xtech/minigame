@@ -188,9 +188,9 @@
         質問    ui.lead(質問の上の一言)、ui.leadPeek(「えらばずに、見てみる」のあと)
                 ui.q.heavy  1問目「口あたり」 丸1〜5 = 軽やか〜しっかり(ワインの body 1〜5 と同じ目盛り)
                 ui.q.fruit  2問目「香りと味の印象」 丸1〜5 = すっきり〜フルーティ(fruit 1〜5 と同じ目盛り)
-                ui.q.third  3問目(任意)。ワインの thirdKind で、渋み(tannin)/すっぱさ(acid)/甘さ(sweet)。丸1〜5 = 控えめ〜しっかり
-                            ワインの third は 1〜3 なので、ui.q.map3 で割り当てます(初期:丸1・2→1、丸3→2、丸4・5→3)
-                            同じ丸をもう一度押すと、取り消し。答えなかったときは、比べる対象から外します
+                ui.q.third  3問目(任意)。ワインの thirdKind で、渋み(tannin)/すっぱさ(acid)/甘さ(sweet)。丸は3つ:左から 控えめ・ふつう・しっかり(l・m・r。丸の下に出ます)
+                            丸1〜3 が、そのままワインの third 1〜3 に対応します。選び直すときは、ほかの丸を押します(同じ丸をもう一度押しても、外れません)
+                            何も押さなければ「答えない」として、比べる対象から外します(2軸だけで比べる)。ログの third も 1〜3(答えないときは空)
                 グラスに触れても入力できます(丸と同期します)。案内には出していない、近道です
         ご案内  はじめて ② 感じる に入ったとき(説明カードと ① えらぶ のあと)、3つのステップ(tour.steps)を、操作する場所を光で浮かび上がらせて、短く案内します
                 ① 質問の行 → ② 主ボタン(相性を見る)→ ③ 主ボタン(このワインに合う料理を見る)。実際に操作すると、次へ進みます
@@ -272,7 +272,7 @@ const SHOP_DATA = {
     background:rgba(0,0,0,.55);padding:4px 8px;border-radius:6px;pointer-events:none}
   #debug::after{content:attr(data-ver)}
   #gl{position:fixed;inset:0;width:100%;height:100%;display:block}
-  #app{position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:min(100vw,480px);
+  #app{position:fixed;top:0;bottom:auto;height:var(--app-h,100%);left:50%;transform:translateX(-50%);width:min(100vw,480px);
     pointer-events:none}
   #app *{pointer-events:auto}
   #app .passive, #app .passive *{pointer-events:none}
@@ -937,6 +937,9 @@ const SHOP_DATA = {
   .qt small{font-size:12px;letter-spacing:.04em;color:var(--ink-dim);margin-left:.45em}
   .qe{font-size:13px;letter-spacing:.06em;color:var(--ink-dim);min-width:4.4em;white-space:nowrap} .qe.r{text-align:right}
   .qc{display:flex;justify-content:space-between;padding:0 2px}
+  .qc.q3,.q3l{display:grid;grid-template-columns:repeat(3,1fr);justify-items:center;padding:0 4%}
+  .q3l{margin-top:1px;font-size:12px;line-height:1.3;letter-spacing:.06em;color:var(--ink-dim);white-space:nowrap}
+  @media (max-height:700px){ .q3l{margin-top:0;font-size:11.5px;line-height:1.2} }
   .qd{position:relative;width:48px;height:48px;flex:none;margin:0;padding:0;border-radius:50%;border:1px solid rgba(237,226,203,.46);background:rgba(255,255,255,.025);cursor:pointer;
     transition:border-color .3s,background-color .3s,box-shadow .3s;-webkit-tap-highlight-color:transparent}
   .qd i{position:absolute;left:50%;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:rgba(237,226,203,.28);transition:all .3s}
@@ -5971,9 +5974,8 @@ const CONFIG = {
     q:{
       heavy:{ t:"口あたり",       l:"軽やか",   r:"しっかり" },
       fruit:{ t:"香りと味の印象", l:"すっきり", r:"フルーティ" },
-      third:{ l:"控えめ", r:"しっかり", opt:"任意",
+      third:{ l:"控えめ", m:"ふつう", r:"しっかり", opt:"任意",   // 3問目は、丸3つ(左から、ワインの third 1・2・3)。l・m・r は、丸の下の文言
               tannin:{ t:"渋み", note:"口がきゅっとする感じ" }, acid:{ t:"すっぱさ", note:"" }, sweet:{ t:"甘さ", note:"" } },
-      map3:[1,1,2,3,3],   // 3問目:丸1〜5 → ワインの third(1〜3)。丸1・2→1、丸3→2、丸4・5→3
     },
   },
   // オープニングのあとの説明カード(このコンテンツが何かを、短く伝える)。変え方は、ファイル上部の手順書【画面の操作】
@@ -6550,9 +6552,11 @@ function wineDefaults(){
 /* ---------- レイアウト(CSS px) ---------- */
 let VW=0,VH=0,AW=0,AX=0;
 const RIM=1.3, E=0.17;
+/* 画面の高さ:iPhone の Safari の下のバーの出入りにも追従する(visualViewport があれば、その高さ) */
+function vvH(){ const v=window.visualViewport, h=Math.round(v&&v.height>0?v.height:innerHeight); document.documentElement.style.setProperty("--app-h",h+"px"); return h; }
 function headerBottom(){ return document.querySelector("header").getBoundingClientRect().bottom + 14; }
 function layout(){
-  VW=innerWidth; VH=innerHeight; AW=Math.min(VW,480); AX=(VW-AW)/2;
+  VW=innerWidth; VH=vvH(); AW=Math.min(VW,480); AX=(VW-AW)/2;
   const g=P.glassT;
   if(S.screen===5){ layoutStage(g); if(typeof placeHint==="function") placeHint(); return; }
   if(S.screen===1){
@@ -6709,6 +6713,7 @@ function resize(){
   fitInfo(); renderWineText(); layout(); if(S.opening) fitBrand(); ovSync();
 }
 addEventListener("resize",resize);
+if(window.visualViewport){ let vt=0; visualViewport.addEventListener("resize",()=>{ cancelAnimationFrame(vt); vt=requestAnimationFrame(resize); }); }
 
 /* ============================================================
    ① 選ぶ:スワイプ
@@ -7642,11 +7647,11 @@ function renderSteps(){
 function qHead(k){
   const q=UI.q;
   if(k!=="third") return {t:q[k].t, l:q[k].l, r:q[k].r, note:""};
-  const t3=q.third[thirdKind()]||{t:""}; return {t:t3.t, l:q.third.l, r:q.third.r, note:[t3.note,q.third.opt].filter(Boolean).join("・")};
+  const t3=q.third[thirdKind()]||{t:""}; return {t:t3.t, l:q.third.l, m:q.third.m, r:q.third.r, note:[t3.note,q.third.opt].filter(Boolean).join("・")};
 }
 function buildPanel(){
   $("qrows").innerHTML=["heavy","fruit","third"].map(k=>`<div class="qrow" data-k="${k}"><div class="qh"><span class="qe l"></span><span class="qt"></span><span class="qe r"></span></div>
-    <div class="qc" role="radiogroup">${[0,1,2,3,4].map(i=>`<button class="qd" data-v="${i}" role="radio" aria-checked="false"><i></i></button>`).join("")}</div></div>`).join("");
+    <div class="qc${k==="third"?" q3":""}" role="radiogroup">${(k==="third"?[0,1,2]:[0,1,2,3,4]).map(i=>`<button class="qd" data-v="${i}" role="radio" aria-checked="false"><i></i></button>`).join("")}</div>${k==="third"?'<div class="q3l" aria-hidden="true"><span></span><span></span><span></span></div>':""}</div>`).join("");
 }
 function selIdx(k,live){
   if(k==="third") return S.c3;
@@ -7661,16 +7666,18 @@ function renderPanel(live){
     const k=r.dataset.k, hd=qHead(k), sel=selIdx(k,live);
     const qt=r.querySelector(".qt"), th=esc(hd.t)+(hd.note?`<small>${esc(hd.note)}</small>`:"");
     if(qt.innerHTML!==th) qt.innerHTML=th;
-    r.querySelector(".qe.l").textContent=hd.l; r.querySelector(".qe.r").textContent=hd.r;
+    const t3=k==="third", lb3=[hd.l,hd.m,hd.r];
+    r.querySelector(".qe.l").textContent=t3?"":hd.l; r.querySelector(".qe.r").textContent=t3?"":hd.r;
+    if(t3) r.querySelectorAll(".q3l span").forEach((x,i)=>{ if(x.textContent!==lb3[i]) x.textContent=lb3[i]||""; });
     r.querySelector(".qc").setAttribute("aria-label",hd.t);
     r.querySelectorAll(".qd").forEach((b,i)=>{ const on=i===sel; b.classList.toggle("on",on); b.setAttribute("aria-checked",on);
-      b.setAttribute("aria-label",`${hd.t} ${i+1}(${i<2?hd.l:i>2?hd.r:"まんなか"})`); });
+      b.setAttribute("aria-label",t3?`${hd.t} ${lb3[i]||i+1}`:`${hd.t} ${i+1}(${i<2?hd.l:i>2?hd.r:"まんなか"})`); });
   });
 }
 function pick(k,i){
   if(S.mode!=="feel") return;
   startRound("circle");
-  if(k==="third"){ if(S.c3===i){ S.c3=null; S.answer.third=null; } else { S.c3=i; S.answer.third=(UI.q.map3[i]||2)-1; } }
+  if(k==="third"){ S.c3=i; S.answer.third=Math.max(0,Math.min(2,i)); }   // 丸1〜3 → ワインの third 1〜3。同じ丸を、もう一度押しても外れない
   else{ S.answer[k]=i/4; if(k==="heavy") P.heavyT=i/4; else P.fruitT=i/4; }
   P.wave=Math.min(0.045,P.wave+0.016); P.tiltV+=(i<2?-1:1)*0.35;
   if(GL_OK){ const f=S.answer.fruit??0.5; R3.ripple(R3.fieldX(f,S.answer.heavy??0.5)*0.8,0); }

@@ -776,7 +776,7 @@ const SHOP_DATA = {
   .intro{position:absolute;inset:0;z-index:25;display:flex;align-items:center;justify-content:center;
     padding:calc(var(--safe-t) + 58px) 16px calc(var(--safe-b) + 12px + 58px + 14px);background:rgba(6,4,3,.58);opacity:0;transition:opacity .9s var(--ease-soft,ease)}
   .intro.in{opacity:1} .intro.out{opacity:0;transition:opacity .7s}
-  .icard{box-sizing:border-box;width:min(340px,100%);max-height:100%;overflow:auto;padding:22px 20px 20px;border:1px solid rgba(230,200,138,.6);border-radius:10px;background:rgba(18,13,11,.86);text-align:center;color:var(--ink);box-shadow:0 8px 40px rgba(0,0,0,.45)}
+  .icard{box-sizing:border-box;width:min(340px,100%);max-height:100%;overflow:auto;padding:22px 20px 20px;border:1px solid rgba(230,200,138,.6);border-radius:10px;background:rgba(18,13,11,.94);text-align:center;color:var(--ink);box-shadow:0 8px 40px rgba(0,0,0,.45)}
   .icard h2{margin:0;font:400 20px/1.7 var(--mincho);letter-spacing:.08em;color:#f6e1ae}
   .in-l{margin:14px 0 0;font:16px/1.75 var(--mincho);letter-spacing:.06em;color:var(--ink)}
   .in-s{list-style:none;margin:16px 0 0;padding:0;text-align:left;display:flex;flex-direction:column;gap:10px}
@@ -937,6 +937,9 @@ const SHOP_DATA = {
   #app .stage-line,#app #s5 .mk,#app #s5 .mk *,#app #s5 .lbl,#app #s5 .aura{pointer-events:none}
   .stage-line{display:flex;align-items:flex-end;justify-content:center;min-height:86px}
   #s5 .band,#s5 .third5,#s5 .stage-line,#s5 .field{transition:opacity .5s var(--ease-soft) .1s,visibility 0s}
+  /* 説明カードの間は、後ろの「えらぶ」の文字(ワイン名・産地・前後・ドット・案内文)を消す(背景と3Dは、そのまま)。カードが消えたら、ゆっくり戻る */
+  #s5 .band,#s5 .stage-line{transition:opacity 1s var(--ease-soft) .15s,visibility 0s}
+  .introon #s5 .band,.introon #s5 .stage-line{opacity:0 !important;visibility:hidden !important;transition:opacity .4s ease,visibility 0s .4s}
   #s5.up .band,#s5.up .third5,#s5.up .stage-line,#s5.up .field,#s5.up .lbl,#s5.up .mk{opacity:0 !important;visibility:hidden;transition:opacity .35s,visibility 0s .35s}
   .coach.rise .cdot{animation:coRise 3s var(--ease-soft) infinite}
   .coach.rise .cdot::after{animation:coRing 3s ease-out infinite}
@@ -5753,6 +5756,7 @@ const IMAGES = {
 </script>
 <script>
 "use strict";
+const APP_NAME="ワイン相性診断";   // 開発者向けメッセージ(コンソール)に出す、アプリの名前
 /* ============================================================
    設定値(提案・比較・傾向・起動演出)
    距離は 0–1 に揃えた「軽重・果実味・渋み/酸味」の重みつきユークリッド距離
@@ -5824,7 +5828,7 @@ const CONFIG = {
   // 画面の操作(主ボタン・段階・質問・小さなリンク)の文言。{owner} は店主の呼び名。変え方は、ファイル上部の手順書【画面の操作】
   ui:{
     steps:["えらぶ","感じる","お料理"],
-    main:{ start:"このワインで、はじめる", choose:"感じたものを、えらんでみましょう", judge:"{owner}との相性を見る",
+    main:{ start:"このワインではじめる", choose:"感じたものを、えらんでみましょう", judge:"{owner}との相性を見る",
            dish:"このワインに合う料理を見る", next:"次の一杯を選ぶ", again:"もう一杯、試す" },
     selectLead:"味わってみたいワインを、|えらんでください",
     links:{ info:"このワインについて", peek:"えらばずに、見てみる", redo:"えらび直す", back:"相性に戻る",
@@ -6480,7 +6484,7 @@ function glassBox(g,pitch){
    ============================================================ */
 const canvas=$("gl");
 let R3=null, GL_OK=false;
-console.info("ひとしずく v"+CONFIG.version);
+console.info(APP_NAME+" v"+CONFIG.version);
 try{
   const ph=CONFIG.photos;
   R3=G3D.create({ canvas, lock:QLOCK, reduceMotion, debugEl:DEBUG?$("debug"):null,
@@ -6924,14 +6928,14 @@ function validateData(){
   if(CONFIG.log && CONFIG.log.enabled && !/^https?:\/\//.test(CONFIG.log.url||"")) W.push("CONFIG.log: enabled が true ですが、url が空か、http(s) で始まっていません。ログは無効のままです");
   { const miss=WINES.map(w=>{ const m=INFO_FIELDS.filter(([k])=>!w.info[k]&&(k!=="price"||CONFIG.wineInfo.price)).map(f=>f[1]);
       return m.length?`${w.id}: ${m.join("・")}`:null; }).filter(Boolean);
-    if(miss.length) console.info("[ひとしずく] ワインの情報(info)で、未入力の項目(お店で記入できます。空欄はシートに出ません)\n・"+miss.join("\n・")); }
+    if(miss.length) console.info("["+APP_NAME+"] ワインの情報(info)で、未入力の項目(お店で記入できます。空欄はシートに出ません)\n・"+miss.join("\n・")); }
   { const nn=WINES.filter(w=>!w.ownerNote).map(w=>w.id);
-    if(nn.length) console.info("[ひとしずく] 店主さんの一言(ownerNote)が未入力のワイン(お店で記入できます。空欄は表示されません)\n・"+nn.join("\n・"));
+    if(nn.length) console.info("["+APP_NAME+"] 店主さんの一言(ownerNote)が未入力のワイン(お店で記入できます。空欄は表示されません)\n・"+nn.join("\n・"));
     WINES.forEach(w=>{ if(w.ownerNote.length>80) W.push(`${w.id}: ownerNote が長めです(${w.ownerNote.length} 字)。80 字ほどまでが読みやすいです`); }); }
   { const o=CONFIG.owner||{}; if(typeof o.label!=="string"||!o.label.trim()) W.push("CONFIG.owner.label が空です(「店主」を使います)"); else if(o.label.trim().length>8) W.push(`CONFIG.owner.label が長めです(${o.label.trim().length} 字)。8 字ほどまでが収まりやすいです`);
     const tg=o.tagline||{}; if(tg.show!==false && typeof tg.text==="string" && tg.text.length>34) W.push(`CONFIG.owner.tagline.text が長めです(${tg.text.length} 字)。画面を圧迫しないよう、34 字ほどまでに`); }
-  if(W.length){ console.warn("[ひとしずく] お店のデータに、確認が必要な点があります("+W.length+" 件)\n・"+W.join("\n・")); }
-  else console.info("[ひとしずく] お店のデータ:問題なし("+WINES.length+" 本)");
+  if(W.length){ console.warn("["+APP_NAME+"] お店のデータに、確認が必要な点があります("+W.length+" 件)\n・"+W.join("\n・")); }
+  else console.info("["+APP_NAME+"] お店のデータ:問題なし("+WINES.length+" 本)");
   return W;
 }
 
@@ -7343,7 +7347,7 @@ if(ONE){
 /* =====================================================================
    画面の操作:1画面1アクション。「いま押すもの」は、下の主ボタン1つ
      段階(上)  ① えらぶ ② 感じる ③ お料理。押すと、その段階へ(③ は、相性を見たあと)
-     主ボタン   えらぶ:このワインで、はじめる → 感じる:感じたものを、えらんでみましょう(2問に答えると)店主との相性を見る
+     主ボタン   えらぶ:このワインではじめる → 感じる:感じたものを、えらんでみましょう(2問に答えると)店主との相性を見る
                 → 結果:お料理を見る → お料理:次の一杯を選ぶ(1本のときは、もう一杯、試す)
      質問       2問(必須)+3問目(任意)。5つの丸をタップ。グラスに触れても入力でき、丸と同期する(案内には出さない)
      小さなリンク このワインについて/えらばずに、見てみる/えらび直す/相性に戻る

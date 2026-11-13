@@ -147,7 +147,12 @@
                        確認用:?profile=1、または画面の下の「質問つきで見る」(allowUrlSwitch が true のとき。ログが無効でも、質問を確認できます)
                 title・note  見出しと一言。gender・age の o は [記録される値, 画面の文言]。age.noAnswer:true で「答えない」を足せます(初期:外してある)
                 記録   「はじめる」を押したときに profile イベント(g:m/f/na/""、a:u34/o35/na/"")。以後のイベントすべてに g・a が付きます
-                       取るのは大まかな区分だけ。お名前など、個人が分かる情報は取りません。ブラウザにも保存しません(訪問ごとに聞きます)
+                       取るのは大まかな区分だけ。お名前など、個人が分かる情報は取りません
+                1端末につき1回  質問に答えると、回答(g・a)と質問のバージョン(CONFIG.profile.version)が、その端末のブラウザ(localStorage の hs_prof)に保存されます。
+                       2回目以降の訪問では、質問を出さず、説明カードだけを出します(保存された g・a は、以後のイベントすべてに付きます。profile イベントは、送りません)
+                       保存が使えない環境(プライベートモードなど)や、保存が消えたとき(iPhone の Safari は、一定期間使わないと、消えることがあります)は、もう一度、質問します
+                       もう一度、聞きたいとき:CONFIG.profile.version の数字を変える(全員に、もう一度、質問します)。確認するとき:?profile=1 または「質問つきで見る」(保存があっても、質問を出します)
+                       ログが無効のときは、質問も、保存も、通信も、ありません
         文言の方針  現在進行形(「飲んでいる」「〜しています」など)は使いません。ご注文の前でも、あとでも、使える言い方にし、お誘いの調子にします
         考え方  1画面1アクション。「いま押すもの」は、画面の下の主ボタン1つ。隠れた操作(スワイプなど)に頼らない
                 えらぶ画面  グラスを指で横へなぞると、なぞった分だけ傾き、はなすと戻ります。横へすばやくはじく、または大きくなぞる(画面幅の約3割)と、ワインが切り替わります(グラスの上でも、まわりの空いたところでも、下の帯でも)。「前のワイン/次のワイン」ボタンもそのまま使えます。傾きの大きさは CONFIG.view.touchLean(初期 0.36)
@@ -5856,7 +5861,8 @@ const CONFIG = {
     tempo:{ fadeMs:650, blockGapMs:400, stepGapMs:200, leadInPauseMs:400, type:{ cps:14, commaMs:0, charFadeMs:110, lineGapMs:0 }, chipMs:450, btnMs:350, startMs:100, scale:1, replayScale:0.4 },
   },
   // 利用者の区分(性別・年代)の質問。説明カードの中に出す。大まかな区分だけで、お名前などは、うかがわない。変え方は、手順書【画面の操作】
-  profile:{ show:"auto",   // "auto":ログが有効なときだけ / true:いつも / false:出さない(?profile=1 で確認できる。allowUrlSwitch が true のとき)
+  profile:{ version:1,   // 質問を変えたときは、この数字を変える(保存された回答と、一致しなくなり、全員に、もう一度、聞く)
+    show:"auto",   // "auto":ログが有効なときだけ / true:いつも / false:出さない(?profile=1 で確認できる。allowUrlSwitch が true のとき)
     title:"はじめに、2つだけ、|聞かせてください",   // 1文字ずつ現れる
     note:"ご回答は、お店の参考にだけ使います。|お名前などは、うかがいません",
     gender:{ t:"性別", o:[ ["m","男性"], ["f","女性"], ["na","答えない"] ] },
@@ -5915,7 +5921,12 @@ const DEBUG = QS.get("debug")==="1", QLOCK = ["high","mid","low"].indexOf(QS.get
 /* ---------- 利用ログ(CONFIG.log。無効のときは、何もしない・通信しない・保存もしない) ---------- */
 const LOG_ON = !!(CONFIG.log && CONFIG.log.enabled && /^https?:\/\//.test(CONFIG.log.url||""));
 const LOG = { sid:"", did:"", tbl:"" };
-const PROF = { g:"", a:"" };   // 利用者の区分(「はじめる」を押したときに確定。ブラウザには保存しない)
+const PROF = { g:"", a:"" };   // 利用者の区分(「はじめる」を押したときに確定)
+/* 回答済みの目印:1端末につき1回。ログが有効なときだけ、端末(localStorage)に {g,a,v} を保存する。質問のバージョン(CONFIG.profile.version)が変わると、もう一度聞く */
+let PSTORED=false;
+if(LOG_ON){ try{ const o=JSON.parse(localStorage.getItem("hs_prof")||"null"), pv=(CONFIG.profile&&CONFIG.profile.version)||1;
+  if(o&&o.g&&o.a&&o.v===pv){ PROF.g=String(o.g); PROF.a=String(o.a); PSTORED=true; } }catch(_){} }
+function profSave(){ if(!LOG_ON) return; try{ localStorage.setItem("hs_prof",JSON.stringify({g:PROF.g,a:PROF.a,v:(CONFIG.profile&&CONFIG.profile.version)||1})); }catch(_){} }
 if(LOG_ON){
   const rnd=()=>{ try{ return crypto.randomUUID(); }catch(_){ return Date.now().toString(36)+Math.random().toString(36).slice(2,10); } };
   LOG.sid=rnd();
@@ -7201,12 +7212,14 @@ function logInput(){
 /* グラスに触れる(隠れた近道):丸の選択と同期する。案内には出さない */
 function stageDown(e){
   if(S.up||!(S.mode==="feel"||S.mode==="result")) return;
-  field.setPointerCapture(e.pointerId); S.touching=true; P.touchT=0; P.wave=Math.min(0.045,P.wave+0.02);
+  try{ field.setPointerCapture(e.pointerId); }catch(_){} S.touching=true; P.touchT=0; P.wave=Math.min(0.045,P.wave+0.02);
   startRound("touch"); onTouch(e);
 }
 function stageUp(e){
   S.touching=false; P.touchAT=0.35;
-  const f=fieldPoint(e); S.answer.heavy=f.ny; S.answer.fruit=f.nx; S.yv={f:f.nx,h:f.ny};
+  /* 指を離したら、5つの丸(0・0.25・0.5・0.75・1)の、一番近い位置に吸い付く。値も、丸と同じ(相性度・ログに、そのまま使う) */
+  const f=fieldPoint(e), sn=v=>Math.round(Math.max(0,Math.min(1,v))*4)/4, sh=sn(f.ny), sf=sn(f.nx);
+  S.answer.heavy=sh; S.answer.fruit=sf; P.heavyT=sh; P.fruitT=sf; S.yv={f:f.nx,h:f.ny};   // 光は、指の位置から、丸の位置へ、なめらかに吸い付く
   if(navigator.vibrate) try{navigator.vibrate(12);}catch(_){}
   if(S.judged) saveRound();
   uiSync();
@@ -7463,7 +7476,7 @@ if(ONE){
 const INTRO={ on:false, seen:false, then:"", anim:false, eat:false, timers:[], prof:false, draft:{g:"",a:""} };   // seen は、この訪問の間だけ(ブラウザには保存しない)
 /* 性別・年代の質問を出すか:"auto" はログが有効なときだけ。確認用に ?profile=1 */
 let FORCE_PROF=false; try{ FORCE_PROF=sessionStorage.getItem("hs_prof")==="1"; sessionStorage.removeItem("hs_prof"); }catch(_){}
-function profOn(){ const v=(CONFIG.profile||{}).show; if(URLSW&&(QS.get("profile")==="1"||FORCE_PROF)) return true; return v===true || (v!==false && LOG_ON); }
+function profOn(){ const v=(CONFIG.profile||{}).show; if(URLSW&&(QS.get("profile")==="1"||FORCE_PROF)) return true; return (v===true || (v!==false && LOG_ON)) && !PSTORED; }
 const ITEMPO={ fadeMs:650, blockGapMs:400, stepGapMs:200, leadInPauseMs:400, type:{ cps:14, commaMs:0, charFadeMs:110, lineGapMs:0 }, chipMs:450, btnMs:350, startMs:100, scale:1, replayScale:0.4 };
 /* 文言は、「|」で行を区切った文字列(または、行の配列) */
 const iLines=s=>{ const a=Array.isArray(s)?s:String(s==null?"":s).split("|"); return a.map(x=>String(typeof x==="string"?x:(x&&x.t)||"").trim()).filter(Boolean); };
@@ -7565,7 +7578,7 @@ function introGo(){
   if(introNeed()){ $("inP").querySelectorAll(".pf-r").forEach(r=>{ if(INTRO.draft[r.dataset.k]) return; r.classList.remove("nudge"); void r.offsetWidth; r.classList.add("nudge"); setTimeout(()=>r.classList.remove("nudge"),1100); }); return; }
   INTRO.on=false; INTRO.seen=true; introBtn();
   const e=$("intro"), then=INTRO.then; INTRO.then="";
-  if(INTRO.prof){ PROF.g=INTRO.draft.g||""; PROF.a=INTRO.draft.a||""; logEv("profile",{}); INTRO.prof=false; }
+  if(INTRO.prof){ PROF.g=INTRO.draft.g||""; PROF.a=INTRO.draft.a||""; profSave(); PSTORED=!!(LOG_ON&&PROF.g&&PROF.a); logEv("profile",{}); INTRO.prof=false; }
   logEv("intro_start",{});
   { const mb=$("mainBtn"); mb.classList.remove("rvwait"); setTimeout(()=>mb.classList.remove("rvon"),1400); }
   e.classList.remove("in"); e.classList.add("out");

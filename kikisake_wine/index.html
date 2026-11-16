@@ -17,10 +17,14 @@
        id        英数字の短い識別子。ほかのワインと重ならないこと(例:"asti")
        name      ワインの名前。長いときは、「 」(スペース)や「・」で区切ると、折り返しがきれいです(全角 30 字まで)
        meta      産地・品種などの1行(例:"モスカート · ピエモンテ · ネイラーノ")。選ぶ画面・一覧には出ません。「このワインについて」に出ます
+       表示   選ぶ画面・一覧の、ワイン名の下は、初期では何も出さず、ワイン名だけです(読む情報を減らして、迷わず選べるように)。CONFIG.ui.select で切り替えます
+                showSub:true  で、meta(産地・品種など)を、ワイン名の下に出します。お店によって、補足を出したいときに
+                showType:true で、kind(赤・白・泡)を、ワイン名の下に出します(showSub が true のときは、meta が優先されます)
+                「このワインについて」には、どちらの設定でも、品種などの情報が出ます
        kind      ワインの種類。赤・白・泡など、一語(例:"泡")。選ぶ画面(ワイン名の下)と、一覧に出ます。
                  ※ 上の type(液体の種類)とは別の項目です(type は色・光・計算に使う内部の種類のため、表示用に kind を分けました)
                  省略すると、type から決めます(spark-* は泡、white-* と orange は白、red-* は赤、rose はロゼ、fortified は酒精強化)
-                 表示のオン・オフは CONFIG.ui.select.showType(false にすると、ワイン名だけ)
+                 表示は CONFIG.ui.select.showType(初期は false)
        type      液体の種類(下の一覧から1つ)。色・光・濃さ・泡・揺れがこれで決まります
        thirdKind 3つ目の質問の種類。省略すると、種類ごとの標準になります
                    "tannin" 渋み / "acid" 酸味 / "sweet" 甘み
@@ -173,7 +177,8 @@
                        文言は CONFIG.ui.links(と ui.list.label)、記号は CONFIG.ui.linkIcons(info・list・peek・redo・back・prev・next。使える記号:info ⓘ / list ≡ / peek 目 / redo ↻ / prev ‹ / next ›。"" で記号なし)
                        はじめてその画面に入ったとき、一度だけ、枠に光が走ります(その訪問の間、同じ画面では出ません。「動きを減らす」設定では出ません)。記号は読み上げません
                 ワインの一覧 CONFIG.ui.list  ワインが minWines 本以上(初期 4)のとき、ワイン名の下に、文字つきのボタン(label「ワインを一覧から選ぶ」)が出ます。押すと、下から一覧のシートが上がり、行をタップするとそのワインに切り替わって閉じます(スワイプ・矢印も、そのまま使えます)
-                       title 見出し(「ワインを選ぶ」)/ close 閉じるの文言 / nowMark 表示中のワインの印(「いまのワイン」。金の縁も付きます)/ tastedMark 味わい済みの印(「味わい済み」)/ showTasted:false で、味わい済みの印を出さない
+                       名前は、省略(…)せず、最後まで全部表示します(長いときは、行の高さが伸びます)。開いたときは、いまのワインの行までスクロールしておきます
+                       title 見出し(「ワインを選ぶ」)/ close 閉じるの文言 / nowMark 表示中のワインの印(「いまのワイン」。名前の下に小さく出ます。金の縁も付きます)/ tastedMark 味わい済みの印(「味わい済み」)/ showTasted:false で、味わい済みの印を出さない
                        groupMin 本以上(初期 7)のときは、ワインの種類ごとにグループ分け(見出しは groups の文言:泡・白・ロゼ・オレンジ・赤・甘口・食後のワイン・そのほか。変えると、その見出しになります)。それ未満は、お店のデータの順のまま
                        ワインは、30本まで登録できます。minWines を大きくすると、一覧のボタンを出さなくなります。ログ:一覧を開くと list_open、一覧から選ぶと、その wine_select に list:1 が付きます
                 グラスの見やすさ CONFIG.glass  透明なグラスが暗い背景に溶けないよう、グラスを明るくせず「縁と背後に光を足す」(3D のシェーダーと背景の中だけで描く。ブルームに頼らないので、低い画質でも同じ)
@@ -202,10 +207,11 @@
                             丸1〜3 が、そのままワインの third 1〜3 に対応します。選び直すときは、ほかの丸を押します(同じ丸をもう一度押しても、外れません)
                             何も押さなければ「答えない」として、比べる対象から外します(2軸だけで比べる)。ログの third も 1〜3(答えないときは空)
                 グラスに触れても入力できます(丸と同期します)。案内には出していない、近道です
-        ご案内  はじめて ② 感じる に入ったとき(説明カードと ① えらぶ のあと)、3つのステップ(tour.steps)を、操作する場所を光で浮かび上がらせて、短く案内します
-                ① 質問の行 → ② 主ボタン(相性を見る)→ ③ 主ボタン(このワインに合う料理を見る)。実際に操作すると、次へ進みます
-                右上の「スキップ」で、すぐ終わります。idleMs のあいだ操作がないと、吹き出しが、ゆっくり揺れます
-                最後まで体験するか、スキップすると、そのタブを閉じるまで出しません
+        ご案内  はじめて ② 感じる に入ったとき(説明カードと ① えらぶ のあと)、1つだけ出ます(tour.steps の1つ目。段階の切り替えはありません)
+                質問の行(3問目も含む)を光で浮かび上がらせ、吹き出しで案内します。文の中の「|」は、折り返してよい位置です
+                最初の丸を押す(または、グラスに触れて答える)と、ふわっと消えます。2つ答えても、案内は出ません(先へ急かしません)
+                右上の「スキップ」で、すぐ終わります。「感じる」の画面を離れる(えらび直す・えらばずに見てみる・相性へ進む)ときも、終わります
+                idleMs のあいだ操作がないと、吹き出しが、ゆっくり揺れます。終わったあとは、そのタブを閉じるまで出しません(sessionStorage の hs_tour)
                 show:false で、はじめの自動の案内を出しません
 
    【④の案内文(注文の方法など)】 下の CONFIG.guide(show:true でオン)
@@ -762,17 +768,17 @@ const SHOP_DATA = {
   .l-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 -10px 4px 0}
   .l-head .sh-name{margin:0;font-size:19px}
   .l-grp{font-size:12px;letter-spacing:.16em;color:var(--gold-text);margin:14px 0 4px}
-  .lrow{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;margin:0;padding:8px 10px;border:1px solid transparent;border-bottom-color:rgba(237,226,203,.10);border-radius:3px;background:none;text-align:left;color:var(--ink);font:inherit;cursor:pointer}
+  .lrow{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;margin:0;padding:10px 10px;border:1px solid transparent;border-bottom-color:rgba(237,226,203,.10);border-radius:3px;background:none;text-align:left;color:var(--ink);font:inherit;cursor:pointer}
   .lrow:active{background:rgba(230,200,138,.08)}
   .lrow.now{border-color:var(--gold-line);background:rgba(230,200,138,.07)}
   .lrow:focus{outline:none} .lrow:focus-visible{outline:1px solid var(--gold-line);outline-offset:1px}
   .lrow>i{flex:none;width:22px;height:22px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(255,240,215,.25),0 0 8px rgba(0,0,0,.4)}
   .lt{flex:1;min-width:0}
-  .lt b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:400;font-size:15px;line-height:1.5;letter-spacing:.04em;word-break:keep-all;overflow-wrap:anywhere;line-break:strict}
+  .lt b{display:block;font-weight:400;font-size:16px;line-height:1.5;letter-spacing:.04em;word-break:keep-all;overflow-wrap:anywhere;line-break:strict}
   .lt small{display:block;margin-top:1px;font-size:13px;line-height:1.5;letter-spacing:.04em;color:var(--ink-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .lmk{flex:none;font-style:normal;font-size:11px;line-height:1.5;letter-spacing:.06em;color:var(--gold-text);border:1px solid var(--gold-line);padding:0 7px;border-radius:10px;white-space:nowrap}
   .lmk.t{color:var(--ink-dim);border-color:rgba(237,226,203,.28)}
-  .lmks{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+  .lmks{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}   /* 印は名前の下に、小さく置く(名前が行の幅いっぱいを使えるように) */
   .blist{display:none;justify-content:center;margin-top:0} #s5.m-select .blist{display:flex}
   #app .band .blist,#app .band .blist button{pointer-events:auto}
 
@@ -1002,9 +1008,8 @@ const SHOP_DATA = {
   .tbub{position:absolute;width:min(300px,calc(100% - 32px));padding:12px 16px 13px;border:1px solid rgba(230,200,138,.7);border-radius:10px;text-align:center;
     background:rgba(28,20,15,.94);box-shadow:0 14px 40px -14px rgba(0,0,0,.95);
     transition:left .5s var(--ease-soft),top .5s var(--ease-soft),opacity .45s}
-  .tbub .tn{display:block;font:12px var(--f-mix);letter-spacing:.2em;color:var(--gold-text);margin-bottom:2px}
   .tbub b{display:block;font:400 17px/1.5 var(--mincho);letter-spacing:.06em;color:#fff;word-break:keep-all;overflow-wrap:anywhere}
-  .tbub p{margin:4px 0 0;font-size:14px;line-height:1.6;letter-spacing:.05em;color:var(--ink);word-break:keep-all;overflow-wrap:anywhere}
+  .tbub p{white-space:pre-line;margin:4px 0 0;font-size:14px;line-height:1.6;letter-spacing:.05em;color:var(--ink);word-break:keep-all;overflow-wrap:anywhere}
   .tbub.sway{animation:sway 2.4s ease-in-out infinite}
   @keyframes sway{0%,100%{transform:none}25%{transform:translateY(-5px) rotate(-.6deg)}75%{transform:translateY(3px) rotate(.5deg)}}
   .tskip{position:absolute;top:calc(var(--safe-t) + 4px);right:2px;pointer-events:auto;min-height:48px;padding:0 14px;background:rgba(18,13,11,.6);border:1px solid var(--line);border-radius:4px;
@@ -1208,7 +1213,7 @@ const SHOP_DATA = {
   </section>
   <!-- はじめの1回のご案内 -->
   <div class="tour" id="tour" hidden><div class="tspot" id="tspot"></div>
-    <div class="tbub" id="tbub" role="status" aria-live="polite"><span class="tn" id="tbN"></span><b id="tbT"></b><p id="tbS"></p></div>
+    <div class="tbub" id="tbub" role="status" aria-live="polite"><b id="tbT"></b><p id="tbS"></p></div>
     <button class="tskip" id="tskip"></button></div>
 
   <!-- オープニング -->
@@ -5963,8 +5968,8 @@ const CONFIG = {
        intro_start  説明カードの「はじめる」を押した
        profile      説明カードの質問の回答(「はじめる」を押したとき。質問を出したときだけ)  g・a は共通項目と同じ値
        tour_start   はじめのご案内を始めた                   force は、いまは常に 0
-       tour_skip    ご案内をスキップした                     step:そのときのステップ(1〜3)
-       tour_done    ご案内を、最後まで終えた
+       tour_skip    ご案内の「スキップ」を押した
+       tour_done    最初の丸を押して、ご案内が終わった(「感じる」を離れて終わったときは、記録しません)
      ---- 送信 ----
        失敗しても、画面の動作に影響しません。通信できないときは、そのイベントは捨てます(再送しません)
      ---- 導入時の確認 ----
@@ -5990,7 +5995,7 @@ const CONFIG = {
     main:{ start:"このワインではじめる", choose:"感じたものを、えらんでみましょう", judge:"{owner}との相性を見る",
            dish:"このワインに合う料理を見る", next:"次の一杯を選ぶ", again:"もう一杯、試す" },
     selectLead:"味わってみたいワインを、|えらんでください",
-    select:{ showType:true },   // ワイン名の下に、ワインの種類(wine.kind:赤・白・泡)を出す。false なら、ワイン名だけ(選ぶ画面・一覧とも)
+    select:{ showSub:false, showType:false },   // 選ぶ画面・一覧の、ワイン名の下。showSub:true で補足(wine.meta:産地・品種など)を出す。showType:true で種類(wine.kind:赤・白・泡)を出す。どちらも false なら、ワイン名だけ(初期)
     links:{ info:"このワインについて", peek:"えらばずに、見てみる", redo:"えらび直す", back:"相性に戻る",
             prev:"前のワイン", next:"次のワイン" },
     // 副の操作(上の links と、一覧のボタン)に添える記号。info / list / peek / redo / back / prev / next が使えます。"" で記号なし(文字だけ)
@@ -6030,9 +6035,7 @@ const CONFIG = {
   },
   // はじめの1回のご案内(やりながら覚える)。その訪問で、最後まで体験するか、スキップすると、もう出ません。
   tour:{ show:true, idleMs:5000, skip:"スキップ",
-    steps:[ { t:"感じたものを、えらんでみましょう", s:"近いと思う丸を、押してみてください" },
-            { t:"{owner}との相性を見てみましょう", s:"下の金色のボタンを、押してみてください" },
-            { t:"お料理も、見てみませんか",         s:"このワインに合う一品をご紹介します" } ] },
+    steps:[ { t:"感じたものを、えらんでみましょう", s:"近いと思う丸を、押してみてください。|2つ選ぶと、相性が見られます。|(甘さは、お好みで)" } ] },
   // 相性度(味覚の近さ)。計算の考え方と変え方は、ファイル上部の手順書【店主との味覚の相性診断】
   match:{
     minPercent:60,       // 表示する数字の下限。近さ(0〜100)を、この値〜100 に均等に写す
@@ -6304,12 +6307,12 @@ function fitOne(el,base,min){
   for(let s=base;s>=min;s-=0.5){ el.style.fontSize=s+"px"; if(el.scrollWidth<=el.clientWidth+0.5) return {size:s,wrap:false}; }
   el.style.whiteSpace="normal"; el.style.fontSize=min+"px"; return {size:min,wrap:true};
 }
-const subOf=w=>(((CONFIG.ui||{}).select||{}).showType!==false)?(w.kind||""):"";   // 選ぶ画面・一覧の、ワイン名の下(品種などの meta は、「このワインについて」だけ)
+const subOf=w=>{ const c=(CONFIG.ui||{}).select||{}; return c.showSub===true?(w.meta||""):(c.showType===true?(w.kind||""):""); };   // 選ぶ画面・一覧の、ワイン名の下。初期は何も出さない(品種などの meta は「このワインについて」に出る)
 function fitInfo(){
   const m=$("measure"), mn=m.children[0], mm=m.children[1];
   let hN=0,hM=0; S.fit=WINES.map(w=>{
     mn.textContent=w.name; mm.textContent=subOf(w);
-    const n=fitOne(mn,23,17), mt=fitOne(mm,16,14);
+    const n=fitOne(mn,25,18), mt=fitOne(mm,16,14);
     hN=Math.max(hN,mn.offsetHeight); hM=Math.max(hM,mm.offsetHeight);
     return {n,mt};
   });
@@ -7340,8 +7343,8 @@ function openList(){
   const LC=UI.list||{}, G=LC.groups||{}, tasted=new Set(S.history.filter(Boolean).map(h=>h.id));
   const row=i=>{ const w=WINES[i], now=i===S.idx, td=LC.showTasted!==false&&tasted.has(w.id);
     return `<button type="button" class="lrow${now?" now":""}" data-i="${i}"${now?' aria-current="true"':""}><i style="background:${swatch(w.color)}"></i>`+
-      `<span class="lt"><b>${esc(w.name)}</b>${subOf(w)?`<small>${esc(subOf(w))}</small>`:""}</span>`+
-      ((now||td)?`<span class="lmks">${now?`<em class="lmk">${esc(LC.nowMark)}</em>`:""}${td?`<em class="lmk t">${esc(LC.tastedMark)}</em>`:""}</span>`:"")+`</button>`; };
+      `<span class="lt"><b>${esc(w.name)}</b>${subOf(w)?`<small>${esc(subOf(w))}</small>`:""}`+
+      ((now||td)?`<span class="lmks">${now?`<em class="lmk">${esc(LC.nowMark)}</em>`:""}${td?`<em class="lmk t">${esc(LC.tastedMark)}</em>`:""}</span>`:"")+`</span></button>`; };
   let html;
   if(WINES.length>=(LC.groupMin||7)){
     const order=Object.keys(G), by={}; WINES.forEach((w,i)=>{ const g=LIST_GROUP[w.type]||"other"; (by[g]=by[g]||[]).push(i); });
@@ -7507,7 +7510,7 @@ function stageUp(e){
   S.touching=false; P.touchAT=0.35;
   /* 指を離したら、5つの丸(0・0.25・0.5・0.75・1)の、一番近い位置に吸い付く。値も、丸と同じ(相性度・ログに、そのまま使う) */
   const f=fieldPoint(e), sn=v=>Math.round(Math.max(0,Math.min(1,v))*4)/4, sh=sn(f.ny), sf=sn(f.nx);
-  S.answer.heavy=sh; S.answer.fruit=sf; P.heavyT=sh; P.fruitT=sf; S.yv={f:f.nx,h:f.ny};   // 光は、指の位置から、丸の位置へ、なめらかに吸い付く
+  tourEnd("done"); S.answer.heavy=sh; S.answer.fruit=sf; P.heavyT=sh; P.fruitT=sf; S.yv={f:f.nx,h:f.ny};   // 光は、指の位置から、丸の位置へ、なめらかに吸い付く
   if(navigator.vibrate) try{navigator.vibrate(12);}catch(_){}
   if(S.judged) saveRound();
   uiSync();
@@ -7725,6 +7728,7 @@ function renderPanel(live){
 }
 function pick(k,i){
   if(S.mode!=="feel") return;
+  tourEnd("done");   // 最初の丸を押したら、ご案内は静かに終わる(以後、出さない)
   startRound("circle");
   if(k==="third"){ S.c3=i; S.answer.third=Math.max(0,Math.min(2,i)); }   // 丸1〜3 → ワインの third 1〜3。同じ丸を、もう一度押しても外れない
   else{ S.answer[k]=i/4; if(k==="heavy") P.heavyT=i/4; else P.fruitT=i/4; }
@@ -7894,40 +7898,36 @@ function introGo(){
   e.classList.remove("in"); e.classList.add("out");
   setTimeout(()=>{ if(!INTRO.on){ e.hidden=true; e.classList.remove("out"); } },reduceMotion?0:720);
   document.documentElement.classList.remove("introon");
-  if(then==="tour"){ if(S.mode==="select"||S.mode==="dish") setMode(S.judged?"result":"feel"); else uiSync(); setTimeout(()=>tourStart(true),300); }
+  if(then==="tour"){ if(S.mode!=="feel") setMode("feel"); else uiSync(); setTimeout(()=>tourStart(true),300); }
   else uiSync();
 }
 
 /* ---------- はじめの1回のご案内 ---------- */
-const TOUR={ on:false, step:0, seen:false };
+const TOUR={ on:false, seen:false };
 try{ TOUR.seen=sessionStorage.getItem("hs_tour")==="1"; }catch(_){}
 function tourSeen(){ TOUR.seen=true; try{ sessionStorage.setItem("hs_tour","1"); }catch(_){} }
 function tourStart(force){
   if(!ONE||S.opening||(!force&&(TOUR.seen||CONFIG.tour.show===false))||TOUR.on) return;
-  if(INTRO.on||S.mode==="select"||S.mode==="dish") return;
-  TOUR.on=true; TOUR.step=0; $("tour").hidden=false; $("tskip").textContent=CONFIG.tour.skip;
+  if(INTRO.on||S.mode!=="feel") return;
+  const s0=CONFIG.tour.steps[0]||{t:"",s:""};
+  $("tbT").textContent=s0.t; $("tbS").textContent=(s0.s||"").replace(/\|/g,"\n"); $("tbS").hidden=!s0.s;
+  TOUR.on=true; $("tour").hidden=false; $("tour").style.visibility=""; $("tskip").textContent=CONFIG.tour.skip;
   logEv("tour_start",{force:force?1:0}); poke(); tourSync();
 }
+/* how: "done"=最初の丸を押した / "skip"=スキップを押した / "leave"=「感じる」の画面を離れた(記録しない) */
 function tourEnd(how){
   if(!TOUR.on) return; TOUR.on=false; tourSeen();
-  logEv(how==="done"?"tour_done":"tour_skip",how==="done"?{}:{step:TOUR.step});
+  if(how==="done") logEv("tour_done",{}); else if(how==="skip") logEv("tour_skip",{});
   const t=$("tour"); t.style.opacity=0; setTimeout(()=>{ if(!TOUR.on){ t.hidden=true; t.style.opacity=""; } },450);
 }
-function tourSync(){
+function tourSync(){   // 段階の切り替えはしない。「感じる」にいる間だけ、位置を合わせる
   if(!TOUR.on) return;
-  const m=S.mode, n = m==="feel" ? (answered()?2:1) : m==="result" ? 3 : m==="dish" ? 4 : 0;
-  if(n===4){ tourEnd("done"); return; }
-  if(n===0){ $("tour").style.visibility="hidden"; return; }
-  $("tour").style.visibility="";
-  if(n!==TOUR.step){ TOUR.step=n; const s=CONFIG.tour.steps[n-1]||{t:"",s:""};
-    $("tbN").textContent=`${n} / 3`; $("tbT").textContent=s.t; $("tbS").textContent=s.s; $("tbS").hidden=!s.s; }
+  if(S.mode!=="feel"){ tourEnd("leave"); return; }
   requestAnimationFrame(tourPlace);
 }
 function tourPlace(){
-  if(!TOUR.on||!TOUR.step) return;
-  const app=$("app").getBoundingClientRect(), pad=TOUR.step===1?6:5;
-  let r=(TOUR.step===1?$("qrows"):$("mainBtn")).getBoundingClientRect();
-  if(TOUR.step===3){ const a=$("stLine").getBoundingClientRect(); r={left:Math.min(a.left,r.left),right:Math.max(a.right,r.right),top:a.top,bottom:r.bottom,width:0,height:0}; r.width=r.right-r.left; r.height=r.bottom-r.top; }
+  if(!TOUR.on) return;
+  const app=$("app").getBoundingClientRect(), pad=6, r=$("qrows").getBoundingClientRect();
   const sp=$("tspot"), bb=$("tbub");
   sp.style.left=(r.left-app.left-pad)+"px"; sp.style.top=(r.top-pad)+"px"; sp.style.width=(r.width+pad*2)+"px"; sp.style.height=(r.height+pad*2)+"px";
   const bw=bb.offsetWidth, bh=bb.offsetHeight, x=Math.max(12,Math.min(app.width-bw-12,(r.left-app.left)+r.width/2-bw/2));

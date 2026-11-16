@@ -16,7 +16,11 @@
    ・1本分の書き方(すべて必須。look と dish.photo/art だけは省略できます):
        id        英数字の短い識別子。ほかのワインと重ならないこと(例:"asti")
        name      ワインの名前。長いときは、「 」(スペース)や「・」で区切ると、折り返しがきれいです(全角 30 字まで)
-       meta      名前の下の1行。産地・品種など(例:"モスカート · ピエモンテ · ネイラーノ")
+       meta      産地・品種などの1行(例:"モスカート · ピエモンテ · ネイラーノ")。選ぶ画面・一覧には出ません。「このワインについて」に出ます
+       kind      ワインの種類。赤・白・泡など、一語(例:"泡")。選ぶ画面(ワイン名の下)と、一覧に出ます。
+                 ※ 上の type(液体の種類)とは別の項目です(type は色・光・計算に使う内部の種類のため、表示用に kind を分けました)
+                 省略すると、type から決めます(spark-* は泡、white-* と orange は白、red-* は赤、rose はロゼ、fortified は酒精強化)
+                 表示のオン・オフは CONFIG.ui.select.showType(false にすると、ワイン名だけ)
        type      液体の種類(下の一覧から1つ)。色・光・濃さ・泡・揺れがこれで決まります
        thirdKind 3つ目の質問の種類。省略すると、種類ごとの標準になります
                    "tannin" 渋み / "acid" 酸味 / "sweet" 甘み
@@ -211,35 +215,35 @@ const SHOP_DATA = {
   photos:{ opening:"exterior", openingBlur:"exteriorBlur", bg:"interiorBlur", bg4:"wallBlur" },
   wines:[
     /* アスティDOCG(モスカート・ビアンコ100%、甘口スパークリング)。商品ごとの資料は見つからず、アスティDOCGの標準的な特徴から設定した例 */
-    { id:"asti", name:"テヌーテ ネイラーノ アスティ", meta:"モスカート · ピエモンテ · ネイラーノ",
+    { id:"asti", name:"テヌーテ ネイラーノ アスティ", meta:"モスカート · ピエモンテ · ネイラーノ", kind:"泡",
       type:"spark-white", thirdKind:"sweet", body:1, fruit:5, third:3,
       desc:"白い花や桃を思わせる、華やかな香りの甘口スパークリング。アルコールは低めで、軽やかに楽しめます。",
       ownerNote:"",     // 店主さんからの一言(任意。空欄なら出ません)
       dish:{ name:"ズッキーニの花のフリット", why:"華やかな香りと細かな泡が、揚げたての衣の塩気を、すっきりと洗い流します。", photo:"dishFiori" },
       info:{ variety:"モスカート", region:"ピエモンテ", producer:"ネイラーノ", vintage:"", abv:"", serve:"", notes:"", price:"" } },
     /* Cantina di Custoza Pinot Grigio delle Venezie — 辛口の白、すっきりした酸と、洋梨・柑橘の香り(商品ごとの資料は確認できず、ピノ・グリージョ デッレ・ヴェネツィエの標準的な特徴から設定した例) */
-    { id:"pinotgrigio", name:"カンティーナ ディ クストーツァ デッレ ヴェネツィエ ピノ グリージョ", meta:"ピノ・グリージョ · ヴェネト · クストーツァ",
+    { id:"pinotgrigio", name:"カンティーナ ディ クストーツァ デッレ ヴェネツィエ ピノ グリージョ", meta:"ピノ・グリージョ · ヴェネト · クストーツァ", kind:"白",
       type:"white-light", body:2, fruit:3, third:2,
       desc:"洋梨や柑橘を思わせる、さわやかな香りの辛口の白。すっきりとした酸で、軽やかに飲めます。",
       ownerNote:"",     // 店主さんからの一言(任意。空欄なら出ません)
       dish:{ name:"ブリのカルパッチョ", why:"すっきりとした酸と果実味が、ブリの脂とハーブオイルを、軽やかにまとめます。", photo:"dishBuri", art:"salmon" },
       info:{ variety:"ピノ・グリージョ", region:"ヴェネト", producer:"カンティーナ ディ クストーツァ", vintage:"", abv:"", serve:"", notes:"", price:"" } },
     /* Sarotto Excelsius — ピエモンテ・シャルドネDOC、辛口、13.5%、ステンレスタンクとバリックで熟成 */
-    { id:"excelsius", name:"エクセルシウス ピエモンテ シャルドネ", meta:"シャルドネ · ピエモンテ · サロット",
+    { id:"excelsius", name:"エクセルシウス ピエモンテ シャルドネ", meta:"シャルドネ · ピエモンテ · サロット", kind:"白",   /* white-full・ピエモンテ・シャルドネDOC(辛口)のデータから「白」 */
       type:"white-full", body:3, fruit:3, third:2,
       desc:"ステンレスタンクとバリックで熟成させた、辛口のシャルドネ。バランスがよく、魚料理や繊細なチーズに寄り添います。",
       ownerNote:"",     // 店主さんからの一言(任意。空欄なら出ません)
       dish:{ name:"トキシラズのムニエル バターソース", why:"樽由来のまろやかさが、バターソースのコクとよく合います。", photo:"dishC", art:"salmon" },
       info:{ variety:"シャルドネ", region:"ピエモンテ", producer:"サロット", vintage:"", abv:"", serve:"", notes:"", price:"" } },
     /* Terre del Barolo Nebbiolo d'Alba — ネッビオーロ100%。明るいガーネット色、バラやチェリーの香り、しっかりした渋みと酸(標準的な特徴から設定した例) */
-    { id:"nebbiolo", name:"テッレ デル バローロ ネッビオーロ ダルバ", meta:"ネッビオーロ · ピエモンテ · テッレ デル バローロ",
+    { id:"nebbiolo", name:"テッレ デル バローロ ネッビオーロ ダルバ", meta:"ネッビオーロ · ピエモンテ · テッレ デル バローロ", kind:"赤",
       type:"red-light", body:3, fruit:3, third:3,
       desc:"バラやチェリーを思わせる、華やかな香りの赤。色は明るく、しっかりとした渋みと、きれいな酸があります。",
       ownerNote:"",     // 店主さんからの一言(任意。空欄なら出ません)
       dish:{ name:"赤海老とマグロのカルパッチョ", why:"華やかな香りと、ほどよい渋みが、マグロの赤身と海老の甘みを引き立てます。", photo:"dishGambero", art:"salmon" },
       info:{ variety:"ネッビオーロ", region:"ピエモンテ", producer:"テッレ デル バローロ", vintage:"", abv:"", serve:"", notes:"", price:"" } },
     /* Farnese Casale Vecchio — モンテプルチアーノ・ダブルッツォ、樽熟成、フルボディ、タンニンはやわらか */
-    { id:"montepulciano", name:"モンテプルチアーノ ダブルッツォ カサーレ ヴェッキオ", meta:"モンテプルチアーノ · アブルッツォ · ファルネーゼ",
+    { id:"montepulciano", name:"モンテプルチアーノ ダブルッツォ カサーレ ヴェッキオ", meta:"モンテプルチアーノ · アブルッツォ · ファルネーゼ", kind:"赤",
       type:"red-full", body:4, fruit:4, third:2,
       desc:"熟した赤い果実とスパイスの香りに、やわらかな渋み。濃さがありながら、口当たりはなめらかです。",
       ownerNote:"",     // 店主さんからの一言(任意。空欄なら出ません)
@@ -294,7 +298,8 @@ const SHOP_DATA = {
   .wname{font-family:var(--mincho);font-size:23px;line-height:1.4;letter-spacing:.03em;margin:0;
     display:flex;align-items:center;justify-content:center;overflow:hidden;
     text-shadow:0 2px 18px rgba(0,0,0,.6);transition:opacity .25s, transform .25s}
-  .wmeta{margin:10px 0 0;font-size:15px;line-height:1.5;color:var(--ink-dim);letter-spacing:.03em;
+  .wmeta.none{display:none}
+  .wmeta{margin:10px 0 0;font-size:16px;line-height:1.5;color:var(--ink-dim);letter-spacing:.03em;
     display:flex;align-items:center;justify-content:center;overflow:hidden;transition:opacity .25s, transform .25s}
   .measure{visibility:hidden;bottom:auto;top:-2000px}
   .measure .wname,.measure .wmeta{display:block;height:auto}
@@ -764,7 +769,7 @@ const SHOP_DATA = {
   .lrow>i{flex:none;width:22px;height:22px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(255,240,215,.25),0 0 8px rgba(0,0,0,.4)}
   .lt{flex:1;min-width:0}
   .lt b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:400;font-size:15px;line-height:1.5;letter-spacing:.04em;word-break:keep-all;overflow-wrap:anywhere;line-break:strict}
-  .lt small{display:block;margin-top:1px;font-size:12px;line-height:1.5;letter-spacing:.04em;color:var(--ink-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lt small{display:block;margin-top:1px;font-size:13px;line-height:1.5;letter-spacing:.04em;color:var(--ink-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .lmk{flex:none;font-style:normal;font-size:11px;line-height:1.5;letter-spacing:.06em;color:var(--gold-text);border:1px solid var(--gold-line);padding:0 7px;border-radius:10px;white-space:nowrap}
   .lmk.t{color:var(--ink-dim);border-color:rgba(237,226,203,.28)}
   .lmks{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
@@ -5985,6 +5990,7 @@ const CONFIG = {
     main:{ start:"このワインではじめる", choose:"感じたものを、えらんでみましょう", judge:"{owner}との相性を見る",
            dish:"このワインに合う料理を見る", next:"次の一杯を選ぶ", again:"もう一杯、試す" },
     selectLead:"味わってみたいワインを、|えらんでください",
+    select:{ showType:true },   // ワイン名の下に、ワインの種類(wine.kind:赤・白・泡)を出す。false なら、ワイン名だけ(選ぶ画面・一覧とも)
     links:{ info:"このワインについて", peek:"えらばずに、見てみる", redo:"えらび直す", back:"相性に戻る",
             prev:"前のワイン", next:"次のワイン" },
     // 副の操作(上の links と、一覧のボタン)に添える記号。info / list / peek / redo / back / prev / next が使えます。"" で記号なし(文字だけ)
@@ -6118,6 +6124,7 @@ const IMG = k => (typeof IMAGES!=="undefined" && k && IMAGES[k]) || null;
    color: 液体の色(リニア RGB)  light: 産地の光の色  dens: 濃さ  bubbles: 泡(0/1)  damp: 揺れの収まりやすさ
    thirdKind: その種類の標準の3つ目の質問(渋み tannin / 酸味 acid / 甘み sweet)
    ============================================================ */
+const KIND_OF={ "spark-white":"泡","spark-rose":"泡","white-light":"白","white-full":"白","white-sweet":"白","orange":"白","red-light":"赤","red-full":"赤","rose":"ロゼ","fortified":"酒精強化" };
 const PRESETS = {
   "red-light":   { label:"赤(軽め)",     color:[0.50,0.040,0.100], light:[1.00,0.58,0.40], dens:1.35, bubbles:0, damp:2.6, thirdKind:"tannin" },
   "red-full":    { label:"赤(濃いめ)",   color:[0.32,0.012,0.065], light:[0.98,0.50,0.34], dens:2.10, bubbles:0, damp:3.0, thirdKind:"tannin" },
@@ -6151,7 +6158,7 @@ function buildWines(list){
   if(!L.length) L=[{id:"wine1",name:"(ワイン未設定)",type:"red-full"}];
   return L.map((w,i)=>{
     const p=PRESETS[w.type]||PRESETS["red-full"], k=w.look||{}, d=w.dish||{};
-    return { id:String(w.id||("wine"+(i+1))), name:String(w.name||""), meta:String(w.meta||""), type:w.type,
+    return { id:String(w.id||("wine"+(i+1))), name:String(w.name||""), meta:String(w.meta||""), kind:String(w.kind||KIND_OF[w.type]||"").trim(), type:w.type,
       thirdKind: THIRD_KINDS.includes(w.thirdKind) ? w.thirdKind : p.thirdKind,
       body:num(w.body,1,5,3), fruit:num(w.fruit,1,5,3), third:num(w.third,1,3,2), desc:String(w.desc||""), ownerNote:typeof w.ownerNote==="string"?w.ownerNote.trim():"",
       dish:{ name:String(d.name||""), why:String(d.why||""), photo:d.photo||null, art:d.art||null },
@@ -6297,11 +6304,12 @@ function fitOne(el,base,min){
   for(let s=base;s>=min;s-=0.5){ el.style.fontSize=s+"px"; if(el.scrollWidth<=el.clientWidth+0.5) return {size:s,wrap:false}; }
   el.style.whiteSpace="normal"; el.style.fontSize=min+"px"; return {size:min,wrap:true};
 }
+const subOf=w=>(((CONFIG.ui||{}).select||{}).showType!==false)?(w.kind||""):"";   // 選ぶ画面・一覧の、ワイン名の下(品種などの meta は、「このワインについて」だけ)
 function fitInfo(){
   const m=$("measure"), mn=m.children[0], mm=m.children[1];
   let hN=0,hM=0; S.fit=WINES.map(w=>{
-    mn.textContent=w.name; mm.textContent=w.meta;
-    const n=fitOne(mn,23,17), mt=fitOne(mm,15,14);
+    mn.textContent=w.name; mm.textContent=subOf(w);
+    const n=fitOne(mn,23,17), mt=fitOne(mm,16,14);
     hN=Math.max(hN,mn.offsetHeight); hM=Math.max(hM,mm.offsetHeight);
     return {n,mt};
   });
@@ -6310,7 +6318,7 @@ function fitInfo(){
 function renderWineText(){
   const w=WINES[S.idx], f=S.fit[S.idx];
   const n=$("wname"), m=$("wmeta");
-  n.textContent=w.name; m.textContent=w.meta;
+  n.textContent=w.name; m.textContent=subOf(w); m.classList.toggle("none",!subOf(w));
   if(f){ n.style.fontSize=f.n.size+"px"; n.style.whiteSpace=f.n.wrap?"normal":"nowrap";
          m.style.fontSize=f.mt.size+"px"; m.style.whiteSpace=f.mt.wrap?"normal":"nowrap"; }
   [...$("dots").children].forEach((d,i)=>d.classList.toggle("on",i===S.idx));
@@ -7332,7 +7340,7 @@ function openList(){
   const LC=UI.list||{}, G=LC.groups||{}, tasted=new Set(S.history.filter(Boolean).map(h=>h.id));
   const row=i=>{ const w=WINES[i], now=i===S.idx, td=LC.showTasted!==false&&tasted.has(w.id);
     return `<button type="button" class="lrow${now?" now":""}" data-i="${i}"${now?' aria-current="true"':""}><i style="background:${swatch(w.color)}"></i>`+
-      `<span class="lt"><b>${esc(w.name)}</b>${w.meta?`<small>${esc(w.meta)}</small>`:""}</span>`+
+      `<span class="lt"><b>${esc(w.name)}</b>${subOf(w)?`<small>${esc(subOf(w))}</small>`:""}</span>`+
       ((now||td)?`<span class="lmks">${now?`<em class="lmk">${esc(LC.nowMark)}</em>`:""}${td?`<em class="lmk t">${esc(LC.tastedMark)}</em>`:""}</span>`:"")+`</button>`; };
   let html;
   if(WINES.length>=(LC.groupMin||7)){

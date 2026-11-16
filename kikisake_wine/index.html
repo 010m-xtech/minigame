@@ -133,6 +133,12 @@
                 lead    一言の説明(| で改行)。steps  3つの手順(番号は自動)。start  主ボタンの文言(初期:はじめる)
                 show:false で出しません(オープニングのあと、すぐ ① えらぶ へ)。
                 {owner} は店主の呼び名。ui.selectLead は、① えらぶ のときに舞台に出る一文
+        案内テロップ CONFIG.telop  ① えらぶ の一文(ui.selectLead)の強調。文言は ui.selectLead のまま
+                常時    size(文字の倍率。初期 1.15)/ color(文字色)/ band(薄い暗色の帯の濃さ)/ line(帯の上下の金線の濃さ)。動きがなくても、背景の写真に埋もれません
+                動き    pulse:true で、明るさとにじみが、ゆっくり強弱(pulseMs=1周期。初期 2400ms / minOpacity=最も暗いときの明るさ。初期 0.86)。点滅(オン・オフ)はしません
+                        shine:true で、細い光の帯が、文字の上を左から右へ通ります(shineMs=1周期。初期 5600ms / shineDelayMs=最初に通るまで)。脈動と周期をずらしてあります
+                        ワインを選ぶ(主ボタンで進む・一覧から選ぶ)と止まり、えらぶ画面に戻ると再開します。prefers-reduced-motion の端末では動きません
+                        アニメーションは opacity・text-shadow・background-position のみ(小さな要素だけ)。1秒に3回以上の強い明滅は使いません
                 文言    「|」で行を区切ります。各行は、1行に収まる長さにしてください(収まらない行は、字間を詰め、最小15pxまで文字を縮めます。それでも収まらない行は、文言を短くしてください)
                 動き    現れ方は2種類です。質問に入るまでの文言(見出し・説明・手順)は、1文字ずつではなく、かたまりごとに、ふわっと現れます(ゆっくりしたフェードイン+ごく小さな上昇+ほんの少しのぼかし)。
                         かたまりの単位:見出し(2行で1かたまり)/ 一言の説明(2行で1かたまり。「。」では分けません)/ 手順(①②③ が1つずつ。番号の丸と文は同時)。中の複数の行は、同時に現れます。
@@ -921,6 +927,24 @@ const SHOP_DATA = {
   .icard.compact .pchip{min-height:48px}
   .introon .mainbtn{z-index:26} .introon .links,.introon .steps,.introon .how{visibility:hidden}
   #s5.m-select .stage-line.sel{visibility:visible;opacity:1;min-height:0;align-items:center;justify-content:center;font-size:16px;line-height:1.6;letter-spacing:.07em;color:var(--ink);word-break:keep-all;overflow-wrap:anywhere;text-wrap:balance}
+  /* えらぶの案内テロップ:常時の強調(.tp)+脈動(.tp-pulse)+光の帯(.tp-shine)。止めるときは .tp-calm */
+  #s5.m-select .stage-line.sel.tp{position:absolute;font-size:calc(16px*var(--tp-size,1.15));color:var(--tp-color,#f7e8c4);font-weight:500;letter-spacing:.08em;
+    text-shadow:0 1px 2px rgba(0,0,0,.7),0 0 10px rgba(0,0,0,.45),0 0 14px var(--tp-glow-s,rgba(236,200,126,.25))}
+  .stage-line.tp::before{content:"";position:absolute;left:-10px;right:-10px;top:1px;bottom:1px;z-index:-1;pointer-events:none;border-radius:2px;
+    background:linear-gradient(90deg,transparent,rgba(12,7,6,var(--tp-band,.4)) 14%,rgba(12,7,6,var(--tp-band,.4)) 86%,transparent);
+    border-top:1px solid rgba(214,176,106,var(--tp-line,.45));border-bottom:1px solid rgba(214,176,106,var(--tp-line,.45));
+    -webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+  .stage-line.tp::after{content:"";position:absolute;left:-10px;right:-10px;top:1px;bottom:1px;pointer-events:none;opacity:0;
+    background:linear-gradient(100deg,transparent 42%,rgba(255,238,196,.26) 50%,transparent 58%);background-size:300% 100%;background-position:100% 0;background-repeat:no-repeat;
+    -webkit-mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent)}
+  .stage-line.tp{isolation:isolate}
+  .stage-line.tp-pulse:not(.tp-calm){animation:tpPulse var(--tp-pulse,2400ms) ease-in-out infinite}
+  .stage-line.tp-shine:not(.tp-calm)::after{animation:tpShine var(--tp-shine,5600ms) linear var(--tp-sd,1800ms) infinite}
+  @keyframes tpPulse{0%,100%{opacity:var(--tp-min,.86);text-shadow:0 1px 2px rgba(0,0,0,.7),0 0 10px rgba(0,0,0,.45),0 0 8px var(--tp-glow-s,rgba(236,200,126,.15))}
+    50%{opacity:1;text-shadow:0 1px 2px rgba(0,0,0,.7),0 0 10px rgba(0,0,0,.45),0 0 22px var(--tp-glow,rgba(236,200,126,.6))}}
+  @keyframes tpShine{0%{opacity:1;background-position:100% 0}34%{opacity:1;background-position:0 0}34.1%,100%{opacity:0;background-position:0 0}}
+  .rm .stage-line.tp,.rm .stage-line.tp::after{animation:none!important}
+  @media (prefers-reduced-motion:reduce){ .stage-line.tp,.stage-line.tp::after{animation:none!important} }
   .one #tonight{display:none!important}   /* お料理の画面には、相性度・今夜のあなたを出さない */
   .one.logon .mainbtn{bottom:calc(var(--safe-b) + 8px + var(--logh,16px))} .one.logon .links{bottom:calc(var(--safe-b) + 8px + var(--logh,16px) + 58px)}
   .one.logon .intro{padding-bottom:calc(var(--safe-b) + 8px + var(--logh,16px) + 58px + 14px)}
@@ -6033,6 +6057,11 @@ const CONFIG = {
   // グラスの見やすさ(3D のシェーダーと、背景の中だけで描く。ブルームには頼らない):rim 輪郭の細い光 / halo 後ろの淡い光だまり / spec 縦の反射の光 / dim グラスの周りの背景を沈める量(0〜0.6)
   //   scale は画面ごとの倍率(下のシートが上がってグラスが小さくなる、お料理の画面は控えめ)。?debug=1 で、スライダーと、決まった値の表示が出ます
   glass:{ rim:1, halo:1, spec:1, dim:0.26, scale:{ opening:0.8, select:1, feel:1, result:0.9, dish:0.6 } },
+  // えらぶ画面の案内テロップ(ui.selectLead)の強調。常時:大きさ・色・帯(動きなし)。動き:やわらかな脈動+ときどき通る光の帯
+  //   size 文字の倍率(1=従来の16px) / color 文字色 / glow まわりのにじみの色 / band 薄い暗色の帯の濃さ(0〜1) / line 帯の上下の細い金線の濃さ(0〜1)
+  //   pulse:true で脈動(pulseMs=1周期 / minOpacity=いちばん暗いときの明るさ。0.8未満にしない) / shine:true で光の帯(shineMs=1周期 / shineDelayMs=最初に通るまで。通り抜ける時間は1周期の約3分の1)
+  //   ワインを選ぶ(主ボタンで進む・一覧から選ぶ)と動きは止まり、えらぶ画面に戻ると再開。prefers-reduced-motion では動きません
+  telop:{ size:1.15, color:"#f7e8c4", glow:"rgba(236,200,126,.6)", band:0.4, line:0.45, pulse:true, pulseMs:2400, minOpacity:0.86, shine:true, shineMs:5600, shineDelayMs:1800 },
   overlay:{ base:0.14, zone:{ select:0.42, feel:0.48, result:0.48, dish:0.44 }, shadow:0.6, auto:true },
   // 足元の表現(接地影・光だまり・映り込み・溶け方)。?debug=1 の「足元」スライダーで試して、決まった値をここに書く
   foot:{ shadow:1.00, glow:1.60, spread:1.00, reflect:0.60, melt:1.00, ground:0.35 },
@@ -7318,7 +7347,7 @@ function openList(){
   setTimeout(()=>{ const c=$("shBody").querySelector(".lrow.now")||$("lClose"); try{ c.focus({preventScroll:true}); c.scrollIntoView({block:"center"}); }catch(_){} },60);
   $("lClose").onclick=closeSheet;
   $("shBody").querySelectorAll(".lrow").forEach(b=>b.onclick=()=>{ const i=+b.dataset.i; closeSheet();
-    if(i!==S.idx){ stageChoose(i,"free"); S.viaList=true; uiSync(); } });
+    telopCalm(); if(i!==S.idx){ stageChoose(i,"free"); S.viaList=true; uiSync(); } });
   logEv("list_open",{n:WINES.length});
 }
 $("infoBtn").onclick=openSheet;
@@ -7374,13 +7403,25 @@ function layoutStage(g){
 }
 function sheetApply(k){ SH.k=k; $("dsheet").style.transform=`translateY(${Math.round(ST.closedY*(1-k))}px)`; }
 function peekText(){ $("dpeekTxt").textContent=""; }
+/* えらぶの案内テロップ:強調の変数を CONFIG.telop から入れる。動きは、えらぶ画面に入るたびに再開(選ぶと止まる) */
+function telopOn(el){
+  const T=CONFIG.telop||{}, n=(v,d,a,b)=>{ v=+v; return isFinite(v)?Math.min(b,Math.max(a,v)):d; }, st=el.style;
+  const pm=n(T.pulseMs,2400,800,10000), sm=n(T.shineMs,5600,2000,30000);
+  el.className="stage-line sel tp"+(T.pulse!==false?" tp-pulse":"")+(T.shine!==false?" tp-shine":"");
+  st.setProperty("--tp-size",n(T.size,1.15,.8,1.6)); if(T.color) st.setProperty("--tp-color",T.color);
+  if(T.glow){ st.setProperty("--tp-glow",T.glow); st.setProperty("--tp-glow-s",T.glow.replace(/[\d.]+\)\s*$/,"0.2)")); }
+  st.setProperty("--tp-band",n(T.band,.4,0,1)); st.setProperty("--tp-line",n(T.line,.45,0,1));
+  st.setProperty("--tp-pulse",pm+"ms"); st.setProperty("--tp-min",n(T.minOpacity,.86,.8,1));
+  st.setProperty("--tp-shine",sm+"ms"); st.setProperty("--tp-sd",n(T.shineDelayMs,1800,0,60000)+"ms");
+}
+function telopCalm(){ const el=$("stLine"); if(el) el.classList.add("tp-calm"); }
 function stageText(live){
   const el=$("stLine");
   if(S.mode==="select" && !S.judged){
-    if(el.dataset.m!=="sel"){ el.dataset.m="sel"; el.className="stage-line sel"; el.innerHTML=brk(UI.selectLead); }
+    if(el.dataset.m!=="sel"){ el.dataset.m="sel"; el.innerHTML=brk(UI.selectLead); telopOn(el); }
     $("s5").classList.toggle("calm", false); return;
   }
-  if(el.dataset.m==="sel"){ el.dataset.m=""; el.innerHTML=""; el.className="stage-line hint"; }
+  if(el.dataset.m==="sel"){ el.dataset.m=""; el.innerHTML=""; el.className="stage-line hint"; el.removeAttribute("style"); }
   if(S.judged){ if(el.className!=="stage-line cmt5") el.className="stage-line cmt5"; stageResult(el, live||youVals()); }
   $("s5").classList.toggle("calm", false);
 }

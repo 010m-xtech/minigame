@@ -960,7 +960,9 @@ const SHOP_DATA = {
   .one.logon .mainbtn{bottom:calc(var(--safe-b) + 8px + var(--logh,16px))} .one.logon .links{bottom:calc(var(--safe-b) + 8px + var(--logh,16px) + 58px)}
   .one.logon .intro{padding-bottom:calc(var(--safe-b) + 8px + var(--logh,16px) + 58px + 14px)}
   .logn{word-break:keep-all;text-wrap:balance;padding:0 10px}   /* 記録のお知らせ(ログが有効なとき)の分だけ上げる */
-  .one.op #s5 .steps,.one.op #s5 .links,.one.op #s5 .mainbtn,.one.op #s5 .how{opacity:0;pointer-events:none}
+  .one #s1{display:none!important}   /* 新しい流れでは、旧い流れの最初の画面(このワインにする)は使わない */
+  .one.op #s5 .steps,.one.op #s5 .links,.one.op #s5 .mainbtn,.one.op #s5 .how,body.op #s5 .steps,body.op #s5 .links,body.op #s5 .mainbtn,body.op #s5 .how{opacity:0;pointer-events:none}
+  #s5 .steps,#s5 .links,#s5 .how{transition:opacity .6s}   /* op が外れたとき、パッと出ずに、ふわっと出る(主ボタンは、もとの .6s のまま) */
   /* 質問の行:言葉+5つの丸 */
   .qpanel{position:absolute;z-index:12;left:8px;right:8px;padding:8px 10px 8px;border:1px solid rgba(214,180,118,.30);border-radius:8px;display:none;
     background:linear-gradient(180deg,rgba(24,17,14,.84),rgba(16,12,10,.88));box-shadow:0 10px 30px -14px rgba(0,0,0,.9)}   /* 3D の負荷を増やさないよう、ぼかし(backdrop-filter)は使わない */
@@ -1091,6 +1093,18 @@ const SHOP_DATA = {
 </style>
 </head>
 <body>
+<script>
+/* 読み込み中に、主ボタンなどが先に見えないように:オープニングを再生するときは、最初から body に "op" を付けておく(外すのは endOpening だけ)。
+   付けない:「動きを減らす」設定(確認用の再生を除く)/ ?flow=classic(オープニングに入らないため)。
+   万一オープニングが始まらないとき(読み込みの失敗など)は、12秒後に外して、ボタンが出なくなるのを防ぐ */
+(function(){ try{
+  var q=location.search+"&"+location.hash.slice(1), rp=false; try{ rp=sessionStorage.getItem("hs_replay")==="1"; }catch(e){}
+  var rm=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches, classic=/(^|[?&#])flow=classic(&|$)/.test(q);
+  if(classic||(rm&&!rp)) return;
+  document.body.classList.add("op");
+  setTimeout(function(){ if(!window.__opOn) document.body.classList.remove("op"); },12000);
+}catch(e){} })();
+</script>
 <canvas id="gl"></canvas>
 <div id="debug" hidden></div>
 <div class="logn" id="logn" hidden></div>
@@ -1107,7 +1121,7 @@ const SHOP_DATA = {
   <header aria-hidden="true"></header>
 
   <!-- ① 選ぶ -->
-  <section class="screen on" id="s1" aria-label="選ぶ">
+  <section class="screen" id="s1" aria-label="選ぶ">   <!-- 旧い流れ(?flow=classic)の最初の画面。"on" は、初期化のとき、旧い流れだけに付けます -->
     <div class="swipe-hint passive" id="swipeHint"><span class="chev l">‹</span><span class="chev r">›</span></div>
     <div class="s1-info passive" id="info">
       <h1 class="wname" id="wname"></h1>
@@ -6089,7 +6103,8 @@ const QS=new URLSearchParams(location.search+"&"+location.hash.slice(1));
 const URLSW = CONFIG.allowUrlSwitch;
 const DISH_MODE = URLSW && QS.get("dish")==="art" ? "art" : "photo";
 const BG_MODE   = URLSW && QS.get("bg")==="none" ? "none" : "photo";
-const ONE = !(URLSW && QS.get("flow")==="classic");   // 新しい流れ(標準)。?flow=classic で旧い流れ(①〜④をボタンで進む)。確認が済んだら、旧い流れは削除できる
+const ONE = !(URLSW && QS.get("flow")==="classic");
+if(!ONE) document.getElementById("s1").classList.add("on");   // 旧い流れのときだけ、最初の画面(s1)を出す(新しい流れでは、読み込み中も出さない)   // 新しい流れ(標準)。?flow=classic で旧い流れ(①〜④をボタンで進む)。確認が済んだら、旧い流れは削除できる
 const SEL = (()=>{ const c=CONFIG.photos.select||{}, k=c.key, num=(v,d)=>Math.min(1,Math.max(0,typeof v==="number"&&isFinite(v)?v:d));   // ①の背景写真の設定
   const list=(Array.isArray(c.list)?c.list:[]).filter(x=>x&&IMAGES[x]), blur=num(c.blur,0.12);
   return { key:k, list, on:!!k&&k!=="none"&&!!IMAGES[k], blur, level:num(c.level,0.34), far:0.012+0.2*blur }; })();
@@ -7004,7 +7019,7 @@ function fitBrand(){
 }
 function startOpening(){
   S.opening=true; S.op0=performance.now(); S.opLanded=false;
-  document.body.classList.add("op");
+  document.body.classList.add("op"); window.__opOn=true;   // 読み込み前から付けてある("op")。二重に付いても問題なし
   $("s1").classList.remove("on"); $("opening").classList.remove("hide");
   P.level=0; P.expo=0;
   const ob=$("opBrand"); fitBrand();

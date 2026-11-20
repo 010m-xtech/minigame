@@ -236,7 +236,7 @@ async function runMap(){const run=++mapRun;jumpReq=null;fit();setPan(stopPan(0))
 function toPhoto(){mapRun++;subT.forEach(clearTimeout);$('#pourv').style.display='none';show('s-photo');sendLog({step:'2_comment_view'})}
 $('#s-ship').addEventListener('click',e=>{if(e.target.closest('button'))return;const r=$('#s-ship').getBoundingClientRect();(e.clientX-r.left<r.width*.3)?request('prev'):request('next')});
 $('#dnext').onclick=$('#pnext').onclick=()=>request('next');$('#dprev').onclick=$('#pprev').onclick=()=>request('prev');$('#dskip').onclick=toPhoto;
-$('#b-start').onclick=()=>{show('s-ship');runMap()};
+$('#b-start').onclick=()=>{sendLog({step:'1b_ride_truck'});show('s-ship');runMap()};
 /* ② pour + photo */
 $('#b-gacha').onclick=()=>{const cm=$('#cm').value.trim().slice(0,100);sendLog({step:'3_to_gacha',comment:cm});show('s-gacha');reset()};
 /* ③ gacha */

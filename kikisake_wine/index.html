@@ -900,6 +900,7 @@ const SHOP_DATA = {
   .sh-row.wide{grid-template-columns:1fr;row-gap:6px}
   /* 合う理由:料理の行の下に、1行で(16px・説明文より少し薄い色)。幅が足りない画面だけ、折り返す */
   .sh-why{grid-column:1/-1;margin:8px 0 0;font-size:16px;line-height:1.6;letter-spacing:.04em;color:rgba(255,255,255,.78);white-space:nowrap;font-feature-settings:"palt" 1}
+  .sh-dnote{grid-column:1/-1;margin:10px 0 0;font-size:15px;line-height:1.7;letter-spacing:.04em;color:rgba(255,255,255,.58);text-align:left;word-break:keep-all;overflow-wrap:break-word;line-break:strict}
   .sh-why.wrap{white-space:normal;word-break:keep-all;overflow-wrap:anywhere;line-break:strict}
   .sh-row.wide dd{font-size:var(--fs-body);line-height:var(--lh-body);color:var(--ink-dim);text-wrap:pretty}
 
@@ -6049,7 +6050,7 @@ const CONFIG = {
     title:"",                                         // 見出し。空なら CONFIG.owner.tagline の文言を使い回す(tagline が off のときは titleAlt)
     titleAlt:"ひとくちの感覚を、ことばに。",
     lead:"感じたことを選ぶだけ。|約2分の、小さな診断です",   // 「|」で行を区切る。2行まとめて、同時に現れる
-    steps:["気になるワインを、えらぶ","感じたものを、えらぶ","{owner}との相性を見る"],
+    steps:["気になるワインを、えらぶ","飲んで感じたものを、えらぶ","{owner}との相性を見る"],
     start:"はじめる",
     // 現れ方(ミリ秒):質問に入るまでの文言は、かたまりごとに、ふわっと(fadeMs)。質問への入りの一言だけ、1文字ずつ(type)。
     //   間は、長いものから順に:leadInPauseMs(質問への入りの前)> blockGapMs(見出し→説明→手順の始まり)> stepGapMs(手順どうし)
@@ -6113,6 +6114,9 @@ const CONFIG = {
      文字に重なるときは、価格の行の右端に寄せて、さらに縮めます。写真は、シートを開いたときに、はじめて読み込みます */
   dishPhoto:{ enabled:true, delay:300, size:{ w:104, h:78 }, pos:"price", float:false },
   sheet:{ showMeta:false,
+    dishNote:{ enabled:true,   // 「合う理由」の下の注意書き。料理(dish.name)があるワインだけに出す。「|」は、折り返してよい位置。{owner} は、CONFIG.owner.label に置きかわる
+      text:"季節や仕入れにより、料理は変わります。写真は、イメージです。|気になる方は、{owner}へお声がけください。",          // 写真(dish.photo)があるワイン
+      textNoPhoto:"季節や仕入れにより、料理は変わります。|気になる方は、{owner}へお声がけください。" },   // 写真がないワイン(「写真は、イメージです」を外す)
     fields:["variety","country","region","price","dish"],   /* dish:合う料理(料理名 dish.name。空のワインは出しません)。*/
       // 「このワインについて」に出す項目と、その順番(全ワイン同じ)。使える項目:variety 品種 / country 国 / region 産地 / producer 造り手 / vintage ヴィンテージ / abv アルコール度数 / serve 飲み頃の温度 / notes 味わい / price 価格。足すとすぐ出ます(例:["variety","country","region","abv"])。データが空の項目だけ、出しません。データは消えません
     showDesc:true,        // 「このワインについて」に、ワインの紹介文(desc)を出す(ワイン名の下、項目の上)
@@ -6234,7 +6238,7 @@ function priceList(w){
 }
 /* ワインの情報(任意)。空欄は出さない。数字は単位を付ける */
 const INFO_FIELDS = [["variety","品種"],["country","国"],["region","産地"],["producer","造り手"],["vintage","ヴィンテージ"],["abv","アルコール度数"],
-  ["serve","飲み頃の温度"],["notes","味わい"],["price","価格"],["dish","合う料理"]];
+  ["serve","飲み頃の温度"],["notes","味わい"],["price","価格"],["dish","合う料理例"]];
 const infoHas=(w,k)=>k==="dish"?!!(w.dish&&w.dish.name):!!w.info[k];   /* 「合う料理」は、料理名(dish.name)があるときだけ */
 function normInfo(o){
   const out={}; if(!o||typeof o!=="object") return out;
@@ -7669,13 +7673,18 @@ addEventListener("resize",()=>{ if(RM.on&&S.sheet&&RM.el===$("rmap")){ const w=W
 setTimeout(()=>{ const go=()=>{ try{ if(rmCfg().enabled!==false&&WINES.some(rmRegion)) rmBuild(); }catch(e){ console.warn("regionMap",e); } };
   (window.requestIdleCallback?f=>requestIdleCallback(f,{timeout:3000}):f=>setTimeout(f,0))(go); },5200);
 let sheetBack=null;
+function dishNoteHtml(w){
+  const c=(CONFIG.sheet||{}).dishNote; if(!c||c.enabled===false||!w.dish||!w.dish.name) return "";
+  const t=(IMG(w.dish.photo)?c.text:(c.textNoPhoto!=null?c.textNoPhoto:c.text)); if(typeof t!=="string"||!t.trim()) return "";
+  return `<p class="sh-dnote">${brk(ownerFill(t))}</p>`;
+}
 function openSheet(){
   const w=WINES[S.idx], rows=infoShown(w); if(!rows.length) return;
   $("shBody").innerHTML=`<p class="sh-kick">このワインについて</p>${tbCfg().inSheet?tbHtml(w,"sh"):""}<h2 class="sh-name${(w.meta&&(CONFIG.sheet||{}).showMeta===true)?"":" nm"}" id="shName">${esc(w.name)}</h2>`+
     (w.meta&&(CONFIG.sheet||{}).showMeta===true?`<p class="sh-meta">${esc(w.meta)}</p>`:"")+
     ((CONFIG.sheet||{}).showDesc!==false&&w.desc?`<p class="sh-desc">${brk(w.desc)}</p>`:"")+
     ((CONFIG.sheet||{}).showOwnerNote!==false&&w.ownerNote?`<div class="sh-note"><div class="own-h">${esc(ownerFill(CONFIG.owner.noteLabel||"{owner}より"))}</div><p>${brk(w.ownerNote)}</p></div>`:"")+
-    `<dl class="sh-list">${rows.map(([k,l])=>`<div class="sh-row${k==="notes"?" wide":""}${k==="price"?" price":""}${k==="dish"?" dish":""}"><dt>${l}</dt><dd>${k==="price"?priceSheet(w.info.price):k==="dish"?infoVal(w.dish.name):infoVal(w.info[k])}</dd>${k==="dish"&&(CONFIG.sheet||{}).showWhy!==false&&w.dish.why?`<p class="sh-why">${esc(w.dish.why)}</p>`:""}</div>`).join("")}</dl>`+
+    `<dl class="sh-list">${rows.map(([k,l])=>`<div class="sh-row${k==="notes"?" wide":""}${k==="price"?" price":""}${k==="dish"?" dish":""}"><dt>${l}</dt><dd>${k==="price"?priceSheet(w.info.price):k==="dish"?infoVal(w.dish.name):infoVal(w.info[k])}</dd>${k==="dish"&&(CONFIG.sheet||{}).showWhy!==false&&w.dish.why?`<p class="sh-why">${esc(w.dish.why)}</p>`:""}${k==="dish"?dishNoteHtml(w):""}</div>`).join("")}</dl>`+
     (rmOn(w)?`<p class="sr-only">産地:${esc(rmRegion(w).name.replace(/\|/g,""))}</p>`:"");
   $("sheet").classList.remove("list"); $("shBody").scrollTop=0; S.sheet=true; sheetBack=document.activeElement;
   clearTimeout(CO.timer); coachHide(); corners(); ovSync();

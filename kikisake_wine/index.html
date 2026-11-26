@@ -140,12 +140,12 @@
    【ワインの情報(「このワインについて」のシート)】 ワインごとに info を書く(すべて任意。空欄 "" の項目は、シートに出ません)
         variety  品種            country  国(例:"イタリア"。空なら出ません。「産地」の上に出ます)  region   産地            producer 造り手         vintage  ヴィンテージ
         abv      アルコール度数   serve    飲み頃の温度    notes    味わいの詳しい説明(desc とは別。長くても、シートの中でスクロールできます)
-        price    価格(CONFIG.wineInfo.price が true のときだけ出す。初期値はオフ)
-        数字で書いてもよい(abv:13.5 → 13.5%、serve:10 → 10℃、price:1200 → 1,200円)。文字で書けば、そのまま出ます
+        price    価格  { glass:グラスの価格, bottle:ボトルの価格 }(税込・円。数字か null。両方 null なら出ません。表示は CONFIG.price)
+        数字で書いてもよい(abv:13.5 → 13.5%、serve:10 → 10℃)。文字で書けば、そのまま出ます
         すべて空のワインでは、「このワインについて」の入口が出ません
         記入例(架空のワインの書き方の例です):
           info:{ variety:"シャルドネ", country:"イタリア", region:"ピエモンテ", producer:"〇〇ワイナリー", vintage:"2022", abv:"13.5%",
-                 serve:"10〜12℃", notes:"樽熟成による、まろやかな口当たり。…", price:"グラス 1,200円" }
+                 serve:"10〜12℃", notes:"樽熟成による、まろやかな口当たり。…", price:{ glass:1100, bottle:5500 } }
         今の4本は、データにある産地の行(meta)だけを入れています。ヴィンテージ・度数などは、お店で記入してください
 
    【ラベル】 ワインごとに label:{ img }(IMAGES のキー label01〜label14。ふちは画像の側で透明にしてある WebP・幅 420px。null なら何も出さない)。
@@ -256,98 +256,98 @@ const SHOP_DATA = {
       desc:"マスカットを思わせる香りの、やさしい甘さの泡。お酒が苦手な方にも飲みやすい一杯です。",
       ownerNote:"",     // 店主さんからの一言(任意。空欄なら出ません)
       dish:{ name:"フルーツサラダ", why:"ワインの甘さと、果物のみずみずしさが、よく合います。", photo:null, art:null },   // 写真は、あとで届きます(届くまでは、料理名と一言だけで出ます)
-      info:{ variety:"モスカート・ビアンコ", country:"イタリア", region:"ピエモンテ", producer:"", vintage:"NV", abv:"7.5%", serve:"", notes:"", price:"" } },
+      info:{ variety:"モスカート・ビアンコ", country:"イタリア", region:"ピエモンテ", producer:"", vintage:"NV", abv:"7.5%", serve:"", notes:"", price:{ glass:null, bottle:4500 } } },
     { no:2, id:"rose-brut", regionId:"veneto", label:{ img:"label02" }, name:"ポルタ モンティカーノ ロゼ エクストラドライ", meta:"ヴェネト",
       look:{ color:[0.93,0.50,0.44], dens:0.55 },   // 液体の色と濃さ(薄い→濃い。light は種類の標準)
       type:"spark-rose", thirdKind:"acid", body:2, fruit:4, third:2,
       desc:"さくらんぼや赤いベリーを思わせる、ロゼの泡。すっきり辛口で、飲みやすい味わいです。",
       ownerNote:"",     // 店主さんからの一言(任意。空欄なら出ません)
       dish:{ name:"カプレーゼ", why:"ベリーの香りと、トマトの酸味、チーズのまろやかさが、きれいにつながります。", photo:null, art:null },   // 写真は、あとで届きます(届くまでは、料理名と一言だけで出ます)
-      info:{ variety:"ラボーゾ・ヴェロネーゼ 他", country:"イタリア", region:"ヴェネト", producer:"", vintage:"NV", abv:"11%", serve:"", notes:"", price:"" } },
+      info:{ variety:"ラボーゾ・ヴェロネーゼ 他", country:"イタリア", region:"ヴェネト", producer:"", vintage:"NV", abv:"11%", serve:"", notes:"", price:{ glass:null, bottle:5000 } } },
     { no:3, id:"prosecco", regionId:"veneto", label:{ img:"label03" }, name:"テッレ デイ ブース プロセッコ ブリュット", meta:"グレーラ · ヴェネト",
       look:{ color:[0.94,0.88,0.30], dens:0.57 },   // 液体の色と濃さ(薄い→濃い。light は種類の標準)
       type:"spark-white", thirdKind:"acid", body:2, fruit:2, third:2,
       desc:"甘みの少ない、辛口の泡。青りんごのような、軽やかでキレのいい飲み口です。",
       ownerNote:"",     // 店主さんからの一言(任意。空欄なら出ません)
       dish:{ name:"カルパッチョ", why:"さっぱりした辛口の泡が、お魚の旨みを引き立てます。", photo:"dishCarpaccio", art:null },
-      info:{ variety:"グレーラ", country:"イタリア", region:"ヴェネト", producer:"", vintage:"NV", abv:"11%", serve:"", notes:"", price:"" } },
+      info:{ variety:"グレーラ", country:"イタリア", region:"ヴェネト", producer:"", vintage:"NV", abv:"11%", serve:"", notes:"", price:{ glass:null, bottle:5500 } } },
     { no:4, id:"franciacorta", regionId:"lombardy", label:{ img:"label04" }, name:"レ・マルケジーネ フランチャコルタ ドサージュ・ゼロ", meta:"フランチャコルタ · ロンバルディア",
       look:{ color:[0.90,0.74,0.26], dens:1.05 },   // 液体の色と濃さ(薄い→濃い。light は種類の標準)
       type:"spark-white", thirdKind:"acid", body:4, fruit:2, third:3,
       desc:"きめ細かい泡と、リッチな味わいが楽しめる、辛口の泡。特別な日にもおすすめです。",
       ownerNote:"",     // 店主さんからの一言(任意。空欄なら出ません)
       dish:{ name:"お魚料理", why:"豊かな旨みと細かい泡が、お魚の味わいをやさしく包みます。", photo:"dishFish", art:null },
-      info:{ variety:"シャルドネ、ピノ・ビアンコ、ピノ・ネーロ", country:"イタリア", region:"ロンバルディア(フランチャコルタ)", producer:"", vintage:"NV", abv:"12.5%", serve:"", notes:"アウデンス", price:"" } },
+      info:{ variety:"シャルドネ、ピノ・ビアンコ、ピノ・ネーロ", country:"イタリア", region:"ロンバルディア(フランチャコルタ)", producer:"", vintage:"NV", abv:"12.5%", serve:"", notes:"アウデンス", price:{ glass:null, bottle:8000 } } },
     { no:5, id:"pinotgrigio", regionId:"veneto", label:{ img:"label05" }, name:"デッレ・ヴェネツィエ ピノ・グリージョ", meta:"ピノ・グリージョ · ヴェネト",
       look:{ color:[0.95,0.92,0.30], dens:0.40 },   // 液体の色と濃さ(薄い→濃い。light は種類の標準)
       type:"white-light", thirdKind:"acid", body:1, fruit:2, third:2,
       desc:"すっきり軽やかで、ごくごく飲める白。食前の一杯にもぴったりです。",
       ownerNote:"",     // 店主さんからの一言(任意。空欄なら出ません)
       dish:{ name:"フルーツサラダ", why:"軽やかな味わいが、果物のさわやかさを引き立てます。", photo:null, art:null },   // 写真は、あとで届きます(届くまでは、料理名と一言だけで出ます)
-      info:{ variety:"ピノ・グリージョ", country:"イタリア", region:"ヴェネト(ヴェローナ)", producer:"", vintage:"", abv:"12.5%", serve:"", notes:"", price:"" } },
+      info:{ variety:"ピノ・グリージョ", country:"イタリア", region:"ヴェネト(ヴェローナ)", producer:"", vintage:"", abv:"12.5%", serve:"", notes:"", price:{ glass:null, bottle:4200 } } },
     { no:6, id:"lugana", regionId:"veneto", label:{ img:"label06" }, name:"ルガーナ ラック", meta:"トゥルビアーナ · ヴェネト",
       look:{ color:[0.92,0.84,0.28], dens:0.64 },   // 液体の色と濃さ(薄い→濃い。light は種類の標準)
       type:"white-light", thirdKind:"acid", body:3, fruit:3, third:2,
       desc:"レモンやグレープフルーツなど、柑橘の香りがする白。酸味と果実味のバランスがよく、まろやかで飲みやすい一杯です。",
       ownerNote:"",     // 店主さんからの一言(任意。空欄なら出ません)
       dish:{ name:"生ハム", why:"柑橘のさわやかさが、生ハムの塩気と旨みをまとめてくれます。", photo:null, art:null },   // 写真は、あとで届きます(届くまでは、料理名と一言だけで出ます)
-      info:{ variety:"トゥルビアーナ(トレッビアーノ・ディ・ルガーナ)", country:"イタリア", region:"ヴェネト(ルガーナ)", producer:"", vintage:"", abv:"13.5%", serve:"", notes:"", price:"" } },
+      info:{ variety:"トゥルビアーナ(トレッビアーノ・ディ・ルガーナ)", country:"イタリア", region:"ヴェネト(ルガーナ)", producer:"", vintage:"", abv:"13.5%", serve:"", notes:"", price:{ glass:null, bottle:5800 } } },
     { no:7, id:"riesling", regionId:"trentino-south-tyrol", label:{ img:"label07" }, name:"ヴァッレ イサルコ リースリング", meta:"リースリング · アルト・アディジェ",
       look:{ color:[0.90,0.93,0.28], dens:0.47 },   // 液体の色と濃さ(薄い→濃い。light は種類の標準)
       type:"white-light", thirdKind:"acid", body:2, fruit:3, third:3,
       desc:"青りんごや柑橘の香りで、酸味がいきいきとした、すっきり辛口の白。後味がさわやかです。",
       ownerNote:"",     // 店主さんからの一言(任意。空欄なら出ません)
       dish:{ name:"カルパッチョ", why:"きれいな酸味が、お魚の甘みと旨みをひきしめます。", photo:"dishCarpaccio", art:null },
-      info:{ variety:"リースリング", country:"イタリア", region:"アルト・アディジェ(イサルコ渓谷)", producer:"", vintage:"", abv:"", serve:"", notes:"", price:"" } },
+      info:{ variety:"リースリング", country:"イタリア", region:"アルト・アディジェ(イサルコ渓谷)", producer:"", vintage:"", abv:"", serve:"", notes:"", price:{ glass:null, bottle:6000 } } },
     { no:8, id:"salento-chard", regionId:"apulia", label:{ img:"label08" }, name:"プリオ シャルドネ サレント・ビアンコ", meta:"シャルドネ · プーリア",
       look:{ color:[0.86,0.78,0.32], dens:0.97 },   // 液体の色と濃さ(薄い→濃い。light は種類の標準)
       type:"white-full", thirdKind:"acid", body:3, fruit:3, third:2,
       desc:"りんごやメロンの果実味に、樽のやさしい香りが加わった白。まろやかで、後味はすっきりしています。",
       ownerNote:"",     // 店主さんからの一言(任意。空欄なら出ません)
       dish:{ name:"クリームパスタ", why:"樽の香りとまろやかさが、クリームソースのコクとよく合います。", photo:"dishCream", art:null },
-      info:{ variety:"シャルドネ", country:"イタリア", region:"プーリア(サレント)", producer:"", vintage:"", abv:"13%", serve:"", notes:"", price:"" } },
+      info:{ variety:"シャルドネ", country:"イタリア", region:"プーリア(サレント)", producer:"", vintage:"", abv:"13%", serve:"", notes:"", price:{ glass:null, bottle:6000 } } },
     { no:9, id:"langhe-chard", regionId:"piedmont", label:{ img:"label09" }, name:"ラパリーノ ランゲ シャルドネ", meta:"シャルドネ · ピエモンテ",
       look:{ color:[0.86,0.70,0.22], dens:1.18 },   // 液体の色と濃さ(薄い→濃い。light は種類の標準)
       type:"white-full", thirdKind:"acid", body:4, fruit:3, third:1,
       desc:"バターやバニラを思わせる、リッチな白。ふくよかで、なめらかな口当たりです。",
       ownerNote:"",     // 店主さんからの一言(任意。空欄なら出ません)
       dish:{ name:"トリュフ系パスタ", why:"ふくよかな味わいが、トリュフの豊かな香りを受け止めます。", photo:null, art:null },   // 写真は、あとで届きます(届くまでは、料理名と一言だけで出ます)
-      info:{ variety:"シャルドネ", country:"イタリア", region:"ピエモンテ(ランゲ)", producer:"", vintage:"", abv:"", serve:"", notes:"", price:"" } },
+      info:{ variety:"シャルドネ", country:"イタリア", region:"ピエモンテ(ランゲ)", producer:"", vintage:"", abv:"", serve:"", notes:"", price:{ glass:null, bottle:8500 } } },
     { no:10, id:"sangiovese", regionId:"abruzzo", label:{ img:"label10" }, name:"ロッカ ヴェントーザ サンジョヴェーゼ", meta:"サンジョヴェーゼ · アブルッツォ",
       look:{ color:[0.52,0.05,0.11], dens:1.20 },   // 液体の色と濃さ(薄い→濃い。light は種類の標準)
       type:"red-light", thirdKind:"tannin", body:2, fruit:3, third:2,
       desc:"熟したさくらんぼのような香りの、チャーミングな赤。飲みやすく、赤ワインが初めての方にもおすすめです。",
       ownerNote:"",     // 店主さんからの一言(任意。空欄なら出ません)
       dish:{ name:"生ハム、クロスティーニ", why:"軽やかな赤が、生ハムの塩気とパンの香ばしさを、やさしく受け止めます。", photo:null, art:null },   // 写真は、あとで届きます(届くまでは、料理名と一言だけで出ます)
-      info:{ variety:"サンジョヴェーゼ100%", country:"イタリア", region:"アブルッツォ", producer:"", vintage:"", abv:"", serve:"", notes:"", price:"" } },
+      info:{ variety:"サンジョヴェーゼ100%", country:"イタリア", region:"アブルッツォ", producer:"", vintage:"", abv:"", serve:"", notes:"", price:{ glass:null, bottle:4000 } } },
     { no:11, id:"pinotnoir", regionId:"veneto", label:{ img:"label11" }, name:"ジャンニ・テッサーリ ピノ・ノワール", meta:"ピノ・ノワール · ヴェネト",
       look:{ color:[0.56,0.08,0.14], dens:0.95 },   // 液体の色と濃さ(薄い→濃い。light は種類の標準)
       type:"red-light", thirdKind:"tannin", body:3, fruit:4, third:2,
       desc:"赤い果実とすみれの香りがする赤。ジューシーで、バランスのよい味わいです。",
       ownerNote:"",     // 店主さんからの一言(任意。空欄なら出ません)
       dish:{ name:"魚介系トマトパスタ", why:"ベリーの果実味と、トマトの酸味が、魚介の旨みをやわらかくつなぎます。", photo:"dishSeafood", art:null },
-      info:{ variety:"ピノ・ノワール", country:"イタリア", region:"ヴェネト", producer:"", vintage:"", abv:"12%", serve:"", notes:"", price:"" } },
+      info:{ variety:"ピノ・ノワール", country:"イタリア", region:"ヴェネト", producer:"", vintage:"", abv:"12%", serve:"", notes:"", price:{ glass:null, bottle:5800 } } },
     { no:12, id:"cabernet", regionId:"tuscany", label:{ img:"label12" }, name:"レッチャイア カベルネ・ソーヴィニヨン", meta:"カベルネ・ソーヴィニヨン · トスカーナ",
       look:{ color:[0.26,0.008,0.05], dens:2.50 },   // 液体の色と濃さ(薄い→濃い。light は種類の標準)
       type:"red-full", thirdKind:"tannin", body:5, fruit:3, third:3,
       desc:"濃厚で、樽の香りがしっかり。どっしりとした、飲みごたえのある赤です。",
       ownerNote:"",     // 店主さんからの一言(任意。空欄なら出ません)
       dish:{ name:"タリアータ、赤身肉", why:"力強い味わいが、赤身肉の旨みと、まっすぐに合います。", photo:"dishTagliata", art:null },
-      info:{ variety:"カベルネ・ソーヴィニヨン", country:"イタリア", region:"トスカーナ(モンテクッコ)", producer:"", vintage:"", abv:"", serve:"", notes:"", price:"" } },
+      info:{ variety:"カベルネ・ソーヴィニヨン", country:"イタリア", region:"トスカーナ(モンテクッコ)", producer:"", vintage:"", abv:"", serve:"", notes:"", price:{ glass:null, bottle:6000 } } },
     { no:13, id:"barbaresco", regionId:"piedmont", label:{ img:"label13" }, name:"バルバレスコ", meta:"ネッビオーロ · ピエモンテ",
       look:{ color:[0.46,0.05,0.07], dens:1.60 },   // 液体の色と濃さ(薄い→濃い。light は種類の標準)
       type:"red-full", thirdKind:"tannin", body:4, fruit:2, third:2,
       desc:"熟成による深みがあり、上品でエレガントな赤。香りの余韻を、ゆっくり楽しめます。",
       ownerNote:"",     // 店主さんからの一言(任意。空欄なら出ません)
       dish:{ name:"鹿ロースト", why:"熟成した奥深い香りが、鹿肉の力強い旨みと響き合います。", photo:"dishVenison", art:null },
-      info:{ variety:"ネッビオーロ", country:"イタリア", region:"ピエモンテ", producer:"", vintage:"", abv:"", serve:"", notes:"", price:"" } },
+      info:{ variety:"ネッビオーロ", country:"イタリア", region:"ピエモンテ", producer:"", vintage:"", abv:"", serve:"", notes:"", price:{ glass:null, bottle:8500 } } },
     { no:14, id:"chianti", regionId:"tuscany", label:{ img:"label14" }, name:"リエチネ キャンティ クラシコ", meta:"サンジョヴェーゼ · トスカーナ",
       look:{ color:[0.38,0.02,0.07], dens:1.95 },   // 液体の色と濃さ(薄い→濃い。light は種類の標準)
       type:"red-full", thirdKind:"tannin", body:4, fruit:3, third:3, pick:true,
       desc:"しっかりとした渋みのある赤。当店イチオシの一本です。",
       ownerNote:"",     // 店主さんからの一言(任意。空欄なら出ません)
       dish:{ name:"赤ワイン煮込み、ジビエ系", why:"しっかりした渋みが、煮込みの濃い味わいや、ジビエの個性を受け止めます。", photo:"dishBraised", art:null },
-      info:{ variety:"サンジョヴェーゼ100%", country:"イタリア", region:"トスカーナ(ガイオーレ・イン・キャンティ)", producer:"", vintage:"2021", abv:"", serve:"", notes:"", price:"" } },
+      info:{ variety:"サンジョヴェーゼ100%", country:"イタリア", region:"トスカーナ(ガイオーレ・イン・キャンティ)", producer:"", vintage:"2021", abv:"", serve:"", notes:"", price:{ glass:null, bottle:9000 } } },
   ],
 };
 </script>
@@ -930,6 +930,17 @@ const SHOP_DATA = {
   .lrow.now{border-color:var(--gold-line);background:rgba(230,200,138,.07)}
   .lrow:focus{outline:none} .lrow:focus-visible{outline:1px solid var(--gold-line);outline-offset:1px}
   .lrow>i{flex:none;width:22px;height:22px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(255,240,215,.25),0 0 8px rgba(0,0,0,.4)}
+  /* 価格:「このワインについて」(金額は 16px 以上。税込の tax in は、欧文の斜体で小さく、金色) */
+  .sh-row.price dd{line-height:1.5}
+  .pl{display:flex;align-items:baseline;gap:8px;padding:2px 0;white-space:nowrap}
+  .pk{flex:none;min-width:3.4em;font-family:"Cormorant Garamond",serif;font-style:normal;font-size:14px;letter-spacing:.08em;color:var(--gold-text)}
+  .pn{font-weight:400;font-size:16px;letter-spacing:.04em;color:var(--ink)}
+  .px{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:12px;letter-spacing:.04em;color:var(--gold)}
+  /* 価格:ワイン一覧の各行の右端(右寄せ・小さく) */
+  .lp{flex:none;display:flex;flex-direction:column;align-items:flex-end;margin-left:auto;padding-left:4px;line-height:1.25;white-space:nowrap}
+  .lp .la{display:flex;align-items:baseline;gap:5px}
+  .lp b{font-weight:400;font-size:16px;letter-spacing:.03em;color:var(--ink)}
+  .lp small{font-family:"Cormorant Garamond",serif;font-size:12px;letter-spacing:.08em;color:var(--gold-text)}
   .lt{flex:1;min-width:0}
   .lt b{display:block;font-weight:400;font-size:16px;line-height:1.5;letter-spacing:.04em;word-break:keep-all;overflow-wrap:anywhere;line-break:strict}
   .lt small{display:block;margin-top:1px;font-size:13px;line-height:1.5;letter-spacing:.04em;color:var(--ink-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -6265,8 +6276,15 @@ const CONFIG = {
   //   askOn     iPhone の許可の確認を出す場所。"intro"=最初の主ボタン(説明カードの「はじめる」)/ "firstTap"=最初のタップ。許可は1度だけ聞き、拒否・未対応のときは、何も出さず傾きなしで続けます
   //   hint      はじめてグラスが見えたとき、1度だけ出す一言(show:false で非表示。ms=表示する長さ)。傾きを検出したら、すぐ消えます。傾きが使えない端末では出しません
   //   「動きを減らす」設定の端末では、すべて無効です
+  price:{ enabled:true,        // 価格を出す(false で、すべて出さない)
+    currency:"¥",              // 通貨の記号(金額の前)
+    taxLabel:"tax in",         // 税込の表記(金額の右に、小さな斜体で添える。"" で出さない)
+    inList:true,               // ワイン一覧の各行の右端に出す
+    inSheet:true,              // 「このワインについて」に、「価格」の項目として出す(CONFIG.sheet.fields に "price" があるとき)
+    labelWhenSingle:false,     // 価格が 1 つだけのとき、Glass / Bottle のラベルを付ける(両方あるときは、いつも付く)
+    taxInList:false },         // 一覧でも、金額の右に「tax in」を添える
   sheet:{ showMeta:false,
-    fields:["variety","country","region"],   // 「このワインについて」に出す項目と、その順番(全ワイン同じ)。使える項目:variety 品種 / country 国 / region 産地 / producer 造り手 / vintage ヴィンテージ / abv アルコール度数 / serve 飲み頃の温度 / notes 味わい / price 価格。足すとすぐ出ます(例:["variety","country","region","abv"])。データが空の項目だけ、出しません。データは消えません
+    fields:["variety","country","region","price"],   // 「このワインについて」に出す項目と、その順番(全ワイン同じ)。使える項目:variety 品種 / country 国 / region 産地 / producer 造り手 / vintage ヴィンテージ / abv アルコール度数 / serve 飲み頃の温度 / notes 味わい / price 価格。足すとすぐ出ます(例:["variety","country","region","abv"])。データが空の項目だけ、出しません。データは消えません
     showDesc:true,        // 「このワインについて」に、ワインの紹介文(desc)を出す(ワイン名の下、項目の上)
     showOwnerNote:true }, // 「このワインについて」に、店主さんの一言(ownerNote)を、紹介文の下に小さく出す
   pairing:{ showDesc:false,        // 料理の画面に、ワインの紹介文(desc)を出す(初期は出さない。ワインの紹介は「このワインについて」へ)
@@ -6302,8 +6320,8 @@ const CONFIG = {
   // 操作の案内(光の動き+短い一言)。文言は日本語で、やさしく短く
   coach:{ delay:1.2, idle:5, repeat:2,
           text:{ stage:"", up:"", s1:"", s2:"", s3:"", s4:"" } },   // 旧い流れ(?flow=classic)用。標準の流れでは、主ボタンと「はじめのご案内」(CONFIG.ui・CONFIG.tour)を使う
-  // ワインの情報のシート。price:true で価格を出す(初期値はオフ)
-  wineInfo:{ price:false, producer:false },   // 「このワインについて」に、価格・造り手の行を出すか(初期は出さない)。造り手は、true にすると、info.producer があるワインだけ出ます
+  // ワインの情報のシート。造り手の行を出すか(価格は、CONFIG.price)
+  wineInfo:{ producer:false },   // 「このワインについて」に、造り手の行を出すか(初期は出さない)。造り手は、true にすると、info.producer があるワインだけ出ます
   shop:SHOP_DATA.shop,                                            // オープニングの店名(お店のデータ)
   // 写真のキー(お店のデータ)と、背景・外観の明るさ(0–1)
   photos:{ ...SHOP_DATA.photos, bgLevel:0.13, openingLevel:0.075,
@@ -6371,21 +6389,41 @@ const PRESETS = {
 };
 const THIRD_KINDS = ["tannin","acid","sweet"], MAX_WINES = 30;
 /* お店のデータ → アプリが使う形。足りない・誤った値は、安全な値に直して続行する(指摘は validateData がコンソールに出す) */
+/* ---------- 価格(info.price = { glass, bottle }。税込・円) ---------- */
+const priceCfg=()=>Object.assign({enabled:true,currency:"¥",taxLabel:"tax in",inList:true,inSheet:true,labelWhenSingle:false,taxInList:false},CONFIG.price||{});
+const priceFmt=n=>String(priceCfg().currency==null?"¥":priceCfg().currency)+Math.round(n).toLocaleString("en-US");
+const hasPrice=w=>!!(w&&w.info&&w.info.price&&(w.info.price.glass!=null||w.info.price.bottle!=null));
+/* 「このワインについて」:両方あるとき 2 行(Glass / Bottle)、1 つだけのとき 1 行(ラベルは labelWhenSingle が true のときだけ) */
+function priceSheet(p){
+  const c=priceCfg(), both=p.glass!=null&&p.bottle!=null, tax=c.taxLabel?`<i class="px">${esc(c.taxLabel)}</i>`:"";
+  const line=(lab,n)=>`<span class="pl">${lab?`<em class="pk">${lab}</em>`:""}<b class="pn">${esc(priceFmt(n))}</b>${tax}</span>`;
+  const out=[]; if(p.glass!=null) out.push(line(both||c.labelWhenSingle?"Glass":"",p.glass)); if(p.bottle!=null) out.push(line(both||c.labelWhenSingle?"Bottle":"",p.bottle));
+  return out.join("");
+}
+/* 一覧:表示は 1 つだけ。グラスがあればグラス(下に Glass)、なければボトル(ラベルは labelWhenSingle が true のときだけ) */
+function priceList(w){
+  const c=priceCfg(); if(c.enabled===false||c.inList===false||!hasPrice(w)) return "";
+  const p=w.info.price, g=p.glass!=null, n=g?p.glass:p.bottle, lab=g?"Glass":(c.labelWhenSingle?"Bottle":"");
+  return `<span class="lp"><span class="la"><b>${esc(priceFmt(n))}</b>${c.taxInList&&c.taxLabel?`<i class="px">${esc(c.taxLabel)}</i>`:""}</span>${lab?`<small>${lab}</small>`:""}</span>`;
+}
 /* ワインの情報(任意)。空欄は出さない。数字は単位を付ける */
 const INFO_FIELDS = [["variety","品種"],["country","国"],["region","産地"],["producer","造り手"],["vintage","ヴィンテージ"],["abv","アルコール度数"],
   ["serve","飲み頃の温度"],["notes","味わい"],["price","価格"]];
 function normInfo(o){
   const out={}; if(!o||typeof o!=="object") return out;
-  const unit={ abv:v=>v+"%", serve:v=>v+"℃", price:v=>v.toLocaleString("ja-JP")+"円" };
+  const unit={ abv:v=>v+"%", serve:v=>v+"℃" };
   INFO_FIELDS.forEach(([k])=>{ let v=o[k];
+    if(k==="price"){ const n=x=>(typeof x==="number"&&isFinite(x)&&x>=0)?Math.round(x):null, pr=o.price;      /* 価格:{ glass, bottle }(税込・円。数字か null)。両方 null なら、価格なし */
+      const g=pr&&typeof pr==="object"?n(pr.glass):null, b=pr&&typeof pr==="object"?n(pr.bottle):n(pr);
+      if(g!==null||b!==null) out.price={glass:g,bottle:b}; return; }
     if(typeof v==="number"&&isFinite(v)) v=unit[k]?unit[k](v):String(v);
     if(typeof v==="string"&&v.trim()) out[k]=v.trim(); });
   return out;
 }
-const infoOn = k => k==="price" ? !!CONFIG.wineInfo.price : k==="producer" ? !!CONFIG.wineInfo.producer : true;   // 価格・造り手は、CONFIG.wineInfo で、出す・出さないを決める(初期は、どちらも出さない)
+const infoOn = k => k==="price" ? (priceCfg().enabled!==false&&priceCfg().inSheet!==false) : k==="producer" ? !!CONFIG.wineInfo.producer : true;   // 価格・造り手は、CONFIG.wineInfo で、出す・出さないを決める(初期は、どちらも出さない)
 const infoShown = w => { const f=(CONFIG.sheet||{}).fields;   // 「このワインについて」の項目は、CONFIG.sheet.fields の順に、全ワイン同じ並びで出す(データが空の項目だけ、出さない)
   if(!Array.isArray(f)) return INFO_FIELDS.filter(([k])=>w.info[k] && infoOn(k));
-  return f.map(k=>INFO_FIELDS.find(([x])=>x===k)).filter(Boolean).filter(([k])=>w.info[k]); };
+  return f.map(k=>INFO_FIELDS.find(([x])=>x===k)).filter(Boolean).filter(([k])=>w.info[k]&&(k!=="price"||infoOn("price"))); };   /* 価格は、CONFIG.price の enabled / inSheet で、出す・出さないを決める */
 function buildWines(list){
   const num=(v,lo,hi,d)=>{ v=+v; return isFinite(v) ? Math.min(hi,Math.max(lo,v)) : d; };
   const vec=(v,d)=>Array.isArray(v)&&v.length===3&&v.every(isFinite) ? v.map(Number) : d.slice();
@@ -7945,7 +7983,7 @@ function openSheet(){
     (w.meta&&(CONFIG.sheet||{}).showMeta===true?`<p class="sh-meta">${esc(w.meta)}</p>`:"")+
     ((CONFIG.sheet||{}).showDesc!==false&&w.desc?`<p class="sh-desc">${brk(w.desc)}</p>`:"")+
     ((CONFIG.sheet||{}).showOwnerNote!==false&&w.ownerNote?`<div class="sh-note"><div class="own-h">${esc(ownerFill(CONFIG.owner.noteLabel||"{owner}より"))}</div><p>${brk(w.ownerNote)}</p></div>`:"")+
-    `<dl class="sh-list">${rows.map(([k,l])=>`<div class="sh-row${k==="notes"?" wide":""}"><dt>${l}</dt><dd>${infoVal(w.info[k])}</dd></div>`).join("")}</dl>`+
+    `<dl class="sh-list">${rows.map(([k,l])=>`<div class="sh-row${k==="notes"?" wide":""}${k==="price"?" price":""}"><dt>${l}</dt><dd>${k==="price"?priceSheet(w.info.price):infoVal(w.info[k])}</dd></div>`).join("")}</dl>`+
     (rmOn(w)?`<p class="sr-only">産地:${esc(rmRegion(w).name.replace(/\|/g,""))}</p>`:"");
   $("sheet").classList.remove("list"); $("shBody").scrollTop=0; S.sheet=true; sheetBack=document.activeElement;
   clearTimeout(CO.timer); coachHide(); corners(); ovSync();
@@ -7971,7 +8009,7 @@ function openList(){
   const row=i=>{ const w=WINES[i], now=i===S.idx, td=LC.showTasted!==false&&tasted.has(w.id);
     return `<button type="button" class="lrow${now?" now":""}" data-i="${i}"${now?' aria-current="true"':""}><i style="background:${swatch(w.color)}"></i>`+
       `<span class="lt"><b>${esc(nameOf(w))}</b>${subOf(w)?`<small>${esc(subOf(w))}</small>`:""}`+
-      ((now||td||w.pick)?`<span class="lmks">${w.pick?`<em class="lmk p">${esc(pickOf(w))}</em>`:""}${now?`<em class="lmk">${esc(LC.nowMark)}</em>`:""}${td?`<em class="lmk t">${esc(LC.tastedMark)}</em>`:""}</span>`:"")+`</span></button>`; };
+      ((now||td||w.pick)?`<span class="lmks">${w.pick?`<em class="lmk p">${esc(pickOf(w))}</em>`:""}${now?`<em class="lmk">${esc(LC.nowMark)}</em>`:""}${td?`<em class="lmk t">${esc(LC.tastedMark)}</em>`:""}</span>`:"")+`</span>${priceList(w)}</button>`; };
   /* 区分(泡・白・赤。どれでもないワインは「その他」を自動で追加)。7本以上で、タブにする */
   const gOf=w=>{ const g=LIST_GROUP[w.type]; return (g==="spark"||g==="white"||g==="red")?g:"other"; };
   const by={}; WINES.forEach((w,i)=>{ (by[gOf(w)]=by[gOf(w)]||[]).push(i); });

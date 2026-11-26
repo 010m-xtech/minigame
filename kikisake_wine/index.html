@@ -248,7 +248,7 @@ const SHOP_DATA = {
       ownerNote:"",     // 店主さんからの一言(任意。空欄なら出ません)
       dish:{ name:"フルーツサラダ", why:"ワインの甘さが、果物とよく合います", photo:null },
       info:{ variety:"モスカート・ビアンコ", country:"イタリア", region:"ピエモンテ", producer:"", vintage:"NV", abv:"7.5%", serve:"", notes:"", price:{ glass:null, bottle:4500 } } },
-    { no:2, id:"rose-brut", regionId:"veneto", label:{ img:"label02" }, name:"ポルタ モンティカーノ\u200bロゼ\u200bエクストラドライ", meta:"ヴェネト",
+    { no:2, id:"rose-brut", regionId:"veneto", label:{ img:"label02" }, name:"ポルタ モンティカーノロゼエクストラドライ", meta:"ヴェネト",
       look:{ color:[0.93,0.50,0.44], dens:0.55 },   // 液体の色と濃さ(薄い→濃い。light は種類の標準)
       type:"spark-rose", thirdKind:"acid", body:2, fruit:4, third:2,
       desc:"さくらんぼや赤いベリーを思わせる、ロゼの泡。すっきり辛口で、飲みやすい味わいです。",
@@ -623,6 +623,7 @@ const SHOP_DATA = {
   .track::before{background:var(--line)}
   .track u{width:3px;height:3px;margin:-1.5px 0 0 -1.5px;background:var(--ink-faint)}
   .cmt,.desc,.prompt,.ask h2,.tip,.wname,.wmeta{word-break:keep-all;overflow-wrap:anywhere;line-break:strict}
+  .wname,.measure .wname{overflow-wrap:break-word;text-wrap:balance}   /* ワイン名:語の途中では折り返さない(収まらない語だけ最後の手段で) */
   .cmt,.prompt,.ask h2{text-wrap:balance}
   .desc,.tip{text-wrap:pretty}
 
@@ -858,7 +859,7 @@ const SHOP_DATA = {
   @media (max-width:380px){ .prompt{letter-spacing:.07em} }   /* 「グラスに指を置いてください」を1行に収める */
   .sh-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:6px 26px 12px}
   .sh-kick{font-size:var(--fs-label);letter-spacing:var(--ls-label);color:var(--gold-text);margin:0 40px 8px 0}
-  .sh-name{font-size:21px;line-height:1.5;letter-spacing:.06em;margin:0 40px 6px 0;font-feature-settings:"palt" 1;word-break:keep-all;overflow-wrap:anywhere;text-wrap:balance}
+  .sh-name{font-size:21px;line-height:1.5;letter-spacing:.06em;margin:0 40px 6px 0;font-feature-settings:"palt" 1;word-break:keep-all;overflow-wrap:break-word;line-break:strict;text-wrap:balance}
   /* 折り返し:単語(文節)の途中で切れにくくする。word-break:auto-phrase に対応していない端末では、上の keep-all + line-break:strict + overflow-wrap で代用 */
   @supports (word-break:auto-phrase){ .sh-name,.sh-desc,.sh-row dd{word-break:auto-phrase} }
   /* 地図がシートの中に浮かんでいるとき:横の幅が、極端に狭くなるなら、地図の下に回り込ませる(回り込んだあとは、全幅) */
@@ -908,7 +909,7 @@ const SHOP_DATA = {
   .lp b{font-weight:400;font-size:16px;letter-spacing:.03em;color:var(--ink)}
   .lp small{font-family:"Cormorant Garamond",serif;font-size:14px;letter-spacing:.08em;color:var(--gold-text)}
   .lt{flex:1;min-width:0}
-  .lt b{display:block;font-weight:400;font-size:16px;line-height:1.5;letter-spacing:.04em;word-break:keep-all;overflow-wrap:anywhere;line-break:strict}
+  .lt b{display:block;font-weight:400;font-size:16px;line-height:1.5;letter-spacing:.04em;word-break:keep-all;overflow-wrap:break-word;line-break:strict;text-wrap:balance}
   .lt small{display:block;margin-top:1px;font-size:14px;line-height:1.5;letter-spacing:.04em;color:var(--ink-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .lmk{flex:none;font-style:normal;font-size:14px;line-height:1.5;letter-spacing:.06em;color:var(--gold-text);border:1px solid var(--gold-line);padding:0 7px;border-radius:10px;white-space:nowrap}
   .lmk.t{color:var(--ink-dim);border-color:rgba(237,226,203,.28)}
@@ -6377,7 +6378,11 @@ function fitOne(el,base,min){
   for(let s=base;s>=min;s-=0.5){ el.style.fontSize=s+"px"; if(el.scrollWidth<=el.clientWidth+0.5) return {size:s,wrap:false}; }
   el.style.whiteSpace="normal"; el.style.fontSize=min+"px"; return {size:min,wrap:true};
 }
-const nameOf=w=>w.name;
+/* ワイン名の表示用の文字列(元の name は変えない。表示だけ)。折り返してよい位置に ZWSP(U+200B)、半角英数字は直前の字と WJ(U+2060)で離さない */
+const NAME_BREAK_BEFORE=["ロゼ","エクストラドライ"];   /* 「・」や空白のない、長い名前の語の切れ目(この語の直前で折り返してよい) */
+const nameOf=w=>{ let t=String(w.name||"");
+  NAME_BREAK_BEFORE.forEach(k=>{ t=t.split(k).join("\u200b"+k); });
+  return t.replace(/・/g,"・\u200b").replace(/([^\sA-Za-z0-9\u200b\u2060])([A-Za-z0-9])/g,"$1\u2060$2"); };
 /* ワイン番号(wine.no をそのまま):選ぶ画面・一覧・「このワインについて」・相性度の画面。出すか:CONFIG.ui.select.showNo(全画面に効く) */
 const noOn=()=>((CONFIG.ui||{}).select||{}).showNo===true;
 const noHtml=w=>noOn()&&w&&w.no?`<span class="wno" aria-label="番号 ${w.no}"><small>No.</small>${w.no}</span>`:"";
@@ -7781,7 +7786,7 @@ function shOrphan(){
 }
 function openSheet(){
   const w=WINES[S.idx], rows=infoShown(w); if(!rows.length) return;
-  $("shBody").innerHTML=`<p class="sh-kick">このワインについて</p>${(tbCfg().inSheet&&tbHtml(w,"sh"))||noHtml(w)?`<div class="sh-tb">${tbCfg().inSheet?tbHtml(w,"sh"):""}${noHtml(w)}</div>`:""}<h2 class="sh-name${(w.meta&&(CONFIG.sheet||{}).showMeta===true)?"":" nm"}" id="shName">${esc(w.name)}</h2>`+
+  $("shBody").innerHTML=`<p class="sh-kick">このワインについて</p>${(tbCfg().inSheet&&tbHtml(w,"sh"))||noHtml(w)?`<div class="sh-tb">${tbCfg().inSheet?tbHtml(w,"sh"):""}${noHtml(w)}</div>`:""}<h2 class="sh-name${(w.meta&&(CONFIG.sheet||{}).showMeta===true)?"":" nm"}" id="shName">${esc(nameOf(w))}</h2>`+
     (w.meta&&(CONFIG.sheet||{}).showMeta===true?`<p class="sh-meta">${esc(w.meta)}</p>`:"")+
     ((CONFIG.sheet||{}).showDesc!==false&&w.desc?`<p class="sh-desc">${brk(w.desc)}</p>`:"")+
     ((CONFIG.sheet||{}).showOwnerNote!==false&&w.ownerNote?`<div class="sh-note"><div class="own-h">${esc(ownerFill(CONFIG.owner.noteLabel||"{owner}より"))}</div><p>${brk(w.ownerNote)}</p></div>`:"")+

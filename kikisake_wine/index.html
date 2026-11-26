@@ -185,14 +185,14 @@
                         途中でタップすると、残りが、すぐ全部出ます(そのタップでは、質問やボタンは反応しません)。「動きを減らす」設定では、はじめから全部
         利用者の区分 CONFIG.profile  説明カードの手順の下に、性別・年代の2問(タップで答える。両方に答えるまで、「はじめる」で先へ進めません。性別は「答えない」も、答えとして数えます)
                 show   "auto" ならログが有効なときだけ出します(ログが無効なら、質問も、通信も、保存もありません)。true でいつも、false で出しません
-                       確認用:?profile=1、または画面の下の「質問つきで見る」(allowUrlSwitch が true のとき。ログが無効でも、質問を確認できます)
+                       確認用:?profile=1(allowUrlSwitch が true のとき。ログが無効でも、質問を確認できます)。画面の下の「質問つきで見る」「オープニングを見る」は、削除しました
                 title・note  見出しと一言。gender・age の o は [記録される値, 画面の文言]。age.noAnswer:true で「答えない」を足せます(初期:外してある)
                 記録   「はじめる」を押したときに profile イベント(g:m/f/na/""、a:u34/o35/na/"")。以後のイベントすべてに g・a が付きます
                        取るのは大まかな区分だけ。お名前など、個人が分かる情報は取りません
                 1端末につき1回  質問に答えると、回答(g・a)と質問のバージョン(CONFIG.profile.version)が、その端末のブラウザ(localStorage の hs_prof)に保存されます。
                        2回目以降の訪問では、質問を出さず、説明カードだけを出します(保存された g・a は、以後のイベントすべてに付きます。profile イベントは、送りません)
                        保存が使えない環境(プライベートモードなど)や、保存が消えたとき(iPhone の Safari は、一定期間使わないと、消えることがあります)は、もう一度、質問します
-                       もう一度、聞きたいとき:CONFIG.profile.version の数字を変える(全員に、もう一度、質問します)。確認するとき:?profile=1 または「質問つきで見る」(保存があっても、質問を出します)
+                       もう一度、聞きたいとき:CONFIG.profile.version の数字を変える(全員に、もう一度、質問します)。確認するとき:?profile=1(保存があっても、質問を出します)
                        ログが無効のときは、質問も、保存も、通信も、ありません
         文言の方針  現在進行形(「飲んでいる」「〜しています」など)は使いません。ご注文の前でも、あとでも、使える言い方にし、お誘いの調子にします
         考え方  1画面1アクション。「いま押すもの」は、画面の下の主ボタン1つ。隠れた操作(スワイプなど)に頼らない
@@ -510,9 +510,6 @@ const SHOP_DATA = {
   .op-shop b{display:block;font-family:Georgia,"Times New Roman",var(--mincho);font-style:italic;font-weight:400;
     font-size:20px;letter-spacing:.06em;color:var(--ink);margin-bottom:2px}
   .op-shop::after{content:"";display:block;width:28px;height:1px;background:rgba(232,183,122,.55);margin:12px auto 0}
-  .opreplay{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--safe-b) + 1px);z-index:60;font:10px/1 var(--f-jp,sans-serif);letter-spacing:.08em;color:#fff;background:none;border:0;padding:2px 10px;height:13px;white-space:nowrap}
-  .opreplay.q{left:auto;right:10px;transform:none}
-  body.op .opreplay,.one.logon .opreplay{display:none}
   .op-brand.tight p{margin-top:8px!important;font-size:12px!important;line-height:1.5!important;letter-spacing:.14em!important}
   .op-brand.in ~ .op-shop{opacity:1}
   .op-shop{display:none!important}   /* オープニング上部のロゴ・店名は出さない */
@@ -1157,9 +1154,9 @@ const SHOP_DATA = {
    付けない:「動きを減らす」設定(確認用の再生を除く)/ ?flow=classic(オープニングに入らないため)。
    万一オープニングが始まらないとき(読み込みの失敗など)は、12秒後に外して、ボタンが出なくなるのを防ぐ */
 (function(){ try{
-  var q=location.search+"&"+location.hash.slice(1), rp=false; try{ rp=sessionStorage.getItem("hs_replay")==="1"; }catch(e){}
+  var q=location.search+"&"+location.hash.slice(1);
   var rm=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches, classic=/(^|[?&#])flow=classic(&|$)/.test(q);
-  if(classic||(rm&&!rp)) return;
+  if(classic||rm) return;
   document.body.classList.add("op");
   setTimeout(function(){ if(!window.__opOn) document.body.classList.remove("op"); },12000);
 }catch(e){} })();
@@ -1254,7 +1251,6 @@ const SHOP_DATA = {
     <p class="op-shop passive hide" id="opShop"><b></b><span></span><i class="logo logo-shop" role="img" aria-label="salute ITALIAN TRATTORIA"></i></p>
     <div class="op-skip passive">タップでスキップ</div>
   </div>
-  <button id="opReplay" class="opreplay" type="button" hidden>オープニングを見る</button><button id="opReplayQ" class="opreplay q" type="button" hidden>質問つきで見る</button>
   <!-- 操作の案内(光の点と一言)・ヒント・ワインの情報 -->
   <div class="coach" id="coach" aria-hidden="true"><i class="cdot"></i></div>
   <p class="ctxt off" id="hintTxt"></p>
@@ -6011,7 +6007,7 @@ const CONFIG = {
      ---- 導入時の確認 ----
        enabled:true にして、?t=3 付きの URL を開き、シートに行が増えることを確認する。enabled:false なら、通信はまったく発生しません */
   log:{ enabled:false, url:"", table:"t", notice:"利用状況を、匿名で記録します|(性別・年代の区分を含みます)" },
-  allowUrlSwitch:true,
+  allowUrlSwitch:false,
   compare:{ same:0.15, sameThird:0.25, little:0.35, thirdWeight:0.8 }, // ③ の一言コメント
   suggest:{
     weight:{ heavy:1.0, fruit:1.0, third:0.6 },   // 相性度の計算の、軸ごとの重み
@@ -8107,8 +8103,7 @@ if(ONE){
 /* ---------- オープニングのあとの説明カード ---------- */
 const INTRO={ on:false, seen:false, then:"", anim:false, eat:false, timers:[], prof:false, draft:{g:"",a:""} };   // seen は、この訪問の間だけ(ブラウザには保存しない)
 /* 性別・年代の質問を出すか:"auto" はログが有効なときだけ。確認用に ?profile=1 */
-let FORCE_PROF=false; try{ FORCE_PROF=sessionStorage.getItem("hs_prof")==="1"; sessionStorage.removeItem("hs_prof"); }catch(_){}
-function profOn(){ const v=(CONFIG.profile||{}).show; if(URLSW&&(QS.get("profile")==="1"||FORCE_PROF)) return true; return (v===true || (v!==false && LOG_ON)) && !PSTORED; }
+function profOn(){ const v=(CONFIG.profile||{}).show; if(URLSW&&(QS.get("profile")==="1")) return true; return (v===true || (v!==false && LOG_ON)) && !PSTORED; }
 const ITEMPO={ fadeMs:650, blockGapMs:400, stepGapMs:200, leadInPauseMs:400, type:{ cps:14, commaMs:0, charFadeMs:110, lineGapMs:0 }, chipMs:450, btnMs:350, startMs:100, scale:1, replayScale:0.4 };
 /* 文言は、「|」で行を区切った文字列(または、行の配列) */
 const iLines=s=>{ const a=Array.isArray(s)?s:String(s==null?"":s).split("|"); return a.map(x=>String(typeof x==="string"?x:(x&&x.t)||"").trim()).filter(Boolean); };
@@ -8276,10 +8271,7 @@ wineDefaults(); P.heavy=P.heavyT; P.fruit=P.fruitT; P.light=P.lightT.slice(); P.
 initText(); resize();
 Object.assign(P.glass,P.glassT);
 if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{ fitInfo(); renderWineText(); layout(); if(S.opening) fitBrand(); if(INTRO.on) introFit(); });
-if(URLSW){ const rq=$("opReplayQ"); rq.hidden=false; rq.addEventListener("click",()=>{ try{ sessionStorage.setItem("hs_replay","1"); sessionStorage.setItem("hs_prof","1"); }catch(e){} location.reload(); });   // 確認用:性別・年代の質問つきで、オープニングから見直す
-  const rb=$("opReplay"); rb.hidden=false; rb.addEventListener("click",()=>{ try{ sessionStorage.setItem("hs_replay","1"); }catch(e){} location.reload(); }); }   // 確認用(allowUrlSwitch が true のとき):いつでもオープニングを見直す
-let FORCE_OP=false; try{ FORCE_OP=sessionStorage.getItem("hs_replay")==="1"; sessionStorage.removeItem("hs_replay"); }catch(e){}
-if(!reduceMotion||FORCE_OP) startOpening(); else { if(ONE) goStage(); corners(); coachArm(); }
+if(!reduceMotion) startOpening(); else { if(ONE) goStage(); corners(); coachArm(); }
 requestAnimationFrame(frame);
 </script>
 </body>

@@ -405,7 +405,14 @@ const SHOP_DATA = {
     display:flex;align-items:center;justify-content:center;overflow:hidden;transition:opacity .25s, transform .25s}
   .measure{visibility:hidden;bottom:auto;top:-2000px}
   .measure .wname,.measure .wmeta{display:block;height:auto}
-  .swapping .wname,.swapping .wmeta{opacity:0;transform:translateY(6px)}
+  .swapping .wname,.swapping .wmeta,.swapping .tbrow{opacity:0;transform:translateY(6px)}
+  .tbrow{display:flex;justify-content:center;height:30px;margin:0 0 6px;transition:opacity .25s,transform .25s} .tbrow.none{display:none}
+  .tbadge{display:inline-flex;align-items:center;gap:8px;padding:3px 14px 3px 11px;border-radius:999px;border:1px solid var(--gold-line);background:rgba(14,9,10,.55);
+    font-family:var(--mincho);font-size:16px;line-height:1.4;letter-spacing:.14em;color:var(--gold-text);white-space:nowrap}
+  .tb-d{flex:none;display:inline-block;width:11px;height:11px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(255,240,215,.4)}
+  .tbadge.sh{margin:0 0 10px}
+  #s5:not(.m-select) .band .tbrow{display:none}
+  .lrow .lt>b{padding-left:18px;text-indent:-18px} .lrow .tb-d{width:10px;height:10px;margin-right:8px;vertical-align:.04em;text-indent:0}
   .dots{display:flex;justify-content:center;gap:9px;margin-top:20px}
   .dots i{width:6px;height:6px;border-radius:50%;background:var(--ink-faint);transition:all .3s}
   .dots i.on{background:var(--ink);width:18px;border-radius:3px}
@@ -1308,6 +1315,7 @@ const SHOP_DATA = {
   <section class="screen" id="s1" aria-label="選ぶ">   <!-- 旧い流れ(?flow=classic)の最初の画面。"on" は、初期化のとき、旧い流れだけに付けます -->
     <div class="swipe-hint passive" id="swipeHint"><span class="chev l">‹</span><span class="chev r">›</span></div>
     <div class="s1-info passive" id="info">
+      <div class="tbrow" id="tbrow"></div>
       <h1 class="wname" id="wname"></h1>
       <p class="wmeta" id="wmeta"></p>
       <div class="dots" id="dots"></div>
@@ -6291,6 +6299,10 @@ const CONFIG = {
   //   askOn     iPhone の許可の確認を出す場所。"intro"=最初の主ボタン(説明カードの「はじめる」)/ "firstTap"=最初のタップ。許可は1度だけ聞き、拒否・未対応のときは、何も出さず傾きなしで続けます
   //   hint      はじめてグラスが見えたとき、1度だけ出す一言(show:false で非表示。ms=表示する長さ)。傾きを検出したら、すぐ消えます。傾きが使えない端末では出しません
   //   「動きを減らす」設定の端末では、すべて無効です
+  /* ワインの種類の札(泡・白・赤)。選ぶ画面のワイン名の上・「このワインについて」・一覧の各行。「感じる」「相性度」「料理」には出しません
+     キー名は、ワインの type から決まります(spark-white・spark-rose → sparkling / white-light・white-full → white / red-light・red-full → red) */
+  typeBadge:{ enabled:true, inList:true, inSheet:true, labels:{ sparkling:"泡", white:"白", red:"赤" },
+              colors:{ sparkling:"#ecd9a0", white:"#d3d98c", red:"#7d1a2c" } },
   price:{ enabled:true,        // 価格を出す(false で、すべて出さない)
     currency:"¥",              // 通貨の記号(金額の前)
     taxLabel:"tax in",         // 税込の表記(金額の右に、小さな斜体で添える。"" で出さない)
@@ -6618,6 +6630,7 @@ function renderWineText(){
   n.textContent=nameOf(w); m.textContent=lineOf(w); m.classList.toggle("none",!lineOf(w)); m.classList.toggle("pick",!!w.pick);
   if(f){ n.style.fontSize=f.n.size+"px"; n.style.whiteSpace=f.n.wrap?"normal":"nowrap";
          m.style.fontSize=f.mt.size+"px"; m.style.whiteSpace=f.mt.wrap?"normal":"nowrap"; }
+  { const h=tbHtml(w); $("tbrow").innerHTML=h; $("tbrow").classList.toggle("none",!h); }
   [...$("dots").children].forEach((d,i)=>d.classList.toggle("on",i===S.idx));
   if(S.screen===5) requestAnimationFrame(layout);   /* ワイン名の下の行(イチオシの印)で、帯の高さが変わるので、並べ直す */
 }
@@ -6707,6 +6720,12 @@ function renderS4(){
   renderTonight();
 }
 /* ワインの液体色(リニア)→ 見本の丸 */
+const TB_KEY={ "spark-white":"sparkling","spark-rose":"sparkling","white-light":"white","white-full":"white","red-light":"red","red-full":"red" };
+const tbCfg=()=>{ const c=CONFIG.typeBadge||{}; return { enabled:c.enabled!==false, inList:c.inList!==false, inSheet:c.inSheet!==false,
+  labels:Object.assign({sparkling:"泡",white:"白",red:"赤"},c.labels), colors:Object.assign({sparkling:"#ecd9a0",white:"#d3d98c",red:"#7d1a2c"},c.colors) }; };
+const tbKey=w=>TB_KEY[w&&w.type]||"";
+const tbDot=(k,c)=>`<i class="tb-d" style="background:${esc(c.colors[k])}"></i>`;
+function tbHtml(w,cls){ const c=tbCfg(), k=tbKey(w); if(!c.enabled||!k||!c.labels[k]) return ""; return `<span class="tbadge${cls?" "+cls:""}">${tbDot(k,c)}<span>${esc(c.labels[k])}</span></span>`; }
 function swatch(c){
   const g=v=>Math.round(Math.pow(Math.min(1,v),1/2.2)*255);
   const hi=c.map(v=>g(v*1.25)).join(","), lo=c.map(v=>g(v*0.45)).join(",");
@@ -8070,7 +8089,7 @@ setTimeout(()=>{ const go=()=>{ try{ if(rmCfg().enabled!==false&&WINES.some(rmRe
 let sheetBack=null;
 function openSheet(){
   const w=WINES[S.idx], rows=infoShown(w); if(!rows.length) return;
-  $("shBody").innerHTML=`<p class="sh-kick">このワインについて</p><h2 class="sh-name${(w.meta&&(CONFIG.sheet||{}).showMeta===true)?"":" nm"}" id="shName">${esc(w.name)}</h2>`+
+  $("shBody").innerHTML=`<p class="sh-kick">このワインについて</p>${tbCfg().inSheet?tbHtml(w,"sh"):""}<h2 class="sh-name${(w.meta&&(CONFIG.sheet||{}).showMeta===true)?"":" nm"}" id="shName">${esc(w.name)}</h2>`+
     (w.meta&&(CONFIG.sheet||{}).showMeta===true?`<p class="sh-meta">${esc(w.meta)}</p>`:"")+
     ((CONFIG.sheet||{}).showDesc!==false&&w.desc?`<p class="sh-desc">${brk(w.desc)}</p>`:"")+
     ((CONFIG.sheet||{}).showOwnerNote!==false&&w.ownerNote?`<div class="sh-note"><div class="own-h">${esc(ownerFill(CONFIG.owner.noteLabel||"{owner}より"))}</div><p>${brk(w.ownerNote)}</p></div>`:"")+
@@ -8099,7 +8118,7 @@ function openList(){
   const LC=UI.list||{}, G=LC.groups||{}, tasted=new Set(S.history.filter(Boolean).map(h=>h.id));
   const row=i=>{ const w=WINES[i], now=i===S.idx, td=LC.showTasted!==false&&tasted.has(w.id);
     return `<button type="button" class="lrow${now?" now":""}" data-i="${i}"${now?' aria-current="true"':""}><i style="background:${swatch(w.color)}"></i>`+
-      `<span class="lt"><b>${esc(nameOf(w))}</b>${subOf(w)?`<small>${esc(subOf(w))}</small>`:""}`+
+      `<span class="lt"><b>${tbCfg().enabled&&tbCfg().inList&&tbKey(w)?tbDot(tbKey(w),tbCfg()):""}${esc(nameOf(w))}</b>${subOf(w)?`<small>${esc(subOf(w))}</small>`:""}`+
       ((now||td||w.pick)?`<span class="lmks">${w.pick?`<em class="lmk p">${esc(pickOf(w))}</em>`:""}${now?`<em class="lmk">${esc(LC.nowMark)}</em>`:""}${td?`<em class="lmk t">${esc(LC.tastedMark)}</em>`:""}</span>`:"")+`</span>${priceList(w)}</button>`; };
   /* 区分(泡・白・赤。どれでもないワインは「その他」を自動で追加)。7本以上で、タブにする */
   const gOf=w=>{ const g=LIST_GROUP[w.type]; return (g==="spark"||g==="white"||g==="red")?g:"other"; };

@@ -155,7 +155,7 @@
         州の id   piedmont / veneto / lombardy / trentino-south-tyrol / apulia / abruzzo / tuscany など(REGION_MAP.regions。全20州)
         印の位置  mapPin:[x,y] で、ワインごとに変えられます(地図の座標。横 0〜610、縦 0〜793。省略時は、州の中ほど)
         regionId が無い、または、知らない id のワインは、地図を出しません
-        設定      CONFIG.regionMap(enabled / auto / delay / pos / size / float / tilt)
+        設定      CONFIG.regionMap(enabled / auto / delay / pos / size / float)
         地図は、触れても反応しません(後ろの操作を、じゃましない)。動きを減らす設定では、フェードだけ。画質 low では、浮遊と波紋を止めます
         Map data: @svg-maps/italy (CC BY 4.0)
         (未入力の項目は、起動時にコンソールへ一覧で出ます)
@@ -167,9 +167,6 @@
                 lead    一言の説明(| で改行)。steps  3つの手順(番号は自動)。start  主ボタンの文言(初期:はじめる)
                 show:false で出しません(オープニングのあと、すぐ ① えらぶ へ)。
                 {owner} は店主の呼び名。ui.selectLead は、① えらぶ のときに舞台に出る一文
-        スマホの傾き CONFIG.tilt  縦持ちで左右に傾けると、液面も傾きます(えらぶ・感じる。結果・お料理は動かしません)
-                enabled:false だけで、止まります / maxAngle(最大になる角度。初期30)/ deadzone(無視する小さな揺れ。初期2)/ smooth(なめらかさ・秒)
-                askOn:"intro"(最初の主ボタン)か "firstTap"(最初のタップ)。iPhone の許可の確認は、そのタップの中で、1度だけ。拒否・未対応のときは、何も出さず、傾きなしで続けます
                 hint:はじめてグラスが見えたとき、1度だけ出す一言(show:false で非表示)。指でなぞっている間・「動きを減らす」設定・横向きのときは、傾きません
         案内テロップ CONFIG.telop  ① えらぶ の一文(ui.selectLead)の強調。文言は ui.selectLead のまま
                 常時    size(文字の倍率。初期 1.15)/ color(文字色)/ band(薄い暗色の帯の濃さ)/ line(帯の上下の金線の濃さ)。動きがなくても、背景の写真に埋もれません
@@ -397,9 +394,6 @@ const SHOP_DATA = {
   .wname{font-family:var(--mincho);font-size:23px;line-height:1.4;letter-spacing:.03em;margin:0;
     display:flex;align-items:center;justify-content:center;overflow:hidden;
     text-shadow:0 2px 18px rgba(0,0,0,.6);transition:opacity .25s, transform .25s}
-  #tiltHint{position:absolute;left:50%;top:calc(var(--safe-t,0px) + 56px);transform:translate(-50%,-4px);z-index:30;white-space:nowrap;padding:6px 14px;border-radius:18px;font-size:12.5px;letter-spacing:.06em;line-height:1.5;text-align:center;
-    color:var(--ink);background:rgba(14,9,7,.62);border:1px solid var(--gold-line);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .6s,transform .6s,visibility 0s .6s}
-  #tiltHint.on{opacity:1;visibility:visible;transform:translate(-50%,0);transition:opacity .6s,transform .6s}
   .wmeta.none{display:none}
   .wmeta{margin:10px 0 0;font-size:16px;line-height:1.5;color:var(--ink-dim);letter-spacing:.03em;
     display:flex;align-items:center;justify-content:center;overflow:hidden;transition:opacity .25s, transform .25s}
@@ -882,7 +876,7 @@ const SHOP_DATA = {
   .rm-fl{position:absolute;inset:0}
   .rmap.float .rm-fl{animation:rmFloat 6s ease-in-out infinite}
   @keyframes rmFloat{0%,100%{transform:translateY(-1.75px)}50%{transform:translateY(1.75px)}}
-  .rm-tl{position:absolute;inset:0;transform:rotateX(calc(15deg + var(--rmx,0deg))) rotateY(var(--rmy,0deg)) rotateZ(-1.5deg);transform-origin:50% 72%;will-change:transform}
+  .rm-tl{position:absolute;inset:0;transform:rotateX(calc(15deg + var(--rmx,0deg))) rotateZ(-1.5deg);transform-origin:50% 72%;will-change:transform}
   .rm-tl canvas{position:absolute;display:block;pointer-events:none}
   .rm-dye{opacity:0;transition:opacity .5s ease}
   .rmap.dye .rm-dye{opacity:1}
@@ -1308,7 +1302,6 @@ const SHOP_DATA = {
 <div id="app">
   <div class="wlabel" id="wlabel" aria-hidden="true"><div class="wl-fl"><img alt="" hidden></div></div>
   <div id="ovl" aria-hidden="true"><div class="ov-base"></div><div class="ov-zone"></div></div>
-  <div id="tiltHint" role="status" aria-live="polite"></div>
   <header aria-hidden="true"></header>
 
   <!-- ① 選ぶ -->
@@ -6292,13 +6285,6 @@ const CONFIG = {
   // 3D の描画:画質の自動切り替え、カメラの見下ろし角(画面ごと・度)、文言の下を暗く沈める量
   perf:{ fpsDrop:30, fpsWatch:24, idleMs:8000 },
   view:{ pitch:{1:9,2:4,3:6,4:9}, shade:0.34, pourDur:1.5, leanMax:0.20 },
-  // スマホの傾き:縦持ちで左右に傾けると、グラスの液面も傾く(えらぶ・感じる の画面だけ)。止めるときは enabled:false だけ
-  //   maxAngle  この角度(度)で、液面の傾きが最大(初期30)。最大の傾きは、指でなぞったときの上限(±0.45)を超えません
-  //   deadzone  この角度(度)までの小さな揺れは、無視(初期2)
-  //   smooth    なめらかさ(秒)。大きいほど、ゆっくり追いかけます(初期0.12)
-  //   askOn     iPhone の許可の確認を出す場所。"intro"=最初の主ボタン(説明カードの「はじめる」)/ "firstTap"=最初のタップ。許可は1度だけ聞き、拒否・未対応のときは、何も出さず傾きなしで続けます
-  //   hint      はじめてグラスが見えたとき、1度だけ出す一言(show:false で非表示。ms=表示する長さ)。傾きを検出したら、すぐ消えます。傾きが使えない端末では出しません
-  //   「動きを減らす」設定の端末では、すべて無効です
   /* ワインの種類の札(泡・白・赤)。選ぶ画面のワイン名の上・「このワインについて」・一覧の各行。「感じる」「相性度」「料理」には出しません
      キー名は、ワインの type から決まります(spark-white・spark-rose → sparkling / white-light・white-full → white / red-light・red-full → red) */
   typeBadge:{ enabled:true, inList:true, inSheet:true, labels:{ sparkling:"泡", white:"白", red:"赤" },
@@ -6328,9 +6314,7 @@ const CONFIG = {
     delay:600,      // 開いてから、地図が浮かぶまでの間(ミリ秒)
     pos:"auto",     // 置く場所。"auto"=グラス・文字・ボタンと重ならない、いちばん広い空き。決めるなら { right:"4%", top:"12%" } など(重なるときは、縮める。それでも無理なら auto)
     size:0.25,      // 地図の高さ(画面の高さに対する割合)。背の低い画面(高さ 700 未満)は 0.20 まで。空きが足りなければ、さらに縮める
-    float:true,     // ゆっくり上下に浮かぶ
-    tilt:true },    // 端末を傾けると、わずかに傾く(±4°)
-  tilt:{ enabled:true, maxAngle:30, deadzone:2, smooth:0.12, askOn:"intro", hint:{ show:true, text:"スマホを傾けると、ワインも傾きます", ms:5000 } },
+    float:true },   // ゆっくり上下に浮かぶ
   // 文字の読みやすさのための、3層の暗幕(CSS だけ。3D の描画は増えません):① 全体のごく薄い暗幕(base)/ ② 文字のある場所だけの、やわらかい暗いグラデーション(zone。画面ごと)/ ③ 文字の影(shadow)
   //   auto:true のときは、背景の写真の明るさ(読み込み時に1回だけ計算)に合わせて、zone を自動で強め・弱めにします。?debug=1 で、スライダーと、決まった値の表示が出ます
   // グラスの見やすさ(3D のシェーダーと、背景の中だけで描く。ブルームには頼らない):rim 輪郭の細い光 / halo 後ろの淡い光だまり / spec 縦の反射の光 / dim グラスの周りの背景を沈める量(0〜0.6)
@@ -7264,51 +7248,6 @@ function syncPhase(){
   layout();
 }
 
-/* 端末の傾き(左右)→ 液面の傾き。許可が要る iOS は、最初のタップの中で、1度だけ確認する */
-const TL={ cfg:CONFIG.tilt||{}, listening:false, asked:false, ok:false, raw:0, prev:0, g:0, hintDone:false, hintOn:false, hintEnd:0, hintBase:0 };
-const tiltEnabled=()=>TL.cfg.enabled!==false && !reduceMotion;
-function tiltListen(){
-  if(TL.listening||!tiltEnabled()||!window.DeviceOrientationEvent) return; TL.listening=true;
-  addEventListener("deviceorientation",e=>{
-    let a=null, ang=0; try{ ang=(screen.orientation&&screen.orientation.angle)||window.orientation||0; }catch(_){}
-    if(ang===90||ang===270||ang===-90){ TL.raw=0; return; }          // 横向きのときは、傾きを使わない
-    if(e.gamma==null) return; a=e.gamma; if(ang===180) a=-a;
-    TL.raw=a; TL.ok=true; },{passive:true});
-}
-function tiltAsk(){
-  if(TL.asked||!tiltEnabled()||!window.DeviceOrientationEvent) return; TL.asked=true;   // 聞き直さない
-  try{
-    if(typeof DeviceOrientationEvent.requestPermission==="function"){
-      const r=DeviceOrientationEvent.requestPermission();
-      if(r&&r.then) r.then(v=>{ if(v==="granted") tiltListen(); }).catch(()=>{});
-    }else tiltListen();
-  }catch(_){}
-}
-if(tiltEnabled() && window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission!=="function") tiltListen();   // 許可が要らない端末は、すぐに始める
-if(tiltEnabled() && TL.cfg.askOn==="firstTap") addEventListener("click",tiltAsk,{capture:true,once:true});
-/* 毎フレーム:傾き(度)→ 不感帯 → ローパス → 液面の傾き(P.tiltT に足す値)。振ったときは、波を少しだけ足す */
-function tiltStep(dt,now){
-  if(!TL.ok||!tiltEnabled()) return 0;
-  const C=TL.cfg, max=Math.max(5,+C.maxAngle||30), dz=Math.max(0,+C.deadzone||0), tau=Math.max(0.01,+C.smooth||0.12);
-  const active=S.screen===5&&(S.mode==="select"||S.mode==="feel")&&!S.opening&&!S.sheet&&!drag&&!SD&&!S.touching;
-  const a=TL.raw, mag=Math.max(0,Math.min(max,Math.abs(a))-dz)/Math.max(1,max-dz), tgt=active?-Math.sign(a)*mag*0.45:0;
-  TL.g+=(tgt-TL.g)*(1-Math.exp(-dt/tau));
-  const v=Math.abs(a-TL.prev)/Math.max(dt,0.001); TL.prev=a;
-  if(active&&v>140) P.wave=Math.min(0.03,P.wave+Math.min(0.02,(v-140)/9000)*dt*60*0.5);
-  tiltHint(now,active);
-  return TL.g;
-}
-function tiltHint(now,active){
-  const H=TL.cfg.hint||{}, el=$("tiltHint"); if(!el||H.show===false||TL.hintDone) return;
-  if(!TL.hintOn){
-    let seen=false; try{ seen=sessionStorage.getItem("hs_tilt_hint")==="1"; }catch(_){}
-    if(seen){ TL.hintDone=true; return; }
-    if(active&&S.mode==="select"&&!INTRO.on&&!S.judged){ TL.hintOn=true; TL.hintEnd=now+(+H.ms||5000); TL.hintBase=TL.raw; el.textContent=H.text||""; el.classList.add("on");
-      try{ sessionStorage.setItem("hs_tilt_hint","1"); }catch(_){} }
-    return; }
-  if(now>TL.hintEnd||Math.abs(TL.raw-TL.hintBase)>8||S.mode!=="select"){ TL.hintOn=false; TL.hintDone=true; el.classList.remove("on"); }
-}
-
 /* ============================================================
    ③ の演出:あなたの光 → しずくが落ちてお店の光 → 2点が光で結ばれる
    ============================================================ */
@@ -7541,8 +7480,8 @@ function frame(now){
 
   const stiff=lerp(55,22,P.heavy), damp=lerp(3.5,6.5,P.heavy)*(WINES[S.idx].damp||2.85)/2.85;   // 重いほど、ゆっくり粘る
   const sway = reduceMotion?0: 0.035*Math.sin(now/1000*0.9)+0.02*Math.sin(now/1000*1.7);
-  P.tiltV += ((P.tiltT+sway+tiltStep(dt,now))-P.tilt)*stiff*dt - P.tiltV*damp*dt;
-  rmTilt(dt); labelTick(dt,now);
+  P.tiltV += ((P.tiltT+sway)-P.tilt)*stiff*dt - P.tiltV*damp*dt;
+  labelTick(dt,now);
   P.tilt += P.tiltV*dt;
   P.tilt=Math.max(-0.6,Math.min(0.6,P.tilt));
   P.wave = Math.max(reduceMotion?0.002:0.007, P.wave*Math.exp(-dt*lerp(1.6,2.8,P.heavy)) + Math.abs(P.tiltV)*dt*0.012);
@@ -7830,8 +7769,8 @@ function labelTick(dt,now){
 }
 /* ---------- 産地の小さな地図:「このワインについて」を開くと、空いている所に、和紙の切り抜きのイタリアが、ふわっと浮かぶ ----------
    紙は、実行時に canvas で一度だけ描いて、使い回す(画像は使わない)。動きは CSS だけ(グラスの描画には、触れない) */
-const RM={ cache:null, tm:[], on:false, ry:0, ryS:"" };
-const rmCfg=()=>Object.assign({enabled:true,countries:["イタリア"],auto:true,delay:600,pos:"auto",size:0.25,float:true,tilt:true},CONFIG.regionMap||{});
+const RM={ cache:null, tm:[], on:false };
+const rmCfg=()=>Object.assign({enabled:true,countries:["イタリア"],auto:true,delay:600,pos:"auto",size:0.25,float:true},CONFIG.regionMap||{});
 const rmLow=()=>{ if(QLOCK===2) return true; try{ return !!(R3&&R3.tier==="low"); }catch(_){ return false; } };
 const rmRegion=w=>{ const id=w&&w.regionId, R=REGION_MAP.regions, cs=rmCfg().countries; if(Array.isArray(cs)&&!cs.includes(w&&w.info&&w.info.country)) return null; return (id&&Object.prototype.hasOwnProperty.call(R,id))?R[id]:null; };
 const rmOn=w=>{ const c=rmCfg(); return c.enabled!==false && !!rmRegion(w); };
@@ -8010,7 +7949,7 @@ function rmPut(w,rg,instant){
   Object.assign(el.querySelector(".rm-tag").style,{left:L.tx+"px",top:L.ty+"px"});
   const low=rmLow(), still=reduceMotion;
   el.classList.toggle("float",c.float!==false&&!still&&!low); el.classList.toggle("anim",!still); el.classList.toggle("wave",!still&&!low);
-  RM.on=true; RM.ryS=""; tl.style.removeProperty("--rmy");
+  RM.on=true;
   rmReveal(el,instant,still); return true;
 }
 /* ふわっと出る:地図 → 州が染まる → 印 → 札(順に、ゆっくり) */
@@ -8063,8 +8002,8 @@ function rmShow(){
   try{ if(!rmDarkOk(w,rg)) inSheet=rmPutIn(w,rg); }catch(e){ console.warn("regionMap",e); }   // まず、暗い空き(今までどおり)。置けないときだけ、シートの中
   RM.tm.push(setTimeout(()=>{ if(!S.sheet||S.idx!==idx||$("sheet").classList.contains("list")) return;
     try{
-      if(inSheet&&RM.inEl&&RM.inEl.isConnected){ RM.on=true; RM.el=RM.inEl; RM.ryS=""; rmReveal(RM.inEl,false,reduceMotion); return; }
-      if(!rmPut(w,rg,false)&&rmPutIn(w,rg)){ RM.on=true; RM.el=RM.inEl; RM.ryS=""; rmReveal(RM.inEl,false,reduceMotion); }
+      if(inSheet&&RM.inEl&&RM.inEl.isConnected){ RM.on=true; RM.el=RM.inEl; rmReveal(RM.inEl,false,reduceMotion); return; }
+      if(!rmPut(w,rg,false)&&rmPutIn(w,rg)){ RM.on=true; RM.el=RM.inEl; rmReveal(RM.inEl,false,reduceMotion); }
     }catch(e){ console.warn("regionMap",e); } },Math.max(0,+c.delay||0)));
 }
 function rmHide(now){
@@ -8075,12 +8014,6 @@ function rmHide(now){
   if(now||!was||(inn&&RM.el===inn)){ el.className="rmap"; el.hidden=true; return; }
   el.classList.remove("on"); el.classList.add("out");
   RM.tm.push(setTimeout(()=>{ if(!RM.on){ el.hidden=true; el.className="rmap"; } },340));
-}
-/* 端末の傾き(既存の値)で、±4°ほど、わずかに傾く。地図が出ているときだけ */
-function rmTilt(dt){
-  if(!RM.on||reduceMotion||rmCfg().tilt===false||!TL.ok) return;
-  const tgt=Math.max(-1,Math.min(1,TL.raw/30))*4; RM.ry+=(tgt-RM.ry)*(1-Math.exp(-dt/0.25));
-  const v=RM.ry.toFixed(1); if(v!==RM.ryS){ RM.ryS=v; (RM.el||$("rmap")).querySelector(".rm-tl").style.setProperty("--rmy",v+"deg"); }
 }
 addEventListener("resize",()=>{ if(RM.on&&S.sheet&&RM.el===$("rmap")){ const w=WINES[S.idx], rg=rmRegion(w); if(rg) try{ rmPut(w,rg,true); }catch(_){} } });
 /* 紙は、シートを開くより前に、手のすいたときに描いておく */
@@ -8566,7 +8499,6 @@ if(ONE){
   $("qrows").addEventListener("click",e=>{ const b=e.target.closest(".qd"); if(!b) return; pick(b.closest(".qrow").dataset.k,+b.dataset.v); });
   $("mainBtn").onclick=()=>{
     const k=mainKey(); logEv("main_btn",{label:k}); poke();
-    if(TL.cfg.askOn!=="firstTap") tiltAsk();   // iPhone の許可の確認は、最初の主ボタン(説明カードの「はじめる」)の、タップの中で、1度だけ
     if(k==="intro") introGo();
     else if(k==="start") setMode("feel");
     else if(k==="choose") nudge();

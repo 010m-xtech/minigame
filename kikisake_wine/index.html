@@ -2,9 +2,9 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b0809">
-<title>ワイン相性診断</title>
+<title>サルーテ ワインリスト</title>
 <script>
 /* ======================================================================
    【フォントの再作成】 日本語フォント(Shippori Mincho)は、このファイルで使う文字だけに絞って、埋め込んであります。
@@ -238,7 +238,7 @@
 
    ====================================================================== */
 const SHOP_DATA = {
-  shop:{ name:"salute", nameKana:"サルーテ", sub:"ITALIAN TRATTORIA", show:true, logo:"logo" },   // オープニングの店名。nameKana は、文言の中の {shop} に入るカナの店名(説明カードの見出しなど)。logo は IMAGES のキー(透過 PNG・白)。あれば、タイトル(イタリアの三色)と店名(薄いベージュ)をロゴで出す
+  shop:{ name:"salute", nameKana:"サルーテ", title:"{shop} ワインリスト", sub:"ITALIAN TRATTORIA", show:true, logo:"logo" },   // オープニングの店名。title は、ブラウザのタブの題名({shop} は nameKana)。nameKana は、文言の中の {shop} に入るカナの店名(説明カードの見出しなど)。logo は IMAGES のキー(透過 PNG・白)。あれば、タイトル(イタリアの三色)と店名(薄いベージュ)をロゴで出す
   photos:{ opening:"exterior", openingBlur:"exteriorBlur", bg:"interiorBlur" },
   wines:[
     { no:1, id:"asti", regionId:"piedmont", label:{ img:"label01" }, name:"テヌーテ ネイラーノ アスティ", meta:"モスカート · ピエモンテ",
@@ -366,7 +366,7 @@ const SHOP_DATA = {
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hidden;
-    font-family:var(--sans);-webkit-font-smoothing:antialiased;overscroll-behavior:none;touch-action:none;
+    font-family:var(--sans);-webkit-font-smoothing:antialiased;overscroll-behavior:none;touch-action:pinch-zoom;
     -webkit-user-select:none;user-select:none}
   #debug{position:fixed;left:8px;top:calc(var(--safe-t) + 8px);z-index:40;font:12px/1.4 ui-monospace,Menlo,monospace;color:#bfe7c0;
     background:rgba(0,0,0,.55);padding:4px 8px;border-radius:6px;pointer-events:none}
@@ -398,7 +398,14 @@ const SHOP_DATA = {
   .tbadge{display:inline-flex;align-items:center;gap:8px;padding:3px 14px 3px 11px;border-radius:999px;border:1px solid var(--gold-line);background:rgba(14,9,10,.55);
     font-family:var(--mincho);font-size:16px;line-height:1.4;letter-spacing:.14em;color:var(--gold-text);white-space:nowrap}
   .tb-d{flex:none;display:inline-block;width:11px;height:11px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(255,240,215,.4)}
-  .tbadge.sh{margin:0 0 10px}
+  .tbadge.sh{margin:0}
+  .sh-tb{display:flex;align-items:center;gap:12px;margin:0 0 6px}
+  /* ワイン番号:薄い金・明朝。「No.」は小さめ、数字は少し大きめ */
+  .wno{display:inline-flex;align-items:baseline;gap:.12em;font-family:var(--mincho);font-size:18px;line-height:1;letter-spacing:.02em;color:var(--gold-text);white-space:nowrap}
+  .wno small{font-size:15px;letter-spacing:.02em}
+  .tbrow{align-items:center;gap:12px}
+  #s5.m-result #band .tbrow{display:flex;height:22px;margin:0 0 2px} #s5.m-result #band .tbrow .tbadge{display:none}   /* 相性度の画面:ワイン名の上に、番号だけ */
+  .lno{flex:none;min-width:1.4em;text-align:right;font:15px/1 var(--mincho);color:var(--gold-text);letter-spacing:0}
   #s5:not(.m-select) .band .tbrow{display:none}
   .lrow .lt>b{padding-left:18px;text-indent:-18px} .lrow .tb-d{width:10px;height:10px;margin-right:8px;vertical-align:.04em;text-indent:0}
   .dots{display:flex;justify-content:center;gap:9px;margin-top:20px}
@@ -422,6 +429,9 @@ const SHOP_DATA = {
   .prompt{position:absolute;left:0;right:0;top:calc(var(--safe-t) + 74px);text-align:center;font-family:var(--mincho);font-size:22px;
     line-height:1.6;letter-spacing:.08em;padding:0 24px;transition:opacity .4s}
   .field{position:absolute;touch-action:none}
+  /* ピンチでの拡大はできる。ボタン・一覧・シートは、ダブルタップで拡大しない。グラスをなぞる所(.field・.band)は、touch-action:none のまま */
+  #gl{touch-action:pinch-zoom}
+  button,a,.lrow,.links,.steps,.mainbtn,.sh-body{touch-action:manipulation}
   .axis{position:absolute;pointer-events:none;transition:opacity .5s}
   .axis.h{left:8%;right:8%;top:50%;height:1px;background:linear-gradient(90deg,transparent,rgba(244,234,217,.22),transparent)}
   .axis.v{top:6%;bottom:6%;left:50%;width:1px;background:linear-gradient(180deg,transparent,rgba(244,234,217,.22),transparent)}
@@ -503,14 +513,14 @@ const SHOP_DATA = {
   .op-brand svg{width:18px;height:24px;color:var(--accent);margin-bottom:10px}
   .op-brand h1{font-family:var(--mincho);font-weight:400;font-size:34px;letter-spacing:.32em;margin:0 0 0 .32em}
   .op-brand p{font-size:15px;letter-spacing:.12em;color:var(--ink-dim);margin:14px 0 0}
-  .op-skip{position:absolute;left:0;right:0;bottom:calc(var(--safe-b) + 16px);text-align:center;font-size:13px;
+  .op-skip{position:absolute;left:0;right:0;bottom:calc(var(--safe-b) + 16px);text-align:center;font-size:14px;
     letter-spacing:.14em;color:#fff}
-  .op-shop{position:absolute;left:0;right:0;top:calc(var(--safe-t) + 26px);text-align:center;margin:0;font-size:12px;
+  .op-shop{position:absolute;left:0;right:0;top:calc(var(--safe-t) + 26px);text-align:center;margin:0;font-size:14px;
     opacity:0;transition:opacity 1.2s ease .3s;letter-spacing:.24em;color:#fff}
   .op-shop b{display:block;font-family:Georgia,"Times New Roman",var(--mincho);font-style:italic;font-weight:400;
     font-size:20px;letter-spacing:.06em;color:var(--ink);margin-bottom:2px}
   .op-shop::after{content:"";display:block;width:28px;height:1px;background:rgba(232,183,122,.55);margin:12px auto 0}
-  .op-brand.tight p{margin-top:8px!important;font-size:12px!important;line-height:1.5!important;letter-spacing:.14em!important}
+  .op-brand.tight p{margin-top:8px!important;font-size:14px!important;line-height:1.5!important;letter-spacing:.14em!important}
   .op-brand.in ~ .op-shop{opacity:1}
   .op-shop{display:none!important}   /* オープニング上部のロゴ・店名は出さない */
   .op-brand,.op-skip,.op-shop{text-shadow:0 1px 12px rgba(0,0,0,.8)}
@@ -551,7 +561,7 @@ const SHOP_DATA = {
   }
 
   /* 利用ログが有効なときだけ出す注記(CONFIG.log.notice)。ボタン(下から24px)の下の余白に収める */
-  .logn{position:fixed;left:0;right:0;bottom:calc(var(--safe-b) + 4px);z-index:6;text-align:center;font-size:12px;line-height:16px;
+  .logn{position:fixed;left:0;right:0;bottom:calc(var(--safe-b) + 4px);z-index:6;text-align:center;font-size:14px;line-height:16px;
     color:#fff;letter-spacing:.08em;pointer-events:none}
   [hidden]{display:none !important}
   .hide{opacity:0 !important;pointer-events:none !important;visibility:hidden}
@@ -588,9 +598,9 @@ const SHOP_DATA = {
     --fs-title:22px;  --ls-title:.14em; --lh-title:1.7;    /* 画面の問いかけ・見出し */
     --fs-name:23px;   --ls-name:.07em;  --lh-name:1.45;    /* ワイン名・料理名 */
     --fs-body:15px;   --ls-body:.05em;  --lh-body:1.85;    /* 説明文 */
-    --fs-label:13px;  --ls-label:.3em;                     /* 小さなラベル(金) */
+    --fs-label:14px;  --ls-label:.3em;                     /* 小さなラベル(金) */
     --fs-ui:15px;     --ls-ui:.24em;                       /* ボタンの文字 */
-    --fs-note:12px;   --ls-note:.18em;                     /* 注記・案内 */
+    --fs-note:14px;   --ls-note:.18em;                     /* 注記・案内 */
     --os:.6; --shadow-text:0 1px 2px rgba(0,0,0,calc(var(--os) * .83)),0 0 18px rgba(8,5,4,var(--os));
     --ease-soft:cubic-bezier(.22,.61,.2,1); --t-rise:1.4s; --t-fade:.9s;
   }
@@ -608,8 +618,8 @@ const SHOP_DATA = {
   .term{border-bottom:1px dotted var(--gold-line);padding-bottom:3px}
   .tip,.desc{font-size:var(--fs-body);line-height:var(--lh-body);letter-spacing:var(--ls-body);color:var(--ink-dim)}
   .cmt{letter-spacing:.09em;line-height:1.7}
-  .retouch{font-size:13px;letter-spacing:.2em;color:var(--ink-dim)}
-  .ticks{font-size:13px;letter-spacing:.18em}
+  .retouch{font-size:14px;letter-spacing:.2em;color:var(--ink-dim)}
+  .ticks{font-size:14px;letter-spacing:.18em}
   .track::before{background:var(--line)}
   .track u{width:3px;height:3px;margin:-1.5px 0 0 -1.5px;background:var(--ink-faint)}
   .cmt,.desc,.prompt,.ask h2,.tip,.wname,.wmeta{word-break:keep-all;overflow-wrap:anywhere;line-break:strict}
@@ -663,10 +673,10 @@ const SHOP_DATA = {
 
   /* ---- オープニング ---- */
   .op-brand p{font-size:14px;letter-spacing:.32em;text-indent:.32em;color:var(--ink-dim);margin-top:18px}
-  .op-brand p.op-tag{font-size:13px;line-height:1.7;letter-spacing:.1em;text-indent:.1em;margin:12px auto 0;max-width:300px;text-wrap:balance;word-break:keep-all;overflow-wrap:anywhere;color:var(--ink)}
+  .op-brand p.op-tag{font-size:14px;line-height:1.7;letter-spacing:.1em;text-indent:.1em;margin:12px auto 0;max-width:300px;text-wrap:balance;word-break:keep-all;overflow-wrap:anywhere;color:var(--ink)}
   .op-brand svg{color:var(--gold)}
   .op-brand h1{font-size:32px;letter-spacing:.36em}
-  .op-skip{font-size:13px;letter-spacing:.38em;text-indent:.38em;color:#fff}
+  .op-skip{font-size:14px;letter-spacing:.38em;text-indent:.38em;color:#fff}
   .op-shop{letter-spacing:.32em;color:var(--ink-dim)}
   .op-shop b{font-family:"Cormorant Garamond",var(--f-jp);font-style:italic;font-size:22px;letter-spacing:.04em;color:var(--ink)}
   .op-shop::after{width:32px;background:var(--gold-line)}
@@ -736,7 +746,7 @@ const SHOP_DATA = {
   @keyframes coTouch{0%{transform:none;opacity:0}14%{opacity:1;transform:scale(1.15)}26%{transform:none}60%{transform:translate(var(--dx),var(--dy));opacity:1}82%,100%{transform:translate(var(--dx),var(--dy));opacity:0}}
   @keyframes coRing{0%,10%{opacity:0;transform:scale(.6)}18%{opacity:.9}42%,100%{opacity:0;transform:scale(2.4)}}
   .coach.btn .cdot{display:none}
-  .ctxt{position:absolute;z-index:17;pointer-events:none;left:12px;right:12px;top:var(--ty,0);margin:0;transition:opacity .9s var(--ease-soft),visibility 0s;text-align:center;font-size:13px;line-height:1.5;letter-spacing:.2em;
+  .ctxt{position:absolute;z-index:17;pointer-events:none;left:12px;right:12px;top:var(--ty,0);margin:0;transition:opacity .9s var(--ease-soft),visibility 0s;text-align:center;font-size:14px;line-height:1.5;letter-spacing:.2em;
     text-indent:.2em;color:#fff;text-shadow:0 1px 10px rgba(0,0,0,.9),0 0 2px rgba(0,0,0,.6);word-break:keep-all}
   #app .coach,#app .coach *{pointer-events:none}     /* 案内は、下の操作を決して邪魔しない */
   .ctxt:empty{display:none}
@@ -755,7 +765,7 @@ const SHOP_DATA = {
 
   /* ---- 画面の隅の入口(このワインについて) ---- */
   .corner{position:absolute;z-index:30;top:calc(var(--safe-t) + 6px);height:46px;min-width:46px;padding:0 6px;margin:0;border:0;background:none;
-    display:flex;align-items:center;justify-content:center;font:12px/1 var(--f-mix);letter-spacing:.22em;color:var(--ink-dim);
+    display:flex;align-items:center;justify-content:center;font:14px/1 var(--f-mix);letter-spacing:.22em;color:var(--ink-dim);
     -webkit-tap-highlight-color:transparent;transition:opacity .8s var(--ease-soft),visibility 0s}
   .corner span{display:block;padding:7px 9px 7px 12px;border:1px solid var(--line);border-radius:2px;background:rgba(18,13,12,.34);
     backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);text-shadow:0 1px 6px rgba(0,0,0,.7);transition:border-color .6s,color .6s,background-color .6s}
@@ -768,12 +778,12 @@ const SHOP_DATA = {
   /* ---- ワインの情報(下から上がるシート) ---- */
   .sheet-wrap{position:absolute;inset:0;z-index:60}
   .scrim{position:absolute;inset:0;background:rgba(6,4,4,.42);opacity:0;transition:opacity .5s var(--ease-soft)}
-  .sheet{position:absolute;left:0;right:0;bottom:0;max-height:min(82%,640px);display:flex;flex-direction:column;
+  .sheet{position:absolute;left:0;right:0;bottom:0;max-height:min(86%,700px);display:flex;flex-direction:column;
     padding:0 0 calc(var(--safe-b) + 10px);border-top:1px solid var(--gold-line);border-radius:6px 6px 0 0;
     background:linear-gradient(180deg,rgba(40,30,26,.62),rgba(18,13,12,.70)),rgba(20,15,13,.30);
     backdrop-filter:blur(22px) saturate(110%);-webkit-backdrop-filter:blur(22px) saturate(110%);
     box-shadow:0 -24px 60px -20px rgba(0,0,0,.85),inset 0 1px 0 rgba(255,240,215,.08);
-    transform:translateY(102%);transition:transform .55s var(--ease-soft);touch-action:pan-y}
+    transform:translateY(102%);transition:transform .55s var(--ease-soft);touch-action:manipulation}
   @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){ .sheet{background:rgba(22,16,14,.95)} }
   /* ---- ワインのラベル(選ぶ画面で、グラスの横に小さく。ふちは画像の側で溶けている。枠・影・3D・コードでのぼかしは使わない) ---- */
   #app .wlabel,#app .wlabel *{pointer-events:none}
@@ -797,7 +807,11 @@ const SHOP_DATA = {
   .dp-in{position:absolute;display:block;opacity:0;transition:opacity .6s ease;pointer-events:none}
   .dp-in.on{opacity:1}
   .dp-ph{position:absolute;overflow:hidden;
-    -webkit-mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,#000 60%,transparent 100%);mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,#000 60%,transparent 100%)}
+    /* 縁:上下左右とも、14px で、透明に抜ける(羽毛状)。2つの帯を重ねて、角も、やわらかく */
+    -webkit-mask-image:linear-gradient(90deg,transparent,#000 14px,#000 calc(100% - 14px),transparent),linear-gradient(180deg,transparent,#000 14px,#000 calc(100% - 14px),transparent);
+    -webkit-mask-composite:source-in;
+    mask-image:linear-gradient(90deg,transparent,#000 14px,#000 calc(100% - 14px),transparent),linear-gradient(180deg,transparent,#000 14px,#000 calc(100% - 14px),transparent);
+    mask-composite:intersect}
   .dp-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;filter:sepia(.14) saturate(1.06) brightness(.9) contrast(1.04)}
   .dp-ph::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 80% 75% at 50% 45%,rgba(255,180,110,.10),rgba(255,180,110,0) 55%,rgba(11,8,9,.55) 100%)}
   .rm-fl{position:absolute;inset:0}
@@ -831,8 +845,8 @@ const SHOP_DATA = {
   .sh-close:active{color:var(--ink)}
   .sh-close:focus{outline:none} .sh-close:focus-visible{outline:1px solid var(--gold-line);outline-offset:-8px;border-radius:2px}
   @media (max-width:380px){ .prompt{letter-spacing:.07em} }   /* 「グラスに指を置いてください」を1行に収める */
-  .sh-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:6px 26px 14px}
-  .sh-kick{font-size:var(--fs-label);letter-spacing:var(--ls-label);color:var(--gold-text);margin:0 40px 10px 0}
+  .sh-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:6px 26px 12px}
+  .sh-kick{font-size:var(--fs-label);letter-spacing:var(--ls-label);color:var(--gold-text);margin:0 40px 8px 0}
   .sh-name{font-size:21px;line-height:1.5;letter-spacing:.06em;margin:0 40px 6px 0;font-feature-settings:"palt" 1;word-break:keep-all;overflow-wrap:anywhere;text-wrap:balance}
   /* 折り返し:単語(文節)の途中で切れにくくする。word-break:auto-phrase に対応していない端末では、上の keep-all + line-break:strict + overflow-wrap で代用 */
   @supports (word-break:auto-phrase){ .sh-name,.sh-desc,.sh-row dd{word-break:auto-phrase} }
@@ -841,13 +855,13 @@ const SHOP_DATA = {
   .rmin .sh-name{min-width:8em}
   .sh-row dd .vu{display:inline-block;max-width:100%}
   .rmin .sh-desc{min-width:12em}
-  .sh-name.nm{margin-bottom:16px}   /* 小さな説明の行を出さないとき、ワイン名の下の間隔(行があるときは、行の下の16px) */
-  .sh-desc{font-size:16px;line-height:1.95;letter-spacing:.05em;color:var(--ink);margin:0 0 18px;word-break:keep-all;overflow-wrap:anywhere;line-break:strict;text-wrap:pretty}
+  .sh-name.nm{margin-bottom:10px}   /* 小さな説明の行を出さないとき、ワイン名の下の間隔(行があるときは、行の下の16px) */
+  .sh-desc{font-size:16px;line-height:1.75;letter-spacing:.05em;color:var(--ink);margin:0 0 12px;word-break:keep-all;overflow-wrap:anywhere;line-break:strict;text-wrap:pretty}
   .sh-note{margin:-4px 0 18px;padding:9px 13px;border-left:2px solid var(--gold-line);background:rgba(201,167,108,.05)}
-  .own-h{font-size:13px;letter-spacing:.14em;color:var(--gold-text);margin-bottom:4px}
-  .sh-note .own-h{font-size:12px;margin-bottom:2px}
+  .own-h{font-size:14px;letter-spacing:.14em;color:var(--gold-text);margin-bottom:4px}
+  .sh-note .own-h{font-size:14px;margin-bottom:2px}
   .sh-note p{margin:0;font-size:14px;line-height:1.7;letter-spacing:.05em;color:var(--ink-dim);word-break:keep-all;overflow-wrap:anywhere;line-break:strict;text-wrap:pretty}
-  .sh-meta{font-size:13px;letter-spacing:.05em;color:var(--ink-dim);margin:0 0 16px;overflow-wrap:anywhere;text-wrap:balance}
+  .sh-meta{font-size:14px;letter-spacing:.05em;color:var(--ink-dim);margin:0 0 16px;overflow-wrap:anywhere;text-wrap:balance}
   /* ワインの一覧(同じシートを、一覧用に使う) */
   .sheet.list{max-height:min(70%,560px)} .sheet.list .sh-close{display:none}
   .l-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 -10px 4px 0}
@@ -856,7 +870,7 @@ const SHOP_DATA = {
   .l-top{position:sticky;top:-6px;z-index:3;margin:-6px -26px 0;padding:6px 26px 0;background:rgb(27,20,17)}
   .l-tabs{display:flex;margin:2px 0 6px;border-bottom:1px solid rgba(237,226,203,.14)}
   .l-tab{flex:1 1 0;min-height:48px;padding:0 4px;display:flex;align-items:center;justify-content:center;gap:6px;background:none;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;color:var(--ink-dim);font:inherit;font-size:16px;letter-spacing:.14em;cursor:pointer;-webkit-tap-highlight-color:transparent}
-  .l-tab .ltc{font-size:12px;letter-spacing:.04em;color:var(--ink-faint)}
+  .l-tab .ltc{font-size:14px;letter-spacing:.04em;color:var(--ink-faint)}
   .l-tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--gold-text)} .l-tab[aria-selected="true"] .ltc{color:var(--gold-text)}
   .l-tab:focus{outline:none} .l-tab:focus-visible{outline:1px solid var(--gold-line);outline-offset:-3px}
   .l-panels{display:grid}
@@ -870,19 +884,22 @@ const SHOP_DATA = {
   .lrow>i{flex:none;width:22px;height:22px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(255,240,215,.25),0 0 8px rgba(0,0,0,.4)}
   /* 価格:「このワインについて」(金額は 16px 以上。税込の tax in は、欧文の斜体で小さく、金色) */
   .sh-row.price dd{line-height:1.5}
+  @media (max-width:380px){ .sh-desc{letter-spacing:.02em} }   /* 狭い画面:「。」だけが、次の行に送られないように */
+  /* 低い画面:シートの中を、さらに詰める */
+  @media (max-height:700px){ .sheet:not(.list){max-height:calc(100% - var(--safe-t) - 54px)} .sh-row{padding:6px 0} .sh-row dd{line-height:1.45} .sh-desc{line-height:1.6;margin-bottom:8px} .sh-name{font-size:19px;line-height:1.4} .sh-name.nm{margin-bottom:6px} .sh-kick{margin-bottom:4px} .sh-dnote{line-height:1.5;margin-top:4px} .sh-why{margin-top:2px} .sh-body{padding-bottom:10px} }
   .pl{display:flex;align-items:baseline;gap:8px;padding:2px 0;white-space:nowrap}
   .pk{flex:none;min-width:3.4em;font-family:"Cormorant Garamond",serif;font-style:normal;font-size:14px;letter-spacing:.08em;color:var(--gold-text)}
   .pn{font-weight:400;font-size:16px;letter-spacing:.04em;color:var(--ink)}
-  .px{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:12px;letter-spacing:.04em;color:var(--gold)}
+  .px{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:14px;letter-spacing:.04em;color:var(--gold)}
   /* 価格:ワイン一覧の各行の右端(右寄せ・小さく) */
   .lp{flex:none;display:flex;flex-direction:column;align-items:flex-end;margin-left:auto;padding-left:4px;line-height:1.25;white-space:nowrap}
   .lp .la{display:flex;align-items:baseline;gap:5px}
   .lp b{font-weight:400;font-size:16px;letter-spacing:.03em;color:var(--ink)}
-  .lp small{font-family:"Cormorant Garamond",serif;font-size:12px;letter-spacing:.08em;color:var(--gold-text)}
+  .lp small{font-family:"Cormorant Garamond",serif;font-size:14px;letter-spacing:.08em;color:var(--gold-text)}
   .lt{flex:1;min-width:0}
   .lt b{display:block;font-weight:400;font-size:16px;line-height:1.5;letter-spacing:.04em;word-break:keep-all;overflow-wrap:anywhere;line-break:strict}
-  .lt small{display:block;margin-top:1px;font-size:13px;line-height:1.5;letter-spacing:.04em;color:var(--ink-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .lmk{flex:none;font-style:normal;font-size:11px;line-height:1.5;letter-spacing:.06em;color:var(--gold-text);border:1px solid var(--gold-line);padding:0 7px;border-radius:10px;white-space:nowrap}
+  .lt small{display:block;margin-top:1px;font-size:14px;line-height:1.5;letter-spacing:.04em;color:var(--ink-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lmk{flex:none;font-style:normal;font-size:14px;line-height:1.5;letter-spacing:.06em;color:var(--gold-text);border:1px solid var(--gold-line);padding:0 7px;border-radius:10px;white-space:nowrap}
   .lmk.t{color:var(--ink-dim);border-color:rgba(237,226,203,.28)}
   .lmk.p{color:#2a1c0a;background:var(--gold-text);border-color:var(--gold-text);font-weight:500}   /* 当店のイチオシ */
   .wmeta.pick{color:var(--gold-text);letter-spacing:.08em}
@@ -891,13 +908,13 @@ const SHOP_DATA = {
   #app .band .blist,#app .band .blist button{pointer-events:auto}
 
   .sh-list{margin:0;border-top:1px solid var(--line)}
-  .sh-row{display:grid;grid-template-columns:7.2em 1fr;column-gap:14px;padding:12px 0;border-bottom:1px solid rgba(237,226,203,.10)}
-  .sh-row dt{font-size:12px;letter-spacing:.16em;color:var(--gold-text);padding-top:.25em}
-  .sh-row dd{margin:0;font-size:15px;line-height:1.7;letter-spacing:.05em;color:var(--ink);word-break:keep-all;overflow-wrap:break-word;line-break:strict}
+  .sh-row{display:grid;grid-template-columns:6.2em 1fr;column-gap:12px;padding:8px 0;border-bottom:1px solid rgba(237,226,203,.10)}
+  .sh-row dt{font-size:14px;letter-spacing:.16em;color:var(--gold-text);padding-top:.25em}
+  .sh-row dd{margin:0;font-size:15px;line-height:1.55;letter-spacing:.05em;color:var(--ink);word-break:keep-all;overflow-wrap:break-word;line-break:strict}
   .sh-row.wide{grid-template-columns:1fr;row-gap:6px}
   /* 合う理由:料理の行の下に、1行で(16px・説明文より少し薄い色)。幅が足りない画面だけ、折り返す */
-  .sh-why{grid-column:1/-1;margin:8px 0 0;font-size:16px;line-height:1.6;letter-spacing:.04em;color:rgba(255,255,255,.78);white-space:nowrap;font-feature-settings:"palt" 1}
-  .sh-dnote{grid-column:1/-1;margin:10px 0 0;font-size:15px;line-height:1.7;letter-spacing:.04em;color:rgba(255,255,255,.58);text-align:left;word-break:keep-all;overflow-wrap:break-word;line-break:strict}
+  .sh-why{grid-column:1/-1;margin:4px 0 0;font-size:16px;line-height:1.6;letter-spacing:.04em;color:rgba(255,255,255,.78);white-space:nowrap;font-feature-settings:"palt" 1}
+  .sh-dnote{grid-column:1/-1;margin:6px 0 0;font-size:15px;line-height:1.6;letter-spacing:.04em;color:rgba(255,255,255,.58);text-align:left;word-break:keep-all;overflow-wrap:break-word;line-break:strict}
   .sh-why.wrap{white-space:normal;word-break:keep-all;overflow-wrap:anywhere;line-break:strict}
   .sh-row.wide dd{font-size:var(--fs-body);line-height:var(--lh-body);color:var(--ink-dim);text-wrap:pretty}
 
@@ -911,17 +928,17 @@ const SHOP_DATA = {
   .band .chev.l{left:8px} .band .chev.r{right:8px}
   .stage-line{position:absolute;left:18px;right:18px;margin:0;text-align:center;pointer-events:none;
     text-shadow:0 1px 10px rgba(0,0,0,.9),0 0 2px rgba(0,0,0,.6);transition:opacity .5s var(--ease-soft)}
-  .stage-line.hint{font-size:13px;line-height:1.6;letter-spacing:.14em;text-indent:.14em;color:#fff;word-break:keep-all;text-wrap:balance}
+  .stage-line.hint{font-size:14px;line-height:1.6;letter-spacing:.14em;text-indent:.14em;color:#fff;word-break:keep-all;text-wrap:balance}
   .stage-line.cmt5{font-size:16px;line-height:1.6;letter-spacing:.07em;color:var(--ink);word-break:keep-all;overflow-wrap:anywhere;text-wrap:balance}
-  .stage-line.tip5{font-size:13px;line-height:1.6;letter-spacing:.08em;color:var(--ink-dim);text-wrap:pretty}
+  .stage-line.tip5{font-size:14px;line-height:1.6;letter-spacing:.08em;color:var(--ink-dim);text-wrap:pretty}
   .stage-line.swap{opacity:0}
   #s5.calm .lbl:not(.hot){opacity:.24}
   .third5{position:absolute;left:8px;right:8px;height:46px;display:flex;align-items:center;justify-content:center;gap:2px}
-  .t5q{font-size:13px;letter-spacing:.1em;color:var(--ink-dim);margin-right:4px;white-space:nowrap;padding:12px 2px}
+  .t5q{font-size:14px;letter-spacing:.1em;color:var(--ink-dim);margin-right:4px;white-space:nowrap;padding:12px 2px}
   .t5q .term{padding-bottom:2px}
   .t5c{display:flex}
   .t5c button{height:46px;padding:0 3px;margin:0;background:none;border:0;font:inherit;color:var(--ink-dim);cursor:pointer}
-  .t5c button span{display:block;padding:6px 9px 6px 11px;border:1px solid var(--line);border-radius:2px;font-size:13px;letter-spacing:.12em;
+  .t5c button span{display:block;padding:6px 9px 6px 11px;border:1px solid var(--line);border-radius:2px;font-size:14px;letter-spacing:.12em;
     white-space:nowrap;background:rgba(18,13,12,.38);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:color .5s,border-color .5s,background-color .5s}
   .t5c button.sel span{color:var(--gold-text);border-color:var(--gold-line);background:rgba(201,167,108,.15)}
   .t5c button:active span{border-color:rgba(237,226,203,.72);transition-duration:.12s}
@@ -930,8 +947,8 @@ const SHOP_DATA = {
   .one .lbl,.one #s5 .axis,.one #third5,.one .corner.shopbtn,.one #infoBtn,.one #coach,.one #hintTxt,.one .band .swipe-hint{display:none !important}
   .steps{position:absolute;z-index:21;top:calc(var(--safe-t) + 4px);left:4px;display:flex;align-items:center;height:48px}
   .stp{min-height:48px;padding:0 5px;margin:0;background:none;border:0;display:flex;align-items:center;gap:5px;color:var(--ink-dim);
-    font:13px/1.2 var(--mincho);letter-spacing:.1em;cursor:pointer;text-shadow:0 1px 8px rgba(0,0,0,.9)}
-  .stp i{font-style:normal;width:21px;height:21px;border-radius:50%;border:1px solid var(--gold-line);display:grid;place-items:center;font:12px/1 var(--f-mix);color:#fff;background:rgba(18,13,11,.5);letter-spacing:0}
+    font:15px/1.2 var(--mincho);letter-spacing:.1em;cursor:pointer;text-shadow:0 1px 8px rgba(0,0,0,.9)}
+  .stp i{font-style:normal;width:23px;height:23px;border-radius:50%;border:1px solid var(--gold-line);display:grid;place-items:center;font:14px/1 var(--f-mix);color:#fff;background:rgba(18,13,11,.5);letter-spacing:0}
   .stp span{border-bottom:1px solid rgba(214,180,118,.5);padding:2px 0 3px}
   .stp.cur{color:#fff} .stp.cur i{background:#d8b878;border-color:#e6c88a;color:#1c140d;box-shadow:0 0 10px rgba(230,190,120,.55)} .stp.cur span{border-bottom-color:#e6c88a}
   .stp:disabled{opacity:1;cursor:default} .stp:disabled span{border-bottom-color:transparent}
@@ -960,7 +977,7 @@ const SHOP_DATA = {
   @keyframes sglint{0%{opacity:1;background-position:-150% 0}100%{opacity:1;background-position:150% 0}}
   .rm .sbtn.glint::after{animation:none}
   .tlink[hidden]{display:none}
-  .how{position:absolute;z-index:21;top:calc(var(--safe-t) + 4px);right:2px;font-size:13px}
+  .how{position:absolute;z-index:21;top:calc(var(--safe-t) + 4px);right:2px;font-size:14px}
   .links{position:absolute;z-index:21;left:12px;right:12px;bottom:calc(var(--safe-b) + 12px + 58px);min-height:48px;display:flex;flex-wrap:wrap;align-items:center;column-gap:10px}
   .links .r{margin-left:auto}
   .mainbtn{position:absolute;z-index:22;left:16px;right:16px;bottom:calc(var(--safe-b) + 12px);height:58px;margin:0;padding:0 46px;border:1px solid rgba(220,186,124,.9);border-radius:6px;
@@ -1057,12 +1074,12 @@ const SHOP_DATA = {
   .qrow{margin-top:4px;border-radius:6px}
   .qh{display:flex;align-items:baseline;justify-content:space-between;gap:6px;line-height:1.3;padding:0 2px}
   .qt{font:15px var(--mincho);letter-spacing:.1em;color:#fff;text-align:center;white-space:nowrap}
-  .qt small{font-size:12px;letter-spacing:.04em;color:var(--ink-dim);margin-left:.45em}
-  .qe{font-size:13px;letter-spacing:.06em;color:var(--ink-dim);min-width:4.4em;white-space:nowrap} .qe.r{text-align:right}
+  .qt small{font-size:15px;letter-spacing:.04em;color:var(--ink-dim);margin-left:.45em}
+  .qe{font-size:15px;letter-spacing:.06em;color:var(--ink-dim);min-width:4.4em;white-space:nowrap} .qe.r{text-align:right}
   .qc{display:flex;justify-content:space-between;padding:0 2px}
   .qc.q3,.q3l{display:grid;grid-template-columns:repeat(3,1fr);justify-items:center;padding:0 4%}
-  .q3l{margin-top:1px;font-size:12px;line-height:1.3;letter-spacing:.06em;color:var(--ink-dim);white-space:nowrap}
-  @media (max-height:700px){ .q3l{margin-top:0;font-size:11.5px;line-height:1.2} }
+  .q3l{margin-top:1px;font-size:15px;line-height:1.3;letter-spacing:.06em;color:var(--ink-dim);white-space:nowrap}
+  @media (max-height:700px){ .q3l{margin-top:0;font-size:15px;line-height:1.2} }
   .qd{position:relative;width:48px;height:48px;flex:none;margin:0;padding:0;border-radius:50%;border:1px solid rgba(237,226,203,.46);background:rgba(255,255,255,.025);cursor:pointer;
     transition:border-color .3s,background-color .3s,box-shadow .3s;-webkit-tap-highlight-color:transparent}
   .qd i{position:absolute;left:50%;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:rgba(237,226,203,.28);transition:all .3s}
@@ -1113,7 +1130,7 @@ const SHOP_DATA = {
     opacity:0;transition:opacity .35s var(--ease-soft)}
   .sy-num.go{opacity:1}
   .sy-num.none{display:none}
-  .sy-lab{font-style:normal;font-family:var(--mincho);font-size:13px;letter-spacing:.1em;margin-right:.9em;color:var(--ink-dim);align-self:baseline}
+  .sy-lab{font-style:normal;font-family:var(--mincho);font-size:14px;letter-spacing:.1em;margin-right:.9em;color:var(--ink-dim);align-self:baseline}
   .cn-num{display:inline-flex;justify-content:flex-end;min-width:1.86em;font-weight:inherit}
   .cn-num .dg{display:inline-block;width:.6em;text-align:center}
   .cn-pc{font-style:normal;font-size:.5em;margin-left:.12em;color:var(--ink-dim);letter-spacing:0}
@@ -1126,6 +1143,10 @@ const SHOP_DATA = {
   .rm .sy-n,.rm .sy-d,.rm .sy-m{transition-duration:.4s;transition-delay:0s}
   .sy-d{display:block;margin-top:2px}
   .sy-s{display:block;margin-top:2px}   /* 甘さの1行(選んだときだけ) */
+  /* 相性度の下の文:差の文・甘さ・ひとこと、それぞれ1行(最大3行)。入らないときは、字間を詰め、文字を 14px まで縮める */
+  #stLine .sy-d,#stLine .sy-m{white-space:nowrap;overflow:visible}
+  #stLine .sy-m{margin:2px 0 0}
+  #s5.m-result #stLine{left:10px;right:10px}   /* 長い差の文(24字)も、14px で1行に入るように */
   .sy-row .sy-n{display:inline-block}
   .aura{position:absolute;left:0;top:0;border-radius:50%;pointer-events:none;z-index:2;opacity:0}
   .aura.you{background:radial-gradient(closest-side,rgba(250,214,160,.62),rgba(246,207,149,.30) 40%,rgba(246,207,149,.09) 72%,rgba(246,207,149,0))}
@@ -6023,7 +6044,7 @@ const CONFIG = {
     steps:["えらぶ","感じる"],
     main:{ start:"このワインではじめる", choose:"感じたものを、えらんでみましょう", judge:"{owner}との相性を見る" },   // 相性を見たあとの主ボタンは CONFIG.match.mainButton
     selectLead:"味わってみたいワインを、|えらんでください",
-    select:{ showSub:false, showType:false, showNo:false, pickMark:"サルーテのイチオシ", first:null },   // 選ぶ画面・一覧の、ワイン名の下。showSub:true で補足(wine.meta:産地・品種など)を出す。showType:true で種類(wine.kind:赤・白・泡)を出す。どちらも false なら、ワイン名だけ(初期)
+    select:{ showSub:false, showType:false, showNo:true, pickMark:"サルーテのイチオシ", first:null },   // 選ぶ画面・一覧の、ワイン名の下。showSub:true で補足(wine.meta:産地・品種など)を出す。showType:true で種類(wine.kind:赤・白・泡)を出す。どちらも false なら、ワイン名だけ(初期)
     links:{ info:"このワインについて", redo:"えらび直す",
             prev:"前のワイン", next:"次のワイン" },
     // 副の操作(上の links と、一覧のボタン)に添える記号。info / list / peek / redo / prev / next が使えます。"" で記号なし(文字だけ)
@@ -6078,12 +6099,12 @@ const CONFIG = {
     //   opacity:全体の濃さ(0.75 で、線 0.45・文字 0.85)/ delay:点が出てから、矢印が出るまで(ミリ秒)/ textY・textX:最初の語(空白の前)は太字 / endY・endX:反対の端の言葉
     arrows:{ enabled:true, opacity:0.75, delay:600, endY:{ top:"軽やか", bottom:"しっかり" }, endX:{ left:"すっきり", right:"フルーティ" } },
     sweetnessOnlyIfChosen:true,   // 甘さ(任意の3問目。甘口のワインだけ)は、選んだときだけ、相性度の下に1行を足す。選ばなかったときは、甘さの言葉を一切出さない(false で、1行を足さない、今までの表示)
-    levels:[             // 上から順に、min(相性度)以上なら、その段階。name:段階の名前 msg:あたたかい一言(| は折り返してよい位置、{owner} は店主の呼び名)
-      { min:95, name:"ぴったりの相性",   msg:"あなたの感じ方は、{owner}と|ほとんど同じです" },
-      { min:85, name:"とても良い相性",   msg:"あなたの感じ方は、{owner}と|とても近いようです" },
-      { min:75, name:"良い相性",         msg:"{owner}と、似た感じ方。|あなたらしさも、ほんのり加わります" },
-      { min:65, name:"味わい深い相性",   msg:"{owner}とは、少し違う感じ方。|そこが、あなたらしさです" },
-      { min:0,  name:"個性が光る相性",   msg:"{owner}とは、ひと味ちがう感じ方。|あなたの感性が、きらりと光ります" },
+    levels:[             // 上から順に、min(相性度)以上なら、その段階。name:段階の名前 msg:あたたかい一言(相性度の画面では1行。長いときは、文字を少し詰めて1行に収めます。| は折り返してよい位置、{owner} は店主の呼び名)
+      { min:95, name:"ぴったりの相性",   msg:"{owner}と、ほとんど同じ感じ方です" },
+      { min:85, name:"とても良い相性",   msg:"{owner}と、とても近い感じ方です" },
+      { min:75, name:"良い相性",         msg:"{owner}と、似た感じ方です" },
+      { min:65, name:"味わい深い相性",   msg:"{owner}とは、少し違う感じ方です" },
+      { min:0,  name:"個性が光る相性",   msg:"{owner}とは、ひと味ちがう感じ方です" },
     ],
   },
   opening:{ dur:3.5, dropAt:0.55, landAt:1.55, fillDur:1.4,   // しずくはスローモーションで落ちる
@@ -6105,9 +6126,9 @@ const CONFIG = {
     labelWhenSingle:false,     // 価格が 1 つだけのとき、Glass / Bottle のラベルを付ける(両方あるときは、いつも付く)
     taxInList:false },         // 一覧でも、金額の右に「tax in」を添える
   /* 「このワインについて」を開いたとき、料理の写真(dish.photo があるワインだけ)を、「価格」の行の右側の余白に、小さく、ふわっと出す
-     delay:シートを開いてから、出るまでの時間(ミリ秒)/ size:写真の大きさ(幅・高さ。縦横比は保ち、重なるときは、幅 80px 前後まで縮めます)
+     delay:シートを開いてから、出るまでの時間(ミリ秒)/ size:写真の大きさ(幅・高さ。縦横比は保ち、文字に重なるときは、幅 80px まで縮めます。80px でも入らないときは、出しません)
      pos:"price" は、価格の行の右(今のところ、これだけ)/ float:ゆっくり浮かぶ動き(false で、浮かばない)
-     文字に重なるときは、価格の行の右端に寄せて、さらに縮めます。写真は、シートを開いたときに、はじめて読み込みます */
+     写真の下端は、料理例の行の上の線から 6px 以上離し、上は、産地の行の右の余白まで、はみ出してよい。写真は、シートを開いたときに、はじめて読み込みます */
   dishPhoto:{ enabled:true, delay:300, size:{ w:104, h:78 }, pos:"price", float:false },
   sheet:{ showMeta:false,
     dishNote:{ enabled:true,   // 「合う理由」の下の注意書き。料理(dish.name)があるワインだけに出す。「|」は、折り返してよい位置。{owner} は、CONFIG.owner.label に置きかわる
@@ -6283,7 +6304,7 @@ const T = {
         acid:{q:'<span class="term" data-term="acid">酸味</span>は?', o:["まろやか","ほどよい","キリッと"], tip:"口の中がじゅわっと潤う、みずみずしさ。"},
         sweet:{q:'<span class="term" data-term="sweet">甘み</span>は?', o:["控えめ","ほどよい","たっぷり"], tip:"飲んだあと、口の中に残るやさしい甘さ。"}},
       sync:{ short:"相性度" },
-      cmp:{same:"軽さも、果実味も、|{owner}と、ほぼ同じです",little:"少し",much:"",
+      cmp:{same:"感じ方は、{owner}と、ほぼ同じです",little:"少し",much:"",
         lighter:"{owner}よりも、{m}軽やかに|感じられたようです",
         fuller:"{owner}よりも、{m}どっしり|感じられたようです",
         fruitier:"{owner}よりも、{m}フルーティに|感じられたようです",
@@ -6301,6 +6322,7 @@ const T = {
 const OWNER=(()=>{ const l=CONFIG.owner&&typeof CONFIG.owner.label==="string"&&CONFIG.owner.label.trim(); return l||"店主"; })();
 const SHOPKANA=(()=>{ const n=CONFIG.shop&&typeof CONFIG.shop.nameKana==="string"&&CONFIG.shop.nameKana.trim(); return n||"サルーテ"; })();
 const ownerFill=s=>typeof s==="string"?s.replace(/\{owner\}/g,OWNER).replace(/\{shop\}/g,SHOPKANA):s;
+{ const t=CONFIG.shop&&typeof CONFIG.shop.title==="string"&&ownerFill(CONFIG.shop.title).trim(); if(t) document.title=t; }   /* ブラウザのタブの題名 */
 (function fill(o){ for(const k in o){ if(typeof o[k]==="string") o[k]=ownerFill(o[k]); else if(o[k]&&typeof o[k]==="object") fill(o[k]); } })(T);
 CONFIG.match.levels.forEach(l=>{ l.msg=ownerFill(l.msg); l.name=ownerFill(l.name); });
 (function fill(o){ for(const k in o){ if(typeof o[k]==="string") o[k]=ownerFill(o[k]); else if(o[k]&&typeof o[k]==="object") fill(o[k]); } })(CONFIG.ui);
@@ -6343,7 +6365,10 @@ function fitOne(el,base,min){
   for(let s=base;s>=min;s-=0.5){ el.style.fontSize=s+"px"; if(el.scrollWidth<=el.clientWidth+0.5) return {size:s,wrap:false}; }
   el.style.whiteSpace="normal"; el.style.fontSize=min+"px"; return {size:min,wrap:true};
 }
-const nameOf=w=>(((CONFIG.ui||{}).select||{}).showNo===true?w.no+"  ":"")+w.name;   // 番号を出すか:CONFIG.ui.select.showNo(初期は出さない)
+const nameOf=w=>w.name;
+/* ワイン番号(wine.no をそのまま):選ぶ画面・一覧・「このワインについて」・相性度の画面。出すか:CONFIG.ui.select.showNo(全画面に効く) */
+const noOn=()=>((CONFIG.ui||{}).select||{}).showNo===true;
+const noHtml=w=>noOn()&&w&&w.no?`<span class="wno" aria-label="番号 ${w.no}"><small>No.</small>${w.no}</span>`:"";
 const pickOf=w=>w.pick?(((CONFIG.ui||{}).select||{}).pickMark||"サルーテのイチオシ"):"";   // 当店のイチオシの印(wine.pick:true のワインだけ)
 const subOf=w=>{ const c=(CONFIG.ui||{}).select||{}; return c.showSub===true?(w.meta||""):(c.showType===true?(w.kind||""):""); };   // 選ぶ画面・一覧の、ワイン名の下。初期は何も出さない(品種などの meta は「このワインについて」に出る)
 const lineOf=w=>[subOf(w),pickOf(w)].filter(Boolean).join("  ・  ");   // 選ぶ画面の、ワイン名の下(補足+イチオシの印)
@@ -6363,7 +6388,7 @@ function renderWineText(){
   n.textContent=nameOf(w); m.textContent=lineOf(w); m.classList.toggle("none",!lineOf(w)); m.classList.toggle("pick",!!w.pick);
   if(f){ n.style.fontSize=f.n.size+"px"; n.style.whiteSpace=f.n.wrap?"normal":"nowrap";
          m.style.fontSize=f.mt.size+"px"; m.style.whiteSpace=f.mt.wrap?"normal":"nowrap"; }
-  { const h=tbHtml(w); $("tbrow").innerHTML=h; $("tbrow").classList.toggle("none",!h); }
+  { const h=tbHtml(w)+noHtml(w); $("tbrow").innerHTML=h; $("tbrow").classList.toggle("none",!h); }
   [...$("dots").children].forEach((d,i)=>d.classList.toggle("on",i===S.idx));
   if(S.screen===5) requestAnimationFrame(layout);   /* ワイン名の下の行(イチオシの印)で、帯の高さが変わるので、並べ直す */
 }
@@ -6554,7 +6579,7 @@ function wineDefaults(){
 let VW=0,VH=0,AW=0,AX=0;
 const RIM=1.3, E=0.17;
 /* 画面の高さ:iPhone の Safari の下のバーの出入りにも追従する(visualViewport があれば、その高さ) */
-function vvH(){ const v=window.visualViewport, h=Math.round(v&&v.height>0?v.height:innerHeight); document.documentElement.style.setProperty("--app-h",h+"px"); return h; }
+function vvH(){ const v=window.visualViewport, h=Math.round(v&&v.height>0?v.height*(v.scale||1):innerHeight);   /* 拡大中も、拡大前の高さで数える */ document.documentElement.style.setProperty("--app-h",h+"px"); return h; }
 function headerBottom(){ return document.querySelector("header").getBoundingClientRect().bottom + 14; }
 function layout(){
   VW=innerWidth; VH=vvH(); AW=Math.min(VW,480); AX=(VW-AW)/2;
@@ -6688,8 +6713,11 @@ function resize(){
   if(GL_OK) R3.resize(innerWidth,innerHeight);
   fitInfo(); renderWineText(); layout(); if(S.opening) fitBrand(); ovSync();
 }
+/* ピンチで拡大しているあいだは、画面の大きさが変わっても、並べ直さない(元の大きさに戻ったときに、並べ直す) */
+const ZOOMED=()=>!!(window.visualViewport&&visualViewport.scale>1.01);
+addEventListener("resize",e=>{ if(ZOOMED()) e.stopImmediatePropagation(); },true);
 addEventListener("resize",resize);
-if(window.visualViewport){ let vt=0; visualViewport.addEventListener("resize",()=>{ cancelAnimationFrame(vt); vt=requestAnimationFrame(resize); }); }
+if(window.visualViewport){ let vt=0, zm=false; visualViewport.addEventListener("resize",()=>{ const z=ZOOMED(); if(z){ zm=true; return; } cancelAnimationFrame(vt); vt=requestAnimationFrame(()=>{ zm=false; resize(); }); }); }
 
 /* ============================================================
    ① 選ぶ:スワイプ
@@ -7609,26 +7637,39 @@ function dpTextRects(root){
   while((n=tw.nextNode())){ rg.selectNodeContents(n); for(const r of rg.getClientRects()) if(r.width>0.5&&r.height>0.5) out.push(r); }
   return out;
 }
-function dpPlace(box){
-  const sb=$("shBody"), row=sb.querySelector(".sh-row.price"), im=DP.img; if(!row||!im) return false;
-  const c=dpCfg(), rr=row.getBoundingClientRect(), asp=(im.naturalWidth&&im.naturalHeight)?im.naturalWidth/im.naturalHeight:4/3;
-  /* 右端:「×」の右端(線の端)に揃える。見つからないときは、行の右端 */
+function dpFit(asp){
+  const sb=$("shBody"), row=sb.querySelector(".sh-row.price"); if(!row) return null;
+  const c=dpCfg(), rr=row.getBoundingClientRect();
+  /* 右端:「×」の右端(線の端)に揃える。見つからないときは、行の右端。画面の右端からは、切れない */
   let R=rr.right; try{ const sv=$("shClose").querySelector("svg").getBoundingClientRect(); if(sv.width>0) R=Math.min(R+4,Math.max(R-4,sv.right-sv.width*0.25)); }catch(_){ }
-  const rects=dpTextRects(sb), GAP=10, W0=+c.size.w||104, H0=+c.size.h||78, cy=rr.top+rr.height/2;
+  R=Math.min(R,innerWidth-6);
+  /* 縦の範囲:下は、価格の行の下の線(=料理例の行の上の線)から 7px 上まで。上は、上の行(産地)の右の余白まで、少しはみ出してよい(その行の上の線から 6px 下まで) */
+  const prev=row.previousElementSibling, Bmax=rr.bottom-7, Tmin=(prev?prev.getBoundingClientRect().top:rr.top)+6;
+  const rects=dpTextRects(sb), GAP=10, W0=+c.size.w||104, H0=+c.size.h||78, cy=rr.top+rr.height/2, MINW=80;
   const left=(top,bot)=>rects.reduce((m,r)=>(r.bottom>top-1&&r.top<bot+1)?Math.max(m,r.right):m,-1e9);
-  let pw=Math.min(W0,H0*asp), ph, ok=false; const pwMin=40;                                                /* まず 104 → 80px 前後まで、さらに重なるときは、40px まで、少しずつ縮める */
-  for(;pw>=pwMin;pw-=2){ ph=pw/asp; if(R-pw>=left(cy-ph/2,cy+ph/2)+GAP){ ok=true; break; } }
-  if(!ok){                                                         /* 40px でも重なる:価格の行の中だけに収め、価格の文字の右に入る大きさまで縮める */
-    const hMax=Math.max(0,rr.height-8); ph=hMax; pw=ph*asp;
-    const fl=left(cy-ph/2,cy+ph/2), room=R-fl-GAP; if(pw>room){ pw=room; ph=pw/asp; }
-    if(pw<28) return false; }
-  pw=Math.round(pw); ph=Math.round(pw/asp);
-  const ph_=box.firstChild; box.style.cssText="width:"+pw+"px;height:"+ph+"px;right:"+Math.round(rr.right-R)+"px;top:"+Math.round(rr.height/2-ph/2)+"px";
-  ph_.style.cssText="left:0;top:0;width:"+pw+"px;height:"+ph+"px"; return true;
+  for(let pw=Math.min(W0,H0*asp);pw>=MINW;pw-=2){                  /* 重なるときは、少しずつ縮める(最小 80px) */
+    const ph=pw/asp; if(ph>Bmax-Tmin) continue;
+    const top=Math.max(Tmin,Math.min(cy-ph/2,Bmax-ph));            /* なるべく価格の行の中ほど。下の線には、かけない */
+    if(R-pw>=left(top,top+ph)+GAP){ const W=Math.round(pw); return { W, H:Math.round(W/asp), top:Math.round(top-rr.top), right:Math.round(rr.right-R) }; }
+  }
+  return null;
+}
+/* 80px でも入らないとき:シートを開くときに(写真を読む前に)、価格の行を、少しだけ高くして、場所を空けておく(あとから、行の高さが動かないように) */
+function dpReserve(asp){
+  const row=$("shBody").querySelector(".sh-row.price"); if(!row) return;
+  row.style.minHeight="";
+  for(let add=0;add<=48&&!dpFit(asp);add+=4){ row.style.minHeight=(row.getBoundingClientRect().height+4)+"px"; }
+}
+function dpPlace(box){
+  const im=DP.img; if(!im) return false;
+  const asp=(im.naturalWidth&&im.naturalHeight)?im.naturalWidth/im.naturalHeight:4/3, L=dpFit(asp); if(!L) return false;   /* 80px でも入らないときは、出さない */
+  box.style.cssText="width:"+L.W+"px;height:"+L.H+"px;right:"+L.right+"px;top:"+L.top+"px";
+  box.firstChild.style.cssText="left:0;top:0;width:"+L.W+"px;height:"+L.H+"px"; return true;
 }
 function dpShow(){
   dpHide(true);
   const c=dpCfg(), w=WINES[S.idx], src=w&&w.dish&&IMG(w.dish.photo), row=$("shBody").querySelector(".sh-row.price"); if(c.enabled===false||!src||!row) return;
+  try{ dpReserve(4/3); }catch(e){ console.warn("dishPhoto",e); }   /* 料理の写真は、どれも 4:3 */
   const idx=S.idx; const im=new Image(); im.alt=""; im.decoding="async"; im.src=src; DP.img=im;          /* 写真は、ここで、はじめて読み込む */
   const ready=im.decode?im.decode().catch(()=>{}):Promise.resolve(), t0=performance.now();
   const ok=()=>DP.img===im&&S.sheet&&S.idx===idx&&!$("sheet").classList.contains("list");
@@ -7675,9 +7716,17 @@ function dishNoteHtml(w){
   const t=(IMG(w.dish.photo)?c.text:(c.textNoPhoto!=null?c.textNoPhoto:c.text)); if(typeof t!=="string"||!t.trim()) return "";
   return `<p class="sh-dnote">${brk(ownerFill(t))}</p>`;
 }
+/* 「。」「、」だけが次の行に送られたら、その段落の字間を詰めて、前の行に戻す */
+function shOrphan(){
+  const rg=document.createRange(), top=(n,k)=>{ rg.setStart(n,k); rg.setEnd(n,k+1); const r=rg.getClientRects()[0]; return r?r.top:null; };
+  const orphan=el=>{ const tw=document.createTreeWalker(el,NodeFilter.SHOW_TEXT); let n, prev=null;
+    while((n=tw.nextNode())) for(let k=0;k<n.length;k++){ const t=top(n,k); if(t==null) continue; if(prev!=null&&t>prev+4&&/[、。」)]/.test(n.data[k])) return true; prev=t; } return false; };
+  $("shBody").querySelectorAll(".sh-desc,.sh-dnote,.sh-row dd").forEach(el=>{ el.style.letterSpacing=""; el.style.fontFeatureSettings="";
+    if(!orphan(el)) return; el.style.letterSpacing="0"; if(!orphan(el)) return; el.style.fontFeatureSettings='"palt" 1'; });
+}
 function openSheet(){
   const w=WINES[S.idx], rows=infoShown(w); if(!rows.length) return;
-  $("shBody").innerHTML=`<p class="sh-kick">このワインについて</p>${tbCfg().inSheet?tbHtml(w,"sh"):""}<h2 class="sh-name${(w.meta&&(CONFIG.sheet||{}).showMeta===true)?"":" nm"}" id="shName">${esc(w.name)}</h2>`+
+  $("shBody").innerHTML=`<p class="sh-kick">このワインについて</p>${(tbCfg().inSheet&&tbHtml(w,"sh"))||noHtml(w)?`<div class="sh-tb">${tbCfg().inSheet?tbHtml(w,"sh"):""}${noHtml(w)}</div>`:""}<h2 class="sh-name${(w.meta&&(CONFIG.sheet||{}).showMeta===true)?"":" nm"}" id="shName">${esc(w.name)}</h2>`+
     (w.meta&&(CONFIG.sheet||{}).showMeta===true?`<p class="sh-meta">${esc(w.meta)}</p>`:"")+
     ((CONFIG.sheet||{}).showDesc!==false&&w.desc?`<p class="sh-desc">${brk(w.desc)}</p>`:"")+
     ((CONFIG.sheet||{}).showOwnerNote!==false&&w.ownerNote?`<div class="sh-note"><div class="own-h">${esc(ownerFill(CONFIG.owner.noteLabel||"{owner}より"))}</div><p>${brk(w.ownerNote)}</p></div>`:"")+
@@ -7689,7 +7738,7 @@ function openSheet(){
   requestAnimationFrame(()=>requestAnimationFrame(()=>wr.classList.add("open")));
   setTimeout(()=>$("shClose").focus({preventScroll:true}),60);
   { const y=$("shBody").querySelector(".sh-why"); if(y){ y.classList.remove("wrap"); if(y.scrollWidth>y.clientWidth+1) y.classList.add("wrap"); } }   /* 1行に入らないときだけ、折り返す */
-  rmShow(); dpShow();
+  rmShow(); dpShow(); shOrphan();
   logEv("info_open",{id:w.id});
 }
 function closeSheet(){
@@ -7706,7 +7755,7 @@ function openList(){
   rmHide(true);
   const LC=UI.list||{}, G=LC.groups||{}, tasted=new Set(S.history.filter(Boolean).map(h=>h.id));
   const row=i=>{ const w=WINES[i], now=i===S.idx, td=LC.showTasted!==false&&tasted.has(w.id);
-    return `<button type="button" class="lrow${now?" now":""}" data-i="${i}"${now?' aria-current="true"':""}><i style="background:${swatch(w.color)}"></i>`+
+    return `<button type="button" class="lrow${now?" now":""}" data-i="${i}"${now?' aria-current="true"':""}>${noOn()?`<span class="lno" aria-label="番号">${w.no}</span>`:""}<i style="background:${swatch(w.color)}"></i>`+
       `<span class="lt"><b>${tbCfg().enabled&&tbCfg().inList&&tbKey(w)?tbDot(tbKey(w),tbCfg()):""}${esc(nameOf(w))}</b>${subOf(w)?`<small>${esc(subOf(w))}</small>`:""}`+
       ((now||td||w.pick)?`<span class="lmks">${w.pick?`<em class="lmk p">${esc(pickOf(w))}</em>`:""}${now?`<em class="lmk">${esc(LC.nowMark)}</em>`:""}${td?`<em class="lmk t">${esc(LC.tastedMark)}</em>`:""}</span>`:"")+`</span>${priceList(w)}</button>`; };
   /* 区分(泡・白・赤。どれでもないワインは「その他」を自動で追加)。7本以上で、タブにする */
@@ -7769,7 +7818,7 @@ function layoutStage(g){
   let bottom=base-2;
   if(m==="feel"){ const ph=pan.offsetHeight; pan.style.top=(bottom-ph)+"px"; bottom-=ph+4; }
   else if(m==="select"&&!S.judged){ const lh=56; ln.style.top=(bottom-lh)+"px"; ln.style.height=lh+"px"; bottom-=lh+2; }
-  else if(m==="result"){ const sl=ln.querySelector(".sy-s"), rh=(short?132:150)+(sl?sl.offsetHeight+2:0);   /* 甘さの1行があるときだけ、その分、高くする(ないときは、今までどおり) */ ln.style.top=(bottom-rh)+"px"; ln.style.height=rh+"px"; bottom-=rh+2; }
+  else if(m==="result"){ const sl=ln.querySelector(".sy-s"), rh=(short?132:150)-(noOn()?24:0)+(sl?sl.offsetHeight+2:0);   /* 甘さの1行があるときだけ、その分、高くする(ないときは、今までどおり) */ ln.style.top=(bottom-rh)+"px"; ln.style.height=rh+"px"; bottom-=rh+2; }
   const bh=band.offsetHeight; band.style.top=(bottom-bh)+"px"; bottom-=bh+2;
   { const top=hb+4;
     g.s=Math.min(AW*0.52, VH*0.27, (bottom-top)/(RIM+0.12+1.13)); g.x=AX+AW/2; g.y=bottom-1.13*g.s; }
@@ -7803,24 +7852,36 @@ function stageText(live){
 }
 /* 舞台の結果:数字(カウントアップ)+段階の名前+差の向き。最初に現れるときだけ数え、触れ直しは、今の数字から動く */
 let STC=null;
+/* 相性度の下の文を、それぞれ1行に収める:まず字間を詰め、次に文字を 14px まで縮める */
+function syFit(el){
+  const rg=document.createRange();
+  el.querySelectorAll(".sy-d,.sy-m").forEach(t=>{ t.style.fontSize=""; t.style.letterSpacing=""; t.style.textIndent=""; t.style.fontFeatureSettings="";
+    const avail=el.clientWidth-4, tw=()=>{ rg.selectNodeContents(t); return rg.getBoundingClientRect().width; };   /* 中央揃えなので、文字の幅は Range で測る */
+    if(!avail||tw()<=avail) return;
+    t.style.letterSpacing="0"; t.style.textIndent="0"; if(tw()<=avail) return;
+    t.style.fontFeatureSettings='"palt" 1'; if(tw()<=avail) return;   /* 句読点の幅を詰める */
+    const base=parseFloat(getComputedStyle(t).fontSize); t.style.fontSize=Math.max(14,Math.floor(base*avail/tw()*10)/10)+"px"; });
+}
+const one=s=>esc(String(s).replace(/\|/g,""));   /* 1行で出す文(折り返しの印は付けない) */
 function stageResult(el, u){
   const show=syncPct(u,WINES[S.idx],S.answer.third==null), raw=curRaw(u), lv=syncLevel(show), dir=compare(u), sw=sweetLine();
   const say=`${lv.name}${pctOn()?" "+show+"%":""}。${dir.replace(/\|/g,"")}${sw?"。"+sw.replace(/\|/g,""):""}`;
   if(el.dataset.m!=="res" || !STC){
     el.dataset.m="res";
-    el.innerHTML=`<span class="sy-row">${resHTML(show)}</span><span class="sy-d">${brk(dir)}</span>${sw?`<span class="sy-d sy-s">${brk(sw)}</span>`:""}<span class="sy-m">${brk(lv.msg)}</span>`;
+    el.innerHTML=`<span class="sy-row">${resHTML(show)}</span><span class="sy-d">${one(dir)}</span>${sw?`<span class="sy-d sy-s">${one(sw)}</span>`:""}<span class="sy-m">${one(lv.msg)}</span>`;
     const now=performance.now(), land=S.seq0+(reduceMotion?0:800);
     STC=cntNew(el,{kind:"stage", show, raw, say, startAt:Math.max(now,land)+(reduceMotion?0:CONFIG.match.delayMs)});
-    return;
+    syFit(el); return;
   }
-  const nm=el.querySelector(".sy-n"), d=el.querySelector(".sy-d"), db=brk(dir);
+  const nm=el.querySelector(".sy-n"), d=el.querySelector(".sy-d"), db=one(dir);
   if(nm.textContent!==lv.name) nm.textContent=lv.name;
   if(d.innerHTML!==db) d.innerHTML=db;
   { let se=el.querySelector(".sy-s");                       /* 甘さの1行:選んだら出す・外したら消す(空の行は残さない) */
     if(!sw){ if(se){ se.remove(); if(STC) STC.subs=STC.subs.filter(x=>x!==se); } }
     else{ if(!se){ se=document.createElement("span"); se.className="sy-d sy-s"+(d.classList.contains("on")?" on":""); d.after(se); if(STC) STC.subs.push(se); }
-      const sb=brk(sw); if(se.innerHTML!==sb) se.innerHTML=sb; } }
-  { const mm=el.querySelector(".sy-m"), mb=brk(lv.msg); if(mm && mm.innerHTML!==mb) mm.innerHTML=mb; }
+      const sb=one(sw); if(se.innerHTML!==sb) se.innerHTML=sb; } }
+  { const mm=el.querySelector(".sy-m"), mb=one(lv.msg); if(mm && mm.innerHTML!==mb) mm.innerHTML=mb; }
+  syFit(el);
   cntTarget(STC, show, raw, say, S.touching);
 }
 function stageLive(){ renderPanel({heavy:P.heavyT, fruit:P.fruitT}); stageText({heavy:P.heavyT, fruit:P.fruitT, third:(S.answer.third??1)/2}); }

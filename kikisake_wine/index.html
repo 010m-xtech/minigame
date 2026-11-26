@@ -122,7 +122,7 @@
         今の4本は、空欄です。コードで分かる事実からは、店主さんの言葉を作れないため、お店で記入してください
         (未入力のワインは、起動時にコンソールへ一覧で出ます)
 
-   【説明カードの見出し】 CONFIG.owner.tagline(オープニングには出ません。説明カードの見出しに使われ、show:false なら titleAlt。text は、{owner} が呼び名になります)
+   【説明カードの見出し】 CONFIG.owner.tagline(オープニングには出ません。説明カードの見出しに使われ、show:false なら titleAlt。text は、{owner} が呼び名、{shop} が CONFIG.shop.nameKana(カナの店名)になります)
         タイトル「ワイン相性診断」の下に、小さく出ます。長すぎると、画面を圧迫するので、30字くらいまでに
 
    【足元の表現】 CONFIG.foot   (テーブルは無く、グラスの足元に、接地の手がかりだけを重ねています)
@@ -238,7 +238,7 @@
 
    ====================================================================== */
 const SHOP_DATA = {
-  shop:{ name:"salute", sub:"ITALIAN TRATTORIA", show:true, logo:"logo" },   // オープニングの店名。logo は IMAGES のキー(透過 PNG・白)。あれば、タイトル(イタリアの三色)と店名(薄いベージュ)をロゴで出す
+  shop:{ name:"salute", nameKana:"サルーテ", sub:"ITALIAN TRATTORIA", show:true, logo:"logo" },   // オープニングの店名。nameKana は、文言の中の {shop} に入るカナの店名(説明カードの見出しなど)。logo は IMAGES のキー(透過 PNG・白)。あれば、タイトル(イタリアの三色)と店名(薄いベージュ)をロゴで出す
   photos:{ opening:"exterior", openingBlur:"exteriorBlur", bg:"interiorBlur" },
   wines:[
     { no:1, id:"asti", regionId:"piedmont", label:{ img:"label01" }, name:"テヌーテ ネイラーノ アスティ", meta:"モスカート · ピエモンテ",
@@ -6016,7 +6016,7 @@ const CONFIG = {
   owner:{
     label:"店主",                                  // 画面の「店主」。「当店」「ソムリエ」「お名前」などに変えられる
     noteLabel:"{owner}より",                       // 店主さんの一言(ownerNote)の見出し
-    tagline:{ show:true, text:"{owner}と、味わいの相性を、|たしかめてみませんか" },   // 説明カードの見出し(オン/オフ)
+    tagline:{ show:true, text:"{shop}のワインリスト" },   // 説明カードの見出し(オン/オフ)
   },
   // 画面の操作(主ボタン・段階・質問・小さなリンク)の文言。{owner} は店主の呼び名。変え方は、ファイル上部の手順書【画面の操作】
   ui:{
@@ -6045,7 +6045,7 @@ const CONFIG = {
   intro:{ show:true,                                  // false で、出さない(オープニングのあと、すぐ「えらぶ」へ)
     title:"",                                         // 見出し。空なら CONFIG.owner.tagline の文言を使い回す(tagline が off のときは titleAlt)
     titleAlt:"ひとくちの感覚を、ことばに。",
-    lead:"感じたことを選ぶだけ。|約2分の、小さな診断です",   // 「|」で行を区切る。2行まとめて、同時に現れる
+    lead:"{owner}との味わいの相性が、見られます。|ワインや合うお料理も、ご紹介します。",   // 「|」で行を区切る。2行まとめて、同時に現れる
     steps:["気になるワインを、えらぶ","飲んで感じたものを、えらぶ","{owner}との相性を見る"],
     start:"はじめる",
     // 現れ方(ミリ秒):質問に入るまでの文言は、かたまりごとに、ふわっと(fadeMs)。質問への入りの一言だけ、1文字ずつ(type)。
@@ -6299,7 +6299,8 @@ const T = {
 };
 /* 店主の呼び名:文言の中の {owner} を、CONFIG.owner.label に置き換える(起動時に1回)。画面の固定の言葉(光のラベル・ボタン・オープニングの一言)も、ここで入れる */
 const OWNER=(()=>{ const l=CONFIG.owner&&typeof CONFIG.owner.label==="string"&&CONFIG.owner.label.trim(); return l||"店主"; })();
-const ownerFill=s=>typeof s==="string"?s.replace(/\{owner\}/g,OWNER):s;
+const SHOPKANA=(()=>{ const n=CONFIG.shop&&typeof CONFIG.shop.nameKana==="string"&&CONFIG.shop.nameKana.trim(); return n||"サルーテ"; })();
+const ownerFill=s=>typeof s==="string"?s.replace(/\{owner\}/g,OWNER).replace(/\{shop\}/g,SHOPKANA):s;
 (function fill(o){ for(const k in o){ if(typeof o[k]==="string") o[k]=ownerFill(o[k]); else if(o[k]&&typeof o[k]==="object") fill(o[k]); } })(T);
 CONFIG.match.levels.forEach(l=>{ l.msg=ownerFill(l.msg); l.name=ownerFill(l.name); });
 (function fill(o){ for(const k in o){ if(typeof o[k]==="string") o[k]=ownerFill(o[k]); else if(o[k]&&typeof o[k]==="object") fill(o[k]); } })(CONFIG.ui);

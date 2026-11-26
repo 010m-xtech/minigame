@@ -462,6 +462,15 @@ const SHOP_DATA = {
     inset 0 1px 0 rgba(255,255,255,.6);transition:transform .15s}
 
   /* ③ 重ねる */
+  /* 相性度の画面:点の向きを示す「矢印と言葉」(グラフ・目盛り・数字は付けない) */
+  .axes{position:absolute;left:0;top:0;width:0;height:0;pointer-events:none;z-index:2;opacity:0;transition:opacity .6s ease}
+  .axes.on{opacity:var(--axo,1)}
+  .ax-svg{position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible}
+  .ax-svg line{stroke:rgba(201,167,108,.45);stroke-width:1;stroke-linecap:round}
+  .ax-svg path{fill:rgba(201,167,108,.5)}
+  .ax-t{position:absolute;left:0;top:0;font-family:var(--mincho);font-size:15px;line-height:1.35;letter-spacing:.04em;color:rgba(246,225,174,.85);white-space:nowrap;
+    text-shadow:0 1px 6px rgba(0,0,0,.75),0 0 2px rgba(0,0,0,.5)}
+  .ax-ty{text-align:right} .ax-tx{text-align:left}
   .mk{position:absolute;width:0;height:0;pointer-events:none;transition:opacity .3s}
   .mk span{position:absolute;top:0;transform:translateY(-50%);font-size:14px;letter-spacing:.08em;white-space:nowrap;
     padding:4px 10px;border-radius:999px;background:rgba(14,9,10,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
@@ -1328,6 +1337,7 @@ const SHOP_DATA = {
     <div class="aura you" id="auraY"></div><div class="aura shop" id="auraS"></div><div class="aura mix" id="auraM"></div>
     <div class="mk you toL" id="mkYou"><i></i><span>あなた</span></div>
     <div class="mk shop toR" id="mkShop"><i></i><span>店主</span></div>
+    <div class="axes" id="axes" aria-hidden="true"><svg class="ax-svg"><line class="ax-ly"/><path class="ax-hy"/><line class="ax-lx"/><path class="ax-hx"/></svg><span class="ax-t ax-ty"></span><span class="ax-t ax-ey"></span><span class="ax-t ax-tx"></span><span class="ax-t ax-ex"></span></div>
     <div class="stack passive" id="s3stack">
       <div class="scale"><div class="track" id="track"><u style="left:16.67%"></u><u style="left:50%"></u><u style="left:83.33%"></u><b class="sy" id="scYou"></b><b class="ss" id="scShop"></b></div>
         <div class="ticks" id="ticks"></div></div>
@@ -6255,6 +6265,9 @@ const CONFIG = {
     delayMs:400,         // 店主の光が現れてから、数え始めるまでの間
     followMs:600,        // 触れ直して結果が更新されたとき、今の数字から新しい数字へ動く時間
     trendMin:0.10,       // 「今夜のあなた」で、傾向の文を出す最小の差(平均。これ未満は「とても近い感じ方」)
+    // 点の向きを示す「矢印と言葉」(相性度の画面だけ)。縦=口あたり(上ほど軽やか)・横=香りと味の印象(右ほどフルーティ)。甘さは出さない
+    //   opacity:全体の濃さ(0.75 で、線 0.45・文字 0.85)/ delay:点が出てから、矢印が出るまで(ミリ秒)/ textY・textX:最初の語(空白の前)は太字 / endY・endX:反対の端の言葉
+    arrows:{ enabled:true, opacity:0.75, delay:600, endY:{ top:"軽やか", bottom:"しっかり" }, endX:{ left:"すっきり", right:"フルーティ" } },
     sweetnessOnlyIfChosen:true,   // 甘さ(任意の3問目。甘口のワインだけ)は、選んだときだけ、相性度の下に1行を足す。選ばなかったときは、甘さの言葉を一切出さない(false で、1行を足さない、今までの表示)
     levels:[             // 上から順に、min(相性度)以上なら、その段階。name:段階の名前 msg:あたたかい一言(| は折り返してよい位置、{owner} は店主の呼び名)
       { min:95, name:"ぴったりの相性",   msg:"あなたの感じ方は、{owner}と|ほとんど同じです" },
@@ -7280,6 +7293,72 @@ function tiltHint(now,active){
 /* ============================================================
    ③ の演出:あなたの光 → しずくが落ちてお店の光 → 2点が光で結ばれる
    ============================================================ */
+/* ---------- 相性度の画面:矢印と言葉(点が動く範囲 R3.fieldPx に合わせる。毎フレーム、グラスに追従) ----------
+   向き(fieldLocal で確認):heavy 0 → 上(軽やか)・1 → 下(しっかり)/ fruit 0 → 左(すっきり)・1 → 右(フルーティ) */
+const AXS={ on:false, t0:0, txt:"" };
+const axCfg=()=>Object.assign({enabled:true,opacity:0.75,delay:600,endY:{top:"軽やか",bottom:"しっかり"},endX:{left:"すっきり",right:"フルーティ"}},(CONFIG.match||{}).arrows||{});
+const axBowlR=h=>{ const t=Math.min(1,Math.max(0,h/1.3)); if(t<0.45){ const u=(0.45-t)/0.45; return 0.5*Math.sqrt(Math.max(0,1-u*u)); } const k=Math.min(1,Math.max(0,(t-0.45)/0.55)); return 0.5+(0.37-0.5)*k*k*(3-2*k); };   /* app3d.js の bowlR と同じ形 */
+function axesStep(now){
+  const el=$("axes"); if(!el) return;
+  { const ms=$("mkShop"); if(ms&&el.parentNode!==ms.parentNode) ms.after(el); }   /* 点の札と同じ場所(舞台)に置く */
+  const c=axCfg(), want=ONE&&c.enabled!==false&&S.screen===5&&S.mode==="result"&&S.judged&&!S.sheet&&!S.opening&&!S.up&&P.markA>0.5;
+  if(!want){ if(AXS.on){ AXS.on=false; el.classList.remove("on"); } AXS.t0=0; if(AXS.dy){ AXS.dy=0; document.querySelectorAll("#mkYou span,#mkShop span").forEach(e=>e.style.top=""); } return; }
+  AXS.dy=1;
+  if(!AXS.t0) AXS.t0=now;
+  const eY=Object.assign({top:"軽やか",bottom:"しっかり"},c.endY), eX=Object.assign({left:"すっきり",right:"フルーティ"},c.endX), key=[eY.top,eY.bottom,eX.left,eX.right].join("|");
+  if(AXS.txt!==key){ AXS.txt=key; const q0=t=>el.querySelector(t); q0(".ax-ty").textContent=eY.top; q0(".ax-ey").textContent=eY.bottom; q0(".ax-ex").textContent=eX.left; q0(".ax-tx").textContent=eX.right; }
+  /* 点が動く範囲 */
+  const px=(x,y)=>GL_OK?R3.fieldPx(x,y):fieldXY(x,y);
+  let xmin=1e9,xmax=-1e9; for(const ny of [0,.2,.4,.5,.6,.8,1]){ xmin=Math.min(xmin,px(0,ny)[0]); xmax=Math.max(xmax,px(1,ny)[0]); }
+  xmin-=AX; xmax-=AX; const top=px(.5,0)[1], bot=px(.5,1)[1];
+  /* グラスの輪郭(ボウルの左のふち・ボウルの底)。グラスの形は app3d.js と同じ */
+  const sil=[]; let gBot=bot+12;
+  if(GL_OK&&R3.project){ for(let i=0;i<=26;i++){ const h=1.3*i/26; sil.push(R3.project(-axBowlR(h)-0.012,1.10+h,0)); } gBot=R3.project(0,1.10-0.01,0)[1]; }
+  else sil.push([xmin+AX-16,top],[xmin+AX-16,bot]);
+  const gLeft=(y0,y1)=>{ let m=1e9; for(let i=0;i<sil.length;i++){ const p=sil[i], q=sil[Math.min(sil.length-1,i+1)];
+    if(Math.max(p[1],q[1])>=y0&&Math.min(p[1],q[1])<=y1) m=Math.min(m,p[0]-AX,q[0]-AX); } return m; };
+  const app=$("app").getBoundingClientRect(), MG=8, EG=12, GAP=14, W=app.width, H=8;
+  const q=s=>el.querySelector(s), set=(e,a)=>{ for(const k in a) e.setAttribute(k,a[k]); };
+  const avoid=[...document.querySelectorAll("#wname,#stLine,#steps")].filter(e=>e.offsetParent).map(e=>e.getBoundingClientRect())
+    .map(r=>({l:r.left-app.left-4,t:r.top-app.top-4,r:r.right-app.left+4,b:r.bottom-app.top+4}));
+  const hit=(a,o,m=0)=>a.l<o.r+m&&a.r>o.l-m&&a.t<o.b+m&&a.b>o.t-m;
+  const box=(e,x,y)=>{ const w=e.offsetWidth,h=e.offsetHeight; x=Math.round(Math.max(MG,Math.min(W-MG-w,x))); y=Math.round(y); return {e,l:x,t:y,r:x+w,b:y+h,w,h}; };
+  const sz=e=>[e.offsetWidth,e.offsetHeight];
+  /* 縦の矢印:グラスの左のふちから GAP 離す。画面の端から EG 以上。入らない高さは、矢印を短くする */
+  const eT=q(".ax-ty"), eB=q(".ax-ey"), eL=q(".ax-ex"), eR=q(".ax-tx"), [wT,hT]=sz(eT), [wB,hB]=sz(eB), [wL,hL]=sz(eL), [wR,hR]=sz(eR);
+  let T=Math.round(top), B=Math.round(bot);
+  const stE=$("steps"), stp=stE&&stE.offsetParent?{b:stE.getBoundingClientRect().bottom-app.top}:null;
+  const tMin=Math.max(MG,stp?stp.b+2:MG)+hT+6; if(T<tMin) T=Math.round(tMin);                 /* 上の言葉が入るように(入らなければ、矢印の上を短く) */
+  let X=Math.round(gLeft(T,B)-GAP);
+  if(X<EG){ X=EG; let best=null, s0=null;                                                    /* 外側に入らない高さは除く(いちばん長い区間を使う) */
+    for(let y=T;y<=B+1;y+=2){ const okY=y<=B&&gLeft(y-1,y+1)-GAP>=X; if(okY&&s0==null) s0=y; if(!okY&&s0!=null){ if(!best||y-2-s0>best[1]-best[0]) best=[s0,y-2]; s0=null; } }
+    if(best&&best[1]-best[0]>=40){ T=best[0]; B=best[1]; } }
+  X+=.5;
+  set(q(".ax-ly"),{x1:X,y1:T+H-1,x2:X,y2:B}); set(q(".ax-hy"),{d:`M${X} ${T}L${X-3.5} ${T+H}L${X+3.5} ${T+H}Z`});
+  const bT=box(eT,X-wT/2,T-6-hT), bB=box(eB,X-wB/2,B+6);
+  /* 横の矢印:ボウルの底の下(脚の上)。グラスの輪郭から GAP 離す。「しっかり」とは 24px 以上あける */
+  let L=Math.round(Math.max(EG,xmin)), R=Math.round(Math.min(W-EG,xmax)), Y=Math.round(gBot+GAP);
+  const leftBox=y=>{ let b=box(eL,L-8-wL,y-hL/2); if(b.r>L-4) b=box(eL,L-wL/2,y+6); return b; };
+  let bL=leftBox(Y); if(hit(bL,bB,26)){ Y=Math.round(bB.b+26+hL/2); bL=leftBox(Y); }
+  Y+=.5;
+  set(q(".ax-lx"),{x1:L,y1:Y,x2:R-H+1,y2:Y}); set(q(".ax-hx"),{d:`M${R} ${Y}L${R-H} ${Y-3.5}L${R-H} ${Y+3.5}Z`});
+  let bR=box(eR,R+8,Y-hR/2); if(bR.l<R+4) bR=box(eR,R-wR/2,Y+6);                         /* 右に入らないときは、右端の下 */
+  for(const b of [bT,bB,bL,bR]) b.e.style.transform=`translate(${b.l}px,${b.t}px)`;
+  AXS.geo={X,T,B,L,R,Y,words:[bT,bB,bL,bR]};
+  /* 札(あなた・店主):矢印の線・言葉と重なるときは、点の反対側へ */
+  { const obs=[{l:X-4,t:T-2,r:X+4,b:B},{l:L,t:Y-4,r:R+2,b:Y+4},bT,bB,bL,bR], mk=[$("mkYou"),$("mkShop")].filter(m=>+m.style.opacity>.05);
+    const rect=(m,side,dy)=>{ const sp=m.querySelector("span"), x=parseFloat(m.style.left)||0, y=(parseFloat(m.style.top)||0)+dy, w=sp.offsetWidth, h=sp.offsetHeight;
+      return side==="L"?{l:x-18-w,t:y-h/2,r:x-18,b:y+h/2}:{l:x+18,t:y-h/2,r:x+18+w,b:y+h/2}; };
+    const org=mk.map(m=>m.classList.contains("toL")?"L":"R"), DY=[0,-20,20,-36,36];
+    const one=mk.map((m,i)=>{ const c=[]; for(const f of [0,1]) for(const dy of DY){ const sd=f?(org[i]==="L"?"R":"L"):org[i], r=rect(m,sd,dy);
+      let sc=f*3+Math.abs(dy)*0.1; if(r.l<MG||r.r>W-MG) sc+=20; obs.forEach(b=>{ if(hit(r,b,2)) sc+=50; }); avoid.forEach(b=>{ if(hit(r,b)) sc+=20; }); c.push({sd,dy,r,sc}); } return c; });
+    let best=null;
+    if(one.length===2){ for(const a of one[0]) for(const b of one[1]){ const sc=a.sc+b.sc+(hit(a.r,b.r,2)?40:0); if(!best||sc<best.sc) best={sc,p:[a,b]}; } }
+    else if(one.length===1){ for(const a of one[0]) if(!best||a.sc<best.sc) best={sc:a.sc,p:[a]}; }
+    if(best) mk.forEach((m,i)=>{ const p=best.p[i]; m.classList.toggle("toL",p.sd==="L"); m.classList.toggle("toR",p.sd==="R"); m.querySelector("span").style.top=p.dy?p.dy+"px":""; }); }
+  el.style.setProperty("--axo",Math.max(0,Math.min(1,(+c.opacity||0.75)/0.75)).toFixed(3));
+  if(!AXS.on&&now-AXS.t0>=(+c.delay||0)){ AXS.on=true; void el.offsetWidth; el.classList.add("on"); }
+}
 function stepCompare(now){
   let tA=0,tB=0,tL=0;
   if(S.screen===5){ return stageCompare(now); }
@@ -7438,6 +7517,7 @@ function frame(now){
   P.link=lerp(P.link,tL,1-Math.exp(-dt*4));
   $("mkYou").style.opacity=P.markA; $("mkShop").style.opacity=P.markB;
   if(S.screen===5) auraStep();
+  axesStep(now);
   cntStep(now);
 
   const stiff=lerp(55,22,P.heavy), damp=lerp(3.5,6.5,P.heavy)*(WINES[S.idx].damp||2.85)/2.85;   // 重いほど、ゆっくり粘る

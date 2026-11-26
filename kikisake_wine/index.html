@@ -806,6 +806,17 @@ const SHOP_DATA = {
   .sh-row.price{position:relative}
   .dp-in{position:absolute;display:block;opacity:0;transition:opacity .6s ease;pointer-events:none}
   .dp-in.on{opacity:1}
+  /* タップの範囲:写真の上下左右に 10px ずつ広げる(最小 48×48)。見えない。スクロールは邪魔しない */
+  .dp-hit{position:absolute;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent;background:transparent;outline:none;cursor:pointer}
+  /* 大きい表示:シートの上に重ねる。出ているあいだだけ、背面の操作をふさぐ */
+  .dzoom{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;opacity:0;visibility:hidden;touch-action:manipulation;-webkit-tap-highlight-color:transparent;cursor:pointer;
+    transition:opacity .2s ease,visibility 0s .2s}
+  .dzoom.on{opacity:1;visibility:visible;transition:opacity .3s ease,visibility 0s}
+  .dz-bg{position:absolute;inset:0;background:rgba(0,0,0,var(--dz-bd,.82))}
+  .dz-img{position:relative;display:block;border-radius:8px;box-shadow:0 6px 30px rgba(0,0,0,.6);user-select:none;-webkit-user-select:none;-webkit-user-drag:none}
+  .dz-name{position:relative;margin:0;max-width:92%;text-align:center;font:16px/1.5 var(--mincho);letter-spacing:.06em;color:var(--gold-text);word-break:keep-all;overflow-wrap:anywhere}
+  .dz-x{position:absolute;right:max(6px,env(safe-area-inset-right));top:calc(var(--safe-t) + 6px);width:46px;height:46px;border:0;background:none;color:var(--ink);display:flex;align-items:center;justify-content:center;padding:0;touch-action:manipulation}
+  .dz-x svg{width:22px;height:22px}
   .dp-ph{position:absolute;overflow:hidden;
     /* 縁:上下左右とも、14px で、透明に抜ける(羽毛状)。2つの帯を重ねて、角も、やわらかく */
     -webkit-mask-image:linear-gradient(90deg,transparent,#000 14px,#000 calc(100% - 14px),transparent),linear-gradient(180deg,transparent,#000 14px,#000 calc(100% - 14px),transparent);
@@ -6129,7 +6140,8 @@ const CONFIG = {
      delay:シートを開いてから、出るまでの時間(ミリ秒)/ size:写真の大きさ(幅・高さ。縦横比は保ち、文字に重なるときは、幅 80px まで縮めます。80px でも入らないときは、出しません)
      pos:"price" は、価格の行の右(今のところ、これだけ)/ float:ゆっくり浮かぶ動き(false で、浮かばない)
      写真の下端は、料理例の行の上の線から 6px 以上離し、上は、産地の行の右の余白まで、はみ出してよい。写真は、シートを開いたときに、はじめて読み込みます */
-  dishPhoto:{ enabled:true, delay:300, size:{ w:104, h:78 }, pos:"price", float:false },
+  dishPhoto:{ enabled:true, delay:300, size:{ w:104, h:78 }, pos:"price", float:false,
+    zoom:{ enabled:true, maxW:0.92, maxH:0.7, backdrop:0.82, showName:true } },   // zoom:写真をタップすると、大きく出る(案内の文字・アイコンは出さない)。maxW・maxH:画面の幅・高さに対する、いちばん大きい割合 / backdrop:背景の暗さ / showName:写真の下に、料理名
   sheet:{ showMeta:false,
     dishNote:{ enabled:true,   // 「合う理由」の下の注意書き。料理(dish.name)があるワインだけに出す。「|」は、折り返してよい位置。{owner} は、CONFIG.owner.label に置きかわる
       text:"季節や仕入れにより、料理は変わります。写真は、イメージです。|気になる方は、{owner}へお声がけください。",          // 写真(dish.photo)があるワイン
@@ -7629,7 +7641,7 @@ function rmPutIn(w,rg){
 }
 /* ---------- 料理の写真(このワインについて):価格の行の右側の余白に、小さく、ふわっと出す ---------- */
 const DP={ tm:null, on:false, el:null, img:null };
-const dpCfg=()=>{ const c=CONFIG.dishPhoto||{}; return Object.assign({enabled:true,delay:300,pos:"price",float:false},c,{size:Object.assign({w:104,h:78},c.size)}); };
+const dpCfg=()=>{ const c=CONFIG.dishPhoto||{}; return Object.assign({enabled:true,delay:300,pos:"price",float:false},c,{size:Object.assign({w:104,h:78},c.size),zoom:Object.assign({enabled:true,maxW:0.92,maxH:0.7,backdrop:0.82,showName:true},c.zoom)}); };
 /* 文字の領域(行ごとの矩形)を、すべて集める。写真は、ここに重ならない所へ置く */
 function dpTextRects(root){
   const out=[], tw=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>(n.nodeValue.trim()&&!(n.parentNode.closest&&n.parentNode.closest(".dp-in")))?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT});
@@ -7664,8 +7676,41 @@ function dpPlace(box){
   const im=DP.img; if(!im) return false;
   const asp=(im.naturalWidth&&im.naturalHeight)?im.naturalWidth/im.naturalHeight:4/3, L=dpFit(asp); if(!L) return false;   /* 80px でも入らないときは、出さない */
   box.style.cssText="width:"+L.W+"px;height:"+L.H+"px;right:"+L.right+"px;top:"+L.top+"px";
-  box.firstChild.style.cssText="left:0;top:0;width:"+L.W+"px;height:"+L.H+"px"; return true;
+  box.firstChild.style.cssText="left:0;top:0;width:"+L.W+"px;height:"+L.H+"px";
+  const hit=box.querySelector(".dp-hit"); if(hit){ const px=Math.max(10,Math.ceil((48-L.W)/2)), py=Math.max(10,Math.ceil((48-L.H)/2));
+    hit.style.cssText="left:"+(-px)+"px;top:"+(-py)+"px;width:"+(L.W+2*px)+"px;height:"+(L.H+2*py)+"px"; }
+  return true;
 }
+/* ---------- 料理写真の拡大(タップ) ---------- */
+const DZ={ el:null, on:false, t:0 };
+function dzBuild(){
+  if(DZ.el) return DZ.el;
+  const el=document.createElement("div"); el.className="dzoom"; el.id="dzoom"; el.setAttribute("role","dialog"); el.setAttribute("aria-modal","true"); el.setAttribute("aria-label","料理の写真");
+  el.innerHTML='<div class="dz-bg"></div><img class="dz-img" alt=""><p class="dz-name"></p><button type="button" class="dz-x" aria-label="閉じる"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button>';
+  $("sheetWrap").appendChild(el);
+  el.addEventListener("pointerup",e=>{ e.preventDefault(); e.stopPropagation(); dzClose(); });    /* どこをタップしても閉じる(pointerup だけ。二重に反応しない) */
+  el.addEventListener("click",e=>{ e.preventDefault(); e.stopPropagation(); });
+  el.addEventListener("pointerdown",e=>e.stopPropagation());
+  return DZ.el=el;
+}
+function dzOpen(src,name){
+  const c=dpCfg().zoom; if(c.enabled===false||!src) return;
+  const el=dzBuild(), im=el.querySelector(".dz-img"), nm=el.querySelector(".dz-name"), wr=$("sheetWrap");
+  el.style.setProperty("--dz-bd",String(Math.min(1,Math.max(0,+c.backdrop||0.82))));
+  nm.textContent=name||""; nm.hidden=!(c.showName!==false&&name);
+  im.onload=null; im.src=src;                                  /* 同じ画像データ(IMAGES)。追加の読み込みは、ない */
+  const fit=()=>{ const W=wr.clientWidth, H=wr.clientHeight, nw=im.naturalWidth||4, nh=im.naturalHeight||3, k=Math.min(W*(+c.maxW||0.92)/nw,H*(+c.maxH||0.7)/nh);
+    im.style.width=Math.round(nw*k)+"px"; im.style.height=Math.round(nh*k)+"px"; };
+  fit(); if(!im.complete) im.onload=fit;
+  DZ.on=true; el.classList.remove("on"); void el.offsetWidth; requestAnimationFrame(()=>{ if(DZ.on) el.classList.add("on"); });
+  logEv("dish_zoom",{id:WINES[S.idx].id});
+}
+function dzClose(now){
+  if(!DZ.el||!DZ.on) return; DZ.on=false;
+  if(now){ DZ.el.style.transition="none"; DZ.el.classList.remove("on"); void DZ.el.offsetWidth; DZ.el.style.transition=""; }
+  else DZ.el.classList.remove("on");
+}
+addEventListener("resize",()=>{ if(DZ.on&&DZ.el){ const im=DZ.el.querySelector(".dz-img"), wr=$("sheetWrap"), c=dpCfg().zoom, k=Math.min(wr.clientWidth*(+c.maxW||0.92)/(im.naturalWidth||4),wr.clientHeight*(+c.maxH||0.7)/(im.naturalHeight||3)); im.style.width=Math.round((im.naturalWidth||4)*k)+"px"; im.style.height=Math.round((im.naturalHeight||3)*k)+"px"; } });
 function dpShow(){
   dpHide(true);
   const c=dpCfg(), w=WINES[S.idx], src=w&&w.dish&&IMG(w.dish.photo), row=$("shBody").querySelector(".sh-row.price"); if(c.enabled===false||!src||!row) return;
@@ -7675,12 +7720,19 @@ function dpShow(){
   const ok=()=>DP.img===im&&S.sheet&&S.idx===idx&&!$("sheet").classList.contains("list");
   ready.then(()=>{ DP.tm=setTimeout(()=>{ if(!ok()) return;
     try{ const box=document.createElement("span"), p=document.createElement("span"); box.className="dp-in"; p.className="dp-ph"; p.appendChild(im); box.appendChild(p);
+      const hit=document.createElement("span"); hit.className="dp-hit"; hit.setAttribute("role","button"); hit.tabIndex=0; hit.setAttribute("aria-label","料理の写真を大きく見る"); box.appendChild(hit);
+      let d0=null; hit.addEventListener("pointerdown",e=>{ d0={x:e.clientX,y:e.clientY,t:performance.now()}; e.stopPropagation(); });
+      hit.addEventListener("pointerup",e=>{ if(!d0) return; const m=Math.hypot(e.clientX-d0.x,e.clientY-d0.y), dt=performance.now()-d0.t; d0=null; if(m>8||dt>700) return;    /* なぞった(スクロールした)ときは、開かない */
+        e.preventDefault(); e.stopPropagation(); dzOpen(src,w.dish.name); });
+      hit.addEventListener("pointercancel",()=>{ d0=null; });
+      hit.addEventListener("click",e=>{ e.preventDefault(); e.stopPropagation(); });
+      hit.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); dzOpen(src,w.dish.name); } });
       row.appendChild(box); if(!dpPlace(box)){ box.remove(); return; }
       DP.el=box; DP.on=true; requestAnimationFrame(()=>requestAnimationFrame(()=>{ if(DP.el===box) box.classList.add("on"); }));
     }catch(e){ console.warn("dishPhoto",e); } },Math.max(0,(+c.delay||0)-(performance.now()-t0))); });
 }
 function dpHide(now){
-  clearTimeout(DP.tm); DP.tm=null; const e=DP.el; DP.on=false; DP.el=null; DP.img=null;
+  dzClose(true); clearTimeout(DP.tm); DP.tm=null; const e=DP.el; DP.on=false; DP.el=null; DP.img=null;
   if(e&&e.isConnected){ e.classList.remove("on"); if(now) e.remove(); else setTimeout(()=>e.remove(),340); }   /* 消えたら、写真ごと外す */
   $("shBody").querySelectorAll(".dp-in").forEach(x=>{ if(x!==e) x.remove(); });
 }
@@ -7789,7 +7841,7 @@ function openList(){
 }
 $("infoBtn").onclick=openSheet;
 $("shClose").onclick=closeSheet; $("scrim").onclick=closeSheet;
-addEventListener("keydown",e=>{ if(S.sheet&&e.key==="Escape") closeSheet(); });
+addEventListener("keydown",e=>{ if(e.key==="Escape"){ if(DZ.on){ dzClose(); return; } if(S.sheet) closeSheet(); } });
 /* 下へのスワイプで閉じる(つまみの所から、または中身がいちばん上のとき) */
 { const sh=$("sheet"), body=$("shBody"); let sw=null;
   sh.addEventListener("pointerdown",e=>{ if(e.target.closest("button")) return;

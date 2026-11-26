@@ -1214,6 +1214,7 @@ const SHOP_DATA = {
   .own p{margin:0;font-size:15px;line-height:1.75;letter-spacing:.05em;color:var(--ink);word-break:keep-all;overflow-wrap:anywhere;line-break:strict;text-wrap:pretty}
   .rm .own,.rm .sy-n,.rm .sy-d,.rm .sy-m,.rm .sy-d2,.rm .tn-t,.rm .tn-c{transition-duration:.4s;transition-delay:0s}
   .sy-d{display:block;margin-top:2px}
+  .sy-s{display:block;margin-top:2px}   /* 甘さの1行(選んだときだけ) */
   .sy-row .sy-n{display:inline-block}
   .aura{position:absolute;left:0;top:0;border-radius:50%;pointer-events:none;z-index:2;opacity:0}
   .aura.you{background:radial-gradient(closest-side,rgba(250,214,160,.62),rgba(246,207,149,.30) 40%,rgba(246,207,149,.09) 72%,rgba(246,207,149,0))}
@@ -6254,6 +6255,7 @@ const CONFIG = {
     delayMs:400,         // 店主の光が現れてから、数え始めるまでの間
     followMs:600,        // 触れ直して結果が更新されたとき、今の数字から新しい数字へ動く時間
     trendMin:0.10,       // 「今夜のあなた」で、傾向の文を出す最小の差(平均。これ未満は「とても近い感じ方」)
+    sweetnessOnlyIfChosen:true,   // 甘さ(任意の3問目。甘口のワインだけ)は、選んだときだけ、相性度の下に1行を足す。選ばなかったときは、甘さの言葉を一切出さない(false で、1行を足さない、今までの表示)
     levels:[             // 上から順に、min(相性度)以上なら、その段階。name:段階の名前 msg:あたたかい一言(| は折り返してよい位置、{owner} は店主の呼び名)
       { min:95, name:"ぴったりの相性",   msg:"あなたの感じ方は、{owner}と|ほとんど同じです" },
       { min:85, name:"とても良い相性",   msg:"あなたの感じ方は、{owner}と|とても近いようです" },
@@ -6474,7 +6476,9 @@ const T = {
         acMore:"酸味を、{owner}よりも|{m}キリッと|感じられたようです",
         acLess:"酸味を、{owner}よりも|{m}まろやかに|感じられたようです",
         swMore:"甘みを、{owner}よりも|{m}しっかり|感じられたようです",
-        swLess:"甘みを、{owner}よりも|{m}控えめに|感じられたようです"}
+        swLess:"甘みを、{owner}よりも|{m}控えめに|感じられたようです",
+        // 甘さ(任意)を選んだときだけ、相性度の下に足す1行(CONFIG.match.sweetnessOnlyIfChosen が true のとき)。差が1段階以下なら same
+        swSame:"甘さは、{owner}と、|ほぼ同じです", swShopLess:"{owner}のほうが、|甘さ控えめです", swShopMore:"{owner}のほうが、|甘さしっかりです"}
 };
 /* 店主の呼び名:文言の中の {owner} を、CONFIG.owner.label に置き換える(起動時に1回)。画面の固定の言葉(光のラベル・ボタン・オープニングの一言)も、ここで入れる */
 const OWNER=(()=>{ const l=CONFIG.owner&&typeof CONFIG.owner.label==="string"&&CONFIG.owner.label.trim(); return l||"店主"; })();
@@ -6627,6 +6631,7 @@ function youVals(){
 }
 function compare(u=youVals(), s=shopVals(), noThird=S.answer.third==null, kind=thirdKind()){
   const c=T.cmp;      // 3つ目に答えていないときは、2軸だけで比べる
+  if(CONFIG.match.sweetnessOnlyIfChosen&&kind==="sweet") noThird=true;   /* 甘さは、文には混ぜず、選んだときだけ、別の1行(sweetLine)で伝える(食い違いを防ぐ) */
   const dh=u.heavy-s.heavy, df=u.fruit-s.fruit, dt=noThird?0:u.third-s.third;
   const C=CONFIG.compare, TH=C.same;
   if(arguments.length<2) S.close = Math.hypot(dh,df) < TH;
@@ -6640,6 +6645,12 @@ function compare(u=youVals(), s=shopVals(), noThird=S.answer.third==null, kind=t
   const top=cand[0], m = top.v<C.little ? c.little : c.much;
   return c[top.k].replace("{m}",m);
 }
+/* 甘さの1行:甘さ(任意)を選んだときだけ。選ばなかったとき・甘さ以外の3問目のワインでは ""(何も出さない) */
+function sweetLine(){
+  if(!CONFIG.match.sweetnessOnlyIfChosen||thirdKind()!=="sweet"||S.answer.third==null) return "";
+  const d=(S.answer.third+1)-WINES[S.idx].third, c=T.cmp;      // あなた − 店主(1〜3 の段階)
+  return Math.abs(d)<=1 ? c.swSame : d>0 ? c.swShopLess : c.swShopMore;
+}
 /* 日本語は句読点の後と、文言中の | の位置だけで折り返す(keep-all と組み合わせる) */
 const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const brk=s=>esc(s).replace(/([、。・])/g,"$1<wbr>").replace(/\|/g,"<wbr>");
@@ -6647,7 +6658,7 @@ function renderS3(){
   const t=T, w=WINES[S.idx];
   const opts=t.third[thirdKind()].o;
   $("ticks").innerHTML=opts.map(o=>`<span>${o}</span>`).join("");
-  $("cmt").innerHTML=brk(compare());
+  $("cmt").innerHTML=brk(compare())+(sweetLine()?"<br>"+brk(sweetLine()):"");
   $("desc").innerHTML=brk(w.desc);
   placeScale($("s3").classList.contains("revealed"));
 }
@@ -8076,7 +8087,7 @@ function layoutStage(g){
   let bottom=base-2;
   if(m==="feel"){ const ph=pan.offsetHeight; pan.style.top=(bottom-ph)+"px"; bottom-=ph+4; }
   else if(m==="select"&&!S.judged){ const lh=56; ln.style.top=(bottom-lh)+"px"; ln.style.height=lh+"px"; bottom-=lh+2; }
-  else if(m==="result"){ const rh=short?132:150; ln.style.top=(bottom-rh)+"px"; ln.style.height=rh+"px"; bottom-=rh+2; }
+  else if(m==="result"){ const sl=ln.querySelector(".sy-s"), rh=(short?132:150)+(sl?sl.offsetHeight+2:0);   /* 甘さの1行があるときだけ、その分、高くする(ないときは、今までどおり) */ ln.style.top=(bottom-rh)+"px"; ln.style.height=rh+"px"; bottom-=rh+2; }
   const bh=band.offsetHeight; band.style.top=(bottom-bh)+"px"; if(m!=="dish") bottom-=bh+2;
   if(S.up){
     g.s=Math.min(AW*0.22,(ST.upTop-12-hb)/(RIM+0.2+1.13)); g.x=AX+AW/2; g.y=ST.upTop-12-1.13*g.s;
@@ -8117,11 +8128,11 @@ function stageText(live){
 /* 舞台の結果:数字(カウントアップ)+段階の名前+差の向き。最初に現れるときだけ数え、触れ直しは、今の数字から動く */
 let STC=null;
 function stageResult(el, u){
-  const show=syncPct(u,WINES[S.idx],S.answer.third==null), raw=curRaw(u), lv=syncLevel(show), dir=compare(u);
-  const say=`${lv.name}${pctOn()?" "+show+"%":""}。${dir.replace(/\|/g,"")}`;
+  const show=syncPct(u,WINES[S.idx],S.answer.third==null), raw=curRaw(u), lv=syncLevel(show), dir=compare(u), sw=sweetLine();
+  const say=`${lv.name}${pctOn()?" "+show+"%":""}。${dir.replace(/\|/g,"")}${sw?"。"+sw.replace(/\|/g,""):""}`;
   if(el.dataset.m!=="res" || !STC){
     el.dataset.m="res";
-    el.innerHTML=`<span class="sy-row">${resHTML(show)}</span><span class="sy-d">${brk(dir)}</span><span class="sy-m">${brk(lv.msg)}</span>`;
+    el.innerHTML=`<span class="sy-row">${resHTML(show)}</span><span class="sy-d">${brk(dir)}</span>${sw?`<span class="sy-d sy-s">${brk(sw)}</span>`:""}<span class="sy-m">${brk(lv.msg)}</span>`;
     const now=performance.now(), land=S.seq0+(reduceMotion?0:800);
     STC=cntNew(el,{kind:"stage", show, raw, say, startAt:Math.max(now,land)+(reduceMotion?0:CONFIG.match.delayMs)});
     return;
@@ -8129,6 +8140,10 @@ function stageResult(el, u){
   const nm=el.querySelector(".sy-n"), d=el.querySelector(".sy-d"), db=brk(dir);
   if(nm.textContent!==lv.name) nm.textContent=lv.name;
   if(d.innerHTML!==db) d.innerHTML=db;
+  { let se=el.querySelector(".sy-s");                       /* 甘さの1行:選んだら出す・外したら消す(空の行は残さない) */
+    if(!sw){ if(se){ se.remove(); if(STC) STC.subs=STC.subs.filter(x=>x!==se); } }
+    else{ if(!se){ se=document.createElement("span"); se.className="sy-d sy-s"+(d.classList.contains("on")?" on":""); d.after(se); if(STC) STC.subs.push(se); }
+      const sb=brk(sw); if(se.innerHTML!==sb) se.innerHTML=sb; } }
   { const mm=el.querySelector(".sy-m"), mb=brk(lv.msg); if(mm && mm.innerHTML!==mb) mm.innerHTML=mb; }
   cntTarget(STC, show, raw, say, S.touching);
 }
@@ -8248,7 +8263,7 @@ function infoVal(v){
 function renderSheet(){
   renderS4();
   const w=WINES[S.idx], p=S.judged?curSync():null, lv=p==null?null:syncLevel(p);
-  const c = (p!=null && !ONE) ? `<div class="kicker">${T.sync.label}</div>${vennSVG()}<h2 class="sy-big">${resHTML(p)}</h2><p class="sy-m">${brk(lv.msg)}</p><p class="sy-d2">${brk(compare())}</p>`
+  const c = (p!=null && !ONE) ? `<div class="kicker">${T.sync.label}</div>${vennSVG()}<h2 class="sy-big">${resHTML(p)}</h2><p class="sy-m">${brk(lv.msg)}</p><p class="sy-d2">${brk(compare())}</p>${sweetLine()?`<p class="sy-d2 sy-s">${brk(sweetLine())}</p>`:""}`
     : (S.reveal && CONFIG.pairing.showDesc===true) ? `<h2 class="cmt">${brk(T.shopOnly.split("|")[0])}</h2>` : "";
   const note=(w.ownerNote && CONFIG.pairing.showOwnerNote===true) ? `<div class="own${p!=null?"":" on"}"><div class="own-h">${esc(ownerFill(CONFIG.owner.noteLabel||"{owner}より"))}</div><p>${brk(w.ownerNote)}</p></div>` : "";
   $("sy5").innerHTML=c+note;

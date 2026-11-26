@@ -873,6 +873,23 @@ const SHOP_DATA = {
   /* シートの中に置くとき(暗い空きに置けないワイン):ワイン名・紹介文の右に浮かべる。文字は、左側を回り込む */
   .rmap.in{position:relative;left:auto;top:auto;float:right;margin:0 0 6px 12px;transform-origin:50% 40%}
   .rmin .sh-list{clear:both}
+  /* 料理の写真(このワインについて):縁をぼかした写真と、和紙の札。触れても反応しない */
+  #app .dphoto,#app .dphoto *{pointer-events:none}
+  .dphoto{position:absolute;left:0;top:0;opacity:0;transform:translateY(8px) scale(.96);transform-origin:50% 60%;transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.25,1)}
+  .dphoto.still{transform:none}
+  .dphoto.on{opacity:1;transform:none}
+  .dphoto.out{opacity:0;transition:opacity .3s ease,transform .3s ease}
+  .dp-fl{position:absolute;inset:0}
+  .dphoto.float .dp-fl{animation:rmFloat 6s ease-in-out infinite}
+  .dp-ph{position:absolute;overflow:hidden;
+    -webkit-mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,#000 60%,transparent 100%);mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,#000 60%,transparent 100%)}
+  .dp-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;filter:sepia(.14) saturate(1.06) brightness(.9) contrast(1.04)}
+  .dp-ph::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 80% 75% at 50% 45%,rgba(255,180,110,.10),rgba(255,180,110,0) 55%,rgba(11,8,9,.55) 100%)}
+  .dp-tag{position:absolute;left:0;top:0;filter:drop-shadow(0 2px 2.5px rgba(0,0,0,.55))}
+  .dp-tag .rm-tt{font-size:14px;padding:5px 11px 5px 12px}
+  .dp-in{position:relative;display:block;margin:8px 0 2px;opacity:0;transition:opacity .7s ease}
+  .dp-in.on{opacity:1}
+  .dp-in.hd{float:right;margin:2px 0 6px 12px}
   .rm-fl{position:absolute;inset:0}
   .rmap.float .rm-fl{animation:rmFloat 6s ease-in-out infinite}
   @keyframes rmFloat{0%,100%{transform:translateY(-1.75px)}50%{transform:translateY(1.75px)}}
@@ -1433,6 +1450,7 @@ const SHOP_DATA = {
   <button class="corner shopbtn off" id="tonBtn"><span>今夜の相性</span></button>
   <div class="sheet-wrap" id="sheetWrap" hidden>
     <div class="scrim" id="scrim"></div>
+    <div class="dphoto" id="dphoto" aria-hidden="true" hidden><div class="dp-fl"><div class="dp-ph"></div><span class="dp-tag"><span class="rm-tt"></span></span></div></div>
     <div class="rmap" id="rmap" aria-hidden="true" hidden><div class="rm-fl"><div class="rm-tl"><canvas class="rm-dye"></canvas><i class="rm-pin"><b></b></i><span class="rm-tag"><span class="rm-tt"></span></span></div></div></div>
     <section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="shName">
       <div class="grab" id="grab" aria-hidden="true"></div>
@@ -6296,8 +6314,15 @@ const CONFIG = {
     inSheet:true,              // 「このワインについて」に、「価格」の項目として出す(CONFIG.sheet.fields に "price" があるとき)
     labelWhenSingle:false,     // 価格が 1 つだけのとき、Glass / Bottle のラベルを付ける(両方あるときは、いつも付く)
     taxInList:false },         // 一覧でも、金額の右に「tax in」を添える
+  /* 「このワインについて」を開いたとき、料理の写真(dish.photo)を、地図と同じように、グラスのそばの暗い所に、小さく、ふわっと出す
+     delay:地図が出てから、さらに待つ時間(ミリ秒)/ size:写真のいちばん大きい幅・高さ(px。幅は、画面の幅の 28〜34% の中で決まります)
+     pos:"right"=地図の反対側(地図が左なら右・右なら左。地図が暗い所にないワインは、左)/ "auto"=グラスにいちばん近い空き
+     float:ゆっくり浮かぶ(地図と同じ動き)/ label:写真の下に、料理名の札(地図の州名の札と同じ見た目)
+     暗い所に入らないときは、シートの「合う料理」の行の中に、小さく出します。写真は、シートを開いたときに、はじめて読み込みます */
+  dishPhoto:{ enabled:true, auto:true, delay:400, size:{ w:120, h:150 }, pos:"right", float:true, label:true },
   sheet:{ showMeta:false,
-    fields:["variety","country","region","price"],   // 「このワインについて」に出す項目と、その順番(全ワイン同じ)。使える項目:variety 品種 / country 国 / region 産地 / producer 造り手 / vintage ヴィンテージ / abv アルコール度数 / serve 飲み頃の温度 / notes 味わい / price 価格。足すとすぐ出ます(例:["variety","country","region","abv"])。データが空の項目だけ、出しません。データは消えません
+    fields:["variety","country","region","price","dish"],   /* dish:合う料理(料理名 dish.name。空のワインは出しません)。*/
+      // 「このワインについて」に出す項目と、その順番(全ワイン同じ)。使える項目:variety 品種 / country 国 / region 産地 / producer 造り手 / vintage ヴィンテージ / abv アルコール度数 / serve 飲み頃の温度 / notes 味わい / price 価格。足すとすぐ出ます(例:["variety","country","region","abv"])。データが空の項目だけ、出しません。データは消えません
     showDesc:true,        // 「このワインについて」に、ワインの紹介文(desc)を出す(ワイン名の下、項目の上)
     showOwnerNote:true }, // 「このワインについて」に、店主さんの一言(ownerNote)を、紹介文の下に小さく出す
   pairing:{ showDesc:false,        // 料理の画面に、ワインの紹介文(desc)を出す(初期は出さない。ワインの紹介は「このワインについて」へ)
@@ -6419,7 +6444,8 @@ function priceList(w){
 }
 /* ワインの情報(任意)。空欄は出さない。数字は単位を付ける */
 const INFO_FIELDS = [["variety","品種"],["country","国"],["region","産地"],["producer","造り手"],["vintage","ヴィンテージ"],["abv","アルコール度数"],
-  ["serve","飲み頃の温度"],["notes","味わい"],["price","価格"]];
+  ["serve","飲み頃の温度"],["notes","味わい"],["price","価格"],["dish","合う料理"]];
+const infoHas=(w,k)=>k==="dish"?!!(w.dish&&w.dish.name):!!w.info[k];   /* 「合う料理」は、料理名(dish.name)があるときだけ */
 function normInfo(o){
   const out={}; if(!o||typeof o!=="object") return out;
   const unit={ abv:v=>v+"%", serve:v=>v+"℃" };
@@ -6433,8 +6459,8 @@ function normInfo(o){
 }
 const infoOn = k => k==="price" ? (priceCfg().enabled!==false&&priceCfg().inSheet!==false) : k==="producer" ? !!CONFIG.wineInfo.producer : true;   // 価格・造り手は、CONFIG.wineInfo で、出す・出さないを決める(初期は、どちらも出さない)
 const infoShown = w => { const f=(CONFIG.sheet||{}).fields;   // 「このワインについて」の項目は、CONFIG.sheet.fields の順に、全ワイン同じ並びで出す(データが空の項目だけ、出さない)
-  if(!Array.isArray(f)) return INFO_FIELDS.filter(([k])=>w.info[k] && infoOn(k));
-  return f.map(k=>INFO_FIELDS.find(([x])=>x===k)).filter(Boolean).filter(([k])=>w.info[k]&&(k!=="price"||infoOn("price"))); };   /* 価格は、CONFIG.price の enabled / inSheet で、出す・出さないを決める */
+  if(!Array.isArray(f)) return INFO_FIELDS.filter(([k])=>infoHas(w,k) && infoOn(k));
+  return f.map(k=>INFO_FIELDS.find(([x])=>x===k)).filter(Boolean).filter(([k])=>infoHas(w,k)&&(k!=="price"||infoOn("price"))); };   /* 価格は、CONFIG.price の enabled / inSheet で、出す・出さないを決める */
 function buildWines(list){
   const num=(v,lo,hi,d)=>{ v=+v; return isFinite(v) ? Math.min(hi,Math.max(lo,v)) : d; };
   const vec=(v,d)=>Array.isArray(v)&&v.length===3&&v.every(isFinite) ? v.map(Number) : d.slice();
@@ -7534,7 +7560,7 @@ function validateData(){
       if(w.bg!=null && !imgKey(w.bg)) W.push(`${p}: bg "${w.bg}" は IMAGES にありません(①の背景写真)`);
       if(w.info!=null){ if(typeof w.info!=="object") W.push(`${p}: info は { variety:"…", … } の形で書いてください`);
         else Object.keys(w.info).forEach(k=>{ if(!INFO_FIELDS.some(([f])=>f===k)) W.push(`${p}: info.${k} は使えない項目です(${INFO_FIELDS.map(f=>f[0]).join(" / ")})`);
-          else if(w.info[k]!=null && typeof w.info[k]!=="string" && typeof w.info[k]!=="number") W.push(`${p}: info.${k} は文字か数字で書いてください`); }); }
+          else if(w.info[k]!=null && typeof w.info[k]!=="string" && typeof w.info[k]!=="number" && !(k==="price"&&typeof w.info[k]==="object")) W.push(`${p}: info.${k} は文字か数字で書いてください`); }); }
       const d=w.dish;
       if(!d||typeof d!=="object") W.push(`${p}: dish(④の一品)がありません。④には料理が出ません`);
       else{
@@ -7995,6 +8021,93 @@ function rmPutIn(w,rg){
   el.classList.toggle("float",c.float!==false&&!still&&!low); el.classList.toggle("anim",!still); el.classList.toggle("wave",!still&&!low);
   kick.after(el); sb.classList.add("rmin"); RM.inEl=el; return true;
 }
+/* ---------- 料理の写真(このワインについて):地図と同じ、グラスのそばの暗い空きに、小さく置く ---------- */
+const DP={ tm:null, on:false, el:null, w:null, src:"" };
+const dpCfg=()=>{ const c=CONFIG.dishPhoto||{}; return Object.assign({enabled:true,auto:true,delay:400,pos:"right",float:true,label:true},c,{size:Object.assign({w:120,h:150},c.size)}); };
+/* 置いてはいけない所:地図と同じもの(文字・ボタン・画像)+ グラスの形(3D の輪郭を、細かく切った帯)+ 暗い所に出ている地図と札 */
+function dpObstacles(app){
+  const out=rmObstacles(app), add=(l,t,r,b,m)=>out.push({l:l-m,t:t-m,r:r+m,b:b+m});
+  if(GL_OK&&R3&&R3.project){
+    out.splice(out.length-6,4);                                   /* ボウルの粗い四角(rmObstacles の最後の 6 つのうち、はじめの 4 つ)を、輪郭の帯に置きかえる */
+    let prev=null;
+    for(let i=0;i<=26;i++){ const h=1.3*i/26, r=axBowlR(h)+0.015, a=R3.project(-r,1.10+h,0), b=R3.project(r,1.10+h,0), p=[Math.min(a[0],b[0])-app.left,Math.max(a[0],b[0])-app.left,(a[1]+b[1])/2-app.top];
+      if(prev) add(Math.min(p[0],prev[0]),Math.min(p[2],prev[2]),Math.max(p[1],prev[1]),Math.max(p[2],prev[2])+1,8); prev=p; }
+  }
+  if(RM.on&&RM.el&&RM.el.id==="rmap"){ [RM.el,RM.el.querySelector(".rm-tag")].forEach(e=>{ if(!e||e.hidden) return; const r=e.getBoundingClientRect(); if(r.width<1) return; add(r.left-app.left,r.top-app.top,r.right-app.left,r.bottom-app.top,10); }); }
+  return out;
+}
+function dpPlace(asp,tw,th){
+  const c=dpCfg(), app=$("app").getBoundingClientRect(), AWp=app.width;
+  const safeT=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--safe-t"))||0, MG=14;
+  const T0=safeT+MG, B0=$("sheetWrap").clientHeight-$("sheet").offsetHeight-10, L0=MG, R0=AWp-MG;
+  const obs=dpObstacles(app), free=(x,y,w,h)=>x>=L0&&y>=T0&&x+w<=R0&&y+h<=B0&&!obs.some(o=>x<o.r&&x+w>o.l&&y<o.b&&y+h>o.t);
+  const gx=P.glassT.x-app.left, gy=P.glassT.y-app.top-0.6*P.glassT.s;   /* ボウルの中ほど */
+  let mapSide=""; if(RM.on&&RM.el&&RM.el.id==="rmap"){ const r=RM.el.getBoundingClientRect(); mapSide=(r.left+r.right)/2-app.left<gx?"left":"right"; }
+  const pref=c.pos==="auto"?"":mapSide?(mapSide==="left"?"right":"left"):"left";
+  const sw=c.size||{}, pMax=Math.min(+sw.w||120,(+sw.h||150)*asp,AWp*0.34), pMin=Math.min(pMax,AWp*0.28);
+  for(let pw=Math.floor(pMax);pw>=pMin;pw-=4){
+    const ph=Math.round(pw/asp), bw=Math.ceil(Math.max(pw,tw)), bh=ph+(th?th-8:0); let best=null;
+    for(let y=T0;y+bh<=B0;y+=4) for(let x=L0;x+bw<=R0;x+=4){ if(!free(x,y,bw,bh)) continue;
+      const cx=x+bw/2, cy=y+bh/2, side=cx<gx?"left":"right", sc=(pref&&side!==pref?1e5:0)+Math.abs(cx-gx)+0.5*Math.abs(cy-gy);
+      if(!best||sc<best.sc) best={x,y,w:bw,h:bh,pw,ph,sc}; }
+    if(best) return best; }
+  return null;
+}
+function dpPut(src,instant){
+  const c=dpCfg(), w=DP.w, el=$("dphoto"), ph=el.querySelector(".dp-ph"), tag=el.querySelector(".dp-tag"), tt=tag.querySelector(".rm-tt");
+  const im=DP.img; if(!im) return false;
+  const asp=(im.naturalWidth&&im.naturalHeight)?im.naturalWidth/im.naturalHeight:4/3;
+  el.className="dphoto"; el.hidden=false; el.style.visibility="hidden";
+  const lab=c.label!==false&&w.dish.name; tag.hidden=!lab; if(lab) tt.textContent=w.dish.name;
+  const tw=lab?tag.offsetWidth:0, th=lab?tag.offsetHeight:0;
+  const L=dpPlace(asp,tw,th); el.style.visibility="";
+  if(!L){ el.hidden=true; return false; }
+  Object.assign(el.style,{left:L.x+"px",top:L.y+"px",width:L.w+"px",height:L.h+"px"});
+  Object.assign(ph.style,{left:Math.round((L.w-L.pw)/2)+"px",top:"0px",width:L.pw+"px",height:L.ph+"px"});
+  if(im.parentNode!==ph){ ph.textContent=""; ph.appendChild(im); }
+  if(lab) Object.assign(tag.style,{left:Math.round((L.w-tw)/2)+"px",top:(L.ph-8)+"px"});
+  const still=reduceMotion, low=rmLow();
+  el.classList.toggle("float",c.float!==false&&!still&&!low); el.classList.toggle("still",still);
+  DP.on=true; DP.el=el;
+  if(instant) el.classList.add("on"); else requestAnimationFrame(()=>requestAnimationFrame(()=>{ if(DP.on&&DP.el===el) el.classList.add("on"); }));
+  return true;
+}
+/* 暗い所に入らないとき:シートの「合う料理」の行の中に、小さく(料理名は、行に書いてあるので、札は付けない) */
+function dpPutIn(){
+  /* 置き場:シートの中に地図があるときは「合う料理」の行の中。ないときは、ワイン名の右に浮かべる(地図をシートの中に置くときと同じ場所。シートの高さが、なるべく変わらないように) */
+  const sb=$("shBody"), hasMap=!!sb.querySelector(".rmap.in"), dd=sb.querySelector(".sh-row.dish dd"), kick=sb.querySelector(".sh-kick");
+  if(!DP.img||!(hasMap?dd:kick)) return null;
+  const asp=(DP.img.naturalWidth&&DP.img.naturalHeight)?DP.img.naturalWidth/DP.img.naturalHeight:4/3, pw=Math.min(hasMap?96:112,Math.round(sb.clientWidth*0.32)), ph=Math.round(pw/asp);
+  const box=document.createElement("span"); box.className="dp-in"+(hasMap?"":" hd"); box.style.cssText="width:"+pw+"px;height:"+ph+"px";
+  const p=document.createElement("span"); p.className="dp-ph"; p.style.cssText="left:0;top:0;width:"+pw+"px;height:"+ph+"px"; p.appendChild(DP.img); box.appendChild(p);
+  if(hasMap) dd.appendChild(box); else { kick.after(box); sb.classList.add("rmin"); }
+  DP.box=box; return box;      /* 出すのは、決めた時刻(地図のあと)に、"on" を付けてから */
+}
+function dpShow(){
+  dpHide(true);
+  const c=dpCfg(), w=WINES[S.idx], src=w&&w.dish&&IMG(w.dish.photo); if(c.enabled===false||c.auto===false||!src) return;
+  const idx=S.idx, at=performance.now()+Math.max(0,+rmCfg().delay||0)+Math.max(0,+c.delay||0);
+  DP.w=w; DP.src=src; const im=new Image(); im.alt=""; im.decoding="async"; im.src=src; DP.img=im;          /* 写真は、ここで、はじめて読み込む */
+  const ok=()=>DP.img===im&&S.sheet&&S.idx===idx&&!$("sheet").classList.contains("list");
+  const ready=im.decode?im.decode().catch(()=>{}):Promise.resolve();
+  ready.then(()=>{ if(!ok()) return;
+    /* 地図が出る前に、暗い所に入る見込みがあるかを確かめる。見込みがなければ、すぐにシートの中に入れておく(あとから、シートの高さが変わらないように) */
+    let dark=false; try{ const asp=im.naturalWidth/im.naturalHeight||4/3, el=$("dphoto"), tag=el.querySelector(".dp-tag"), lab=c.label!==false&&w.dish.name;
+      el.className="dphoto"; el.hidden=false; el.style.visibility="hidden"; tag.hidden=!lab; if(lab) tag.querySelector(".rm-tt").textContent=w.dish.name;
+      dark=!!dpPlace(asp,lab?tag.offsetWidth:0,lab?tag.offsetHeight:0); el.hidden=true; el.style.visibility=""; }catch(e){ console.warn("dishPhoto",e); }
+    const inn=dark?null:dpPutIn(true);
+    DP.tm=setTimeout(()=>{ if(!ok()) return;
+      try{ if(inn){ DP.on=true; DP.el=inn; inn.classList.add("on"); return; } if(!dpPut(src,false)) { const b2=dpPutIn(true); if(b2){ DP.on=true; DP.el=b2; requestAnimationFrame(()=>requestAnimationFrame(()=>b2.classList.add("on"))); } } }catch(e){ console.warn("dishPhoto",e); } },Math.max(0,at-performance.now())); });
+}
+function dpHide(now){
+  clearTimeout(DP.tm); DP.tm=null; const was=DP.on, e=DP.el||DP.box; DP.box=null; DP.on=false; DP.el=null; DP.img=null;
+  const el=$("dphoto"); if(!el) return;
+  if(e&&e!==el&&e.isConnected){ e.classList.remove("on"); if(now) e.remove(); else setTimeout(()=>e.remove(),340); }   /* シートの中の写真も、消えたら外す */
+  const clear=()=>{ if(DP.on&&DP.el===el) return; el.hidden=true; el.className="dphoto"; el.querySelector(".dp-ph").textContent=""; };   /* 消えたら、写真(IMG)も外す */
+  if(now||!was||e!==el){ clear(); return; }
+  el.classList.remove("on"); el.classList.add("out"); setTimeout(clear,340);
+}
+addEventListener("resize",()=>{ if(DP.on&&S.sheet&&DP.el===$("dphoto")&&DP.img) try{ if(!dpPut(DP.src,true)) $("dphoto").hidden=true; }catch(_){} });
 function rmShow(){
   rmHide(true);
   const c=rmCfg(), w=WINES[S.idx], rg=rmRegion(w); if(c.enabled===false||c.auto===false||!rg) return;
@@ -8007,6 +8120,7 @@ function rmShow(){
     }catch(e){ console.warn("regionMap",e); } },Math.max(0,+c.delay||0)));
 }
 function rmHide(now){
+  dpHide(now);
   RM.tm.forEach(clearTimeout); RM.tm=[]; const was=RM.on; RM.on=false;
   const inn=RM.inEl; RM.inEl=null;
   if(inn&&inn.isConnected){ inn.classList.remove("on"); inn.classList.add("out"); }          // シートの中:フェードだけ(場所は、そのまま。シートを閉じると、まとめて消える)
@@ -8026,14 +8140,14 @@ function openSheet(){
     (w.meta&&(CONFIG.sheet||{}).showMeta===true?`<p class="sh-meta">${esc(w.meta)}</p>`:"")+
     ((CONFIG.sheet||{}).showDesc!==false&&w.desc?`<p class="sh-desc">${brk(w.desc)}</p>`:"")+
     ((CONFIG.sheet||{}).showOwnerNote!==false&&w.ownerNote?`<div class="sh-note"><div class="own-h">${esc(ownerFill(CONFIG.owner.noteLabel||"{owner}より"))}</div><p>${brk(w.ownerNote)}</p></div>`:"")+
-    `<dl class="sh-list">${rows.map(([k,l])=>`<div class="sh-row${k==="notes"?" wide":""}${k==="price"?" price":""}"><dt>${l}</dt><dd>${k==="price"?priceSheet(w.info.price):infoVal(w.info[k])}</dd></div>`).join("")}</dl>`+
+    `<dl class="sh-list">${rows.map(([k,l])=>`<div class="sh-row${k==="notes"?" wide":""}${k==="price"?" price":""}${k==="dish"?" dish":""}"><dt>${l}</dt><dd>${k==="price"?priceSheet(w.info.price):k==="dish"?infoVal(w.dish.name):infoVal(w.info[k])}</dd></div>`).join("")}</dl>`+
     (rmOn(w)?`<p class="sr-only">産地:${esc(rmRegion(w).name.replace(/\|/g,""))}</p>`:"");
   $("sheet").classList.remove("list"); $("shBody").scrollTop=0; S.sheet=true; sheetBack=document.activeElement;
   clearTimeout(CO.timer); coachHide(); corners(); ovSync();
   const wr=$("sheetWrap"); wr.hidden=false; $("sheet").style.transform="";
   requestAnimationFrame(()=>requestAnimationFrame(()=>wr.classList.add("open")));
   setTimeout(()=>$("shClose").focus({preventScroll:true}),60);
-  rmShow();
+  rmShow(); dpShow();
   logEv("info_open",{id:w.id});
 }
 function closeSheet(){

@@ -899,15 +899,15 @@ const SHOP_DATA = {
   @media (max-width:380px){ .sh-desc{letter-spacing:.02em} }   /* 狭い画面:「。」だけが、次の行に送られないように */
   /* 低い画面:シートの中を、さらに詰める */
   @media (max-height:700px){ .sheet:not(.list){max-height:calc(100% - var(--safe-t) - 54px)} .sh-row{padding:6px 0} .sh-row dd{line-height:1.45} .sh-desc{line-height:1.6;margin-bottom:8px} .sh-name{font-size:19px;line-height:1.4} .sh-name.nm{margin-bottom:6px} .sh-kick{margin-bottom:4px} .sh-dnote{line-height:1.5;margin-top:4px} .sh-why{margin-top:2px} .sh-body{padding-bottom:10px} }
-  .pl{display:flex;align-items:baseline;gap:8px;padding:2px 0;white-space:nowrap}
-  .pk{flex:none;min-width:3.4em;font-family:"Cormorant Garamond",serif;font-style:normal;font-size:16px;letter-spacing:.08em;color:var(--gold-text)}
+  .pl{display:block;padding:2px 0;white-space:nowrap}
+  .pr{display:flex;align-items:baseline;gap:8px;white-space:nowrap}
+  .pk{display:block;font-family:"Cormorant Garamond",serif;font-style:normal;font-size:12px;line-height:1.2;letter-spacing:.08em;color:var(--gold-text)}   /* 金額の上の小さなラベル(金額の左端に揃う) */
   .pn{font-weight:400;font-size:16px;letter-spacing:.04em;color:var(--ink)}
   .px{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:14px;letter-spacing:.04em;color:var(--gold)}
   /* 価格:ワイン一覧の各行の右端(右寄せ・小さく) */
   .lp{flex:none;display:flex;flex-direction:column;align-items:flex-end;margin-left:auto;padding-left:4px;line-height:1.25;white-space:nowrap}
   .lp .la{display:flex;align-items:baseline;gap:5px}
   .lp b{font-weight:400;font-size:16px;letter-spacing:.03em;color:var(--ink)}
-  .sh-row dt .dsub{display:block;margin-top:1px;font-family:"Cormorant Garamond",serif;font-size:16px;line-height:1.2;letter-spacing:.08em;color:var(--gold-text)}
   .lp small{font-family:"Cormorant Garamond",serif;font-size:16px;letter-spacing:.08em;color:var(--gold-text)}
   .lt{flex:1;min-width:0}
   .lt b{display:block;font-weight:400;font-size:16px;line-height:1.5;letter-spacing:.04em;word-break:keep-all;overflow-wrap:break-word;line-break:strict;text-wrap:balance}
@@ -6164,7 +6164,6 @@ const CONFIG = {
     labelWhenSingle:true,      // 価格が 1 つだけのとき、Glass / Bottle のラベルを付ける(両方あるときは、いつも付く)。当店はボトルのみなので true
     bottleLabel:"Bottle",      // 一覧の、金額の下のラベルの文言(「ボトル」にしたいときは、ここだけ直す)
     sheetLabel:"価格",         // 「このワインについて」の、価格の行の見出し
-    sheetSub:"Bottle",         // 見出しの下に添える、小さな英字(グラスもあるワインは、値の側に Glass / Bottle が付くので出さない)。"" で出さない
     taxInList:false },         // 一覧でも、金額の右に「tax in」を添える
   /* 「このワインについて」を開いたとき、料理の写真(dish.photo があるワインだけ)を、「価格」の行の右側の余白に、小さく、ふわっと出す
      delay:シートを開いてから、出るまでの時間(ミリ秒)/ size:写真の大きさ(幅・高さ。縦横比は保ち、文字に重なるときは、幅 80px まで縮めます。80px でも入らないときは、出しません)
@@ -6310,14 +6309,14 @@ const PRESETS = {
 const THIRD_KINDS = ["tannin","acid","sweet"], MAX_WINES = 30;
 /* お店のデータ → アプリが使う形。足りない・誤った値は、安全な値に直して続行する(指摘は validateData がコンソールに出す) */
 /* ---------- 価格(info.price = { glass, bottle }。税込・円) ---------- */
-const priceCfg=()=>Object.assign({enabled:true,currency:"¥",taxLabel:"tax in",inList:true,inSheet:true,labelWhenSingle:false,taxInList:false,bottleLabel:"Bottle",sheetLabel:"価格",sheetSub:"Bottle"},CONFIG.price||{});
+const priceCfg=()=>Object.assign({enabled:true,currency:"¥",taxLabel:"tax in",inList:true,inSheet:true,labelWhenSingle:false,taxInList:false,bottleLabel:"Bottle",sheetLabel:"価格"},CONFIG.price||{});
 const priceFmt=n=>String(priceCfg().currency==null?"¥":priceCfg().currency)+Math.round(n).toLocaleString("en-US");
 const hasPrice=w=>!!(w&&w.info&&w.info.price&&(w.info.price.glass!=null||w.info.price.bottle!=null));
 /* 「このワインについて」:両方あるとき 2 行(Glass / Bottle)、1 つだけのとき 1 行(ラベルなし。何の価格かは、行の見出し CONFIG.price.sheetLabel で伝える) */
 function priceSheet(p){
   const c=priceCfg(), both=p.glass!=null&&p.bottle!=null, tax=c.taxLabel?`<i class="px">${esc(c.taxLabel)}</i>`:"";
-  const line=(lab,n)=>`<span class="pl">${lab?`<em class="pk">${lab}</em>`:""}<b class="pn">${esc(priceFmt(n))}</b>${tax}</span>`;
-  const out=[]; if(p.glass!=null) out.push(line(both?"Glass":"",p.glass)); if(p.bottle!=null) out.push(line(both?"Bottle":"",p.bottle));
+  const line=(lab,n)=>`<span class="pl">${lab?`<em class="pk">${esc(lab)}</em>`:""}<span class="pr"><b class="pn">${esc(priceFmt(n))}</b>${tax}</span></span>`;   /* 上段:ラベル(小さな英字)/ 下段:金額+tax in(1行) */
+  const out=[]; if(p.glass!=null) out.push(line("Glass",p.glass)); if(p.bottle!=null) out.push(line(c.bottleLabel==null?"Bottle":c.bottleLabel,p.bottle));
   return out.join("");
 }
 /* 一覧:表示は 1 つだけ。グラスがあればグラス(下に Glass)、なければボトル(ラベルは labelWhenSingle が true のときだけ) */
@@ -7851,7 +7850,7 @@ function openSheet(){
     (w.meta&&(CONFIG.sheet||{}).showMeta===true?`<p class="sh-meta">${esc(w.meta)}</p>`:"")+
     ((CONFIG.sheet||{}).showDesc!==false&&w.desc?`<p class="sh-desc">${brk(w.desc)}</p>`:"")+
     ((CONFIG.sheet||{}).showOwnerNote!==false&&w.ownerNote?`<div class="sh-note"><div class="own-h">${esc(ownerFill(CONFIG.owner.noteLabel||"{owner}より"))}</div><p>${brk(w.ownerNote)}</p></div>`:"")+
-    `<dl class="sh-list">${rows.map(([k,l])=>`<div class="sh-row${k==="notes"?" wide":""}${k==="price"?" price":""}${k==="dish"?" dish":""}"><dt>${k==="price"?esc(priceCfg().sheetLabel||l)+((c=>c.sheetSub&&!(w.info.price.glass!=null&&w.info.price.bottle!=null)?`<small class="dsub">${esc(c.sheetSub)}</small>`:"")(priceCfg())):l}</dt><dd>${k==="price"?priceSheet(w.info.price):k==="dish"?infoVal(w.dish.name):infoVal(w.info[k])}</dd>${k==="dish"&&(CONFIG.sheet||{}).showWhy!==false&&w.dish.why?`<p class="sh-why">${esc(w.dish.why)}</p>`:""}${k==="dish"?dishNoteHtml(w):""}</div>`).join("")}</dl>`+
+    `<dl class="sh-list">${rows.map(([k,l])=>`<div class="sh-row${k==="notes"?" wide":""}${k==="price"?" price":""}${k==="dish"?" dish":""}"><dt>${k==="price"?esc(priceCfg().sheetLabel||l):l}</dt><dd>${k==="price"?priceSheet(w.info.price):k==="dish"?infoVal(w.dish.name):infoVal(w.info[k])}</dd>${k==="dish"&&(CONFIG.sheet||{}).showWhy!==false&&w.dish.why?`<p class="sh-why">${esc(w.dish.why)}</p>`:""}${k==="dish"?dishNoteHtml(w):""}</div>`).join("")}</dl>`+
     (rmOn(w)?`<p class="sr-only">産地:${esc(rmRegion(w).name.replace(/\|/g,""))}</p>`:"");
   $("sheet").classList.remove("list"); $("shBody").scrollTop=0; S.sheet=true; sheetBack=document.activeElement;
   clearTimeout(CO.timer); coachHide(); corners(); ovSync();
